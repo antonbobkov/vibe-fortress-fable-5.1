@@ -81,22 +81,39 @@ export function poolSweeps(samples: readonly SweepFigures[]): SweepFigures {
 }
 
 /**
- * Tolerances of the guarded pooled figures, wider than the spread of their pooled means: over every
- * pair of disjoint sets of four among ten shifts of master (0 to 450 ticks, 1,575 pairs), the two
- * means differed by at most 96.25 living and 26.25 deaths (testing-strategy.md § The twenty-seed sweep).
+ * Tolerances of the guarded pooled figures, about two and a half times the noise of a four-shift mean
+ * against the eight-shift best figures (T-662, under the fixed immigration rolls of T-652). Over 16
+ * degrees of freedom of single sweeps of one code (eight shifts of `f83df33f` and three four-shift sweeps
+ * of master's codes around it) one sweep's figures have a standard deviation of 52.3 living and 18.0
+ * deaths, so a four-shift mean differs from an eight-shift one by 32.0 living and 11.0 deaths (one
+ * standard deviation). The shared rolls halved the living's noise (92.4 a sweep on T-580's eight shifts);
+ * the deaths' are the timeline's raids and ambushes and did not narrow (16.8), so their tolerance is kept
+ * (testing-strategy.md § The twenty-seed sweep, reports/data/2026-11-22-t662-sweep-noise.md).
  */
-export const SWEEP_TOLERANCE = { living: 100, deaths: 30 };
+export const SWEEP_TOLERANCE = { living: 80, deaths: 30 };
+/**
+ * T-662: inside the bounds, a pooled figure this far from the best figures (about twice the noise of a
+ * four-shift mean against them) is worth tracing by seed before it is accepted; nearer is noise.
+ */
+export const SWEEP_TRACE = { living: 65, deaths: 22.5 };
 
-// T-580: shifts 0, 50, 100 and 150 of `2e36fb6d` (T-576's honest answer to ambushes and T-580's work
-// below ground or by the gate, with a watch and war dogs there, on master `0c2e88b7`); Measure run
-// 44200076970. The best figures are the means of its eight shifts (0 to 350, runs 44200076970 and
-// 44200119366, the second pooling 965 living and 126.75 deaths), as T-543 set them. The reference moved
-// by decision: the dwarves an honest answer costs are the game's (reports/data/2026-11-17-t580-ambush-surface-work.md).
-// The row before, of `d79a1f4f` (T-574, run 43869964046), was 20/7/0/1070.25/109.5, best 1075.25 and 100.
+// T-662: shifts 0, 50, 100 and 150 of master `f83df33f` (T-680), under T-652's fixed immigration rolls;
+// Measure run 45005780661. The best figures are the means of its eight shifts (0 to 350, runs
+// 45005780661 and 45005782771, the second pooling 1101.5 living and 106.75 deaths), as T-543 set them.
+// The row before, of `2e36fb6d` (T-580, run 44200076970), was 19.5/7/0/1010.5/137, best 987.75 and 131.88:
+// measured when each shift drew its own rolls, and 139 living and 29 deaths short of master's level since.
 /** The best accepted pooled figures, which set the bounds; a tolerated loss is not ratcheted down. */
-export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 987.75, deaths: 131.88 };
+export const SWEEP_MEASURED: Pick<SweepFigures, 'living' | 'deaths'> = { living: 1126.63, deaths: 102.5 };
 /** The latest accepted pooled row. */
-export const SWEEP_REFERENCE: SweepFigures = { alive: 19.5, grown: 7, hungry: 0, living: 1010.5, deaths: 137, extinct: 1.75, needDeaths: 6.25 };
+export const SWEEP_REFERENCE: SweepFigures = { alive: 20, grown: 7, hungry: 0, living: 1151.75, deaths: 98.25, extinct: 0, needDeaths: 0 };
+
+/** T-662: the guarded figures that are inside their bounds but further from the best figures than `SWEEP_TRACE`. */
+export function sweepTrace(pooled: SweepFigures, measured = SWEEP_MEASURED, trace = SWEEP_TRACE): string[] {
+  const out: string[] = [];
+  if (pooled.living <= round2(measured.living - trace.living)) out.push(`living at year 3 (${pooled.living}, ${round2(measured.living - pooled.living)} under the best)`);
+  if (pooled.deaths >= round2(measured.deaths + trace.deaths)) out.push(`dwarf deaths (${pooled.deaths}, ${round2(pooled.deaths - measured.deaths)} over the best)`);
+  return out;
+}
 
 export interface SweepCheck {
   readonly allowed: boolean;
