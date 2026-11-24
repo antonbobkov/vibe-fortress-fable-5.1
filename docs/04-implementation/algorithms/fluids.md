@@ -35,10 +35,17 @@ spread(T): given = 0; for k in 0..3: N = neighbor(T, (k + rot) & 3); if not pass
            else if level(N) == level(T) - 1 and level(N) >= 1 and eq[T] < FLUID_EQUALIZE_BUDGET and rng.chance(SPREAD_EQUALIZE_PERMILLE): move(T, N, 1); eq[T] += 1; given += 1
            if given == SPREAD_MAX_PER_STEP: break
            return given > 0
-pressure(T): A = above(T); if solidBottomed(A) or not passable(A, type) or level(A) == 7: return false
+pressure(T): A = above(T)
+           if not solidBottomed(A) and passable(A, type) and level(A) < 7:
+             if budget <= 0: return retry
+             H = bfsHead(T, targetZ = z(A)); if H == retry: return retry
+             if H != none: give(H, A); return true
+           S = first of the 4 cardinal neighbours of T in spread's rotating order with passable(S, type) and level(S) < 7
+           if S == none: return false
            if budget <= 0: return retry
-           H = bfsHead(T, targetZ = z(A)); if H == retry: return retry; if H == none: return false
-           if source(H): setLevel(A, level(A)+1) else move(H, A, 1); return true
+           H = bfsHead(T, targetZ = z(T)); if H == retry: return retry; if H == none: return false
+           give(H, S); return true
+give(H, X): if source(H): setLevel(X, level(X)+1) else move(H, X, 1)
 bfsHead(T, targetZ): queue=[T]; seen={T}; n=0
            while queue and n < PRESSURE_SEARCH_LIMIT:
              if budget <= 0: return retry

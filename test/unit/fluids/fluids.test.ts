@@ -267,3 +267,41 @@ describe('F-03 equalize budget', () => {
     expect(w.game.world.map.fluid).toEqual(loaded.world.map.fluid);
   });
 });
+
+describe('T-688 fluids: rule 3, the sideways push', () => {
+  it('a full tile under a full column pushes a unit from the column into a neighbour one below', () => {
+    const h = harness('push', 6, 4, 4);
+    const [a, b] = carve(h.map, 1, 1, 1, 2, 1, TileKind.Floor) as [number, number];
+    const [column] = carve(h.map, 1, 1, 2, 1, 1, TileKind.Open) as [number];
+    h.sim.pour(a, 7);
+    h.sim.pour(b, 6);
+    h.sim.pour(column, 7);
+    // Spread has spent its equalizing budget, so only pressure can fill `b`.
+    h.sim.eqCount[a] = K.FLUID_EQUALIZE_BUDGET;
+    h.steps(1);
+    expect([h.sim.level(a), h.sim.level(b), h.sim.level(column)]).toEqual([7, 7, 6]);
+    expect(h.sum([a, b, column])).toBe(20);
+  });
+
+  it('a level body with nothing higher does not push, and settles', () => {
+    const h = harness('no-push', 6, 4, 4);
+    const [a, b] = carve(h.map, 1, 1, 1, 2, 1, TileKind.Floor) as [number, number];
+    h.sim.pour(a, 7);
+    h.sim.pour(b, 6);
+    h.sim.eqCount[a] = K.FLUID_EQUALIZE_BUDGET;
+    h.steps(20);
+    expect([h.sim.level(a), h.sim.level(b)]).toEqual([7, 6]);
+    expect(h.sim.activeCount()).toBe(0);
+  });
+
+  it('a closed floodgate stops the push', () => {
+    const h = harness('push-gate', 6, 4, 4);
+    const [a, gate] = carve(h.map, 1, 1, 1, 2, 1, TileKind.Floor) as [number, number];
+    const [column] = carve(h.map, 1, 1, 2, 1, 1, TileKind.Open) as [number];
+    h.fluidBlocked.add(gate);
+    h.sim.pour(a, 7);
+    h.sim.pour(column, 7);
+    h.steps(20);
+    expect([h.sim.level(a), h.sim.level(gate), h.sim.level(column)]).toEqual([7, 0, 7]);
+  });
+});

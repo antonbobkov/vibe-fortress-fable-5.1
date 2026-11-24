@@ -475,26 +475,59 @@ export class FluidSim {
 
   /**
    * Rule 3, pressure: a full tile whose tile above can take fluid (D-088: through its open bottom)
-   * lifts one unit into it from the first full tile of its body that lies higher than it. Found by
-   * {@link bfsHead}; a source head gives the unit without losing it. When the step's search budget
-   * runs out the tile is tried again next step.
+   * lifts one unit into it from the first full tile of its body that lies higher than it; failing
+   * that, the first cardinal neighbour that can take fluid gets one unit from a tile of the body
+   * higher than `T` (the sideways push). Found by {@link bfsHead}; a source head gives the unit
+   * without losing it. When the step's search budget runs out the tile is tried again next step.
    */
   protected pressure(t: TileIndex, magma: boolean): 'moved' | 'idle' | 'retry' {
     const map = this.map;
     const a = map.above(t);
-    if (a < 0 || isSolidBottomed(map.kindAt(a)) || !this.passable(a, magma) || this.level(a) === FLUID_MAX_LEVEL) return 'idle';
+    if (a >= 0 && !isSolidBottomed(map.kindAt(a)) && this.passable(a, magma) && this.level(a) < FLUID_MAX_LEVEL) {
+      if (this.budget <= 0) return 'retry';
+      const h = this.bfsHead(t, map.zOf(a), magma);
+      if (h === RETRY) return 'retry';
+      if (h >= 0) {
+        this.pressed(h, a, magma);
+        return 'moved';
+      }
+    }
+    // Sideways: the first cardinal neighbour, in rule 2's rotating order, that can take fluid, from
+    // a head higher than `T` itself (a level tunnel fed by a full column fills to its end).
+    const side = this.sidewaysTarget(t, magma);
+    if (side < 0) return 'idle';
     if (this.budget <= 0) return 'retry';
-    const h = this.bfsHead(t, map.zOf(a), magma);
+    const h = this.bfsHead(t, map.zOf(t), magma);
     if (h === RETRY) return 'retry';
     if (h < 0) return 'idle';
+    this.pressed(h, side, magma);
+    return 'moved';
+  }
+
+  /** The first cardinal neighbour of `t`, in the rotating order, that is passable and below full; -1 if none. */
+  private sidewaysTarget(t: TileIndex, magma: boolean): TileIndex {
+    const map = this.map;
+    const x = map.xOf(t);
+    const y = map.yOf(t);
+    const z = map.zOf(t);
+    for (let k = 0; k < 4; k += 1) {
+      const d = CARDINALS[(k + this.rotation) & 3] as readonly [number, number];
+      if (!map.inBounds(x + d[0], y + d[1], z)) continue;
+      const n = map.index(x + d[0], y + d[1], z);
+      if (this.passable(n, magma) && this.level(n) < FLUID_MAX_LEVEL) return n;
+    }
+    return -1;
+  }
+
+  /** One unit from the head `h` into `to`; a source head gives it without losing it. */
+  private pressed(h: TileIndex, to: TileIndex, magma: boolean): void {
     if (this.isSource(h)) {
       this.sourcedUnits += 1;
-      this.setLevel(a, this.level(a) + 1, magma);
-      if (!magma) this.mud(a);
+      this.setLevel(to, this.level(to) + 1, magma);
+      if (!magma) this.mud(to);
     } else {
-      this.move(h, a, 1, magma);
+      this.move(h, to, 1, magma);
     }
-    return 'moved';
   }
 
   /**
