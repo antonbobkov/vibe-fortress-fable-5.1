@@ -485,9 +485,11 @@ const scenario: Scenario = {
     // Three laborers are wounded once the raid is over, so that the wounded survivors and the
     // kinds of care asserted below do not depend on which wounds the fight dealt and who lived
     // (a raider's arrow in the medic would end the run for want of a diagnosis):
-    // a serious cut to the torso (stop_bleeding, suture, clean_wound), a fracture of a leg
-    // (set_bone) and a serious burn (dress_burn).
-    const woundLaborer = (part: string, damageType: string, share: number): void => {
+    // a serious cut to the torso (stop_bleeding, suture), a fracture of a leg (set_bone), a serious
+    // burn (dress_burn) and a light cut to an arm that clots before its bandage (clean_wound: a
+    // bandaged wound and, since T-691, a light burn need no cleaning).
+    let clotted = 0;
+    const woundLaborer = (part: string, damageType: string, share: number): number => {
       const id = w.spawnDwarf({ at: w.index(cx, cy, Z) });
       staged.push(id);
       w.setLabor(id, 'medicine', false);
@@ -495,8 +497,14 @@ const scenario: Scenario = {
       const slot = BODY_SLOTS.indexOf(part as BodySlot);
       const amount = Math.floor((body.parts[slot]!.maxHp * share) / 100);
       w.game.world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part, damageType, amount });
+      return id;
     };
     while (w.tick < totalTicks || (w.tick < lastTick && undischarged().length > 0)) {
+      // The light cut clots at once (as a light cut does by itself after CLOT_TICKS), unbandaged.
+      if (clotted !== 0) {
+        const cut = w.game.world.entities.get(clotted, C.Body)?.parts.flatMap((p) => p.wounds).find((x) => x.type === 'cut' && x.bleed > 0 && !x.bandaged);
+        if (cut !== undefined) { cut.bleed = 0; clotted = 0; }
+      }
       if (w.tick >= raidEndTick) {
         for (const raider of [capId, warId]) {
           if (w.game.world.entities.alive(raider)) {
@@ -516,6 +524,7 @@ const scenario: Scenario = {
           woundLaborer('torso', 'edge', 30);
           woundLaborer('left_leg', 'blunt', 35);
           woundLaborer('right_arm', 'burn', 30);
+          clotted = woundLaborer('left_arm', 'edge', 10);
           console.log(`Squad relieved from duty at tick ${w.tick}`);
         }
       }

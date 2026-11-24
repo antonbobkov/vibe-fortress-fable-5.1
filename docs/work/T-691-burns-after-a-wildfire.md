@@ -1,6 +1,6 @@
 # T-691 — A wildfire's light burns go uncleaned and kill by infection
 
-**Source:** T-665 and T-668's report (`reports/data/2026-11-22-t665-t668-flux-and-peril2-steel.md`, on `t665-flux-steel`) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-665 and T-668's report (`reports/data/2026-11-22-t665-t668-flux-and-peril2-steel.md`, on `t665-flux-steel`) · **Size:** M · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -14,4 +14,8 @@ Spec: 17 § Infection, § Patients and hospitals; 05 § Fire; the three-year scr
 
 ## Done
 
-The infection deaths after a wildfire before and after, on the two traced timelines and the sweep.
+- [x] The rule (17 § Infection): a light burn is never rolled for infection and asks for no cleaning; it is still dressed (the dressing halves its pain). A serious or grievous burn, and every cut and puncture, as before. Water-only or batched cleaning was weighed and not taken: once a light burn cannot be infected, a mass of them waits on nothing. `test/unit/health/t691-light-burn-infection.test.ts`.
+- [x] The script: the carpenter keeps three buckets (`make_bucket` maintain 3, ahead of the barrels) for the medics' cleaning and the patients' water. Brightleaf and cloth unchanged: brightleaf now cures only cuts' and serious burns' infections, and the cloth needs a loom the script does not run.
+- [x] `hospital_run` got its `clean_wound` only from its light burns; it now stages a light cut that clots before its bandage.
+- [x] The infection deaths after a wildfire, before and after, on the two traced timelines (`t668_wound_probe`, days 215 to 340, on T-665's branch merged with this one; the probe counted no dwarf deaths, so it was replayed with the dead dwarves remembered): `three-years-p4-1` at shift 0, 126 light burns, 45 infections, **24** infection deaths → with the rule alone 141 light burns, 0 infections, **0** infection deaths (bled out 3 → 5, killed 1 → 1); `three-years-p2-1` at shift 0, 64 light burns, 30 infections, **16** → 59 light burns, 0 infections, **0** (bled out 5 → 6, killed 4 → 4). With the bucket order too both timelines part before the fire and no fire reaches the dwarves (0 burns, 0 infections; 2 and 0 dwarf deaths).
+- [x] The sweep (`45439262137`, at `ad5a8386`): pooled 1124 living, 112.5 deaths, verdict pass (master, T-686's `45413363867`: 1097, 122.75). Infection deaths over the 80 runs 30 → 14; bled out 322 → 271, killed 136 → 162, starvation 2 → 1.
