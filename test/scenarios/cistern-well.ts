@@ -17,17 +17,21 @@
  *   dug from `T`'s foot, stops a tile short of it until it stands, so the two sides never meet
  *   but through the shut floodgate and the stair is never a way into the halls.
  * - The cistern, a room at `L` under the hall; the well's column `W` is channelled from the hall's
- *   floor down to it, and an access stair `A` beside it joins the hall to the cistern while it is
- *   dug.
+ *   floor down to the level above it, which it leaves a ramp until the cistern is filled, and an
+ *   access stair `A` beside it joins the hall to the cistern while it is dug.
  *
- * Water lifts by pressure only into open tiles (04 § The four movement rules, rule 3), so a cistern
- * that is not full holds its water at `L`; a full one lifts it up the well's column into the hall,
- * and the shaft's full column carries its pressure through the tunnel, so an open floodgate fills
- * the cistern and floods the hall. The floodgate lets the brook in briefly and shuts it out, and
- * until the brook is let in it shuts the tunnel, open to the surface by `T`, out of the halls.
+ * Water lifts by pressure only into a tile with an open bottom (04 § The four movement rules, rule
+ * 3), and the shaft's full column carries its pressure through the tunnel, so an open floodgate
+ * fills the cistern to the brim and would lift the brook up an open well column into the hall. So
+ * the column's last level, a ramp and solid-bottomed, is channelled only once the cistern is full
+ * and the floodgate shut again: however long the gate stands open, the water stops under the ramp,
+ * and once it is shut the cistern's water stands level, with nothing higher in its body to lift it.
+ * Until the brook is let in the floodgate shuts the tunnel, open to the surface by `T`, out of the
+ * halls.
  */
 
 import { C, ItemFlag } from '@core/components';
+import { FLUID_MAX_LEVEL, TICKS_PER_DAY } from '@core/constants';
 import { TileKind } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Command } from '@core/commands';
@@ -287,12 +291,16 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   once('stair', true, () => send({ type: 'DesignateStairwell', x: plan.t.x, y: plan.t.y, zTop: plan.tops.t, zBottom: L, priority }));
   once('tunnel', steps.has('stair'), () => digAt(plan.tunnel.slice(0, plan.gate - 1)));
   once('near tile', built(work.floodgateId), () => digAt([plan.tunnel[plan.gate - 1] as Col]));
-  // The well's column, a level at a time; its last level once the cistern is dug under it.
+  // The well's column, a level at a time. Its last level stays a ramp, solid-bottomed, until the
+  // cistern is filled and the floodgate shut again: water lifts by pressure only into a tile with an
+  // open bottom (04 § The four movement rules, rule 3), so while the ramp stands an open floodgate
+  // fills the cistern and no more, however long it stands open; and once the gate is shut the
+  // cistern's water stands level, with nothing higher in its body to lift it up the opened column.
   once('well:0', kind(plan.w, H) === TileKind.Floor, () => channel(plan.w, H));
   for (let k = 1; k < CISTERN_DEPTH; k += 1) {
     const z = H - k;
     once(`well:${k}`, steps.has(`well:${k - 1}`) && kind(plan.w, z + 1) === TileKind.Open && kind(plan.w, z) === TileKind.Ramp &&
-      (k < CISTERN_DEPTH - 1 || dug(plan.w, L)), () => channel(plan.w, z));
+      (k < CISTERN_DEPTH - 1 || (dug(plan.w, L) && steps.has('filled'))), () => channel(plan.w, z));
   }
   once('floodgate', dug(plan.f, L), () => (work.floodgateId = place('floodgate_building', at(plan.f, L))) !== 0);
   once('lever', map.kindAt(work.leverTile) === TileKind.Floor, () => (work.leverId = place('lever', work.leverTile)) !== 0);
@@ -362,33 +370,41 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   once('breach', ready && steps.has('seal') && empty(flooded), () => channel(plan.p, bz + 1));
   // The brook stands at the floodgate: the cistern's side is forbidden to traffic in its turn (in
   // `three-years-p2-1` at shift 150 seven thirsty dwarves stood in it when the floodgate opened and
-  // drowned), and once nobody is in it the lever is pulled to open the floodgate and, as soon as
-  // that pull is done, pulled again to shut it: the gate follows each pull `LINK_DELAY_TICKS` later
-  // (14), so it stands open for the time between the two pulls. The shaft's full column carries
-  // its pressure through the tunnel (04 § The four movement rules, rule 3), so a floodgate left
-  // open until the water stands under the well fills the cistern and lifts the water up the well's
-  // column into the hall before the lever is reached again. Once both pulls have reached the gate,
-  // the lever is pulled open again while the gate is shut and the well's tile dry.
+  // drowned), and once nobody is in it the lever is pulled to open the floodgate. The shaft's full
+  // column carries its pressure through the tunnel (04 § The four movement rules, rule 3), so the
+  // cistern fills to the brim, but the well column's last level is still a ramp and the water lifts
+  // no higher: the gate may stand open as long as the dwarf who takes the shut pull walks. Once the
+  // water stands full under the well (or, a day open, stands there at all: a frozen brook sends no
+  // more), the lever is pulled to shut the floodgate. The gate follows each pull
+  // `LINK_DELAY_TICKS` later (14); it is read, not the count of pulls, so a pull whose job was lost
+  // is pulled again.
   const gate = work.floodgateId === 0 ? '' : b.mechanismState(work.floodgateId);
   if (gate === 'open' && work.openedAt < 0) work.openedAt = w.tick;
   if (gate === 'closed' && work.openedAt >= 0) { work.openTicks += w.tick - work.openedAt; work.openedAt = -1; work.shutAt = w.tick; }
   const filled = [...plan.cistern, ...plan.tunnel.slice(plan.gate + 1)].map((c) => at(c, L));
   const brookAtGate = linked && work.wellId === 0 && map.fluidLevelAt(at(plan.tunnel[plan.gate - 1] as Col, L)) > 0;
   once('cistern seal', brookAtGate, () => send({ type: 'SetTraffic', tiles: filled, mode: 'forbidden' }));
-  if (brookAtGate && steps.has('cistern seal')) {
+  const underWell = map.fluidLevelAt(at(plan.w, L));
+  if (brookAtGate && steps.has('cistern seal') && !steps.has('filled')) {
     const pending = w.readers.of<JobsReader>('11').list().some((job) => job.key.startsWith(`pull_lever:${work.leverId}:`));
     if (pending) work.pulledAt = -1;
     else if (work.pulledAt < 0) work.pulledAt = w.tick;
     const reached = work.pulledAt >= 0 && w.tick - work.pulledAt > LINK_DELAY_TICKS;
-    const openPulled = work.pulls % 2 === 1;
-    const dry = map.fluidLevelAt(at(plan.w, L)) === 0;
-    const pull = !pending && (openPulled || (reached && gate === 'closed' && dry && empty(filled)));
-    if (pull && send({ type: 'PullLever', leverId: work.leverId })) {
-      work.pulls += 1;
-      work.log.push(`pull ${openPulled ? 'shut' : 'open'} @${w.tick}`);
+    const columnShut = kind(plan.w, L + 1) === TileKind.Ramp;
+    const full = underWell >= FLUID_MAX_LEVEL || (underWell > 0 && work.openedAt >= 0 && w.tick - work.openedAt >= TICKS_PER_DAY);
+    if (reached && gate === 'closed' && work.pulls > 0 && underWell > 0) {
+      steps.add('filled');
+      work.log.push(`filled @${w.tick}`);
+    } else {
+      const open = reached && gate === 'closed' && columnShut && empty(filled);
+      const shut = reached && gate === 'open' && full;
+      if (!pending && (open || shut) && send({ type: 'PullLever', leverId: work.leverId })) {
+        work.pulls += 1;
+        work.log.push(`pull ${shut ? 'shut' : 'open'} @${w.tick}`);
+      }
     }
   }
-  // The well, over the water.
-  once('well', gate === 'closed' && work.pulls > 0 && work.pulls % 2 === 0 && map.fluidLevelAt(at(plan.w, L)) > 0 && kind(plan.w, H) === TileKind.Open,
+  // The well, over the water, once the column is open down to it.
+  once('well', steps.has('filled') && gate === 'closed' && underWell > 0 && kind(plan.w, H) === TileKind.Open && kind(plan.w, L + 1) === TileKind.Open,
     () => (work.wellId = place('well', at(plan.w, H))) !== 0);
 }

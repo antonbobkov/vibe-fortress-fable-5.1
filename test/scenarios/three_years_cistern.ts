@@ -25,10 +25,12 @@ import type { TestWorld } from './test-world';
 /**
  * The longest feed tunnel to a cistern under the hearth hall. A level tunnel fed by the shaft's full
  * column carries the water and its pressure to its end (04 § The four movement rules, rule 3),
- * so the length is the script's choice; with the floodgate left open the water would rise up the
- * well's column into the hall (a follow-up of T-688 weighs a longer tunnel).
+ * so the length is the script's choice: the twenty sweep maps' hearth halls lie 27 to 52 tiles of
+ * tunnel from the brook where a corner suits (T-694), and the hall is where a sheltering dwarf
+ * drinks at want. The well's column stays a ramp short of the cistern until it is filled
+ * (`cistern-well.ts`), so the gate's open time does not flood the hall.
  */
-export const HALL_TUNNEL_MAX = 20;
+export const HALL_TUNNEL_MAX = 60;
 /** The farthest from the brook a well room is dug, and the longest feed tunnel to it. */
 export const ROOM_TUNNEL_MAX = 10;
 /**
