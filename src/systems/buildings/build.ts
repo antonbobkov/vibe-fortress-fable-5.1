@@ -1112,7 +1112,10 @@ export class BuildingStore {
   private dismantle(id: EntityId): void {
     const b = this.get(id) as Building;
     const at = this.anchorOf(b);
-    const inputs = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
+    const all = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
+    // 14 § Placement: a trap consumed only its mechanism, its first unit; its load returns through
+    // 19's `BuildingRemoved`. A trap built in an older save kept its load here too: not returned twice.
+    const inputs = this.row(b.type).tags.some((tag) => tag.startsWith('trap:')) ? all.slice(0, 1) : all;
     const spawn = this.host.services.spawn;
     for (const u of inputs) {
       const t = this.itemIndex.get(u.type);

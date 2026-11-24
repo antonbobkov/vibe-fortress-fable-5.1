@@ -90,4 +90,22 @@ describe('T-697 a trap taken apart gives back its load once', () => {
     expect(units(w, stone)).toBe(before + 2);
     expect(defense(w).trapAt(tile)).toBe(0);
   });
+
+  it('a trap from an older save, its load kept among its inputs, still gives it back once', () => {
+    const w = new TestWorld({ seed: 't697-old-save', world: 'flat-test', embark: 'default' });
+    const mechanism = bld(w).inputTypes('mechanism');
+    const weapons = bld(w).inputTypes('weapon');
+    const tile = w.index(50, 16, Z);
+    const trap = w.build('weapon_trap', tile, 'iron');
+    w.step(1);
+    const b = w.game.world.entities.get(trap, C.Building)!;
+    const inputs = b.settings['inputs'] as { type: string; material: number }[];
+    const loaded = (b.settings['trapLoaded'] as number[])[0] as number;
+    const type = w.game.registry.table<{ id: string }>('items').byIndex(w.game.world.entities.get(loaded, C.Item)!.type)!.id;
+    w.game.world.entities.add(trap, C.Building, { ...b, settings: { ...b.settings, inputs: [...inputs, { type, material: inputs[0]!.material }] } });
+    const before = units(w, weapons);
+    takeApart(w, trap);
+    expect([unitsAt(w, tile, mechanism), unitsAt(w, tile, weapons)]).toEqual([1, 1]);
+    expect(units(w, weapons)).toBe(before);
+  });
 });
