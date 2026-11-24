@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-689 | [A channeller left standing in the air](work/T-689-channeller-left-in-the-air.md) | [T-663](archive/tasks/T-663-water-inside-the-gate.md) | — | open |
 | T-693 | [A wildfire's light burns ask for a cloth each](work/T-693-light-burns-dressed-with-cloth.md) | [T-691](archive/tasks/T-691-burns-after-a-wildfire.md) | — | open |
 | T-694 | [The three-year cistern under the hearth hall](work/T-694-cistern-under-the-hall.md) | [T-688](archive/tasks/T-688-pressure-through-a-level-tunnel.md) | — | open |
 | T-695 | [A ruin's traps still stand, some still armed](work/T-695-ruin-traps-armed.md) | [T-692](archive/tasks/T-692-ruin-workshop-wrecks.md) | — | open |
