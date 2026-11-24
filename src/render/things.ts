@@ -24,6 +24,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
+import type { DefenseReader } from '@systems/defense';
 import type { ItemsReader } from '@systems/items';
 import type { Cell } from './cellbuffer';
 import { ZONE_SELECTED_ALPHA_FACTOR, ZONE_TINT_ALPHA, ZONE_TINT_MIN_LUMA } from './constants';
@@ -210,6 +211,9 @@ export class ThingLayers {
     } else if (row.category === 'trap') {
       glyph = '^';
       fg = col['trap'] as Rgb;
+      // A ruin's old trap that no one owns (19 § Trap targeting) shows red while it is armed: it springs on your dwarves too.
+      const defense = readers.has('19') ? readers.of<DefenseReader>('19') : null;
+      if (defense !== null && defense.trapMode(id) === 'anyone' && defense.trapState(id) === 'armed') fg = col['locked'] as Rgb;
     } else if (row.tags.includes('hearth')) {
       fg = col['hearth'] as Rgb;
       if (!planned && !ruined) return { glyph: this.glyphOf(glyph), fg, bg: this.pulse === 1 ? parseHex(HEARTH_PULSE_HEX) : (col['black'] as Rgb) };

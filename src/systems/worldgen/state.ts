@@ -82,14 +82,18 @@ export interface RuinRecord {
   readonly items: readonly RuinItem[];
   /** The furniture still standing (T-690); absent in a ruin told before it: none. */
   readonly buildings?: readonly RuinBuilding[];
-  /** The workshops, hearth, depots and wells left as wrecks (T-692); absent in a ruin told before it: none. */
+  /**
+   * The workshops, hearth, depots, wells, mechanisms and traps left as wrecks (T-692, T-695), and the
+   * traps still armed (T-695); absent in a ruin told before it: none.
+   */
   readonly wrecks?: readonly RuinWreck[];
 }
 
 /**
  * A building an ended fortress left as a wreck on its site (`02` § Ruins, T-692): the building type
  * at its origin tile and orientation, its material id, and the inputs it still holds, by item type
- * and material ids in the order they were consumed.
+ * and material ids in the order they were consumed. A drawbridge keeps its size (T-695), and a trap
+ * still armed the items it is loaded with, weathered (`loaded`, T-695): it stands armed, not a wreck.
  */
 export interface RuinWreck {
   readonly tile: number;
@@ -98,6 +102,18 @@ export interface RuinWreck {
   readonly orientation: number;
   readonly material: string;
   readonly inputs: readonly { readonly type: string; readonly material: string; readonly count: number }[];
+  /** A variable footprint's width and height, unturned (a drawbridge); absent: the type's own. */
+  readonly width?: number;
+  readonly height?: number;
+  /** A trap still armed: its loaded items' type and material ids and quality; absent: a wreck. */
+  readonly loaded?: readonly RuinLoaded[];
+}
+
+/** An item a ruin's armed trap is still loaded with (`02` § Ruins, T-695): a weapon, a stone or a cage. */
+export interface RuinLoaded {
+  readonly type: string;
+  readonly material: string;
+  readonly quality: number;
 }
 
 /**

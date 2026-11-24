@@ -656,3 +656,28 @@ describe('T-692 a ruin\'s wreck in the building panel', () => {
     expect(f.sent).toEqual([{ type: 'DeconstructBuilding', buildingId: wreck }]);
   });
 });
+
+describe('T-695 a ruin\'s armed old trap in the building panel', () => {
+  it('T-695 an old trap says it springs on anyone; choosing a mode makes it the fortress\'s, and it takes apart', () => {
+    const f = setup('t695-old-trap-panel');
+    const store = (f.w.game.world.scheduler.inOrder().find((s) => s instanceof BuildingsSystem) as BuildingsSystem).buildings;
+    const iron = f.w.game.registry.table('materials').index('iron');
+    const trap = store.placeWreck({ type: 'weapon_trap', tile: f.w.index(30, 30, z), orientation: 0, material: iron, inputs: [], loaded: [{ type: 'bow', material: iron, quality: 0 }] });
+    expect(trap).not.toBe(0);
+    f.w.step(1);
+    open(f, trap);
+    const text = panel(f).text;
+    expect(text).toContain('Iron · built');
+    expect(text).toContain('Trap: armed');
+    expect(text).toContain('An old trap of the fortress that stood');
+    // Neither mode is marked: no one has chosen one.
+    expect(text).toContain('○ Enemies only');
+    expect(text).toContain('○ Everyone');
+    expect(text).toContain('take apart');
+    enterOn(f, 'mode:enemies');
+    expect(f.sent).toEqual([{ type: 'SetTrapMode', trapId: trap, mode: 'enemies' }]);
+    f.w.step(1);
+    expect(panel(f).text).toContain('• Enemies only');
+    expect(panel(f).text).not.toContain('An old trap');
+  });
+});

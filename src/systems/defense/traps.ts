@@ -12,7 +12,9 @@ interface PlanRow { id: string; parts: Record<string, { hit: number; hpFactor: n
 export function trapTargets(ctx: TickContext, creatureId: EntityId, mode: TrapRecord['mode']): boolean {
   const creature = ctx.world.entities.get(creatureId, C.Creature);
   if (creature === undefined) return false;
-  if (mode === 'all') return ctx.world.entities.get(creatureId, C.Tame) === undefined;
+  // A ruin's old trap is no one's: it springs on every creature, the fortress's tame animals too.
+  if (mode === 'anyone') return true;
+  if (mode === 'all')return ctx.world.entities.get(creatureId, C.Tame) === undefined;
   return creature.faction === 'wild' || creature.faction === 'deep' || creature.faction.startsWith('hostile:') ||
     ctx.world.entities.get(creatureId, C.Hostile)?.stealthed === true;
 }

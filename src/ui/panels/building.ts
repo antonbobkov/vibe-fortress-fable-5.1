@@ -575,6 +575,8 @@ export class BuildingPanel {
       if (trap) {
         const status = this.defense(ctx)?.trapState(this.id) ?? null;
         if (status !== null) out.push({ id: 'trap', text: s.get('ui.building.trap_state', { state: s.get(`ui.building.state.${status}`) }), tone: status === 'armed' ? 'good' : 'alert' });
+        // 19 § Trap targeting: a ruin's old trap is no one's until a mode is set, and springs on anyone.
+        if (current === 'anyone') out.push({ id: 'old_trap', text: s.get('ui.building.old_trap'), tone: 'alert', help: s.get('ui.building.old_trap_help') });
       } else if (tags.includes('door') && current === 'locked' && reader.doorOpen(this.id)) {
         out.push({ id: 'lock_wait', text: s.get('ui.building.lock_waiting'), tone: 'dim' });
       } else if (tags.includes('door') && current === 'lock_on_alert') {
