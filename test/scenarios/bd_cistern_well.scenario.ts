@@ -11,7 +11,8 @@
  * game's own.
  *
  * Asserted: the well is built and works; the floodgate is shut again and no water ever stands on
- * the hall's level; and under the hearth alert, with every drink forbidden, the dwarves sheltering
+ * the hall's level (the shaft's pressure carries through the tunnel, so the lever is pulled open
+ * and at once pulled shut: left open, the cistern would fill and lift the brook into the hall); and under the hearth alert, with every drink forbidden, the dwarves sheltering
  * in the hall drink at the well (a want-level thirst is served there because the well stands in
  * the hall, 10 § Behavior selection step 2), as does one at critical thirst, and none of them goes
  * out to the brook.

@@ -44,6 +44,7 @@ Malformed commands for an unknown huntable species, null work order or patch, an
 | `fl_conservation` | a closed basin with 700 units, no sources, 5,000 ticks | Σ levels = 700 at every sampled tick |
 | `fl_spread` | 7 units in one tile of a 5×5 sealed floor | after 200 steps all 25 tiles at level 0–1 with Σ = 7; every tile settled |
 | `fl_pressure` | a U-tube: source column 5 high, connected at the bottom to an empty column | the empty column fills to the source's level − 1 within 2,000 ticks; never above |
+| `fl_tunnel_pressure` | a source over a shaft seven deep onto a 1-wide level tunnel 40 tiles long, ending under a second shaft twelve high | every tunnel tile full and the second shaft full to the source's level − 1 within 2,000 ticks; never above; settled |
 | `fl_waterfall_mist` | a channel dropping 3 levels onto a floor, source-fed | `MistProduced`; `isMisty` true on the 3×3 landing area; mud set on the landing floor |
 | `fl_obsidian` | a magma tile at level 7 with water poured on | tile becomes `Wall` `obsidian`; `ObsidianFormed` |
 | `fl_freeze` | outdoor pond, temper 4 region, winter | pond tiles frozen (`ice`) within a day of `surfaceTempC < FREEZE_C`; thawed in spring |

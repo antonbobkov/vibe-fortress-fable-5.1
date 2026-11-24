@@ -21,9 +21,10 @@
  *   dug.
  *
  * Water lifts by pressure only into open tiles (04 § The four movement rules, rule 3), so a cistern
- * that is not full holds its water at `L`; a full one would lift it up the well's column into the
- * hall. The floodgate shuts the brook out once the cistern has water, and until the brook is let in
- * it shuts the tunnel, open to the surface by `T`, out of the halls.
+ * that is not full holds its water at `L`; a full one lifts it up the well's column into the hall,
+ * and the shaft's full column carries its pressure through the tunnel, so an open floodgate fills
+ * the cistern and floods the hall. The floodgate lets the brook in briefly and shuts it out, and
+ * until the brook is let in it shuts the tunnel, open to the surface by `T`, out of the halls.
  */
 
 import { C, ItemFlag } from '@core/components';
@@ -32,6 +33,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Command } from '@core/commands';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { JobsReader } from '@systems/jobs';
+import { LINK_DELAY_TICKS } from '@systems/buildings/constants';
 import type { TestWorld } from './test-world';
 
 /** Levels between the hall's floor and the cistern: the well's column is open on the two between. */
@@ -210,6 +212,8 @@ export interface CisternWork {
   wellId: EntityId;
   /** The lever pulls so far: an odd count has asked for the floodgate open. */
   pulls: number;
+  /** The tick the last pull was seen done (no pull job left), or -1 while one is pending. */
+  pulledAt: number;
   /** The tick the floodgate was seen open, and the ticks it has stood open. */
   openedAt: number;
   openTicks: number;
@@ -221,7 +225,7 @@ export interface CisternWork {
 }
 
 export function cisternWork(plan: CisternPlan, leverTile: TileIndex, priority: number, room: readonly TileIndex[] = []): CisternWork {
-  return { plan, leverTile, priority, room, steps: new Set(), floodgateId: 0, leverId: 0, wellId: 0, pulls: 0, openedAt: -1, openTicks: 0, shutAt: -1, hallWater: 0, log: [] };
+  return { plan, leverTile, priority, room, steps: new Set(), floodgateId: 0, leverId: 0, wellId: 0, pulls: 0, pulledAt: -1, openedAt: -1, openTicks: 0, shutAt: -1, hallWater: 0, log: [] };
 }
 
 /** The water in the cistern, behind the floodgate. */
@@ -358,8 +362,13 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   once('breach', ready && steps.has('seal') && empty(flooded), () => channel(plan.p, bz + 1));
   // The brook stands at the floodgate: the cistern's side is forbidden to traffic in its turn (in
   // `three-years-p2-1` at shift 150 seven thirsty dwarves stood in it when the floodgate opened and
-  // drowned), and once nobody is in it the floodgate is opened, and shut once the water stands
-  // under the well.
+  // drowned), and once nobody is in it the lever is pulled to open the floodgate and, as soon as
+  // that pull is done, pulled again to shut it: the gate follows each pull `LINK_DELAY_TICKS` later
+  // (14), so it stands open for the time between the two pulls. The shaft's full column carries
+  // its pressure through the tunnel (04 § The four movement rules, rule 3), so a floodgate left
+  // open until the water stands under the well fills the cistern and lifts the water up the well's
+  // column into the hall before the lever is reached again. Once both pulls have reached the gate,
+  // the lever is pulled open again while the gate is shut and the well's tile dry.
   const gate = work.floodgateId === 0 ? '' : b.mechanismState(work.floodgateId);
   if (gate === 'open' && work.openedAt < 0) work.openedAt = w.tick;
   if (gate === 'closed' && work.openedAt >= 0) { work.openTicks += w.tick - work.openedAt; work.openedAt = -1; work.shutAt = w.tick; }
@@ -367,11 +376,16 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   const brookAtGate = linked && work.wellId === 0 && map.fluidLevelAt(at(plan.tunnel[plan.gate - 1] as Col, L)) > 0;
   once('cistern seal', brookAtGate, () => send({ type: 'SetTraffic', tiles: filled, mode: 'forbidden' }));
   if (brookAtGate && steps.has('cistern seal')) {
-    const asked = work.pulls % 2 === 1 ? 'open' : 'closed';
+    const pending = w.readers.of<JobsReader>('11').list().some((job) => job.key.startsWith(`pull_lever:${work.leverId}:`));
+    if (pending) work.pulledAt = -1;
+    else if (work.pulledAt < 0) work.pulledAt = w.tick;
+    const reached = work.pulledAt >= 0 && w.tick - work.pulledAt > LINK_DELAY_TICKS;
+    const openPulled = work.pulls % 2 === 1;
     const dry = map.fluidLevelAt(at(plan.w, L)) === 0;
-    if (gate === asked && (asked === 'open') !== dry && (asked === 'open' || empty(filled)) && send({ type: 'PullLever', leverId: work.leverId })) {
+    const pull = !pending && (openPulled || (reached && gate === 'closed' && dry && empty(filled)));
+    if (pull && send({ type: 'PullLever', leverId: work.leverId })) {
       work.pulls += 1;
-      work.log.push(`pull ${asked === 'open' ? 'shut' : 'open'} @${w.tick}`);
+      work.log.push(`pull ${openPulled ? 'shut' : 'open'} @${w.tick}`);
     }
   }
   // The well, over the water.
