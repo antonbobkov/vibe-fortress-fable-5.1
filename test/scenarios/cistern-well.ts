@@ -362,7 +362,6 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   const flooded = plan.tunnel.slice(0, plan.gate).map((c) => at(c, L));
   for (let z = L; z < plan.tops.t; z += 1) flooded.push(at(plan.t, z));
   const ready = linked && bankReady && kind(plan.s, L + 1) === TileKind.Open && plan.tunnel.every((c) => dug(c, L));
-  once('seal', ready, () => send({ type: 'SetTraffic', tiles: flooded, mode: 'forbidden' }));
   const empty = (tileList: readonly TileIndex[]): boolean => {
     const ent = w.game.world.entities;
     const tiles = new Set(tileList);
@@ -371,6 +370,9 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
       return p !== undefined && ent.alive(id) && tiles.has(w.index(p.x, p.y, p.z));
     });
   };
+  // Forbidden only once nobody is in them: forbidden traffic blocks a dwarf already inside from
+  // walking out (22), and in `three-years-p0-3` a miner shut in the tunnel starved there.
+  once('seal', ready && empty(flooded), () => send({ type: 'SetTraffic', tiles: flooded, mode: 'forbidden' }));
   once('breach', ready && steps.has('seal') && empty(flooded), () => channel(plan.p, bz + 1));
   // The brook stands at the floodgate: the cistern's side is forbidden to traffic in its turn (in
   // `three-years-p2-1` at shift 150 seven thirsty dwarves stood in it when the floodgate opened and
@@ -387,7 +389,7 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   if (gate === 'closed' && work.openedAt >= 0) { work.openTicks += w.tick - work.openedAt; work.openedAt = -1; work.shutAt = w.tick; }
   const filled = [...plan.cistern, ...plan.tunnel.slice(plan.gate + 1)].map((c) => at(c, L));
   const brookAtGate = linked && work.wellId === 0 && map.fluidLevelAt(at(plan.tunnel[plan.gate - 1] as Col, L)) > 0;
-  once('cistern seal', brookAtGate, () => send({ type: 'SetTraffic', tiles: filled, mode: 'forbidden' }));
+  once('cistern seal', brookAtGate && empty(filled), () => send({ type: 'SetTraffic', tiles: filled, mode: 'forbidden' }));
   const underWell = map.fluidLevelAt(at(plan.w, L));
   if (brookAtGate && steps.has('cistern seal') && !steps.has('filled')) {
     const pending = w.readers.of<JobsReader>('11').list().some((job) => job.key.startsWith(`pull_lever:${work.leverId}:`));
