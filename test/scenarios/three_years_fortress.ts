@@ -881,6 +881,9 @@ export interface StandingOrder { readonly recipeId: string; readonly threshold: 
 export const CARPENTER_ORDERS: readonly StandingOrder[] = [
   { recipeId: 'make_chair_wood', threshold: 2 },
   { recipeId: 'make_table_wood', threshold: 2 },
+  // T-691: buckets for the medics' cleaning and the patients' water, a log each, ahead of the barrels
+  // (whose order is seldom met): `three-years-p2-1` at shift 0 had none when a wildfire burned its dwarves.
+  { recipeId: 'make_bucket', threshold: 3 },
   { recipeId: 'make_barrel', threshold: 20 },
 ];
 
