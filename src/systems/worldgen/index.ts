@@ -27,6 +27,8 @@ export type {
   RegionRiver,
   RiverClass,
   RiverRecord,
+  RuinItem,
+  RuinRecord,
   WorldMap,
   WorldgenState,
 } from './state';

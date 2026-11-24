@@ -55,7 +55,7 @@ import { TradeSystem } from '@systems/trade';
 import { ImmigrationSystem } from '@systems/immigration';
 import { LegendSystem } from '@systems/legend';
 import { MagicSystem } from '@systems/magic';
-import { generate as generateWorld, type RegionRecord, type WorldMap } from '@systems/worldgen';
+import { generate as generateWorld, type RegionRecord, type RuinRecord, type WorldMap } from '@systems/worldgen';
 import { WORLD_SIZE_STANDARD } from '@core/constants';
 
 /** `acceptance-tests.md`: the `flat-test` surface. */
@@ -279,6 +279,8 @@ export interface HeadlessOptions {
   readonly embark?: HeadlessEmbark;
   /** The spec of the local map; the flat-test spec when omitted. */
   readonly spec?: LocalMapSpec;
+  /** The ruins on the site of a `'local'` map, in the order the fortresses ended (02 § Ruins, T-686). */
+  readonly ruins?: readonly RuinRecord[];
   /** A loaded game labels its map once its buildings are restored (T-M2-11). */
   readonly deferLabels?: boolean;
   /** Bootstrap a saved world without initial populations or their map side effects. */
@@ -320,7 +322,7 @@ export class HeadlessGame {
     } else if (options.world === 'local') {
       if (options.spec === undefined) throw new Error("headless: world 'local' needs a spec");
       map = new Map3D();
-      local = generateLocal(options.spec, map, this.registry);
+      local = generateLocal(options.spec, map, this.registry, options.ruins === undefined ? {} : { ruins: options.ruins });
     } else {
       map = buildFlatTestMap(this.registry);
     }

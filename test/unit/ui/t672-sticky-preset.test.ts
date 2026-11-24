@@ -105,7 +105,9 @@ describe('T-672: abandon the fortress for a new embark on the same world', () =>
 
     const map = g.topScreen as WorldMapScreen;
     expect(map.world.seed).toBe(world.seed);
-    expect(map.world).toBe(world);
+    // The same world, with the abandoned fortress's ruin on its site (T-686).
+    expect(map.world.regions).toBe(world.regions);
+    expect(map.world.ruins?.map((ruin) => [ruin.fortress, ruin.regionId])).toEqual([[name, site!.id]]);
     expect(map.regionId).toBe(site!.id);
     expect(map.regionLines(60).join('\n')).toContain(`Ruins of ${name}: Abandoned in Year 1 by 7 dwarves.`);
     // A new embark on the same world: the site choice, then the embark screen.

@@ -14,5 +14,8 @@ Also: the end texts read the fortress's cached population, which is 0 before the
 
 ## Done
 
-- [ ] Tests: an abandoned site's next embark has the old fortress's dug tiles and some of its items; a site with no ended fortress is unchanged (world hashes equal).
-- [ ] Tests: a fortress retired on its embark tick names its seven dwarves.
+- [x] Tests: an abandoned site's next embark has the old fortress's dug tiles and some of its items; a site with no ended fortress is unchanged (world hashes equal) (`test/unit/embark/t686-site-ruins.test.ts`, which also covers fallen constructions, a second ruin over the first, determinism and the wagon's load leaving with the expedition; `t672-sticky-preset.test.ts` checks the abandoned world carries the ruin).
+- [x] Tests: a fortress retired on its embark tick names its seven dwarves (same file): the end texts and peak population count the living dwarves through 10's reader.
+- [x] Spec: 02 § Ruins (the record, what it keeps, the balance, and why the civilizations' standing does not carry over), 02 § Local map specification and § Arrival, 03 § Local map generation stage 10b, 01 § State (`WorldMap.ruins`), `schemas/system-state.md`, `save-format.md` § Optional fields, 24 § The legend record and § Game menu, `ui-screens/menus-and-world.md` § A new embark on the same world.
+- [x] The record lives in the world map (saved with the next fortress), not the Legends: the changed tiles packed (about 5 bytes a tile) and at most `RUIN_ITEMS_MAX` items; telling it regenerates the site once (about 0.5 s) when the fortress ends. Fresh embarks draw nothing new, so the three-year sweep is unaffected.
+- Follow-up: `T-NEW-ruins-stand-and-show.md` (furniture standing as buildings, a ruin mark on the world map).
