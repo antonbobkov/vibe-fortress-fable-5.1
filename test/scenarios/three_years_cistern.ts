@@ -173,8 +173,8 @@ function orderGoods(w: TestWorld, state: FortressState, work: CisternWork): void
  * be opened and shut, every watch (`playThreeYears`), as a player keeps an eye on the lever.
  */
 export function keepWaterInside(w: TestWorld, state: FortressState): void {
-  // T-663: off unless asked for: on the twenty-seed sweep it cost more than it saved (the report).
-  if (state.waterInside !== true) return;
+  // On unless a script turns it off (the defence fortress).
+  if (state.waterInside === false) return;
   if (state.cistern === undefined) {
     state.cistern = planFortressCistern(w, state);
     const work = state.cistern;

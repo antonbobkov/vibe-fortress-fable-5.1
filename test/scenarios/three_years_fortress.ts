@@ -345,7 +345,7 @@ export interface FortressState {
   forgeBuiltDay?: number;
   /** T-663: the cistern under the hearth hall and its well (null where the brook is too far; undefined until planned). */
   cistern?: CisternWork | null;
-  /** T-663: true where the script brings water inside; off by default (it cost the twenty-seed sweep more than it saved). */
+  /** T-663: false where the script does not bring water inside (the defence fortress); on by default. */
   waterInside?: boolean;
 }
 
