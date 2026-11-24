@@ -12,4 +12,4 @@ Trace two peril-2 timelines whose steel fell most between the two sweeps (`[thre
 
 ## Done
 
-The cause on the traced timelines and the sweep's steel ledger back near master's, with no rise in starvation.
+- [x] The cause on the traced timelines and the sweep's steel ledger back near master's, with no rise in starvation: [the report](../../reports/data/2026-11-22-t665-t668-flux-and-peril2-steel.md). Not the farm's hands: `p2-5` at shift 100 was raided early and began its steel 84 days late with no iron ore; `p2-4` at shift 0 waited on flux with 21 to 38 iron bars stacked, since 30 flux faces drop about nine stones (30% a tile) for a batch of 30 bars and the next faces came only with the next batch. The script now mines flux as the steel wants it. Peril-2 alloy jobs 25.4 (master) → 34.4 (T-661's 35.8), flux-wait weeks 32 → 11, starvation deaths 0.2 → 0 a peril-2 timeline; the sweep's verdict is blocked on deaths (see T-665).

@@ -14,4 +14,4 @@ Spec: 13 § Stockpiles; 24 (the stockpile editor); 12 § Recipes (the flux).
 
 ## Done
 
-The flux trip's steps and the smelter's hours before and after, and the sweep's steel ledger and verdict if the script changes.
+- [x] The flux trip's steps and the smelter's hours before and after, and the sweep's steel ledger and verdict if the script changes: [the report](../../reports/data/2026-11-22-t665-t668-flux-and-peril2-steel.md). A stockpile filter may name the material tag `flux` beside its classes (13, 24, the editor's checklist ends with Flux stone); the three-year script keeps six flux stones by the smelter. Probe (`p2-1` at shift 0, days 126 to 336): flux trip 11.7 → 6.9 steps, the first smelter's worker working / walking empty / carrying 6.6 / 17.6 / 11.3 → 8.7 / 17.7 / 10.5% of his day. Sweep `45410693300` on `93cfc975` (with T-668): Pooled 20 | 7 | 0 | 1072.5 | 137 | 0.5 | 0.5, **Verdict: blocked** (dwarf deaths over 132.5: two lightning wildfires whose light burns went uncleaned, a follow-up); steel at peril 2 25.4 → 34.4 alloy jobs a timeline.

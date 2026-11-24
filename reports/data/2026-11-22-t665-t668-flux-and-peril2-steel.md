@@ -1,6 +1,6 @@
 # T-665 and T-668: a flux store by the smelter, and where peril-2 steel went
 
-**Tasks:** T-665, T-668 · **Date:** 2026-11-22 · **Code:** branch `t665-flux-steel` on master `6a4e3860` · **Source:** [the T-665 work file](../../docs/work/T-665-flux-stockpile.md), [the T-668 work file](../../docs/work/T-668-peril2-steel-after-farm.md), [T-659 and T-660's report](2026-11-20-t659-t660-steel-trips.md), [T-664's report](2026-11-20-t664-small-fortress-starves.md)
+**Tasks:** T-665, T-668 · **Date:** 2026-11-22 · **Code:** branch `t665-flux-steel` on master `6a4e3860`, swept at `93cfc975` with master `b4f2a96a` (T-666, T-667) merged in · **Source:** [the T-665 work file](../../docs/work/T-665-flux-stockpile.md), [the T-668 work file](../../docs/work/T-668-peril2-steel-after-farm.md), [T-659 and T-660's report](2026-11-20-t659-t660-steel-trips.md), [T-664's report](2026-11-20-t664-small-fortress-starves.md)
 
 ## T-665: a stockpile that takes flux stone
 
@@ -42,8 +42,35 @@ Read from the sweeps' seed logs (`[three_years_economy]` and the weekly `[three_
 
 ## The sweep
 
-SWEEP_PLACEHOLDER
+Before: master's sweep `45047263323` (on `6a4e3860`) and T-666's `45037122991` (on `c69de682`, the game of master `b4f2a96a` that the branch merged; T-667's close changed no code). After: `45410693300` on `93cfc975`; all 80 seed jobs green; CI `45410687422` on the same commit green.
+
+| Run | Alive y1 | Peril-0 grown | Peril-0 need deaths | Living y3 | Deaths | Extinct | Need deaths |
+|---|---|---|---|---|---|---|---|
+| Master `45047263323` | 20 | 7 | 0 | 1097.25 | 122.5 | 0.5 | 0.5 |
+| T-666 `45037122991` | 20 | 7 | 0 | 1097 | 122.75 | 0.5 | 0.5 |
+| T-665/T-668, shifts 0 / 50 / 100 / 150 | 20 | 7 | 0 | 996 / 1014 / 1123 / 1157 | 164 / 154 / 138 / 92 | 1 / 0 / 1 / 0 | 0 / 2 / 0 / 0 |
+| **T-665/T-668 pooled** | 20 | 7 | 0 | **1072.5** | **137** | 0.5 | 0.5 |
+
+**Verdict: blocked** (bounds 1046.63 living, 132.5 deaths). Bounds exceeded: dwarf deaths. Worth tracing by seed: dwarf deaths (137, 34.5 over the best).
+
+**The rise in deaths is two wildfires.** Infection deaths went from 29 to 64 (killed and bled out 457 to 474, starvation 2 and 2); 41 of the 64 lie on two timelines whose deaths matched master's to the day until their steel began (day 226 and 142) and the timelines parted: `p4-1` at shift 0 (19 deaths → 40) and `p2-1` at shift 0 (13 → 28). Traced with `test/perf/t668_wound_probe.test.ts` (it replays the sweep's timelines: the same raid wounds on day 218): a lightning strike outdoors lit a surface fire that gave the dwarves 126 light burns on days 255 and 256 (`p4-1`) and 64 on days 286 to 288 (`p2-1`); a light burn admits no one but is rolled for infection until cleaned, and the medics could not clean them (`clean_wound` `blocked: no_tool`, no bucket, then `missing_input`, no brightleaf for an infected wound; `dress_burn` `missing_input`, no cloth) for weeks; 25 and 16 died of infection. The lightning strikes (days 231, 236, 248, 253) fall on master's timeline of `p4-1` too; there the dwarves were not in the fire's way. Nothing in the flux store or the flux faces puts a dwarf outdoors: which timeline catches its dwarves in a wildfire is the timeline's, but one that does loses a third of a fortress of thirty to the medics' empty hands, which is a [follow-up](../../docs/work/T-NEW-burns-after-a-wildfire.md). Without those two timelines' excess (36 deaths over four sweeps, 9 pooled) the deaths would stand at 128 against master's 122.5. Living fell with them (`p2-1` at shift 0 ended with 37 against 74; `p4-1` at shift 0 with 16).
+
+**The steel ledger**, the 52 peril-2 and peril-4 fortress-timelines, a timeline (`[three_years_economy]` and the weekly `[three_years_steel]` lines):
+
+| | Master `45047263323` | T-666 `45037122991` | T-665/T-668 `45410693300` |
+|---|---|---|---|
+| Steel smelted (alloy jobs), peril 2 / peril 4 | 25.4 / 21.3 | 25.6 / 21.3 | **34.4 / 23.2** |
+| Peril-2 timelines with no steel (under 5) / mean of the rest | 7 / 33.7 | 7 / 33.9 | 3 / 38.5 |
+| Peril-2 alloy jobs per 100 days after the steel began | 16.5 | 16.6 | **22.5** |
+| Steel kit pieces forged, peril 2 / 4 | 15.3 / 12.2 | 15.3 / 12.2 | 18.9 / 12.8 |
+| Steel bars bought, peril 2 / 4 | 5.0 / 7.5 | 5.0 / 7.5 | 5.0 / 6.0 |
+| Weeks with no free flux and five iron bars waiting, peril 2 / 4 | 32 / 15 | 32 / 15 | **11 / 10** |
+| Weeks with no iron bar and ten iron ore free, peril 2 / 4 | 147 / 142 | 147 / 142 | 181 / 148 |
+| Iron smelts / coal smelts / charcoal, a timeline | 64.9 / 49.6 / 191.2 | 64.7 / 49.7 / 191.1 | 65.8 / 51.8 / 191.0 |
+| Famine days, peril 2 / 4; starvation deaths, peril 2 / 4 | 2.0 / 7.5; 0.2 / 0.2 | 2.0 / 7.5; 0.2 / 0.2 | 2.0 / 5.0; 0 / 0.2 |
+
+Peril-2 steel is back at T-661's (35.8) from master's 25.4, and a third more at the same iron: the flux waits fell by two thirds and a steel job is shorter, so the smelter's time goes to the steel, and now the iron bars are what it waits on (181 weeks). The famine and the starvation did not rise.
 
 ## Follow-ups
 
-FOLLOWUPS_PLACEHOLDER
+- [A wildfire's light burns go uncleaned and kill by infection](../../docs/work/T-NEW-burns-after-a-wildfire.md).
