@@ -26,6 +26,8 @@ import { stageBattlefieldChannel, stageTraits } from './traits';
 import { stageLight } from './light';
 import { stageStarfall } from './starfall';
 import { stageBoneyards } from './boneyards';
+import { stageRuins } from './ruins';
+import type { RuinRecord } from '@systems/worldgen';
 
 export type { SpawnEntry, StackLayer, VeinRecord } from './common';
 
@@ -51,6 +53,8 @@ export interface LocalOptions {
   readonly progress?: LocalProgress;
   /** Stop after this stage (tests of the earlier stages). */
   readonly until?: LocalStage;
+  /** Stage 10b: the site's ruins, in the order the fortresses ended (02 § Ruins); absent: none. */
+  readonly ruins?: readonly RuinRecord[];
 }
 
 /** What generation leaves besides the map: the saved layer stack and the fluid lists for 04. */
@@ -168,7 +172,11 @@ export function generateLocal(
       // The crater last: every other stream of the map draws on the ground as it was.
       stageStarfall(g);
     },
-    light: () => stageLight(map),
+    light: () => {
+      // Stage 10b: an ended fortress's ruins, drawing nothing, so a site without any is unchanged.
+      if (options.ruins !== undefined && options.ruins.length > 0) stageRuins(map, options.ruins, registry, g.spawns);
+      stageLight(map);
+    },
   };
   for (const stage of LOCAL_STAGES) {
     run[stage]();

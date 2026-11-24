@@ -6,7 +6,9 @@ What each system's `serialize()` returns. Every state object carries `stateVersi
 
 ```ts
 interface WorldgenState { stateVersion: 1; world: WorldMap }
-interface WorldMap { size: number; seed: string; regions: RegionRecord[]; civHomes: Record<Civ, number>; rivers: { id: number; regions: number[]; class: string }[] }
+interface WorldMap { size: number; seed: string; regions: RegionRecord[]; civHomes: Record<Civ, number>; rivers: { id: number; regions: number[]; class: string }[]; ruins?: RuinRecord[] }
+// 02 § Ruins (T-686): what an ended fortress left on its site; `tiles` is the packed tile list, base64.
+interface RuinRecord { fortress: string; regionId: number; endedTick: number; tileCount: number; materials: string[]; tiles: string; items: { tile: number; type: string; material: string; count: number; quality: number }[] }
 interface RegionRecord { id: number; elevation: number; tempC: number; rain: number; biome: Id<BiomeDef>; geology: string; volcano: boolean;
   river: { inflow: Edge[]; outflow: Edge | null; class: 'brook'|'river'|'major' } | null; lake: boolean; deepness: number;
   wealth: number; peril: number; temper: number; traits: Id<RegionTraitDef>[]; civDistance: Record<Civ, number>; nearestEdgeTo: Record<Civ, Edge>; name: string }

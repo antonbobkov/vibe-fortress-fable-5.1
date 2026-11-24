@@ -64,6 +64,8 @@ import { LegendScreen } from '@ui/screens/legend';
 import { GameMenuScreen } from '@ui/screens/game_menu';
 import { killerWords } from '@ui/announcements';
 import { composeLegend, LegendStore, type EndReason } from '@app/legend';
+import { composeRuin } from '@app/ruins';
+import { withRuin } from '@systems/terrain/generate/ruins';
 import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
 import { LoadoutStore } from '@app/loadout-store';
@@ -685,17 +687,25 @@ export class Game {
     void this.saveAs('final', finalSaveId(record.name));
     if (this.legends !== null) void this.track(this.legends.write(record));
     this.host.setViewOnly(true);
-    if (reason.kind === 'abandoned' && world !== null) {
+    // 02 § Ruins (T-686): the world the next embark finds keeps this fortress's ruin on its site.
+    const ruined = world === null ? null : this.ruinedWorld(world);
+    if (reason.kind === 'abandoned' && ruined !== null) {
       await this.settled();
-      await this.reembark(world, regionId);
+      await this.reembark(ruined, regionId);
       return;
     }
     this.resetTo(new LegendScreen([record], {
       back: () => void this.showMainMenu(),
-      ...(world === null ? {} : { embarkAgain: () => void this.reembark(world, regionId) }),
+      ...(ruined === null ? {} : { embarkAgain: () => void this.reembark(ruined, regionId) }),
     }, record.id));
     this.render();
     await this.settled();
+  }
+
+  /** The world with the running fortress's ruin on its site; the world as it was off a world's site. */
+  private ruinedWorld(world: WorldMap): WorldMap {
+    const ruin = composeRuin(this.host.headless, world, this.registry);
+    return ruin === null ? world : withRuin(world, ruin);
   }
 
   /** Read the Legends' records of one world into {@link ruins}, by region. */

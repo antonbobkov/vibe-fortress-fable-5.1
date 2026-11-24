@@ -32,6 +32,8 @@ export interface SpawnEntry {
   readonly type: string;
   readonly material?: string;
   readonly quality?: number;
+  /** The stack's count (a ruin's items, 02 § Ruins); absent is 1. */
+  readonly count?: number;
   /** Material id of the stone set in a channel (`Item.stone`); absent is none. */
   readonly stone?: string;
   readonly tile: TileIndex;

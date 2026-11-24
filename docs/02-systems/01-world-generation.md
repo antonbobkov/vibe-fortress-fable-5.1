@@ -138,7 +138,7 @@ Region names come from the names table: a biome-flavored word list joined to a l
 
 ## State
 
-The `WorldMap` record: `size`, `seed`, `regions: RegionRecord[]`, `civHomes: Record<Civ, RegionId>`, `rivers: RiverRecord[]`. It is immutable after generation and saved with the game.
+The `WorldMap` record: `size`, `seed`, `regions: RegionRecord[]`, `civHomes: Record<Civ, RegionId>`, `rivers: RiverRecord[]`, and `ruins?: RuinRecord[]`, the ruins ended fortresses left on their sites in the order they ended (02 § Ruins; absent on a new world). It is immutable after generation but for the ruins an ended fortress adds, and saved with the game.
 
 ## Interfaces
 
