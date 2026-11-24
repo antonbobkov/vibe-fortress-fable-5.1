@@ -18,6 +18,7 @@ import { triggerTrap } from './traps';
 import { SPOT_RADIUS_DOG } from '@systems/threats/constants';
 
 export type { DefenseReader } from './reader';
+export type { TrapKind, TrapMode } from './state';
 export * from './constants';
 
 const TRAP_KINDS: readonly TrapKind[] = ['stone_fall', 'spike', 'cage', 'weapon'];
@@ -89,7 +90,8 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
     const tag = row?.tags.find((candidate) => candidate.startsWith('trap:'));
     const kind = tag?.slice(5) as TrapKind | undefined;
     if (kind !== undefined && TRAP_KINDS.includes(kind)) {
-      this.traps.set(id, { kind, mode: b.mode === 'all' ? 'all' : 'enemies', state: 'armed', loaded: ((b.settings['trapLoaded'] as EntityId[] | undefined) ?? []).slice() });
+      // A ruin's armed trap (14 § Wrecks) comes in `anyone`: no faction owns it.
+      this.traps.set(id, { kind, mode: b.mode === 'all' || b.mode === 'anyone' ? b.mode : 'enemies', state: 'armed', loaded: ((b.settings['trapLoaded'] as EntityId[] | undefined) ?? []).slice() });
       for (const tile of b.footprint) this.trapTiles.set(tile, id);
     }
     if (row?.tags.includes('plate')) this.plates.set(id, { lastState: false, lastEdgeTick: -PLATE_RESET_TICKS });
@@ -191,7 +193,8 @@ export class DefenseSystem extends BaseSystem<DefenseStateV1> {
     for (const id of Array.from(this.traps.keys()).sort((a, b) => a - b)) {
       const trap = this.traps.get(id) as TrapRecord;
       const b = buildings.get(id);
-      if (b === undefined) continue;
+      // An old trap no one owns is not kept: no rearming and no cleaning until the fortress sets its mode.
+      if (b === undefined || trap.mode === 'anyone') continue;
       if (trap.state === 'spent' && auto && !ctx.jobs.exists(`rearm_trap:${id}`)) {
         const row = ctx.registry.table<{ id: string; inputs: readonly { match: string }[] }>('buildings').byIndex(b.type);
         const types = buildings.inputTypes(row?.inputs[1]?.match ?? '');

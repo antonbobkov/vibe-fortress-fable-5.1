@@ -1244,17 +1244,28 @@ export class BuildingStore {
    * a wreck (`ruined`) holding the units it kept, where its footprint is in the map, holds no building
    * and no sapling or shrub, and every tile passes its placement rule; returns its id, or 0 where it
    * no longer stands. It is not built: no `BuildingCompleted`, no value, not the fortress's hearth.
+   * T-695: its mechanisms and traps the same way (a drawbridge at its recorded size), and a trap with
+   * `loaded` items stands armed instead ({@link placeArmedTrap}).
    */
-  placeWreck(wreck: { type: string; tile: TileIndex; orientation: number; material: number; inputs: readonly { type: string; material: number }[] }): EntityId {
+  placeWreck(wreck: {
+    type: string; tile: TileIndex; orientation: number; material: number; inputs: readonly { type: string; material: number }[];
+    width?: number; height?: number; loaded?: readonly { type: string; material: number; quality: number }[];
+  }): EntityId {
     const type = this.typeOf(wreck.type);
     if (type === 0 || !this.map.validIndex(wreck.tile) || this.materials[wreck.material] === undefined) return 0;
     const row = this.row(type);
     if (!Number.isInteger(wreck.orientation) || wreck.orientation < 0 || wreck.orientation > 3) return 0;
-    const tiles = this.footprint(row, wreck.tile, wreck.orientation);
+    const width = row.footprint.variable === undefined ? row.footprint.w : wreck.width ?? row.footprint.w;
+    const height = row.footprint.variable === undefined ? row.footprint.h : wreck.height ?? row.footprint.h;
+    if (!Number.isInteger(width) || !Number.isInteger(height) || width < 1 || height < 1 || width > BRIDGE_MAX || height > BRIDGE_MAX) return 0;
+    const tiles = this.footprint(row, wreck.tile, wreck.orientation, width, height);
     if (tiles === null) return 0;
     const rule = onRuleOf(row.id);
     for (const t of tiles) {
       if (this.map.buildingAtTile(t) !== 0 || isClearablePlant(this.map.kindAt(t)) || !onRuleHolds(this.map, rule, t, this.soilMaterial)) return 0;
+    }
+    if (wreck.loaded !== undefined && wreck.loaded.length > 0 && row.tags.some((tag) => tag.startsWith('trap:'))) {
+      return this.placeArmedTrap(type, row, tiles, wreck.material, wreck.loaded);
     }
     const id = this.host.entities.create('building');
     this.host.entities.add(id, C.Building, {
@@ -1274,6 +1285,47 @@ export class BuildingStore {
     for (const t of tiles) this.map.setBuildingAt(t, id);
     for (const t of tiles) this.map.markChunkDirty(t, true, false);
     this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
+    return id;
+  }
+
+  /**
+   * `02` § Ruins (T-695), 14 § Wrecks: a ruin's trap still armed, built at once with its loaded items
+   * made anew (their type, material and weathered quality) and installed, and one unit of its first
+   * input (its mechanism) as what it was built of. Its mode is `anyone`: no faction owns it, and 19
+   * springs it on every creature until the fortress sets its mode or takes it apart. It emits
+   * `BuildingPlaced` and `BuildingCompleted`, so 19 registers it armed.
+   */
+  private placeArmedTrap(type: number, row: BuildingRow, tiles: TileIndex[], material: number, loaded: readonly { type: string; material: number; quality: number }[]): EntityId {
+    const origin = tiles[0] as TileIndex;
+    const first = this.typesOf(row.inputs[0]?.match ?? '')[0];
+    const id = this.host.entities.create('building');
+    const trapLoaded: EntityId[] = [];
+    for (const unit of loaded) {
+      const t = this.itemIndex.get(unit.type);
+      if (t === undefined || this.materials[unit.material] === undefined) continue;
+      const item = this.host.services.spawn.item(t, unit.material, origin, 1, unit.quality);
+      this.host.services.items?.install?.(item);
+      trapLoaded.push(item);
+    }
+    this.host.entities.add(id, C.Building, {
+      type: type as Idx<'BuildingDef'>,
+      material: material as Idx<'MaterialDef'>,
+      state: 'built',
+      origin,
+      footprint: tiles,
+      orientation: 0,
+      itemId: 0,
+      mode: 'anyone',
+      linkedIds: [],
+      ownerId: 0,
+      settings: { priority: PRIORITY_DEFAULT, materialChoice: material, inputs: first === undefined ? [] : [{ type: this.itemTypes[first]?.id ?? '', material }], trapLoaded },
+      toggled: false,
+    });
+    for (const t of tiles) this.map.setBuildingAt(t, id);
+    for (const t of tiles) this.map.markChunkDirty(t, true, true);
+    this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
+    this.onFootprintChanged(tiles);
+    this.host.emit({ type: 'BuildingCompleted', id, buildingType: row.id, value: this.valueOf(this.get(id) as Building) });
     return id;
   }
 

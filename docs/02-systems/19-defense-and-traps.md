@@ -19,7 +19,7 @@ Let the map be a weapon. Own the behavior of traps, the detection side of mechan
 
 ### Trap targeting
 
-Every trap has a `mode`: `enemies` (default) or `all`. Under `enemies`, a trap triggers for creatures whose faction is `hostile:*` or `deep`, for `wild` creatures, and for stealthed creatures (which are spotted by the trigger); never for `fortress` or `trader:*` creatures. Under `all` it triggers for anything but the fortress's tame animals. Triggering is evaluated from the batched `EntitiesMoved` event each tick, against the `trapTiles` index; a creature that enters a trap tile by falling or by being pushed also triggers it.
+Every trap has a `mode`: `enemies` (default) or `all`. Under `enemies`, a trap triggers for creatures whose faction is `hostile:*` or `deep`, for `wild` creatures, and for stealthed creatures (which are spotted by the trigger); never for `fortress` or `trader:*` creatures. Under `all` it triggers for anything but the fortress's tame animals. Under `anyone`, the mode of a ruin's armed old trap (02 § Ruins, 14 § Wrecks), which no faction owns, it triggers for every creature, the fortress's dwarves and tame animals too: the new expedition's first miner into the old gate as surely as the first goblin. The player cannot set `anyone`; choosing `enemies` or `all` (`SetTrapMode`) makes the old trap the fortress's, and from then on it is one of the fortress's traps. No one keeps a trap under `anyone`: it gets no `rearm_trap` or `clean_trap` job, so a spent or jammed old trap waits until its mode is chosen. Triggering is evaluated from the batched `EntitiesMoved` event each tick, against the `trapTiles` index; a creature that enters a trap tile by falling or by being pushed also triggers it.
 
 ### Trap kinds
 
@@ -82,7 +82,7 @@ Fortifications are constructions (03, 14) and their firing rules are in 16. This
 
 ## State
 
-- `traps: Map<EntityId, { kind, mode, state: armed | spent | jammed, loaded: EntityId[] }>`, `trapTiles: Map<TileIndex, trapId>`.
+- `traps: Map<EntityId, { kind, mode: enemies | all | anyone, state: armed | spent | jammed, loaded: EntityId[] }>` (a trap registers with its building's mode: `all`, `anyone` for a ruin's armed trap, else `enemies`), `trapTiles: Map<TileIndex, trapId>`.
 - `plates: Map<EntityId, { lastState: boolean, lastEdgeTick }>`.
 - `chains: Map<chainId, animalId>`.
 - Rng stream (jams).
@@ -115,7 +115,7 @@ Job producer `defense` (`rearm_trap`, `clean_trap`); inspector section `building
 ## Player-facing behavior
 
 - Military panel: under a `hearth` alert, while some civilian has no retreat tile (10's `dwarves.unsheltered()`), the alert line says how many, in the alert colour, that they keep working, and that a hearth hall or a room behind a door gives them one (`ui-screens/panels.md` § Military); 10 shows such a dwarf, when it is idle, as "Idle (no shelter)".
-- Build menu › Traps: the four kinds; placing shows required items and counts available. Mode toggle in the trap panel.
+- Build menu › Traps: the four kinds; placing shows required items and counts available. Mode toggle in the trap panel. A ruin's armed old trap shows red on the map and says in its panel that it springs on anyone until a mode is chosen (14 § Wrecks).
 - Plate panel: trigger condition editor; links list.
 - Hints: "A drawbridge over a channel is the surest gate", "Cage traps catch anything smaller than a wyrm", "Trollkin break doors; walls and bridges hold".
 

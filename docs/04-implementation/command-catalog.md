@@ -60,7 +60,7 @@ Every command, its fields, its owning system, its validation and the events its 
 | `SquadOrder` | `squadId, order` | 16 | target exists; tiles walkable | `SquadOrderIssued` |
 | `SetAlert` | `level` | 16 | — | `AlertChanged` |
 | `SetHospitalSupplies` | `zoneId, wants` | 17 | hospital zone; wants is a supply-kind record with integer counts 0 to HOSPITAL_SUPPLY_MAX (`bad_setting` otherwise) | — |
-| `SetTrapMode` | `trapId, mode` | 19 | trap exists | — |
+| `SetTrapMode` | `trapId, mode` | 19 | trap exists; `mode` is `enemies` or `all` (`bad_setting`; `anyone` is a ruin's old trap's and cannot be set) | — |
 | `PullLever` | `leverId` | 19 | built lever | `JobCreated` |
 | `MoveToDepot` / `RemoveFromDepot` | `itemIds[]` | 20 | items exist; a depot exists (`no_depot`) | `JobCreated` |
 | `TradeOpen` | `depotId` | 20 | caravan at this depot (`no_caravan`) | `JobCreated` (trade job) |

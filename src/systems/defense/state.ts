@@ -2,7 +2,8 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { RngState } from '@core/rng';
 
 export type TrapKind = 'stone_fall' | 'spike' | 'cage' | 'weapon';
-export type TrapMode = 'enemies' | 'all';
+/** `anyone`: a ruin's old trap, which no faction owns (19 § Trap targeting); the player cannot set it. */
+export type TrapMode = 'enemies' | 'all' | 'anyone';
 export type TrapStatus = 'armed' | 'spent' | 'jammed';
 export interface TrapRecord { kind: TrapKind; mode: TrapMode; state: TrapStatus; loaded: EntityId[] }
 export interface PlateRecord { lastState: boolean; lastEdgeTick: number }

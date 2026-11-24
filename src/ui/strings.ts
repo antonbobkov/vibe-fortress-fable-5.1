@@ -1115,6 +1115,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.building.wreck': 'A wreck of the old fortress: it does nothing. Taken apart: {returns}.',
   'ui.building.wreck_help': 'Left by the fortress that stood here. Take it apart for what it still holds and build anew.',
   'ui.building.wreck_nothing': 'nothing',
+  'ui.building.old_trap': 'An old trap of the fortress that stood here: it springs on anyone, your dwarves too. Choose a mode to make it yours, or take it apart.',
+  'ui.building.old_trap_help': 'No one keeps it: it is not rearmed or cleaned, and it spares no one, until you choose its mode.',
   'ui.building.state.open': 'open',
   'ui.building.state.locked': 'locked',
   'ui.building.state.no_pets': 'no pets',

@@ -18,12 +18,15 @@ import {
   RUIN_ITEMS_MAX,
   RUIN_ITEM_KEEP_PERMILLE,
   RUIN_ITEM_VALUABLE_PERMILLE,
+  RUIN_MECHANISMS_MAX,
+  RUIN_TRAP_ARMED_PERMILLE,
   RUIN_WRECKS_MAX,
 } from '@systems/embark';
+import { DefenseSystem, type TrapKind } from '@systems/defense';
 import { generateLocal } from '@systems/terrain/generate';
 import { encodeRuinTiles, ruinsOf, type RuinTile } from '@systems/terrain/generate/ruins';
 import { linksItem, type BuildingRow } from '@systems/buildings';
-import type { RuinBuilding, RuinItem, RuinRecord, RuinWreck, WorldMap } from '@systems/worldgen';
+import type { RuinBuilding, RuinItem, RuinLoaded, RuinRecord, RuinWreck, WorldMap } from '@systems/worldgen';
 import type { HeadlessGame } from './headless';
 
 /** Item categories the looters favour (`02` § Ruins). */
@@ -161,39 +164,99 @@ function wrecks(row: BuildingRow): boolean {
   return row.category === 'workshop' || row.tags.some((tag) => tag === 'hearth' || tag === 'depot' || tag === 'well');
 }
 
+/** The traps that may stay armed in a ruin (`02` § Ruins, T-695): a spike trap is extended only by a link, and links are lost. */
+const ARMABLE: readonly TrapKind[] = ['weapon', 'cage', 'stone_fall'];
+
+/** The trap kind of a `trap:<kind>` row, or `undefined`. */
+function trapKind(row: BuildingRow): TrapKind | undefined {
+  return row.tags.find((tag) => tag.startsWith('trap:'))?.slice(5) as TrapKind | undefined;
+}
+
+/**
+ * Every second unit of `used` (the 2nd, the 4th …, in the order consumed), grouped by item type and
+ * material, in the order of their first unit.
+ */
+function everySecond(used: readonly { type: string; material: number }[], registry: Registry): RuinWreck['inputs'] {
+  const itemTypes = registry.table<{ id: string }>('items');
+  const materials = registry.table<{ id: string }>('materials');
+  const inputs: { type: string; material: string; count: number }[] = [];
+  for (let k = 1; k < used.length; k += 2) {
+    const unit = used[k] as { type: string; material: number };
+    const mat = materials.byIndex(unit.material);
+    if (!itemTypes.has(unit.type) || mat === undefined) continue;
+    const line = inputs.find((l) => l.type === unit.type && l.material === mat.id);
+    if (line === undefined) inputs.push({ type: unit.type, material: mat.id, count: 1 });
+    else line.count += 1;
+  }
+  return inputs;
+}
+
+/** A drawbridge's width and height, unturned, from its footprint (`02` § Ruins, T-695). */
+function bridgeSize(game: HeadlessGame, b: Building): { width: number; height: number } {
+  const xs = new Set(b.footprint.map((t) => game.map.xOf(t)));
+  const ys = new Set(b.footprint.map((t) => game.map.yOf(t)));
+  return b.orientation % 2 === 1 ? { width: ys.size, height: xs.size } : { width: xs.size, height: ys.size };
+}
+
 /**
  * The wrecks a ruin keeps (`02` § Ruins, T-692): each built workshop, hearth, depot and well (and each
  * wreck the fortress found and left standing), in id order, stands as a wreck holding every second
  * unit of what it was built of (the 2nd, the 4th …, in the order consumed): the first, an anvil or a
  * table as often as not, went with the looters. Over `RUIN_WRECKS_MAX`, wrecks drawn uniformly go
  * until it fits. The units are grouped by item type and material, in the order of their first unit.
+ *
+ * T-695: then its mechanisms and traps, in id order: each lever, pressure plate, floodgate and
+ * drawbridge (at its size) stands as a wreck the same way, its links lost. A weapon, cage or stone-fall
+ * trap that is armed with all it was loaded with stays armed with `RUIN_TRAP_ARMED_PERMILLE` (drawn in
+ * id order), its loaded items weathered a quality level (not below 0); every other trap is a wreck that
+ * holds nothing (its one mechanism is its first unit, and its loaded items went with the looters). Over
+ * `RUIN_MECHANISMS_MAX`, those drawn uniformly go until it fits.
  */
 export function ruinWrecks(game: HeadlessGame, registry: Registry, rng: RngStream): RuinWreck[] {
   const types = registry.table<BuildingRow>('buildings');
   const itemTypes = registry.table<{ id: string }>('items');
   const materials = registry.table<{ id: string }>('materials');
   const entities = game.world.entities;
+  const defense = game.world.scheduler.inOrder().find((s) => s instanceof DefenseSystem) as DefenseSystem | undefined;
   const out: RuinWreck[] = [];
+  const mechanisms: { id: EntityId; b: Building; row: BuildingRow; material: string }[] = [];
   for (const id of entities.with(C.Building)) {
     const b = entities.get<Building>(id, C.Building);
     if (b === undefined || (b.state !== 'built' && b.state !== 'ruined')) continue;
     const row = types.byIndex(b.type);
     const material = materials.byIndex(b.material);
-    if (row === undefined || material === undefined || !wrecks(row)) continue;
+    if (row === undefined || material === undefined) continue;
+    if (row.category === 'mechanism' || row.category === 'trap') { mechanisms.push({ id, b, row, material: material.id }); continue; }
+    if (!wrecks(row)) continue;
     const used = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
-    const inputs: { type: string; material: string; count: number }[] = [];
-    for (let k = 1; k < used.length; k += 2) {
-      const unit = used[k] as { type: string; material: number };
-      const mat = materials.byIndex(unit.material);
-      if (!itemTypes.has(unit.type) || mat === undefined) continue;
-      const line = inputs.find((l) => l.type === unit.type && l.material === mat.id);
-      if (line === undefined) inputs.push({ type: unit.type, material: mat.id, count: 1 });
-      else line.count += 1;
-    }
-    out.push({ tile: b.origin, type: row.id, orientation: b.orientation, material: material.id, inputs });
+    out.push({ tile: b.origin, type: row.id, orientation: b.orientation, material: material.id, inputs: everySecond(used, registry) });
   }
   while (out.length > RUIN_WRECKS_MAX) out.splice(rng.int(0, out.length - 1), 1);
-  return out;
+  const kept: RuinWreck[] = [];
+  for (const { id, b, row, material } of mechanisms) {
+    const used = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
+    const kind = trapKind(row);
+    if (kind === undefined) {
+      const size = row.footprint.variable === undefined ? {} : bridgeSize(game, b);
+      kept.push({ tile: b.origin, type: row.id, orientation: b.orientation, material, inputs: everySecond(used, registry), ...size });
+      continue;
+    }
+    const trap = defense?.traps.get(id);
+    const loaded: RuinLoaded[] = [];
+    for (const itemId of trap?.loaded ?? []) {
+      const item = entities.get<Item>(itemId, C.Item);
+      const type = item === undefined ? undefined : itemTypes.byIndex(item.type);
+      const mat = item === undefined ? undefined : materials.byIndex(item.material);
+      if (item === undefined || type === undefined || mat === undefined) continue;
+      loaded.push({ type: type.id, material: mat.id, quality: Math.max(0, item.quality - 1) });
+    }
+    const armable = b.state === 'built' && ARMABLE.includes(kind) && trap?.state === 'armed' && loaded.length > 0 && loaded.length === trap.loaded.length;
+    const armed = armable && rng.chance(RUIN_TRAP_ARMED_PERMILLE);
+    // A trap's wreck holds nothing: its mechanism is its first unit, and every unit after it was loaded.
+    kept.push({ tile: b.origin, type: row.id, orientation: b.orientation, material, inputs: [], ...(armed ? { loaded } : {}) });
+  }
+  while (kept.length > RUIN_MECHANISMS_MAX) kept.splice(rng.int(0, kept.length - 1), 1);
+  return [...out, ...kept];
 }
 
 /**
