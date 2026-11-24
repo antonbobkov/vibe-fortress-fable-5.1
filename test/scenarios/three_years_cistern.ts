@@ -8,12 +8,13 @@
  * as routine work, with a mechanic's workshop for the mechanisms.
  */
 
-import { TICKS_PER_DAY } from '@core/constants';
+import { FLUID_MAX_LEVEL, TICKS_PER_DAY } from '@core/constants';
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import type { ItemsReader } from '@systems/items';
 import type { BuildingsReader } from '@systems/buildings';
 import type { DwarvesReader } from '@systems/dwarves';
+import type { JobsReader } from '@systems/jobs';
 import { TileFlag, TileKind } from '@core/map3d';
 import { cisternKeepOff, cisternWork, keepOffWhole, lookAtCistern, planCistern, wellWorks, type CisternPlan, type CisternWork, type Col } from './cistern-well';
 import { command, exemptCommand, keepOff } from './script-commands';
@@ -86,7 +87,7 @@ function planFortressCistern(w: TestWorld, state: FortressState): CisternWork | 
   const planned = new Set(state.bedroomPlans.flatMap((bp) => [...bp.tiles, w.index(bp.doorX, bp.doorY, hallZ)]));
   let best: CisternWork | null = null;
   for (const corner of CORNERS) {
-    const plan = planCistern(w, { x: cx + corner.well[0], y: cy + corner.well[1] }, hallZ, { x: corner.across[0], y: corner.across[1] }, HALL_TUNNEL_MAX);
+    const plan = planCistern(w, { x: cx + corner.well[0], y: cy + corner.well[1] }, hallZ, { x: corner.across[0], y: corner.across[1] }, HALL_TUNNEL_MAX, FLUID_MAX_LEVEL);
     if (plan === null || suits(w, state, plan, planned) === null) continue;
     if (best === null || plan.tunnel.length < best.plan.tunnel.length) {
       best = cisternWork(plan, w.index(cx + corner.lever[0], cy + corner.lever[1], hallZ), CISTERN_PRIORITY);
@@ -206,6 +207,22 @@ export function keepWaterInside(w: TestWorld, state: FortressState): void {
   }
   orderGoods(w, state, work);
   lookCistern(w, state);
+  if (work.steps.has('breach')) noteCisternState(w, work);
+}
+
+/** The journal's look at a cistern being filled: the gate, the water under the well, and the lever's pull job. */
+function noteCisternState(w: TestWorld, work: CisternWork): void {
+  const jobs = w.readers.of<JobsReader>('11');
+  const pull = jobs.list().find((job) => job.key.startsWith(`pull_lever:${work.leverId}:`));
+  const plan = work.plan;
+  note('three_years_cistern_state', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1,
+    gate: work.floodgateId === 0 ? 'none' : w.readers.of<BuildingsReader>('14').mechanismState(work.floodgateId),
+    underWell: w.map.fluidLevelAt(w.index(plan.w.x, plan.w.y, plan.cisternZ)), column: w.map.kindAt(w.index(plan.w.x, plan.w.y, plan.cisternZ + 1)),
+    tunnel: plan.tunnel.map((c) => w.map.fluidLevelAt(w.index(c.x, c.y, plan.cisternZ))).join(''),
+    shaft: Array.from({ length: plan.tops.s - plan.cisternZ + 1 }, (_, k) => w.map.fluidLevelAt(w.index(plan.s.x, plan.s.y, plan.cisternZ + k))).join(''),
+    bank: Array.from({ length: plan.tops.p - plan.bz + 1 }, (_, k) => w.map.fluidLevelAt(w.index(plan.p.x, plan.p.y, plan.bz + k))).join(''),
+    water: cisternWaterNow(w, work), steps: [...work.steps].filter((s) => !s.includes(':')).join(','), pulls: work.pulls, openTicks: work.openTicks,
+    pull: pull === undefined ? null : { state: pull.state, priority: pull.priority, worker: pull.workerId, blocked: jobs.blockedReason(pull.id) } });
 }
 
 /** The cistern's own designations and buildings, past `keepOff`; a refusal waits for the next look. */
@@ -215,7 +232,7 @@ function lookCistern(w: TestWorld, state: FortressState): void {
   const before = work.log.length;
   lookAtCistern(w, work, (c: Command) => exemptCommand(w, c, CISTERN_EXPECTED).ok);
   for (const line of work.log.slice(before)) {
-    if (line.startsWith('pull') || line.startsWith('well @') || line.startsWith('breach')) note('three_years_cistern', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1, step: line, water: cisternWaterNow(w, work) });
+    if (line.startsWith('pull') || line.startsWith('well') || line.startsWith('breach') || line.startsWith('filled') || line.startsWith('cistern seal')) note('three_years_cistern', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1, step: line, water: cisternWaterNow(w, work) });
   }
 }
 

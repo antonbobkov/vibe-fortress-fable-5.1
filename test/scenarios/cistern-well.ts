@@ -79,7 +79,7 @@ export function tileOf(w: TestWorld, c: Col, z: number): TileIndex {
  * solid and whose tunnel (straight along `d`, then across) runs through rock, the shortest tunnel
  * first. Null when no brook tile serves within `maxTunnel` tiles.
  */
-export function planCistern(w: TestWorld, well: Col, hallZ: number, across: Col, maxTunnel: number): CisternPlan | null {
+export function planCistern(w: TestWorld, well: Col, hallZ: number, across: Col, maxTunnel: number, minBrookLevel = 1): CisternPlan | null {
   const map = w.map;
   const cisternZ = hallZ - CISTERN_DEPTH;
   const inMap = (c: Col): boolean => c.x >= 2 && c.y >= 2 && c.x < map.w - 2 && c.y < map.h - 2;
@@ -105,7 +105,7 @@ export function planCistern(w: TestWorld, well: Col, hallZ: number, across: Col,
     // The brook's water: one level below its banks (03 § Local map generation).
     let bz = -1;
     for (let z = hallZ + 1; z < map.d - 1; z += 1) if (water(b, z) && !water(b, z + 1)) { bz = z; break; }
-    if (bz < 0) continue;
+    if (bz < 0 || map.fluidLevelAt(w.index(b.x, b.y, bz)) < minBrookLevel) continue;
     for (const d of DIRS) {
       const p = add(b, d);
       const s = add(b, d, 2);
@@ -155,11 +155,15 @@ export function planCistern(w: TestWorld, well: Col, hallZ: number, across: Col,
   return best;
 }
 
-/** The pieces of a plan as columns and the levels each spans. */
+/**
+ * The pieces of a plan as columns and the levels each spans; the brook-side columns one level above
+ * their surface, so that a farm strip on higher ground beside them is not left an island when they
+ * open.
+ */
 function pieces(plan: CisternPlan): { c: Col; z0: number; z1: number }[] {
   const { cisternZ: L, hallZ: H, bz, tops } = plan;
   return [
-    { c: plan.s, z0: L, z1: tops.s }, { c: plan.t, z0: L, z1: tops.t }, { c: plan.p, z0: bz, z1: tops.p },
+    { c: plan.s, z0: L, z1: tops.s + 1 }, { c: plan.t, z0: L, z1: tops.t + 1 }, { c: plan.p, z0: bz, z1: tops.p + 1 },
     // The well's column and the access stair below the hall's level: on it they hold no water.
     { c: plan.w, z0: L, z1: H - 1 }, { c: plan.a, z0: L, z1: H - 1 },
     ...[...plan.tunnel, ...plan.cistern].map((c) => ({ c, z0: L, z1: L })),
@@ -396,7 +400,10 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
       steps.add('filled');
       work.log.push(`filled @${w.tick}`);
     } else {
-      const open = reached && gate === 'closed' && columnShut && empty(filled);
+      // Only once the brook stands full at the gate: the push carries only a full body (rule 3), and a
+      // shallow brook that trickles in leaves the tunnel at a falling few levels, the cistern dry.
+      const brookFull = map.fluidLevelAt(at(plan.tunnel[plan.gate - 1] as Col, L)) >= FLUID_MAX_LEVEL;
+      const open = reached && gate === 'closed' && columnShut && brookFull && empty(filled);
       const shut = reached && gate === 'open' && full;
       if (!pending && (open || shut) && send({ type: 'PullLever', leverId: work.leverId })) {
         work.pulls += 1;
