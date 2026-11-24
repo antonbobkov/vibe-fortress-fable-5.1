@@ -84,10 +84,10 @@ The economy, a peril-2 or peril-4 timeline (52), from each seed's `[three_years_
 | Drinks of water | 272 | 246.5 | 178.7 |
 | Famine days a timeline (peril 2 / 4) | | | 2.6 / 8.0 |
 
-The drink is kept and better (fewer drinks of water). The steel is kept at peril 4 and is a seventh lower at peril 2 than on master; at three units a dwarf the famine is rare (2.6 days a peril-2 timeline), so it is not the famine's hands. The peril-2 fortresses now farm more (the farm strips that failed by the gate now go west of the first field, and the farm grows with the fortress) and live longer; where the smith's and furnace workers' hours went at peril 2 was not traced (the coordinator's quota stop), which is left to [a follow-up](../../docs/work/T-668-peril2-steel-after-farm.md).
+The drink is kept and better (fewer drinks of water). The steel is kept at peril 4 and is a seventh lower at peril 2 than on master; at three units a dwarf the famine is rare (2.6 days a peril-2 timeline), so it is not the famine's hands. The peril-2 fortresses now farm more (the farm strips that failed by the gate now go west of the first field, and the farm grows with the fortress) and live longer; where the smith's and furnace workers' hours went at peril 2 was not traced (the coordinator's quota stop), which is left to [a follow-up](../../docs/archive/tasks/T-668-peril2-steel-after-farm.md).
 
 ## Follow-ups
 
 - [A patient is watered only with drink](../../docs/archive/tasks/T-666-patient-water.md).
 - [The three-year farm stops growing at its strips' cap](../../docs/archive/tasks/T-667-farm-strip-cap.md).
-- [Peril-2 steel after T-664](../../docs/work/T-668-peril2-steel-after-farm.md).
+- [Peril-2 steel after T-664](../../docs/archive/tasks/T-668-peril2-steel-after-farm.md).

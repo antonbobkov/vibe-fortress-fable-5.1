@@ -12,7 +12,7 @@ import { OK, reject, type Command, type CommandResult } from '@core/commands';
 import { PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import { C, type StockpileFilter } from '@core/components';
 import type { EntityId, Priority } from '@core/types';
-import { emptyFilter, presetFilter, WANTED_CLASSES, type StockpileStore } from './stockpiles';
+import { emptyFilter, presetFilter, STOCKPILE_MATERIAL_TAGS, WANTED_CLASSES, type StockpileStore } from './stockpiles';
 import { withCellar, type CellarJudgement } from './cellar';
 
 export interface StockpileCommandHost {
@@ -66,11 +66,22 @@ function parseFilter(host: StockpileCommandHost, raw: unknown): StockpileFilter 
       materialClasses = list.sort();
     }
   }
+  // T-665: material tags (`flux`) a material is taken by whatever the classes allow.
+  let materialTags = base.materialTags ?? [];
+  if (f['materialTags'] !== undefined) {
+    if (!Array.isArray(f['materialTags'])) return 'bad_category';
+    const list: string[] = [];
+    for (const m of f['materialTags'] as unknown[]) {
+      if (typeof m !== 'string' || !STOCKPILE_MATERIAL_TAGS.includes(m)) return 'bad_category';
+      if (!list.includes(m)) list.push(m);
+    }
+    materialTags = list.sort();
+  }
   const minQuality = host.store.qualityOf(f['minQuality'], base.minQuality);
   const maxQuality = host.store.qualityOf(f['maxQuality'], base.maxQuality);
   if (minQuality === null || maxQuality === null || minQuality > maxQuality) return 'out_of_range';
   const allowRot = typeof f['allowRot'] === 'boolean' ? f['allowRot'] : base.allowRot;
-  return { categories, materialClasses, minQuality, maxQuality, allowRot };
+  return { categories, materialClasses, ...(materialTags.length > 0 ? { materialTags } : {}), minQuality, maxQuality, allowRot };
 }
 
 export function applySetStockpileFilter(host: StockpileCommandHost, cmd: Command): CommandResult {

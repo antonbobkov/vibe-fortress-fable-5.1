@@ -90,7 +90,7 @@ In the stockpile inspector, `[Del] remove zone` uses Delete and its clickable fo
 
 In the category tree, arrows select and expand/collapse (Left on a collapsed child selects its parent), and Space toggles the tri-state checkbox. In numeric settings, arrows or Tab/Shift+Tab choose a field; Left/Right or +/- adjust it, just like the mouse buttons. The fields submit `SetStockpileContainers`, `SetStockpilePriority` and `SetStockpileFilter`, preserving unrelated settings. Counts stay non-negative, priority stays 1–9, and quality stays 0–5 with minimum no greater than maximum; a refused adjustment explains why in the status row.
 
-The materials checklist replaces the settings until Esc: arrows select, Space or Enter toggles, and a click does the same. Any toggles between all material classes and none. A panel letter the inspector does not bind keeps its panel action in every state. Help lists every action, and hovering a truncated value shows its full text.
+The materials checklist replaces the settings until Esc: arrows select, Space or Enter toggles, and a click does the same. Any toggles between all material classes and none. After the classes comes Flux stone, a material tag (13 § Stockpiles, T-665): it toggles the filter's `flux` tag and leaves the classes as they are. A panel letter the inspector does not bind keeps its panel action in every state. Help lists every action, and hovering a truncated value shows its full text.
 
 A room inspector shows current tier and score parts, named missing requirements, and its enclosure count:
 

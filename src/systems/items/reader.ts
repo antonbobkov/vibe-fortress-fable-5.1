@@ -167,7 +167,8 @@ export function makeReader(
       const f = sp.filter;
       return {
         ...sp,
-        filter: { ...f, categories: f.categories.slice(), materialClasses: f.materialClasses === 'any' ? 'any' : f.materialClasses.slice() },
+        filter: { ...f, categories: f.categories.slice(), materialClasses: f.materialClasses === 'any' ? 'any' : f.materialClasses.slice(),
+          ...(f.materialTags !== undefined ? { materialTags: f.materialTags.slice() } : {}) },
         containersWanted: { ...sp.containersWanted },
         linkedSources: sp.linkedSources.slice(),
       };

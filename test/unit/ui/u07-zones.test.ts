@@ -133,6 +133,20 @@ describe('U-07 stockpile editor (M7)', () => {
     click(draw(), 'Metal');
     expect(f.it.stockpile(f.pile)?.filter.materialClasses).toEqual(['metal']);
   });
+
+  it('T-665: the checklist ends with Flux stone, a tag row that leaves the classes as they are', () => {
+    const f = fixture();
+    const draw = () => { const s = surface(36, 40); drawZonesPanel(s, { col: 0, row: 0, cols: 32, rows: 40 }, f.tool, f.ctx); return s; };
+    f.tool.editorKey(f.ctx, press('v'));
+    f.tool.editorKey(f.ctx, press('Space')); // Any -> none.
+    for (let n = 0; n < f.tool.stockpile.classes(f.ctx).length + 3; n += 1) f.tool.editorKey(f.ctx, press('↓')); // stops on the last row
+    expect(draw().lines().some((r) => r.includes('Flux stone'))).toBe(true);
+    f.tool.editorKey(f.ctx, press('Space'));
+    expect(f.it.stockpile(f.pile)?.filter).toMatchObject({ materialClasses: [], materialTags: ['flux'] });
+    expect(draw().lines().some((r) => r.includes('[■] Flux stone'))).toBe(true);
+    expect(f.tool.cancelEditor()).toBe(true); // back to the settings
+    expect(draw().lines().some((r) => r.includes('Materials [Flux stone]'))).toBe(true);
+  });
 });
 
 describe('U-07 room panel and stockpile announcements (M9, §4.4)', () => {

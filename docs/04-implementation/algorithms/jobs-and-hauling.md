@@ -137,7 +137,7 @@ for it in wantsHauling (ascending id) while created < HAUL_JOBS_PER_TICK:
      // a container on an unwalkable tile (a hospital's built chest): workTile 'adjacent', data.anchorTile = slot.tile
   created++
 bestStockpileFor(it): among stockpiles that accept(it) and have a free slot: min by (chebyshev(tileOf(it), centroid(sp)) then sp.priority then id)
-accept(sp, it): categoryUnder(type.category, sp.filter.categories) and (sp.filter.materialClasses == 'any' or class(it) in it) and minQ <= quality <= maxQ and not (rotting and not allowRot) and (sp.linkedSources empty or stockpileOf(it) in linkedSources)
+accept(sp, it): categoryUnder(type.category, sp.filter.categories) and (sp.filter.materialClasses == 'any' or class(it) in it or some tag of material(it) in sp.filter.materialTags) and minQ <= quality <= maxQ and not (rotting and not allowRot) and (sp.linkedSources empty or stockpileOf(it) in linkedSources)
 findSlot(sp, it):
   cls = type.container
   if cls != 'none': for c in containers in sp of class cls (tile order): if not Reserved(c) and room(c) >= count(it) (or can merge a stack): return {tile: tileOf(c), container: c}

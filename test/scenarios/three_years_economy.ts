@@ -1069,6 +1069,70 @@ export function keepOreStore(w: TestWorld, state: FortressState): void {
   if (fuel !== undefined && buildings.zone(fuel)?.type === 'stockpile') command(w, { type: 'SetStockpileFilter', zoneId: fuel, filter: { categories: fuelStoreGoods(state) } });
 }
 
+/**
+ * T-665: the flux store by the smelter. A steel job fetched its flux stone 6 to 18 steps from the
+ * smelter (10 to 13 on most timelines; T-659's probes), from where it was mined, while the bar and the
+ * fuel lay by the smelter. As a player keeps a few flux stones beside it, once the ore store stands
+ * the next FLUX_STORE_TILES free tiles of the hall's lanes nearest the smelter are a stockpile of raw
+ * stone with no material class and the tag `flux` (13 § Stockpiles): the haulers bring flux stone
+ * alone, a stone each tile.
+ */
+export const FLUX_STORE_TILES = 6;
+
+export function keepFluxStore(w: TestWorld, state: FortressState): void {
+  const { economy } = state;
+  const hall = economy.workHall;
+  if (hall === undefined || !economy.phases.has('ore store') || economy.phases.has('flux store')) return;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const smelter = buildings.get(state.placedIds['smelter'] ?? 0);
+  if (smelter?.state !== 'built' || w.map.hasFlag(smelter.footprint[0]!, TileFlag.Outdoor)) return;
+  const at = smelter.footprint[4]!;
+  const sites = new Set(hall.slots.flatMap((origin) => buildings.ghost('smelter', origin, 0).tiles));
+  const far = (t: number): number => Math.abs(w.map.xOf(t) - w.map.xOf(at)) + Math.abs(w.map.yOf(t) - w.map.yOf(at));
+  const lanes = hall.tiles.filter((t) => !sites.has(t) && w.map.zOf(t) === w.map.zOf(at) && w.map.kindAt(t) === TileKind.Floor && buildings.zoneAt(t) === 0 &&
+    buildings.at(t) === 0 && w.map.designationAt(t) === 0).sort((a, b) => far(a) - far(b) || a - b).slice(0, FLUX_STORE_TILES);
+  if (lanes.length === 0) return;
+  const bSystem = w.game.world.scheduler.byId('14') as BuildingsSystem;
+  if (!command(w, { type: 'CreateZone', zoneType: 'stockpile', tiles: lanes.sort((a, b) => a - b) }, ['bad_zone_tiles']).ok) return;
+  economy.phases.add('flux store');
+  command(w, { type: 'SetStockpileFilter', zoneId: bSystem.lastCreatedZone, filter: { categories: ['stone/raw'], materialClasses: [], materialTags: ['flux'] } });
+}
+
+/**
+ * T-668: flux mined as the steel wants it. The flux was opened 20 faces with the second mine, 30 at
+ * the deep shaft's foot on day 224 and 30 with each new alloy order, but a dug stone tile drops a
+ * stone three times in ten (03, `MINING_STONE_DROP_PERMILLE`), so 30 faces gave about nine flux stones
+ * for a batch of 30 steel bars, and the next batch, with its faces, was ordered only when the last
+ * was done: where the halls stand in no flux rock the smelter waited on flux with 20 to 40 iron bars
+ * stacked (`three-years-p2-4` at shift 0 from day 238 to 336, T-664's sweep). While the smelter makes
+ * steel, when fewer than FLUX_LOW flux stones are free and fewer than FLUX_PENDING flux faces stand
+ * designated undug, FLUX_FACES more are designated, in the upper band or else below it.
+ */
+const FLUX_LOW = 4;
+const FLUX_PENDING = 10;
+const FLUX_FACES = 15;
+
+function freeFlux(w: TestWorld): number {
+  const rawStone = w.game.registry.table('items').index('raw_stone');
+  const materials = w.game.registry.table<{ id: string; tags?: readonly string[] }>('materials');
+  const flux: number[] = [];
+  for (let m = 1; m <= materials.size; m += 1) if (materials.byIndex(m)?.tags?.includes('flux') === true) flux.push(m);
+  return w.readers.of<ItemsReader>('13').countAvailable({ type: rawStone, materialIds: flux });
+}
+
+function keepFlux(w: TestWorld, state: FortressState, isFlux: (id: string) => boolean): void {
+  if (freeFlux(w) >= FLUX_LOW) return;
+  const materials = w.game.registry.table<{ id: string }>('materials');
+  let pending = 0;
+  for (const t of state.economy.mined) if (w.map.kindAt(t) === TileKind.Wall && isFlux(materials.byIndex(w.map.materialAt(t))?.id ?? '')) pending += 1;
+  if (pending >= FLUX_PENDING) return;
+  if (mine(w, state, upperBand(w, state), isFlux, FLUX_FACES) > 0) return;
+  const deep = state.economy.deepShaft;
+  if (deep !== undefined && state.economy.phases.has('deep stairs')) {
+    mine(w, state, { x: deep.x, y: deep.y, zMin: deep.bottom, zMax: upperBand(w, state).zMin - 1, deep: true }, isFlux, FLUX_FACES);
+  }
+}
+
 /** A founder holds the Broker title from the first day; the next adult takes it if the holder dies. */
 export function assignBroker(w: TestWorld, state: FortressState): void {
   const adults = fortressDwarves(w);
@@ -2302,6 +2366,8 @@ export function checkEconomy(w: TestWorld, state: FortressState): void {
     keepCoal(w, state, smelter, day);
     keepSecondSmelter(w, state);
     keepOreStore(w, state);
+    keepFluxStore(w, state);
+    keepFlux(w, state, isFlux);
   }
   // The steel chain's inputs, journalled weekly from the alloy order's day (observation only).
   if (day >= (state.strong?.since ?? 217) && day % 7 === 0 && smelter) {
