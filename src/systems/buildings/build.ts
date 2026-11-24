@@ -1199,6 +1199,45 @@ export class BuildingStore {
   }
 
   /**
+   * `02` § Ruins (T-690): a ruin's standing piece of furniture, built at once at arrival with its
+   * linked item made anew (its type, material and weathered quality), where its footprint holds no
+   * building and every tile passes its placement rule (a door's walls, a hatch's stairs, a bed's
+   * floor) with nothing growing there; returns its id, or 0 where it no longer stands.
+   */
+  placeRuin(piece: { type: string; tile: TileIndex; orientation: number; item: number; material: number; quality: number }): EntityId {
+    const type = this.typeOf(piece.type);
+    if (type === 0 || !this.map.validIndex(piece.tile)) return 0;
+    const row = this.row(type);
+    if (!linksItem(row) || !Number.isInteger(piece.orientation) || piece.orientation < 0 || piece.orientation > 3) return 0;
+    const tiles = this.footprint(row, piece.tile, piece.orientation);
+    if (tiles === null) return 0;
+    const rule = onRuleOf(row.id);
+    for (const t of tiles) {
+      if (this.map.buildingAtTile(t) !== 0 || isClearablePlant(this.map.kindAt(t)) || !onRuleHolds(this.map, rule, t, this.soilMaterial)) return 0;
+    }
+    const id = this.host.entities.create('building');
+    this.host.entities.add(id, C.Building, {
+      type: type as Idx<'BuildingDef'>,
+      material: piece.material as Idx<'MaterialDef'>,
+      state: 'planned',
+      origin: piece.tile,
+      footprint: tiles,
+      orientation: piece.orientation as Building['orientation'],
+      itemId: 0,
+      mode: row.tags.includes('door') || row.tags.includes('hatch') ? 'open' : '',
+      linkedIds: [],
+      ownerId: 0,
+      settings: { priority: PRIORITY_DEFAULT, materialChoice: piece.material, inputs: [] },
+      toggled: false,
+    });
+    for (const t of tiles) this.map.setBuildingAt(t, id);
+    this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
+    const linked = this.host.services.spawn.item(piece.item, piece.material, piece.tile, 1, piece.quality);
+    this.complete(id, [], piece.material, linked);
+    return id;
+  }
+
+  /**
    * The tile a building-held container's contents lie on, or -1: the wagon's centre for the wagon,
    * and the tile of the built furniture for its linked item (a hospital's chest).
    */

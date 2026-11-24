@@ -87,7 +87,7 @@ LocalMapSpec {
 
 `relief = maxDiff = 0 ? 0 : min(3, 1 + floor(maxDiff / RELIEF_DIFF_STEP))`, where `maxDiff` is the largest absolute elevation difference to the eight neighbouring regions that exist. Relief 0 is level ground, which a region has only when every neighbour shares its elevation; every other site has at least the gentle relief 1 (03 stage 1).
 
-03 generates the map from this and nothing else, so a region always generates the same local map.
+03 generates the map from this and the ruins on the site (§ Ruins) and nothing else, so a region always generates the same local map, and a site no fortress has ended on is the map it always was.
 
 ### Site summary
 
@@ -119,7 +119,7 @@ The missing essentials come first, in the alert colour, each with its consequenc
 
 ### Arrival
 
-1. Generate the local map (03).
+1. Generate the local map (03), with the ruins on the site (§ Ruins).
 2. Find the wagon site: the 3×3 patch of walkable surface tiles with no trees, nearest to the midpoint of the `arrivalEdge`, searching inward up to `ARRIVAL_SEARCH_DEPTH` tiles; if none, clear trees from the first candidate patch. Each cleared tree leaves its own species’ `logs` range, clamped by `TREE_LOGS_MIN` and `TREE_LOGS_MAX`, drawn from the `02` stream; the logs are of its wood and lie on its tile. A tree tile’s material id identifies the species; plants and materials have independent numeric indices.
 3. Place the wagon building (function tag `container`, capacity unlimited, deconstructable, yields `WAGON_LOGS` pine logs; the wagon is made of pine).
 4. Spawn every purchased item inside the wagon's container, using the catalog material for each item and its container (pine barrels and flax-cloth bags). The wagon may hold these item containers; their contents lie at its centre and are found and unloaded as on the ground. Spawn animals on walkable tiles around the wagon after the dwarves’ tiles. An explicit sex wins; a purchased unit of several animals is females followed by one male; single animals from one line alternate female, male. Each is `Tame` with no pasture, condition 0 and the training bought.
@@ -128,7 +128,22 @@ The missing essentials come first, in the alert colour, each with its consequenc
 7. Set the fortress name, embark tick and region. The calendar is set to `START_SEASON`, day 1, `START_HOUR`, year 1 before any arrival spawn, so supplies and creatures carry the arrival tick.
 8. Emit `Embarked { fortressName, regionId }`. The app switches to the fortress screen, paused, centered on the wagon at the surface z-level, and shows the first hint.
 
-Arrival consumes item entries of the local map’s trait spawn list; an entry's `stone`, when present, is set as the item's `Item.stone`. Creature entries are consumed by 08 and 18 after arrival.
+Arrival consumes item entries of the local map’s trait spawn list; an entry's `stone`, when present, is set as the item's `Item.stone`, and its `count`, when present, is the stack's count (a ruin's items, § Ruins). Creature entries are consumed by 08 and 18 after arrival.
+
+### Ruins
+
+A fortress that ends on a world's site (retired, abandoned, or fallen silent: 24 § Game menu) leaves a ruin there, and the next embark on that site finds it (T-686). When the fortress ends, the app tells its ruin and adds it to the world map the next embark is made from (`WorldMap.ruins`, 01 § State), so a later fortress on the world saves it with its world and leaves its own after it. The Legends record names the fortress as before (`ui-screens/menus-and-world.md` § World map).
+
+The ruin record is `{ fortress, regionId, endedTick, tileCount, materials, tiles, items }`, small whatever the map: the tiles the fortress changed, not the map.
+
+- **Tiles.** The site is generated again as the fortress found it (its spec and the ruins it already had), and every tile of the fortress's map is compared with it. A tile is kept when it was dug or carved from natural ground (a `wall`, `floor`, `ramp` or stairs that became a `floor`, `ramp`, stairs, `open` or `fortification`; a tree, shrub or boulder cleared is not kept, so the woods grow back), when it is `constructed` and differs from the site, or when it is smoothed or engraved where the site's tile was not. Each keeps its kind, its material, its `constructed` flag and a `smoothed` flag (an engraving wears to smooth). A constructed tile has fallen with `RUIN_COLLAPSE_PERMILLE`, and always where the site holds water: it is left out, so the site's own tile stands there. Fluids, designations, grass and snow are not kept. The tiles are packed in ascending index order: the step from the previous index (a varint), the kind (a byte), the material's place in the record's palette of material ids `materials` (a varint), and the flags (a byte: 1 constructed, 2 smoothed), as base64 (`tiles`), with their number (`tileCount`).
+- **Items.** Each item of a lasting kind that lies on the map or in a container there is kept with `RUIN_ITEM_KEEP_PERMILLE` (furniture, raw stone, blocks, fossils, wood, containers, tools, fuel bars, ore), or with `RUIN_ITEM_VALUABLE_PERMILLE` when looters would want it (metal bars, gems, crafts, weapons, armor, ammunition), in id order. Every other item (food, drink, seeds, cloth and clothing, medicine, refuse, corpses) has rotted or gone. An item carried, and the wagon and its load, leave with the expedition, so a fortress ended on its embark tick leaves none of its supplies. Over `RUIN_ITEMS_MAX` kept items, items drawn uniformly are dropped until it fits. A kept item is weathered: a stack keeps half its count (at least one) and its quality is one level worse (not below 0); it loses an enchantment, a set stone and a memorial's name. A testing fortress (§ Testing mode) leaves its tiles and no items. Each is recorded by its tile, type and material ids, count and quality. An installed item (furniture standing as a building) is not among them.
+- **Furniture** (T-690). Each built piece of furniture that links its item (a door, a hatch, a bed, a table, a chair, a cabinet or chest, a statue, a lantern, a rack, a target), in id order, still stands with `RUIN_FURNITURE_STAND_PERMILLE`; the rest are broken up and gone. Cages, hives, nest boxes, chain posts, coffins and memorial slabs held something living or a name and are gone too, as are workshops and the furniture laid from counted materials (the pallets). Over `RUIN_FURNITURE_MAX` standing pieces, pieces drawn uniformly go until it fits. A piece is recorded by its origin tile, building type id, orientation, and its item's type and material ids and quality, a level worse (not below 0): weathered as a kept item is. A testing fortress leaves none (`buildings`, absent when none stands).
+- **Randomness.** The choices draw on their own stream, seeded by `hash(worldSeed, 'ruins', regionId, endedTick)`: tiles first in index order, then items, then furniture. The same end leaves the same ruin.
+
+On the next embark on the site, 03 lays the site's ruins over the generated map in the order the fortresses ended (03 § Local map generation, stage 10b), and the last ruin's items join the spawn list where they still have a floor to lie on. At arrival, after the trait items, 14 builds the last ruin's standing furniture again where its tiles still stand (14 § Placement): a door whose wall has fallen, or a bed whose floor has, is not there. Nothing is drawn there, so the map is the world seed's and the records'. Lighting and discovery (stage 11) run after, so a ruin open to the sky is outdoor and its halls are found by digging into them or walking down the old stairs.
+
+Balance: the halls save digging, the items are a few dozen worn, ordinary things, and an expedition cannot carry its supplies over by abandoning and embarking again. The civilizations' standing is not carried over: it is the old fortress's (20 § Reputation effects), and a new expedition comes as strangers, so a war a fortress lost does not lock its successor into it and the world record stays the ruins alone.
 
 ## State
 
@@ -172,6 +187,12 @@ Nothing chosen here is irreversible in the fortress: skills grow, items are cons
 | `RELIEF_DIFF_STEP` | 96 | Elevation difference to a neighbour per relief level above 1 (*unmeasured*) |
 | `EMBARK_TESTING_MAX_DWARVES` | 50 | Most dwarves a testing embark brings (*unmeasured*) |
 | `EMBARK_TESTING_MAX_COUNT` | 999 | Most units of one catalog entry or one free item line in a testing embark (*unmeasured*) |
+| `RUIN_COLLAPSE_PERMILLE` | 250 | Chance a ruin's constructed tile has fallen by the next embark (*unmeasured*) |
+| `RUIN_ITEM_KEEP_PERMILLE` | 500 | Chance a ruin keeps an ordinary item (*unmeasured*) |
+| `RUIN_ITEM_VALUABLE_PERMILLE` | 200 | Chance a ruin keeps a valuable item the looters missed (*unmeasured*) |
+| `RUIN_ITEMS_MAX` | 60 | Most items one ruin keeps (*unmeasured*) |
+| `RUIN_FURNITURE_STAND_PERMILLE` | 500 | Chance a ruin's piece of furniture still stands (*unmeasured*) |
+| `RUIN_FURNITURE_MAX` | 40 | Most pieces of furniture one ruin keeps standing (*unmeasured*) |
 
 ## Extension points
 

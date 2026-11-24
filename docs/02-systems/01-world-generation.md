@@ -138,7 +138,7 @@ Region names come from the names table: a biome-flavored word list joined to a l
 
 ## State
 
-The `WorldMap` record: `size`, `seed`, `regions: RegionRecord[]`, `civHomes: Record<Civ, RegionId>`, `rivers: RiverRecord[]`. It is immutable after generation and saved with the game.
+The `WorldMap` record: `size`, `seed`, `regions: RegionRecord[]`, `civHomes: Record<Civ, RegionId>`, `rivers: RiverRecord[]`, and `ruins?: RuinRecord[]`, the ruins ended fortresses left on their sites in the order they ended (02 § Ruins; absent on a new world). It is immutable after generation but for the ruins an ended fortress adds, and saved with the game.
 
 ## Interfaces
 
@@ -160,7 +160,7 @@ None. Generation is invoked by the app: `worldgen.generate(seed, size, onProgres
 ## Player-facing behavior
 
 - **World generation screen**: seed field (text; a random seed by default), size selector, a Generate button, the completed preview after Generate returns, with the final stage at 100%, and Continue.
-- **World map screen**: biome glyphs and colors, river regions as blue `~`, civilization home glyphs and colors over both. The cursor starts at the centre and moves by keyboard or mouse, drawn in its own colours (the region's glyph in black on bright yellow) on every biome. Matching regions retain full color; others dim one step. The side panel lists name, biome, volcano, the missing essentials and the site summary of 02 § Site summary (soil, trees, shrubs and grazing, water, stone and likely ores, climate and winter, wildlife), the three ratings as five-cell bars, traits with what each does, and each civilization's `civDistance` and `nearestEdgeTo` (a civilization with no land route reads "no land route; arrives from the S edge" in place of its distance); it omits relief. Embark opens 02.
+- **World map screen**: biome glyphs and colors, river regions as blue `~`, a region where a fortress ended (a ruin in the world map or a fortress of the Legends) as a magenta `Ω` over both (T-690), civilization home glyphs and colors over all three. The cursor starts at the centre and moves by keyboard or mouse, drawn in its own colours (the region's glyph in black on bright yellow) on every biome. Matching regions retain full color; others dim one step. The side panel lists name, biome, volcano, the missing essentials and the site summary of 02 § Site summary (soil, trees, shrubs and grazing, water, stone and likely ores, climate and winter, wildlife), the three ratings as five-cell bars, traits with what each does, and each civilization's `civDistance` and `nearestEdgeTo` (a civilization with no land route reads "no land route; arrives from the S edge" in place of its distance); it omits relief. Embark opens 02.
 - Regions that cannot be embarked on (ocean, glacier) say so.
 
 ## Tuning constants

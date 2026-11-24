@@ -43,6 +43,8 @@ export interface WorldMapView {
   readonly animFrame?: number;
   /** The Reduced motion setting: the cursor does not blink. Omitted is false. */
   readonly reducedMotion?: boolean;
+  /** A region where a fortress ended (T-690): drawn with the ruin mark. Omitted: none. */
+  readonly ruined?: (regionId: number) => boolean;
 }
 
 /** The world map cursor's background (`glyphs-and-colors.md` § State and UI colors). */
@@ -52,11 +54,16 @@ export const WORLD_CURSOR_COLOR = 'world_cursor';
 export const WORLD_RIVER_CHAR = '~';
 export const WORLD_RIVER_COLOR = 'blue';
 
+/** The ruin mark (T-690): a region where a fortress ended. */
+export const WORLD_RUIN_CHAR = 'Ω';
+export const WORLD_RUIN_COLOR = 'magenta';
+
 export class WorldMapCompositor {
   private readonly biomes = new Map<string, { glyph: number; fg: Rgb }>();
   private readonly civs: { id: string; glyph: number; fg: Rgb }[] = [];
   private readonly black: Rgb;
   private readonly river: { glyph: number; fg: Rgb };
+  private readonly ruin: { glyph: number; fg: Rgb };
   private readonly fallback: Rgb;
   private readonly cursorBg: Rgb;
 
@@ -84,6 +91,7 @@ export class WorldMapCompositor {
     this.black = palette.color('black');
     this.cursorBg = color(WORLD_CURSOR_COLOR);
     this.river = { glyph: index(WORLD_RIVER_CHAR), fg: color(WORLD_RIVER_COLOR) };
+    this.ruin = { glyph: index(WORLD_RUIN_CHAR), fg: color(WORLD_RUIN_COLOR) };
   }
 
   /** A biome's glyph and color, for the legend. */
@@ -97,13 +105,22 @@ export class WorldMapCompositor {
     return { glyph: this.river.glyph, fg: this.river.fg, bg: this.black };
   }
 
-  /** The cell of one region, before the cursor and the filter. */
-  regionCell(world: WorldMap, id: number): Cell {
+  /** The ruin mark's glyph and color, for the legend. */
+  ruinCell(): Cell {
+    return { glyph: this.ruin.glyph, fg: this.ruin.fg, bg: this.black };
+  }
+
+  /**
+   * The cell of one region, before the cursor and the filter: a civilization's home, else the ruin
+   * mark on a region where a fortress ended (T-690), else a river, else the biome.
+   */
+  regionCell(world: WorldMap, id: number, ruined = false): Cell {
     const region = world.regions[id];
     if (region === undefined) return { glyph: 0, fg: this.black, bg: this.black };
     for (const civ of this.civs) {
       if (world.civHomes[civ.id as keyof WorldMap['civHomes']] === id) return { glyph: civ.glyph, fg: civ.fg, bg: this.black };
     }
+    if (ruined) return this.ruinCell();
     if (region.river !== null) return { glyph: this.river.glyph, fg: this.river.fg, bg: this.black };
     const biome = this.biomes.get(region.biome);
     if (biome === undefined) return { glyph: 0, fg: this.fallback, bg: this.black };
@@ -130,7 +147,7 @@ export class WorldMapCompositor {
           continue;
         }
         const id = y * world.size + x;
-        let cell = this.regionCell(world, id);
+        let cell = this.regionCell(world, id, view.ruined?.(id) === true);
         if (view.matches !== undefined && !view.matches(id)) {
           cell = { glyph: cell.glyph, fg: this.palette.dim(cell.fg, 1), bg: this.palette.dim(cell.bg, 1) };
         }

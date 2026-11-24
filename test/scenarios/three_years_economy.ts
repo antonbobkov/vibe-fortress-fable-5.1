@@ -16,7 +16,7 @@ import type { WorkshopsReader } from '@systems/workshops';
 import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { designateDig, onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
-import { command } from './script-commands';
+import { command, isKeptOff } from './script-commands';
 import { note, threeYearsMeasurements } from './three_years_measurements';
 import { checkMakingDo, keepThanesShare, makingDoPurchases, makingDoWant } from './three_years_making_do';
 
@@ -633,6 +633,8 @@ function mine(w: TestWorld, state: FortressState, band: MineBand, wanted: (id: s
     const fresh = drift.filter((d) => map.kindAt(d) === TileKind.Wall && !(map.xOf(d) === band.x && map.yOf(d) === band.y));
     if (band.deep && !fresh.every((d) => dig.has(d) || sealed(w, state, d))) continue;
     if (band.walled && [...fresh, t].some((d) => opensToHillside(w, d))) continue;
+    // T-663: no drift comes beside the cistern's water.
+    if ([...fresh, t].some((d) => isKeptOff(w, d))) continue;
     for (const d of fresh) { dig.add(d); economy.workings.add(d); }
     economy.mined.add(t);
     taken += 1;
@@ -688,6 +690,10 @@ function openDeepShaft(w: TestWorld, state: FortressState, bottom: number, prior
     for (let yy = Math.min(upper.y, c.y); yy <= Math.max(upper.y, c.y); yy += 1) drift.push(w.index(c.x, yy, top));
     const fresh = drift.filter((t) => map.kindAt(t) === TileKind.Wall && !(map.xOf(t) === upper.x && map.yOf(t) === upper.y));
     if (!fresh.every((t) => map.fluidLevelAt(t) === 0)) continue;
+    // T-663: nor the deep shaft and its drift.
+    let kept = fresh.some((t) => isKeptOff(w, t));
+    for (let z = reach; z <= top && !kept; z += 1) kept = isKeptOff(w, w.index(c.x, c.y, z));
+    if (kept) continue;
     // Down stairs are worked on the tile itself: excavate their head before carving the shaft.
     if (fresh.length) command(w, { type: 'Designate', kind: 'dig', priority, tiles: fresh });
     for (const t of fresh) state.economy.workings.add(t);
@@ -706,7 +712,9 @@ export function keptClear(w: TestWorld, state: FortressState, tile: number): boo
   // The mine shaft's column and the tiles around it.
   if (near(state.cx + 6, Math.min(w.map.h - 3, state.cy + 15), SHAFT_CLEARANCE)) return true;
   const deep = state.economy.deepShaft;
-  return deep !== undefined && near(deep.x, deep.y, SHAFT_CLEARANCE);
+  if (deep !== undefined && near(deep.x, deep.y, SHAFT_CLEARANCE)) return true;
+  // T-663: the cistern's feed opens the ground by the brook.
+  return isKeptOff(w, tile);
 }
 
 /** Place a workshop near (dx, dy) of the fortress centre. `key` names a second or third workshop of one type. */
@@ -846,7 +854,7 @@ function planWorkHall(w: TestWorld, state: FortressState): { stair: number; tile
   // The sites nearest the stair first.
   const far = (t: number): number => Math.abs(w.map.xOf(t) + 1 - sx) + Math.abs(w.map.yOf(t) + 1 - sy);
   slots.sort((a, b) => far(a) - far(b) || a - b);
-  return { stair: w.index(sx, sy, hallZ), tiles: tiles.filter((t) => !opensToHillside(w, t)), slots };
+  return { stair: w.index(sx, sy, hallZ), tiles: tiles.filter((t) => !opensToHillside(w, t) && !isKeptOff(w, t)), slots };
 }
 
 /** T-580: whether the hall has a free, dug site for `type`. */
@@ -1227,7 +1235,7 @@ export function trade(w: TestWorld, state: FortressState): void {
   const exports = ent.with(C.Item).filter((id) => {
     const it = ent.get(id, C.Item);
     if (!it || it.carriedBy || jobs.byKey(`depot:${id}`) ||
-      (it.flags & (ItemFlag.Foreign | ItemFlag.Merchant | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Installed | ItemFlag.AtDepot))) return false;
+      (it.flags & (ItemFlag.Foreign | ItemFlag.Merchant | ItemFlag.Reserved | ItemFlag.Owned | ItemFlag.Installed | ItemFlag.AtDepot | ItemFlag.Forbidden))) return false;
     const type = types.byIndex(it.type);
     if (type?.category.startsWith('craft/')) { committed += reader.valuation('mountainhome', id); return true; }
     if (type?.id === 'lavish_meal' && reader.activeCaravan() && mealSurplus >= it.count) { mealSurplus -= it.count; return true; }
@@ -1806,7 +1814,7 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   for (let y = y0; y < y0 + FARM_STRIP.rows; y += 1) for (let x = x0; x < x0 + FARM_STRIP.width; x += 1) {
     if (x < 2 || y < 2 || x >= map.w - 2 || y >= map.h - 2) continue;
     const t = w.index(x, y, z);
-    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t)) tiles.push(t);
+    if (buildings.zoneAt(t) === 0 && buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t) && !isKeptOff(w, t)) tiles.push(t);
   }
   // T-455: a slope may leave too little of the strip: as a player would, sow the same strip nearby.
   // When that level is full, the next surface level the dwarves can walk to. T-507: only sunlit
@@ -1843,7 +1851,7 @@ function nearGateStrip(w: TestWorld, state: FortressState): number[] {
     let v = ok.get(t);
     if (v === undefined) {
       v = Math.max(Math.abs(x - gx), Math.abs(y - gy)) > ENTRANCE_CLEARANCE + 1 && buildings.zoneAt(t) === 0 &&
-        buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t) && onWagonSide(w, t) &&
+        buildings.zoneTileQualifies('farm_plot', t) && buildings.cropLitAt(t) && onWagonSide(w, t) && !isKeptOff(w, t) &&
         !(depot?.footprint.some((d) => Math.max(Math.abs(map.xOf(d) - x), Math.abs(map.yOf(d) - y)) <= DEPOT_CLEARANCE + 1) ?? false);
       ok.set(t, v);
     }

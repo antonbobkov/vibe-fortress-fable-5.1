@@ -21,3 +21,15 @@ export const RELIEF_DIFF_STEP = 96;
 export const EMBARK_TESTING_MAX_DWARVES = 50;
 /** Most units of one catalog entry or one free item line in a testing embark. */
 export const EMBARK_TESTING_MAX_COUNT = 999;
+/** `02` § Ruins: the share of an ended fortress's constructed tiles that have fallen by the next embark (*unmeasured*). */
+export const RUIN_COLLAPSE_PERMILLE = 250;
+/** `02` § Ruins: the chance an ordinary item (furniture, stone, wood, containers, tools) is still there (*unmeasured*). */
+export const RUIN_ITEM_KEEP_PERMILLE = 500;
+/** `02` § Ruins: the chance a valuable item (bars, gems, crafts, weapons, armor, ammunition) escaped the looters (*unmeasured*). */
+export const RUIN_ITEM_VALUABLE_PERMILLE = 200;
+/** `02` § Ruins: the most items one ruin keeps (*unmeasured*). */
+export const RUIN_ITEMS_MAX = 60;
+/** `02` § Ruins (T-690): the chance a piece of furniture still stands where it was built (*unmeasured*). */
+export const RUIN_FURNITURE_STAND_PERMILLE = 500;
+/** `02` § Ruins (T-690): the most pieces of furniture one ruin keeps standing (*unmeasured*). */
+export const RUIN_FURNITURE_MAX = 40;

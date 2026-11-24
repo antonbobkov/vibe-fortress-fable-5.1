@@ -24,6 +24,7 @@ import type { ReaderSet } from '@core/readers';
 import type { HostStats, World } from '@core/world';
 import type { LocalMapSpec } from '@systems/embark';
 import type { WorldMap } from '@systems/worldgen';
+import { ruinsOf } from '@systems/terrain/generate/ruins';
 
 /** `simulation-core.md` § The simulation host: 0 is paused. */
 export type Speed = 0 | 1 | 2 | 4;
@@ -136,6 +137,8 @@ export class InProcessHost implements SimulationHost {
       ...(spec.fortressName === undefined ? {} : { fortressName: spec.fortressName }),
       ...(spec.spec === undefined ? {} : { spec: spec.spec }),
       ...(spec.embark === undefined ? {} : { embark: spec.embark }),
+      // 02 § Ruins (T-686): the ended fortresses' ruins on the chosen site.
+      ...(spec.spec === undefined || spec.worldMap?.ruins === undefined ? {} : { ruins: ruinsOf(spec.worldMap, spec.spec.regionId) }),
     };
     this.shedding.reset();
     this.game = new HeadlessGame(options);

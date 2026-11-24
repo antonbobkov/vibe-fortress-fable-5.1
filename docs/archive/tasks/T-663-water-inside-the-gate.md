@@ -1,6 +1,8 @@
 # T-663 — No water inside the gate
 
-**Source:** [T-656's report](../../reports/data/2026-11-20-t656-thirst-under-the-alert.md) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in cfa1b7bb,55c0032d,fb13b0c6,a1480973,87c33e2e,75d7346d,8bcd5a02,d9a83b31,72ef0ad2,57872ce3,a6c65538.
+
+**Source:** [T-656's report](../../../reports/data/2026-11-20-t656-thirst-under-the-alert.md) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -12,4 +14,5 @@ Find out whether a player can bring water inside with the game as it is: a chann
 
 ## Done
 
-A scenario where a fortress with no drink drinks from a well inside its gate under a hearth alert (or the reason it cannot); the sweep's verdict if the script changes.
+- [x] A scenario where a fortress with no drink drinks from a well inside its gate under a hearth alert: [`bd_cistern_well`](../../../test/scenarios/bd_cistern_well.scenario.ts) ([T-663's report](../../../reports/data/2026-11-20-t663-water-inside-the-gate.md)).
+- [x] The sweep's verdict: with the cistern on (built as routine work once drink runs short) it cost more than it saved (report § Second pass), so `FortressState.waterInside` is off by default; sweep `45046783384` with it off matches master exactly (1097.25 living / 122.5 deaths, verdict pass, every seed green). CI 45410393455 green.

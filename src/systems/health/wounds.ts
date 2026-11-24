@@ -10,8 +10,13 @@ import type { JobsReader } from '@systems/jobs';
 import { RESERVE_KEEP_TICKS } from '@systems/jobs/constants';
 import { FRACTURE_PERCENT, HEAL_BASE_TICKS, LIGHT_MAX, SERIOUS_MAX } from './constants';
 
-/** A cut, puncture or burn left uncovered: not cleaned, sutured or bandaged; it can be infected (§ Infection). */
+/**
+ * A cut, puncture or serious or grievous burn left uncovered: not cleaned, sutured or bandaged; it can
+ * be infected (§ Infection). T-691: a light burn is a scorch, not an open wound: it is never rolled
+ * for infection and asks for no cleaning, so a wildfire's mass of them waits on no bucket or brightleaf.
+ */
 export function exposed(wound: Wound): boolean {
+  if (wound.type === 'burn' && wound.severity === 'light') return false;
   return (wound.type === 'cut' || wound.type === 'puncture' || wound.type === 'burn') &&
     !wound.cleaned && !wound.sutured && !wound.bandaged;
 }

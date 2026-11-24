@@ -50,6 +50,53 @@ export interface WorldMap {
   readonly regions: readonly RegionRecord[];
   readonly civHomes: Readonly<Record<Civ, number>>;
   readonly rivers: readonly RiverRecord[];
+  /**
+   * The ruins an ended fortress left on its site (`02` § Ruins, T-686), in the order the fortresses
+   * ended. Absent on a newly generated world, which is otherwise immutable.
+   */
+  readonly ruins?: readonly RuinRecord[];
+}
+
+/** An item an ended fortress left on its site, weathered (`02` § Ruins). */
+export interface RuinItem {
+  readonly tile: number;
+  /** Item type and material ids. */
+  readonly type: string;
+  readonly material: string;
+  readonly count: number;
+  readonly quality: number;
+}
+
+/**
+ * What an ended fortress left on its site (`02` § Ruins): the tiles it changed from the site as
+ * generated, packed (`tiles`, base64; `03` § Local map generation stage 10b), with their materials
+ * by a palette of ids, and the items it left.
+ */
+export interface RuinRecord {
+  readonly fortress: string;
+  readonly regionId: number;
+  readonly endedTick: number;
+  readonly tileCount: number;
+  readonly materials: readonly string[];
+  readonly tiles: string;
+  readonly items: readonly RuinItem[];
+  /** The furniture still standing (T-690); absent in a ruin told before it: none. */
+  readonly buildings?: readonly RuinBuilding[];
+}
+
+/**
+ * A piece of furniture an ended fortress left standing on its site (`02` § Ruins, T-690): the
+ * building type at its origin tile and orientation, and its linked item, weathered.
+ */
+export interface RuinBuilding {
+  readonly tile: number;
+  /** Building type id. */
+  readonly type: string;
+  readonly orientation: number;
+  /** The linked item's type and material ids, and its quality. */
+  readonly item: string;
+  readonly material: string;
+  readonly quality: number;
 }
 
 export interface WorldgenState {

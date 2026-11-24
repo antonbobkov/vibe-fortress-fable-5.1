@@ -31,9 +31,11 @@ import type { DwarvesReader } from '@systems/dwarves';
 import { CRITICAL, WANT } from '@systems/dwarves/needs';
 import type { JobsReader } from '@systems/jobs';
 import { TestWorld } from './test-world';
-import { command } from './script-commands';
+import { command, isKeptOff } from './script-commands';
 import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, specialistCandidates, checkEconomy, KIT_FIRST, METAL_BUILD, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
+import { keepWaterInside, watchCistern } from './three_years_cistern';
+import type { CisternWork } from './cistern-well';
 
 export const Z = FLAT_TEST_SURFACE_Z;
 // Six levels below the surface puts rooms below Serene Vale's deeper soil.
@@ -341,6 +343,10 @@ export interface FortressState {
   /** Trees around the settlement, felled in batches as the log stock runs down. */
   readonly timberTiles: number[];
   forgeBuiltDay?: number;
+  /** T-663: the cistern under the hearth hall and its well (null where the brook is too far; undefined until planned). */
+  cistern?: CisternWork | null;
+  /** T-663: true where the script brings water inside; off by default (it cost the twenty-seed sweep more than it saved). */
+  waterInside?: boolean;
 }
 
 
@@ -875,6 +881,9 @@ export interface StandingOrder { readonly recipeId: string; readonly threshold: 
 export const CARPENTER_ORDERS: readonly StandingOrder[] = [
   { recipeId: 'make_chair_wood', threshold: 2 },
   { recipeId: 'make_table_wood', threshold: 2 },
+  // T-691: buckets for the medics' cleaning and the patients' water, a log each, ahead of the barrels
+  // (whose order is seldom met): `three-years-p2-1` at shift 0 had none when a wildfire burned its dwarves.
+  { recipeId: 'make_bucket', threshold: 3 },
   { recipeId: 'make_barrel', threshold: 20 },
 ];
 
@@ -1215,6 +1224,7 @@ export function checkFortressRooms(w: TestWorld, state: FortressState): void {
   }
   keepDormitories(w, state, livingPop);
   keepTheDead(w, state);
+  keepWaterInside(w, state);
 }
 
 /**
@@ -1283,7 +1293,7 @@ export function hallBlockSite(w: TestWorld, state: FortressState, width: number,
     ...(state.economy.larder?.drinkTiles ?? []), ...(state.economy.workHall?.tiles ?? []), ...(state.burial?.tombs ?? []).flatMap((t) => t.tiles),
     ...(state.strong?.barracks?.tiles ?? []), ...(state.strong?.quarters?.tiles ?? [])]);
   const rock = (t: number): boolean => map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) &&
-    map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t);
+    map.fluidLevelAt(t) === 0 && map.designationAt(t) === 0 && !planned.has(t) && !isKeptOff(w, t);
   const corridor = (t: number): boolean => map.kindAt(t) === TileKind.Floor && (buildings.zoneAt(t) === 0 || (through !== 0 && buildings.zoneAt(t) === through)) &&
     w.readers.pathing.labelOf(t, 'walker') === hallLabel;
   let best: number[] | null = null, bestDistance = Infinity;
@@ -1694,11 +1704,11 @@ export interface AmbushCount {
  * drinks of water taken outdoors since the alert went up. Kept
  * beside the state, not in it: it is read only for the notes and changes nothing in the game.
  */
-const thirstSeen = new WeakMap<FortressState, { thirst: Map<number, number>; outdoors: Set<number>; maxOut: number; waterOut: number; week: number; brews: number; stolen: number }>();
+const thirstSeen = new WeakMap<FortressState, { thirst: Map<number, number>; outdoors: Set<number>; maxOut: number; waterOut: number; waterIn: number; waterInWeek: number; week: number; brews: number; stolen: number }>();
 
-function thirstWatch(state: FortressState): { thirst: Map<number, number>; outdoors: Set<number>; maxOut: number; waterOut: number; week: number; brews: number; stolen: number } {
+function thirstWatch(state: FortressState): { thirst: Map<number, number>; outdoors: Set<number>; maxOut: number; waterOut: number; waterIn: number; waterInWeek: number; week: number; brews: number; stolen: number } {
   let seen = thirstSeen.get(state);
-  if (seen === undefined) thirstSeen.set(state, (seen = { thirst: new Map(), outdoors: new Set(), maxOut: 0, waterOut: 0, week: -1, brews: 0, stolen: 0 }));
+  if (seen === undefined) thirstSeen.set(state, (seen = { thirst: new Map(), outdoors: new Set(), maxOut: 0, waterOut: 0, waterIn: 0, waterInWeek: 0, week: -1, brews: 0, stolen: 0 }));
   return seen;
 }
 
@@ -1711,12 +1721,17 @@ function watchThirst(w: TestWorld, state: FortressState, events: readonly { type
     if (e.type === 'DrankWater') {
       const q = ent.get(Number(e['id']), C.Position);
       if (q !== undefined && w.map.hasFlag(w.index(q.x, q.y, q.z), TileFlag.Outdoor)) seen.waterOut += 1;
+      else { seen.waterIn += 1; seen.waterInWeek += 1; }
     }
     if (e.type === 'ItemCrafted' && e['recipeId'] === 'brew') seen.brews += 1;
     if (e.type === 'ItemDestroyed' && e['itemType'] === 'barrel' && e['reason'] === 'stolen') seen.stolen += 1;
     if (e.type !== 'CreatureDied' || e['faction'] !== 'fortress' || e['species'] !== dwarf) continue;
     const id = Number(e['id']);
-    note('three_years_thirst_death', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, cause: String(e['cause'] ?? ''), thirst: seen.thirst.get(id) ?? -1,
+    // T-663: whether it fell by the cistern's feed, the brook-side works.
+    const at = Number(e['tile'] ?? -1);
+    const feed = state.cistern?.plan.s;
+    const nearFeed = feed !== undefined && at >= 0 && Math.max(Math.abs(w.map.xOf(at) - feed.x), Math.abs(w.map.yOf(at) - feed.y)) <= 8;
+    note('three_years_thirst_death', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, cause: String(e['cause'] ?? ''), thirst: seen.thirst.get(id) ?? -1, nearFeed,
       outdoors: seen.outdoors.has(id), alert: w.game.world.fortress.alert, ...(state.calmTick !== undefined ? { sinceCalm: w.tick - state.calmTick } : {}),
       drink: w.readers.of<ItemsReader>('13').available('drink') });
   }
@@ -1754,7 +1769,8 @@ function watchThirst(w: TestWorld, state: FortressState, events: readonly { type
   const brewer = state.economy.brewer;
   note('three_years_drink', { day: Math.floor(w.tick / TICKS_PER_DAY) + 1, pop: seen.thirst.size, drink: items.count('drink'), available: items.available('drink'),
     brewable: brew, plants, barrels, emptyBarrels: empty, logs: items.available('log'), brews: seen.brews, stolen: seen.stolen, brewer: brewer !== undefined && ent.alive(brewer) ? dwarves.activityText(brewer) : '-',
-    stills: ['still', 'still2'].filter((k) => (state.placedIds[k] ?? 0) !== 0).length });
+    waterIn: seen.waterInWeek, stills: ['still', 'still2'].filter((k) => (state.placedIds[k] ?? 0) !== 0).length });
+  seen.waterInWeek = 0;
   seen.brews = 0;
   seen.stolen = 0;
 }
@@ -1777,8 +1793,8 @@ function noteThirst(w: TestWorld, state: FortressState, phase: string): void {
   note('three_years_thirst', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, phase, raid: state.raidAlert === true, pop: living.length,
     drink: w.readers.of<ItemsReader>('13').available('drink'), want: thirst.filter((t) => t >= WANT.thirst).length,
     critical: thirst.filter((t) => t >= (CRITICAL.thirst ?? NEED_MAX)).length, outdoors,
-    ...(raised ? {} : { maxOut: seen.maxOut, waterOut: seen.waterOut, since: w.tick - state.alertSince }) });
-  if (phase !== 'look') { seen.maxOut = 0; seen.waterOut = 0; }
+    ...(raised ? {} : { maxOut: seen.maxOut, waterOut: seen.waterOut, waterIn: seen.waterIn, since: w.tick - state.alertSince }) });
+  if (phase !== 'look') { seen.maxOut = 0; seen.waterOut = 0; seen.waterIn = 0; }
 }
 
 /**
@@ -3175,6 +3191,7 @@ export function playThreeYears(w: TestWorld, state: FortressState, ticks: number
     stepThreeYears(w, Math.min(WATCH_EVERY, end - w.tick));
     watch?.();
     checkFortressDefense(w, state);
+    watchCistern(w, state);
   }
 }
 
