@@ -1,2 +1,4 @@
 * text=auto eol=lf
 *.png binary
+# Agents each add a row; keep both sides on merge (rows only, never edits)
+docs/fun-features.md merge=union
