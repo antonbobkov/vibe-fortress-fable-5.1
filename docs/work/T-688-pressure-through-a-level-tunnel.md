@@ -19,3 +19,30 @@ Spec: 04 § The four movement rules, § Player-facing behavior.
 ## Done
 
 A fluid scenario of a fall-fed level tunnel and the decision, written into 04.
+
+## Decision
+
+**The rule changes: pressure pushes sideways.** Rule 3 keeps its lift into the tile above, and when that finds nothing to do, a full tile pushes one unit from a higher tile of its body (`H.z > T.z`, the same bounded breadth-first search) into the first cardinal neighbour on its level that is below full. A level tunnel joined to a full column becomes one full body with it, so the water and its pressure reach the tunnel's end and rise up any open column there to one below the source's level, as the U-tube of source tiles always did. The hint's promise ("water rises to the level of its source") now holds however the water arrived, and a player's floodgate decides whether the hall floods. A body with nothing above its own level (a pond, a lake, a river at its own level) never pushes, so still water is untouched. Written into 04 § The four movement rules, rule 3, and § Player-facing behavior; `algorithms/fluids.md` has the pseudo-code.
+
+Why, on evidence (local, `test/perf/t688_tunnel_probe.test.ts` with `T688_PROBE=1`, and `fl_perf`):
+
+| | Master's rule | Sideways push |
+|---|---|---|
+| `flat-test`, source over a 7-deep shaft onto a 40-tile 1-wide tunnel, levels at 2,000, 10,000 and 40,000 ticks (the same each time) | `7 7 7 7 6 6 6 6 6 6 6 5 5 4 4 5 4 5 4 3 3 3 3 3 2 3 2 2 2 1 1 1 1 1 1 1 1 1 1 0 0`: level 1 by the 30th tile, the last at the 39th, the 40th and 41st dry; settled | every tile 7 by 2,000 ticks; settled |
+| The same tunnel ending under a 12-high open shaft | the shaft dry | the shaft full from z 21 to z 27 (the source stands at z 28), nothing above; settled |
+| Generated `perf-1`, every water tile touched, until settled (≤ 4,200 ticks): ticks, fluid-step time | 2,699 ticks, 5,607 ms | 2,493 ticks, 5,333 ms |
+| `perf-2` (a river: never settles in 4,200 ticks) | 2,895 active at the end, 19,963 ms | 3,128 active, 19,576 ms |
+| `perf-3` | 2,447 ticks, 6,413 ms | 2,415 ticks, 6,248 ms |
+| `fl_perf` (reference fortress, 40-tile waterfall channel, 2,000 ticks), 04 per tick | 0.017, 0.017 ms | 0.018, 0.020 ms |
+
+So the push costs nothing measurable and does not make ordinary water spread wider or longer: generated maps settle as fast or faster.
+
+**`bd_cistern_well` keeps its floodgate shut**, but the lever's timing had to change: with the push, the floodgate standing open about 300 ticks (one pull to open, a dwarf walking 180 ticks to pull it shut once the water stood under the well, and the gate following each pull 100 ticks later) filled the cistern and lifted the brook up the well's column onto the hall's floor. `cistern-well.ts` now pulls the lever shut as soon as the opening pull is done, so the gate stands open only for the time between the two pulls (about 20 to 40 ticks in the scenario), and opens it again, once both pulls have reached the gate, only while the well's tile is dry. The cistern takes a level or two a tile; the well works and the hall stays dry. The three-year script shares the code and has its cistern off by default.
+
+The three-year script's `HALL_TUNNEL_MAX` (20) was set because water stopped some thirty tiles down a tunnel; that reason is gone, and whether the hall plan should now reach the twenty maps' 25 to 50 tile tunnels is a follow-up ([T-NEW](T-NEW-cistern-under-the-hall.md)).
+
+## Done
+
+- [x] A fluid scenario of a fall-fed level tunnel: [`fl_tunnel_pressure`](../../test/scenarios/fl_tunnel_pressure.scenario.ts) (a source over a 7-deep shaft, a 40-tile tunnel, a 12-high shaft at its end: every tunnel tile full and the shaft full to the source's level − 1 within 2,000 ticks, never above, settled); unit tests of the push in `test/unit/fluids/fluids.test.ts`.
+- [x] The decision, written into 04 § The four movement rules (rule 3) and § Player-facing behavior; `acceptance-tests.md` § 04 Fluids lists the scenario.
+- [x] The 40-tile tunnel re-measured (above).
