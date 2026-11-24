@@ -229,7 +229,7 @@ export class WorldMapScreen implements Screen {
       surface.cells,
       { col: 0, row: 0, cols: this.mapCols, rows: this.mapRows },
       this.world,
-      { camX: this.camX, camY: this.camY, cursor: this.cursor, animFrame: animation.animFrame, reducedMotion: animation.reducedMotion, ...(matches === undefined ? {} : { matches }) },
+      { camX: this.camX, camY: this.camY, cursor: this.cursor, animFrame: animation.animFrame, reducedMotion: animation.reducedMotion, ruined: (id) => this.ruined(id), ...(matches === undefined ? {} : { matches }) },
     );
     surface.hit({ col: 0, row: 0, cols: this.mapCols, rows: this.mapRows }, () => {});
     const rule = surface.glyphs.index('│');
@@ -497,6 +497,14 @@ export class WorldMapScreen implements Screen {
     button(surface, panel.col + 1, panel.row + 4 + height, 'f', s.get('ui.worldmap.close'), () => this.toggle('filter'));
   }
 
+  /**
+   * A fortress ended on the region (T-690): the world holds its ruin (`WorldMap.ruins`), or the
+   * Legends name a fortress there (one that ended before T-686 left ruins).
+   */
+  ruined(regionId: number): boolean {
+    return (this.world.ruins ?? []).some((r) => r.regionId === regionId) || (this.host.ruins?.(regionId).length ?? 0) > 0;
+  }
+
   private drawLegend(surface: Surface, panel: { col: number; row: number; cols: number; rows: number }): void {
     const s = this.strings;
     label(surface, panel.col + 1, panel.row, s.get('ui.worldmap.legend_title'), { fg: surface.theme.key });
@@ -508,6 +516,9 @@ export class WorldMapScreen implements Screen {
     }
     if (surface.inside(panel.col + 1, row)) surface.cells.setCell(panel.col + 1, row, this.compositor.riverCell());
     label(surface, panel.col + 3, row, s.get('ui.worldmap.legend_river'));
+    row += 1;
+    if (surface.inside(panel.col + 1, row)) surface.cells.setCell(panel.col + 1, row, this.compositor.ruinCell());
+    label(surface, panel.col + 3, row, s.get('ui.worldmap.legend_ruin'));
     row += 2;
     button(surface, panel.col + 1, row, '?', s.get('ui.worldmap.close'), () => this.toggle('legend'));
   }

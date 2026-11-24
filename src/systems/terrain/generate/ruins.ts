@@ -12,7 +12,7 @@
 import { TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import { base64ToBytes, bytesToBase64 } from '@core/serialize';
-import type { RuinRecord, WorldMap } from '@systems/worldgen';
+import type { RuinBuilding, RuinRecord, WorldMap } from '@systems/worldgen';
 import type { SpawnEntry } from './common';
 
 /** One changed tile of a ruin. */
@@ -103,12 +103,13 @@ export function decodeRuinTiles(ruin: Pick<RuinRecord, 'tileCount' | 'materials'
 
 /**
  * Stage 10b: lay a site's ruins over its generated map, in the order the fortresses ended, and
- * record the last one's items in the spawn list where they still have a floor to lie on. A ruin
+ * record the last one's items in the spawn list where they still have a floor to lie on, and its
+ * standing furniture in `standing` for 14 to place at arrival (T-690). A ruin
  * tile sets the tile's kind and material and its constructed and smoothed flags, clears its
  * engraving, grass and snow, and its fluid when it is a wall; nothing is drawn, so a site with the
  * same ruins is the same map each time.
  */
-export function stageRuins(map: Map3D, ruins: readonly RuinRecord[], registry: Registry, spawns: SpawnEntry[]): void {
+export function stageRuins(map: Map3D, ruins: readonly RuinRecord[], registry: Registry, spawns: SpawnEntry[], standing: RuinBuilding[] = []): void {
   const size = map.w * map.h * map.d;
   const cleared = TileFlag.Constructed | TileFlag.Smoothed | TileFlag.Engraved | TileFlag.Grass | TileFlag.Snow;
   for (const ruin of ruins) {
@@ -129,5 +130,13 @@ export function stageRuins(map: Map3D, ruins: readonly RuinRecord[], registry: R
     if (item.tile < 0 || item.tile >= size || !isSolidBottomed(map.kind[item.tile] as TileKind)) continue;
     if (!items.has(item.type) || !materials.has(item.material)) continue;
     spawns.push({ kind: 'item', type: item.type, material: item.material, quality: item.quality, count: item.count, tile: item.tile, source: 'ruins' });
+  }
+  // T-690: the last ruin's standing furniture whose type, item and material the content still has;
+  // 14 places each at arrival where its tiles still stand as its placement rule asks.
+  const buildings = registry.table('buildings');
+  for (const piece of last.buildings ?? []) {
+    if (piece.tile < 0 || piece.tile >= size) continue;
+    if (!buildings.has(piece.type) || !items.has(piece.item) || !materials.has(piece.material)) continue;
+    standing.push(piece);
   }
 }

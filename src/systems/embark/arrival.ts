@@ -21,6 +21,7 @@ import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import { ARRIVAL_SEARCH_DEPTH, WAGON_LOGS } from './constants';
 import { TREE_LOGS_MAX, TREE_LOGS_MIN } from '@systems/terrain/constants';
 import type { SpawnEntry } from '@systems/terrain/generate/common';
+import type { RuinBuilding } from '@systems/worldgen';
 import { C, type Tame } from '@core/components';
 import { runeMaxMilli } from '@systems/magic/rune';
 import type { LocalMapSpec } from './spec';
@@ -173,6 +174,30 @@ export function spawnApiDwarfSpawner(world: World): DwarfSpawner {
     });
 }
 
+/** A ruin's piece of furniture for 14 to place (`02` § Ruins, T-690): its item type and material by index. */
+export interface RuinPiece {
+  readonly type: string;
+  readonly tile: TileIndex;
+  readonly orientation: number;
+  readonly item: number;
+  readonly material: number;
+  readonly quality: number;
+}
+
+/** `02` § Ruins (T-690): each standing piece of a ruin, in the record's order, by 14's placement; the ids built. */
+export function placeRuinFurniture(world: World, pieces: readonly RuinBuilding[], place: ArrivalOptions['placeRuin']): EntityId[] {
+  if (place === undefined || pieces.length === 0) return [];
+  const items = world.registry.table('items');
+  const materials = world.registry.table('materials');
+  const placed: EntityId[] = [];
+  for (const piece of pieces) {
+    if (!items.has(piece.item) || !materials.has(piece.material)) continue;
+    const id = place({ type: piece.type, tile: piece.tile, orientation: piece.orientation, item: items.index(piece.item), material: materials.index(piece.material), quality: piece.quality });
+    if (id !== 0) placed.push(id);
+  }
+  return placed;
+}
+
 export interface ArrivalOptions {
   readonly fortressName: string;
   readonly supplies?: readonly SupplyLine[];
@@ -184,6 +209,13 @@ export interface ArrivalOptions {
   readonly placeWagon?: (centre: TileIndex, logs: { type: string; material: number; count: number }) => EntityId;
   /** The local map's trait spawn list (`LocalMapResult.spawns`); its items are spawned. */
   readonly spawns?: readonly SpawnEntry[];
+  /** The site's ruin's standing furniture (`LocalMapResult.ruinFurniture`, `02` § Ruins, T-690); absent: none. */
+  readonly ruinFurniture?: readonly RuinBuilding[];
+  /**
+   * 14's placement of a ruin's piece of furniture, built at once with its item where it still
+   * stands; returns its id or 0. Without it (a world without 14) the furniture is gone.
+   */
+  readonly placeRuin?: (piece: RuinPiece) => EntityId;
   /** A testing embark's free item lines (`02` § Testing mode), spawned into the wagon after the supplies. */
   readonly items?: readonly TestingItemLine[];
   /** A testing embark: the fortress is marked `testing` (`02` § Testing mode). */
@@ -384,6 +416,8 @@ export function arrive(world: World, spec: LocalMapSpec, party: readonly DwarfRe
 
   // The local map's trait features: their items lie where generation put them.
   spawnTraitItems(world, options.spawns ?? []);
+  // 02 § Ruins (T-690): the ruin's furniture stands again where its tiles still stand, built by 14.
+  placeRuinFurniture(world, options.ruinFurniture ?? [], options.placeRuin);
 
   // Step 7: spring (START_SEASON), day 1, START_HOUR, year 1 (the tick was set above).
   world.fortress.name = options.fortressName;

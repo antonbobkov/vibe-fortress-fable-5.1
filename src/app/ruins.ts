@@ -4,7 +4,7 @@
  * weathered and looted. The record goes into the world map, which the next fortress on the world
  * saves, and stage 10b of local map generation lays it over the site again.
  */
-import { C, type Item, type Position } from '@core/components';
+import { C, type Building, type Item, type Position } from '@core/components';
 import { Map3D, TileFlag, TileKind } from '@core/map3d';
 import { hash } from '@core/noise';
 import type { Registry } from '@core/registry';
@@ -13,13 +13,16 @@ import type { EntityId } from '@core/types';
 import {
   localMapSpec,
   RUIN_COLLAPSE_PERMILLE,
+  RUIN_FURNITURE_MAX,
+  RUIN_FURNITURE_STAND_PERMILLE,
   RUIN_ITEMS_MAX,
   RUIN_ITEM_KEEP_PERMILLE,
   RUIN_ITEM_VALUABLE_PERMILLE,
 } from '@systems/embark';
 import { generateLocal } from '@systems/terrain/generate';
 import { encodeRuinTiles, ruinsOf, type RuinTile } from '@systems/terrain/generate/ruins';
-import type { RuinItem, RuinRecord, WorldMap } from '@systems/worldgen';
+import { linksItem, type BuildingRow } from '@systems/buildings';
+import type { RuinBuilding, RuinItem, RuinRecord, WorldMap } from '@systems/worldgen';
 import type { HeadlessGame } from './headless';
 
 /** Item categories the looters favour (`02` § Ruins). */
@@ -118,9 +121,45 @@ export function ruinItems(game: HeadlessGame, registry: Registry, rng: RngStream
 }
 
 /**
+ * Furniture that holds something living or a name, and does not stand empty in a ruin: a cage, a
+ * hive, a nest box, a chain post, a coffin and a memorial slab (`02` § Ruins).
+ */
+const NOT_STANDING = ['cage', 'hive', 'nest_box', 'chain', 'coffin', 'memorial'];
+
+/**
+ * The furniture a ruin keeps standing (`02` § Ruins, T-690): each built piece of furniture that links
+ * its item (a door, a hatch, a bed, a table, a chair, a cabinet, a statue …, not those of
+ * {@link NOT_STANDING}) stands with `RUIN_FURNITURE_STAND_PERMILLE`, drawn in id order after the
+ * items; over `RUIN_FURNITURE_MAX`, pieces drawn uniformly go until it fits. Its item is weathered as
+ * a kept item is: a quality level worse (not below 0). The rest are gone.
+ */
+export function ruinBuildings(game: HeadlessGame, registry: Registry, rng: RngStream): RuinBuilding[] {
+  const types = registry.table<BuildingRow>('buildings');
+  const itemTypes = registry.table<{ id: string }>('items');
+  const materials = registry.table<{ id: string }>('materials');
+  const entities = game.world.entities;
+  const out: RuinBuilding[] = [];
+  for (const id of entities.with(C.Building)) {
+    const b = entities.get<Building>(id, C.Building);
+    if (b === undefined || b.state !== 'built' || b.itemId === 0) continue;
+    const row = types.byIndex(b.type);
+    if (row === undefined || !linksItem(row) || row.tags.some((tag) => NOT_STANDING.includes(tag))) continue;
+    const item = entities.get<Item>(b.itemId, C.Item);
+    const type = item === undefined ? undefined : itemTypes.byIndex(item.type);
+    const material = item === undefined ? undefined : materials.byIndex(item.material);
+    if (item === undefined || type === undefined || material === undefined) continue;
+    if (!rng.chance(RUIN_FURNITURE_STAND_PERMILLE)) continue;
+    out.push({ tile: b.origin, type: row.id, orientation: b.orientation, item: type.id, material: material.id, quality: Math.max(0, item.quality - 1) });
+  }
+  while (out.length > RUIN_FURNITURE_MAX) out.splice(rng.int(0, out.length - 1), 1);
+  return out;
+}
+
+/**
  * The ruin of the running fortress, or `null` on a map that is not a world's site. Its choices
  * draw on their own stream, from the world seed, the region and the tick the fortress ended, so
- * the same end leaves the same ruin. A testing fortress leaves its halls but no items.
+ * the same end leaves the same ruin: tiles, then items, then furniture. A testing fortress leaves
+ * its halls but no items and no furniture.
  */
 export function composeRuin(game: HeadlessGame, world: WorldMap, registry: Registry): RuinRecord | null {
   const fortress = game.world.fortress;
@@ -132,5 +171,6 @@ export function composeRuin(game: HeadlessGame, world: WorldMap, registry: Regis
   const rng = new RngStream(hash(world.seed, 'ruins', regionId, game.tick));
   const tiles = ruinTiles(game.map, site, rng);
   const items = fortress.testing === true ? [] : ruinItems(game, registry, rng);
-  return { fortress: fortress.name, regionId, endedTick: game.tick, ...encodeRuinTiles(tiles, registry), items };
+  const buildings = fortress.testing === true ? [] : ruinBuildings(game, registry, rng);
+  return { fortress: fortress.name, regionId, endedTick: game.tick, ...encodeRuinTiles(tiles, registry), items, ...(buildings.length === 0 ? {} : { buildings }) };
 }

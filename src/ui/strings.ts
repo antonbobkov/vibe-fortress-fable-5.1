@@ -105,6 +105,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.worldmap.filter_matches': '{n} sites match',
   'ui.worldmap.legend_title': 'Legend',
   'ui.worldmap.legend_river': 'river',
+  'ui.worldmap.legend_ruin': 'ruins of a fortress',
   'ui.worldmap.close': 'close',
   // The site summary of the region panel (§ World map; `02` § Site summary).
   'ui.site.soil': 'Soil',
