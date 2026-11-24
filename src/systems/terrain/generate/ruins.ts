@@ -12,7 +12,7 @@
 import { TileFlag, TileKind, isSolidBottomed, type Map3D } from '@core/map3d';
 import type { Registry } from '@core/registry';
 import { base64ToBytes, bytesToBase64 } from '@core/serialize';
-import type { RuinBuilding, RuinRecord, WorldMap } from '@systems/worldgen';
+import type { RuinBuilding, RuinRecord, RuinWreck, WorldMap } from '@systems/worldgen';
 import type { SpawnEntry } from './common';
 
 /** One changed tile of a ruin. */
@@ -104,12 +104,13 @@ export function decodeRuinTiles(ruin: Pick<RuinRecord, 'tileCount' | 'materials'
 /**
  * Stage 10b: lay a site's ruins over its generated map, in the order the fortresses ended, and
  * record the last one's items in the spawn list where they still have a floor to lie on, and its
- * standing furniture in `standing` for 14 to place at arrival (T-690). A ruin
+ * standing furniture in `standing` and its wrecks in `wrecks` for 14 to place at arrival (T-690,
+ * T-692). A ruin
  * tile sets the tile's kind and material and its constructed and smoothed flags, clears its
  * engraving, grass and snow, and its fluid when it is a wall; nothing is drawn, so a site with the
  * same ruins is the same map each time.
  */
-export function stageRuins(map: Map3D, ruins: readonly RuinRecord[], registry: Registry, spawns: SpawnEntry[], standing: RuinBuilding[] = []): void {
+export function stageRuins(map: Map3D, ruins: readonly RuinRecord[], registry: Registry, spawns: SpawnEntry[], standing: RuinBuilding[] = [], wrecks: RuinWreck[] = []): void {
   const size = map.w * map.h * map.d;
   const cleared = TileFlag.Constructed | TileFlag.Smoothed | TileFlag.Engraved | TileFlag.Grass | TileFlag.Snow;
   for (const ruin of ruins) {
@@ -138,5 +139,12 @@ export function stageRuins(map: Map3D, ruins: readonly RuinRecord[], registry: R
     if (piece.tile < 0 || piece.tile >= size) continue;
     if (!buildings.has(piece.type) || !items.has(piece.item) || !materials.has(piece.material)) continue;
     standing.push(piece);
+  }
+  // T-692: the last ruin's wrecks whose type and material the content still has, each with the
+  // inputs whose item type and material it still has.
+  for (const wreck of last.wrecks ?? []) {
+    if (wreck.tile < 0 || wreck.tile >= size || !buildings.has(wreck.type) || !materials.has(wreck.material)) continue;
+    const inputs = wreck.inputs.filter((input) => items.has(input.type) && materials.has(input.material) && input.count > 0);
+    wrecks.push(inputs.length === wreck.inputs.length ? wreck : { ...wreck, inputs });
   }
 }

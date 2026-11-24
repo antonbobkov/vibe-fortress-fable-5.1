@@ -30,6 +30,7 @@ export type {
   RuinBuilding,
   RuinItem,
   RuinRecord,
+  RuinWreck,
   WorldMap,
   WorldgenState,
 } from './state';

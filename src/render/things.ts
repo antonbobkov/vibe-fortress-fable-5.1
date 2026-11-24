@@ -182,9 +182,11 @@ export class ThingLayers {
     if (b === undefined) return cell;
     const row = this.buildingRows.get(b.typeId);
     if (row === undefined) return cell;
-    const planned = b.state !== 'built';
+    const planned = b.state === 'planned' || b.state === 'constructing';
+    // A ruin's wreck (14 § Wrecks): its glyph in its color dimmed a level, and a hearth's does not glow.
+    const ruined = b.state === 'ruined';
     // A built construction is terrain: step 2 has drawn it.
-    if (!planned && row.category === 'construction') return cell;
+    if (b.state === 'built' && row.category === 'construction') return cell;
     const col = this.colors;
     let glyph = row.glyph ?? '?';
     let fg = this.material(b.material);
@@ -210,11 +212,12 @@ export class ThingLayers {
       fg = col['trap'] as Rgb;
     } else if (row.tags.includes('hearth')) {
       fg = col['hearth'] as Rgb;
-      if (!planned) return { glyph: this.glyphOf(glyph), fg, bg: this.pulse === 1 ? parseHex(HEARTH_PULSE_HEX) : (col['black'] as Rgb) };
+      if (!planned && !ruined) return { glyph: this.glyphOf(glyph), fg, bg: this.pulse === 1 ? parseHex(HEARTH_PULSE_HEX) : (col['black'] as Rgb) };
     } else if (row.tags.includes('well')) {
       fg = col['well'] as Rgb;
     }
     if (planned) fg = col['dim'] as Rgb;
+    else if (ruined) fg = this.palette.dim(fg, 1);
     return { glyph: this.glyphOf(glyph), fg, bg: cell.bg };
   }
 

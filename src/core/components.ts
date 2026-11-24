@@ -299,7 +299,11 @@ export interface Corpse {
 export interface Building {
   type: Idx<'BuildingDef'>;
   material: Idx<'MaterialDef'>;
-  state: 'planned' | 'constructing' | 'built';
+  /**
+   * `ruined`: a ruin's wreck (`14` § Wrecks): it stands on its tiles and does nothing until it is
+   * taken apart.
+   */
+  state: 'planned' | 'constructing' | 'built' | 'ruined';
   origin: TileIndex;
   footprint: TileIndex[];
   orientation: 0 | 1 | 2 | 3;

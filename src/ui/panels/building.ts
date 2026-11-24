@@ -546,6 +546,13 @@ export class BuildingPanel {
     const state = s.get(doomed ? 'ui.building.state.doomed' : `ui.building.state.${view.state}`);
     out.push({ id: 'title', text: name, tone: 'value' });
     out.push({ id: 'state', text: material === '' ? state : `${capitalize(material)} · ${state}`, tone: view.state === 'built' && !doomed ? 'text' : 'alert' });
+    if (view.state === 'ruined') {
+      // 14 § Wrecks: a ruin's wreck does nothing; taken apart, it gives back what it still holds.
+      out.push({ id: 'wreck', text: s.get('ui.building.wreck', { returns: this.wreckReturns(ctx, view) }), tone: 'dim', help: s.get('ui.building.wreck_help') });
+      out.push({ id: 'look', text: s.get('ui.building.look'), run: () => ctx.look(view.origin), help: s.get('ui.building.look_help') });
+      if (takeApart !== undefined && !doomed) out.push({ id: 'take_apart', text: key('x', s.get('ui.building.take_apart')), key: 'x', run: () => takeApart(this.id), help: s.get('ui.building.take_apart_help') });
+      return out;
+    }
     if (view.state !== 'built') {
       const waiting = this.waiting(ctx);
       if (waiting !== '') out.push({ id: 'waiting', text: waiting, tone: 'alert' });
@@ -648,6 +655,16 @@ export class BuildingPanel {
     out.push({ id: 'look', text: s.get('ui.building.look'), run: () => ctx.look(view.origin), help: s.get('ui.building.look_help') });
     if (takeApart !== undefined && !doomed) out.push({ id: 'take_apart', text: key('x', s.get('ui.building.take_apart')), key: 'x', run: () => takeApart(this.id), help: s.get('ui.building.take_apart_help') });
     return out;
+  }
+
+  /** What a wreck gives back when it is taken apart (14 § Wrecks): "stone block ×1, log ×1", or "nothing". */
+  private wreckReturns(ctx: PanelContext, view: BuildingView): string {
+    const s = ctx.strings;
+    const counts = new Map<string, number>();
+    for (const unit of (view.settings['inputs'] as { type: string }[] | undefined) ?? []) counts.set(unit.type, (counts.get(unit.type) ?? 0) + 1);
+    if (counts.size === 0) return s.get('ui.building.wreck_nothing');
+    const items = ctx.registry.table<{ id: string; name: string }>('items');
+    return [...counts].map(([type, n]) => s.get('ui.building.contents_type', { name: items.byId(type)?.name ?? type, n })).join(', ');
   }
 
   /**

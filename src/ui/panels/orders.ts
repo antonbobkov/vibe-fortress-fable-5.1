@@ -357,7 +357,8 @@ export class OrdersPanel {
     const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(recipe.workshop)?.name ?? recipe.workshop.replace(/_/g, ' ')).toLowerCase();
     const rank = this.rank(ctx, recipe);
     if (rank === 2) {
-      const placed = this.buildings(ctx)?.byType(recipe.workshop) ?? [];
+      // A ruin's wreck (14 § Wrecks) is not a workshop waiting to be built.
+      const placed = (this.buildings(ctx)?.byType(recipe.workshop) ?? []).filter((id) => this.buildings(ctx)?.get(id)?.state !== 'ruined');
       return placed.length > 0 ? this.buildWait(ctx, placed, workshop) : s.get('ui.orders.pick.no_workshop', { workshop });
     }
     const reader = this.reader(ctx);
