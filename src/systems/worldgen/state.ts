@@ -82,6 +82,22 @@ export interface RuinRecord {
   readonly items: readonly RuinItem[];
   /** The furniture still standing (T-690); absent in a ruin told before it: none. */
   readonly buildings?: readonly RuinBuilding[];
+  /** The workshops, hearth, depots and wells left as wrecks (T-692); absent in a ruin told before it: none. */
+  readonly wrecks?: readonly RuinWreck[];
+}
+
+/**
+ * A building an ended fortress left as a wreck on its site (`02` § Ruins, T-692): the building type
+ * at its origin tile and orientation, its material id, and the inputs it still holds, by item type
+ * and material ids in the order they were consumed.
+ */
+export interface RuinWreck {
+  readonly tile: number;
+  /** Building type id. */
+  readonly type: string;
+  readonly orientation: number;
+  readonly material: string;
+  readonly inputs: readonly { readonly type: string; readonly material: string; readonly count: number }[];
 }
 
 /**

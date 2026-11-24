@@ -18,11 +18,12 @@ import {
   RUIN_ITEMS_MAX,
   RUIN_ITEM_KEEP_PERMILLE,
   RUIN_ITEM_VALUABLE_PERMILLE,
+  RUIN_WRECKS_MAX,
 } from '@systems/embark';
 import { generateLocal } from '@systems/terrain/generate';
 import { encodeRuinTiles, ruinsOf, type RuinTile } from '@systems/terrain/generate/ruins';
 import { linksItem, type BuildingRow } from '@systems/buildings';
-import type { RuinBuilding, RuinItem, RuinRecord, WorldMap } from '@systems/worldgen';
+import type { RuinBuilding, RuinItem, RuinRecord, RuinWreck, WorldMap } from '@systems/worldgen';
 import type { HeadlessGame } from './headless';
 
 /** Item categories the looters favour (`02` § Ruins). */
@@ -155,11 +156,51 @@ export function ruinBuildings(game: HeadlessGame, registry: Registry, rng: RngSt
   return out;
 }
 
+/** The buildings a ruin keeps as wrecks (`02` § Ruins): workshops, the hearth, depots and wells. */
+function wrecks(row: BuildingRow): boolean {
+  return row.category === 'workshop' || row.tags.some((tag) => tag === 'hearth' || tag === 'depot' || tag === 'well');
+}
+
+/**
+ * The wrecks a ruin keeps (`02` § Ruins, T-692): each built workshop, hearth, depot and well (and each
+ * wreck the fortress found and left standing), in id order, stands as a wreck holding every second
+ * unit of what it was built of (the 2nd, the 4th …, in the order consumed): the first, an anvil or a
+ * table as often as not, went with the looters. Over `RUIN_WRECKS_MAX`, wrecks drawn uniformly go
+ * until it fits. The units are grouped by item type and material, in the order of their first unit.
+ */
+export function ruinWrecks(game: HeadlessGame, registry: Registry, rng: RngStream): RuinWreck[] {
+  const types = registry.table<BuildingRow>('buildings');
+  const itemTypes = registry.table<{ id: string }>('items');
+  const materials = registry.table<{ id: string }>('materials');
+  const entities = game.world.entities;
+  const out: RuinWreck[] = [];
+  for (const id of entities.with(C.Building)) {
+    const b = entities.get<Building>(id, C.Building);
+    if (b === undefined || (b.state !== 'built' && b.state !== 'ruined')) continue;
+    const row = types.byIndex(b.type);
+    const material = materials.byIndex(b.material);
+    if (row === undefined || material === undefined || !wrecks(row)) continue;
+    const used = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
+    const inputs: { type: string; material: string; count: number }[] = [];
+    for (let k = 1; k < used.length; k += 2) {
+      const unit = used[k] as { type: string; material: number };
+      const mat = materials.byIndex(unit.material);
+      if (!itemTypes.has(unit.type) || mat === undefined) continue;
+      const line = inputs.find((l) => l.type === unit.type && l.material === mat.id);
+      if (line === undefined) inputs.push({ type: unit.type, material: mat.id, count: 1 });
+      else line.count += 1;
+    }
+    out.push({ tile: b.origin, type: row.id, orientation: b.orientation, material: material.id, inputs });
+  }
+  while (out.length > RUIN_WRECKS_MAX) out.splice(rng.int(0, out.length - 1), 1);
+  return out;
+}
+
 /**
  * The ruin of the running fortress, or `null` on a map that is not a world's site. Its choices
  * draw on their own stream, from the world seed, the region and the tick the fortress ended, so
- * the same end leaves the same ruin: tiles, then items, then furniture. A testing fortress leaves
- * its halls but no items and no furniture.
+ * the same end leaves the same ruin: tiles, then items, then furniture, then wrecks. A testing
+ * fortress leaves its halls but no items, no furniture and no wrecks.
  */
 export function composeRuin(game: HeadlessGame, world: WorldMap, registry: Registry): RuinRecord | null {
   const fortress = game.world.fortress;
@@ -172,5 +213,9 @@ export function composeRuin(game: HeadlessGame, world: WorldMap, registry: Regis
   const tiles = ruinTiles(game.map, site, rng);
   const items = fortress.testing === true ? [] : ruinItems(game, registry, rng);
   const buildings = fortress.testing === true ? [] : ruinBuildings(game, registry, rng);
-  return { fortress: fortress.name, regionId, endedTick: game.tick, ...encodeRuinTiles(tiles, registry), items, ...(buildings.length === 0 ? {} : { buildings }) };
+  const wrecked = fortress.testing === true ? [] : ruinWrecks(game, registry, rng);
+  return {
+    fortress: fortress.name, regionId, endedTick: game.tick, ...encodeRuinTiles(tiles, registry), items,
+    ...(buildings.length === 0 ? {} : { buildings }), ...(wrecked.length === 0 ? {} : { wrecks: wrecked }),
+  };
 }

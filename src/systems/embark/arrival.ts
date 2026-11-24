@@ -21,7 +21,7 @@ import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import { ARRIVAL_SEARCH_DEPTH, WAGON_LOGS } from './constants';
 import { TREE_LOGS_MAX, TREE_LOGS_MIN } from '@systems/terrain/constants';
 import type { SpawnEntry } from '@systems/terrain/generate/common';
-import type { RuinBuilding } from '@systems/worldgen';
+import type { RuinBuilding, RuinWreck } from '@systems/worldgen';
 import { C, type Tame } from '@core/components';
 import { runeMaxMilli } from '@systems/magic/rune';
 import type { LocalMapSpec } from './spec';
@@ -198,6 +198,35 @@ export function placeRuinFurniture(world: World, pieces: readonly RuinBuilding[]
   return placed;
 }
 
+/** A ruin's wreck for 14 to place (`02` § Ruins, T-692): its material and inputs by index, a unit each. */
+export interface RuinWreckPiece {
+  readonly type: string;
+  readonly tile: TileIndex;
+  readonly orientation: number;
+  readonly material: number;
+  /** One entry for each unit it holds, in the record's order. */
+  readonly inputs: readonly { readonly type: string; readonly material: number }[];
+}
+
+/** `02` § Ruins (T-692): each wreck of a ruin, in the record's order, by 14's placement; the ids placed. */
+export function placeRuinWrecks(world: World, wrecks: readonly RuinWreck[], place: ArrivalOptions['placeWreck']): EntityId[] {
+  if (place === undefined || wrecks.length === 0) return [];
+  const items = world.registry.table('items');
+  const materials = world.registry.table('materials');
+  const placed: EntityId[] = [];
+  for (const wreck of wrecks) {
+    if (!materials.has(wreck.material)) continue;
+    const inputs: { type: string; material: number }[] = [];
+    for (const line of wreck.inputs) {
+      if (!items.has(line.type) || !materials.has(line.material)) continue;
+      for (let k = 0; k < line.count; k += 1) inputs.push({ type: line.type, material: materials.index(line.material) });
+    }
+    const id = place({ type: wreck.type, tile: wreck.tile, orientation: wreck.orientation, material: materials.index(wreck.material), inputs });
+    if (id !== 0) placed.push(id);
+  }
+  return placed;
+}
+
 export interface ArrivalOptions {
   readonly fortressName: string;
   readonly supplies?: readonly SupplyLine[];
@@ -216,6 +245,13 @@ export interface ArrivalOptions {
    * stands; returns its id or 0. Without it (a world without 14) the furniture is gone.
    */
   readonly placeRuin?: (piece: RuinPiece) => EntityId;
+  /** The site's ruin's wrecks (`LocalMapResult.ruinWrecks`, `02` § Ruins, T-692); absent: none. */
+  readonly ruinWrecks?: readonly RuinWreck[];
+  /**
+   * 14's placement of a ruin's wreck, `ruined`, where its tiles still stand; returns its id or 0.
+   * Without it (a world without 14) the wrecks are gone.
+   */
+  readonly placeWreck?: (wreck: RuinWreckPiece) => EntityId;
   /** A testing embark's free item lines (`02` § Testing mode), spawned into the wagon after the supplies. */
   readonly items?: readonly TestingItemLine[];
   /** A testing embark: the fortress is marked `testing` (`02` § Testing mode). */
@@ -418,6 +454,8 @@ export function arrive(world: World, spec: LocalMapSpec, party: readonly DwarfRe
   spawnTraitItems(world, options.spawns ?? []);
   // 02 § Ruins (T-690): the ruin's furniture stands again where its tiles still stand, built by 14.
   placeRuinFurniture(world, options.ruinFurniture ?? [], options.placeRuin);
+  // T-692: then its workshops, hearth, depots and wells stand as wrecks where their tiles still stand.
+  placeRuinWrecks(world, options.ruinWrecks ?? [], options.placeWreck);
 
   // Step 7: spring (START_SEASON), day 1, START_HOUR, year 1 (the tick was set above).
   world.fortress.name = options.fortressName;

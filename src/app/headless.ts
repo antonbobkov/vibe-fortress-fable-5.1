@@ -31,6 +31,7 @@ import {
   localMapSpec,
   type ArrivalOptions,
   type RuinPiece,
+  type RuinWreckPiece,
   type ArrivalResult,
   type LocalMapSpec,
 } from '@systems/embark';
@@ -435,12 +436,14 @@ export class HeadlessGame {
   }
 
   /** 14 places the wagon (T-M2-08); the local map's trait spawn list is spawned. */
-  private arrivalHooks(): Pick<ArrivalOptions, 'placeWagon' | 'spawns' | 'placeRuin' | 'ruinFurniture'> {
+  private arrivalHooks(): Pick<ArrivalOptions, 'placeWagon' | 'spawns' | 'placeRuin' | 'ruinFurniture' | 'placeWreck' | 'ruinWrecks'> {
     const buildings = this.world.scheduler.inOrder().find((s) => s instanceof BuildingsSystem) as BuildingsSystem | undefined;
     return {
       ...(buildings === undefined ? {} : { placeWagon: (centre: number, logs: { type: string; material: number; count: number }) => buildings.buildings.placeWagon(centre, logs) }),
       // 02 § Ruins (T-690): 14 stands the ruin's furniture again.
       ...(buildings === undefined || this.local?.ruinFurniture === undefined ? {} : { placeRuin: (piece: RuinPiece) => buildings.buildings.placeRuin(piece), ruinFurniture: this.local.ruinFurniture }),
+      // T-692: and its wrecks.
+      ...(buildings === undefined || this.local?.ruinWrecks === undefined ? {} : { placeWreck: (wreck: RuinWreckPiece) => buildings.buildings.placeWreck(wreck), ruinWrecks: this.local.ruinWrecks }),
       spawns: this.local?.spawns ?? [],
     };
   }

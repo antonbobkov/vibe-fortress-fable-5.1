@@ -694,22 +694,24 @@ export class BuildingStore {
     const id = cmd['buildingId'];
     const b = typeof id === 'number' ? this.get(id) : undefined;
     if (b === undefined) return reject('not_found');
-    if (b.state === 'built') return reject('not_cancellable');
+    // A wreck (14 § Wrecks) was never planned: it is taken apart, not cancelled.
+    if (b.state === 'built' || b.state === 'ruined') return reject('not_cancellable');
     this.remove(id as EntityId);
     return OK;
   }
 
   /**
-   * `DeconstructBuilding { buildingId }`: "built; not the hearth while dwarves live". A construction
-   * gets 03's `remove` designation; any other building a `deconstruct` job.
+   * `DeconstructBuilding { buildingId }`: "built or a wreck; not the hearth while dwarves live" (a
+   * hearth's wreck is not the fortress's hearth, 14 § Wrecks). A construction gets 03's `remove`
+   * designation; any other building a `deconstruct` job.
    */
   deconstruct(cmd: Command): CommandResult {
     const id = cmd['buildingId'];
     const b = typeof id === 'number' ? this.get(id) : undefined;
     if (b === undefined) return reject('not_found');
-    if (b.state !== 'built') return reject('precondition_failed');
+    if (b.state !== 'built' && b.state !== 'ruined') return reject('precondition_failed');
     const row = this.row(b.type);
-    if (row.tags.includes('hearth') && this.host.dwarvesAlive()) return reject('hearth_is_home');
+    if (row.tags.includes('hearth') && b.state === 'built' && this.host.dwarvesAlive()) return reject('hearth_is_home');
     const priority = (b.settings['priority'] as number | undefined) ?? PRIORITY_DEFAULT;
     if (row.category === 'construction') {
       for (const t of b.footprint) this.host.services.terrain.setDesignation(t, Designation.Remove, priority);
@@ -817,7 +819,7 @@ export class BuildingStore {
           // A cancelled job whose building still stands is made again.
           for (const id of this.all()) {
             const b = this.get(id) as Building;
-            if (b.state !== 'built' || b.settings['deconstruct'] === true) this.addPending(id);
+            if (b.state === 'planned' || b.state === 'constructing' || b.settings['deconstruct'] === true) this.addPending(id);
           }
         }
       },
@@ -835,7 +837,7 @@ export class BuildingStore {
       const priority = (b.settings['priority'] as number | undefined) ?? PRIORITY_DEFAULT;
       const anchor = this.anchorOf(b);
       const material = (b.settings['materialChoice'] as number | undefined) ?? 0;
-      if (b.state !== 'built') {
+      if (b.state === 'planned' || b.state === 'constructing') {
         if (jobs.exists(buildKey(id))) continue;
         if (this.awaitsSupport(b, row)) { waiting.push(id); continue; }
         const inputs = this.inputsFor(row, b.footprint.length, material, isOfBlocks(b));
@@ -1234,6 +1236,44 @@ export class BuildingStore {
     this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
     const linked = this.host.services.spawn.item(piece.item, piece.material, piece.tile, 1, piece.quality);
     this.complete(id, [], piece.material, linked);
+    return id;
+  }
+
+  /**
+   * `02` § Ruins (T-692), 14 § Wrecks: a ruin's workshop, hearth, depot or well, placed at arrival as
+   * a wreck (`ruined`) holding the units it kept, where its footprint is in the map, holds no building
+   * and no sapling or shrub, and every tile passes its placement rule; returns its id, or 0 where it
+   * no longer stands. It is not built: no `BuildingCompleted`, no value, not the fortress's hearth.
+   */
+  placeWreck(wreck: { type: string; tile: TileIndex; orientation: number; material: number; inputs: readonly { type: string; material: number }[] }): EntityId {
+    const type = this.typeOf(wreck.type);
+    if (type === 0 || !this.map.validIndex(wreck.tile) || this.materials[wreck.material] === undefined) return 0;
+    const row = this.row(type);
+    if (!Number.isInteger(wreck.orientation) || wreck.orientation < 0 || wreck.orientation > 3) return 0;
+    const tiles = this.footprint(row, wreck.tile, wreck.orientation);
+    if (tiles === null) return 0;
+    const rule = onRuleOf(row.id);
+    for (const t of tiles) {
+      if (this.map.buildingAtTile(t) !== 0 || isClearablePlant(this.map.kindAt(t)) || !onRuleHolds(this.map, rule, t, this.soilMaterial)) return 0;
+    }
+    const id = this.host.entities.create('building');
+    this.host.entities.add(id, C.Building, {
+      type: type as Idx<'BuildingDef'>,
+      material: wreck.material as Idx<'MaterialDef'>,
+      state: 'ruined',
+      origin: wreck.tile,
+      footprint: tiles,
+      orientation: wreck.orientation as Building['orientation'],
+      itemId: 0,
+      mode: '',
+      linkedIds: [],
+      ownerId: 0,
+      settings: { priority: PRIORITY_DEFAULT, materialChoice: wreck.material, inputs: wreck.inputs.filter((u) => this.itemIndex.has(u.type)).map((u) => ({ type: u.type, material: u.material })) },
+      toggled: false,
+    });
+    for (const t of tiles) this.map.setBuildingAt(t, id);
+    for (const t of tiles) this.map.markChunkDirty(t, true, false);
+    this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
     return id;
   }
 

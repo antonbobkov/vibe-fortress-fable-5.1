@@ -33,3 +33,5 @@ export const RUIN_ITEMS_MAX = 60;
 export const RUIN_FURNITURE_STAND_PERMILLE = 500;
 /** `02` § Ruins (T-690): the most pieces of furniture one ruin keeps standing (*unmeasured*). */
 export const RUIN_FURNITURE_MAX = 40;
+/** `02` § Ruins (T-692): the most wrecks (workshops, the hearth, depots, wells) one ruin keeps (*unmeasured*). */
+export const RUIN_WRECKS_MAX = 20;

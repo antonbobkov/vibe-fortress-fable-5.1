@@ -358,7 +358,7 @@ export class HintEngine {
       foodShort: readers.has('10') && items !== null &&
         items.countMatching({ edible: true }) < Math.ceil((readers.of<{ population(): number }>('10').population() * HINT_FOOD_DAYS) / HINT_FOOD_DAYS_PER_ITEM),
       tick: cal.tick, year: cal.year, season: cal.season, day: cal.dayOfSeason,
-      stillMissing: byType('still').length === 0, drinkLow: (items?.count('drink') ?? 0) < 40,
+      stillMissing: byType('still').every((id) => buildings?.get(id)?.state === 'ruined'), drinkLow: (items?.count('drink') ?? 0) < 40,
       stockpileMissing: stockpiles.length === 0, groundItems: readers.entities.with(C.Item, C.Position).length,
       hearthMissing: (buildings?.hearth() ?? 0) === 0, hasDiningHall: zones('dining_hall').length > 0,
       bedrooms: zones('bedroom').length, containersMissing,

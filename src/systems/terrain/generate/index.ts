@@ -27,7 +27,7 @@ import { stageLight } from './light';
 import { stageStarfall } from './starfall';
 import { stageBoneyards } from './boneyards';
 import { stageRuins } from './ruins';
-import type { RuinBuilding, RuinRecord } from '@systems/worldgen';
+import type { RuinBuilding, RuinRecord, RuinWreck } from '@systems/worldgen';
 
 export type { SpawnEntry, StackLayer, VeinRecord } from './common';
 
@@ -87,6 +87,8 @@ export interface LocalMapResult {
   readonly volcano: number;
   /** Stage 10b: the last ruin's furniture that still has its tiles, for 14 at arrival (02 § Ruins, T-690); absent: none. */
   readonly ruinFurniture?: readonly RuinBuilding[];
+  /** Stage 10b: the last ruin's wrecks, for 14 at arrival (02 § Ruins, T-692); absent: none. */
+  readonly ruinWrecks?: readonly RuinWreck[];
 }
 
 export function newLocalGen(spec: LocalMapSpec, map: Map3D, registry: Registry): LocalGen {
@@ -139,6 +141,7 @@ export function generateLocal(
 ): LocalMapResult {
   const g = newLocalGen(spec, map, registry);
   const standing: RuinBuilding[] = [];
+  const wrecks: RuinWreck[] = [];
   map.kind.fill(0);
   map.material.fill(0);
   map.fluid.fill(0);
@@ -177,7 +180,7 @@ export function generateLocal(
     },
     light: () => {
       // Stage 10b: an ended fortress's ruins, drawing nothing, so a site without any is unchanged.
-      if (options.ruins !== undefined && options.ruins.length > 0) stageRuins(map, options.ruins, registry, g.spawns, standing);
+      if (options.ruins !== undefined && options.ruins.length > 0) stageRuins(map, options.ruins, registry, g.spawns, standing, wrecks);
       stageLight(map);
     },
   };
@@ -205,6 +208,7 @@ export function generateLocal(
     roosts: g.roosts,
     volcano: g.volcano,
     ...(standing.length === 0 ? {} : { ruinFurniture: standing }),
+    ...(wrecks.length === 0 ? {} : { ruinWrecks: wrecks }),
   };
 }
 

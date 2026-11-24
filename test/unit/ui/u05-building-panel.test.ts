@@ -11,7 +11,7 @@ import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import { TileKind } from '@core/map3d';
 import { computeLayout } from '@render/cellbuffer';
-import type { BuildingsReader } from '@systems/buildings';
+import { BuildingsSystem, type BuildingsReader } from '@systems/buildings';
 import { rejectionText } from '@ui/messages';
 import { drawBuildingPanel } from '@ui/panels/building';
 import { drawDesignatePanel } from '@ui/panels/designate';
@@ -633,5 +633,26 @@ describe('U-05 Designate: the last batch takes another priority (SetDesignationP
     expect(row).toBeGreaterThanOrEqual(0);
     s.hitAt(3, row)?.action();
     expect(clicked).toBe(1);
+  });
+});
+
+describe('T-692 a ruin\'s wreck in the building panel', () => {
+  it('T-692 a wreck opens the building panel, says what taking it apart gives back, and takes apart after asking', () => {
+    const f = setup('t692-wreck-panel');
+    const store = (f.w.game.world.scheduler.inOrder().find((s) => s instanceof BuildingsSystem) as BuildingsSystem).buildings;
+    const granite = f.w.game.registry.table('materials').index('granite');
+    const wreck = store.placeWreck({ type: 'forge', tile: f.w.index(30, 30, z), orientation: 0, material: granite, inputs: [{ type: 'stone_block', material: granite }, { type: 'stone_block', material: granite }] });
+    expect(wreck).not.toBe(0);
+    f.w.step(1);
+    // No Workshop component: a click opens the building panel, not the workshop's.
+    open(f, wreck);
+    const text = panel(f).text;
+    expect(text).toContain('Granite · a wreck');
+    expect(text).toContain('A wreck of the old fortress: it does');
+    expect(text).toContain('nothing. Taken apart: block x2.');
+    expect(text).not.toContain('cancel the plan');
+    panel(f).click('take apart');
+    expect(f.asked.at(-1)?.id).toBe('c_deconstruct_building');
+    expect(f.sent).toEqual([{ type: 'DeconstructBuilding', buildingId: wreck }]);
   });
 });

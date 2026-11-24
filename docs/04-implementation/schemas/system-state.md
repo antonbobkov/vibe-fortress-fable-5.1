@@ -9,7 +9,8 @@ interface WorldgenState { stateVersion: 1; world: WorldMap }
 interface WorldMap { size: number; seed: string; regions: RegionRecord[]; civHomes: Record<Civ, number>; rivers: { id: number; regions: number[]; class: string }[]; ruins?: RuinRecord[] }
 // 02 § Ruins (T-686): what an ended fortress left on its site; `tiles` is the packed tile list, base64.
 interface RuinRecord { fortress: string; regionId: number; endedTick: number; tileCount: number; materials: string[]; tiles: string; items: { tile: number; type: string; material: string; count: number; quality: number }[];
-  buildings?: { tile: number; type: string; orientation: number; item: string; material: string; quality: number }[] /* the furniture still standing (T-690); absent in a ruin told before it: none */ }
+  buildings?: { tile: number; type: string; orientation: number; item: string; material: string; quality: number }[] /* the furniture still standing (T-690); absent in a ruin told before it: none */;
+  wrecks?: { tile: number; type: string; orientation: number; material: string; inputs: { type: string; material: string; count: number }[] }[] /* the workshops, hearths, depots and wells left as wrecks, with the units they hold; absent in a ruin told before it: none */ }
 interface RegionRecord { id: number; elevation: number; tempC: number; rain: number; biome: Id<BiomeDef>; geology: string; volcano: boolean;
   river: { inflow: Edge[]; outflow: Edge | null; class: 'brook'|'river'|'major' } | null; lake: boolean; deepness: number;
   wealth: number; peril: number; temper: number; traits: Id<RegionTraitDef>[]; civDistance: Record<Civ, number>; nearestEdgeTo: Record<Civ, Edge>; name: string }
