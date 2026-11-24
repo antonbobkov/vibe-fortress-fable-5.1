@@ -30,6 +30,8 @@ Every trap has a `mode`: `enemies` (default) or `all`. Under `enemies`, a trap t
 | `cage` | 1 mechanism, 1 empty cage | If `size(creature) ≤ CAGE_MAX_SIZE`: the creature is removed from the map into the cage item (`CreatureCaged`); the cage item stays on the trap tile until hauled; larger creatures, and a summon (25 § Summons), which would fade in the cage, trigger nothing and walk over | `spent`; `rearm_trap` with a new empty (unoccupied) cage |
 | `weapon` | 1 mechanism, 1–3 weapons | Each weapon attacks the creature as in 16 at `TRAP_SKILL`; with `TRAP_JAM_PERMILLE` × (corpses on the tile + 1) the trap jams | `armed` unless jammed; `clean_trap` job (labor `cleaning`) unjams; corpses stay under ordinary refuse hauling or burial |
 
+A trap's load is installed, not consumed (14 § Placement): it is the trap's `loaded` items (`TrapRecord.loaded`); the stone that falls and the cage that catches leave it, and a rearm installs a new one. When the trap is removed (`BuildingRemoved`, taken apart or destroyed), its loaded items are dropped on its tile, so a trap taken apart gives back its mechanism (14) and what it is loaded with then, once: a stone-fall trap that has fallen gives back no stone, one rearmed since gives back the new stone.
+
 `TrapTriggered { trapId, creatureId, kind, outcome }` is emitted for every trigger. A trap tile is walkable; dwarves cross their own traps safely under `enemies`.
 
 Caged creatures: the cage item with an occupant can be hauled to a stockpile accepting `furniture/cage`, placed as a `cage` building (14), sold to a caravan (20 values exotic creatures), tamed (08), or released (`ReleaseCage`: the creature reappears adjacent; hostile creatures resume hostility).
