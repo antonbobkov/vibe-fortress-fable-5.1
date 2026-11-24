@@ -27,7 +27,7 @@ import { stageLight } from './light';
 import { stageStarfall } from './starfall';
 import { stageBoneyards } from './boneyards';
 import { stageRuins } from './ruins';
-import type { RuinRecord } from '@systems/worldgen';
+import type { RuinBuilding, RuinRecord } from '@systems/worldgen';
 
 export type { SpawnEntry, StackLayer, VeinRecord } from './common';
 
@@ -85,6 +85,8 @@ export interface LocalMapResult {
   readonly roosts: readonly TileIndex[];
   /** Centre column of the volcano pipe, or -1. */
   readonly volcano: number;
+  /** Stage 10b: the last ruin's furniture that still has its tiles, for 14 at arrival (02 § Ruins, T-690); absent: none. */
+  readonly ruinFurniture?: readonly RuinBuilding[];
 }
 
 export function newLocalGen(spec: LocalMapSpec, map: Map3D, registry: Registry): LocalGen {
@@ -136,6 +138,7 @@ export function generateLocal(
   options: LocalOptions = {},
 ): LocalMapResult {
   const g = newLocalGen(spec, map, registry);
+  const standing: RuinBuilding[] = [];
   map.kind.fill(0);
   map.material.fill(0);
   map.fluid.fill(0);
@@ -150,7 +153,7 @@ export function generateLocal(
     sea: () => stageSea(g),
     caverns: () => {
       stageCaverns(g);
-      // 03 � Local map generation, after stage 6: the bat roosts, on their own stream.
+      // 03 § Local map generation, after stage 6: the bat roosts, on their own stream.
       stageRoosts(g);
     },
     minerals: () => stageMinerals(g),
@@ -174,7 +177,7 @@ export function generateLocal(
     },
     light: () => {
       // Stage 10b: an ended fortress's ruins, drawing nothing, so a site without any is unchanged.
-      if (options.ruins !== undefined && options.ruins.length > 0) stageRuins(map, options.ruins, registry, g.spawns);
+      if (options.ruins !== undefined && options.ruins.length > 0) stageRuins(map, options.ruins, registry, g.spawns, standing);
       stageLight(map);
     },
   };
@@ -201,6 +204,7 @@ export function generateLocal(
     boneyards: g.boneyards,
     roosts: g.roosts,
     volcano: g.volcano,
+    ...(standing.length === 0 ? {} : { ruinFurniture: standing }),
   };
 }
 

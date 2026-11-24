@@ -80,6 +80,23 @@ export interface RuinRecord {
   readonly materials: readonly string[];
   readonly tiles: string;
   readonly items: readonly RuinItem[];
+  /** The furniture still standing (T-690); absent in a ruin told before it: none. */
+  readonly buildings?: readonly RuinBuilding[];
+}
+
+/**
+ * A piece of furniture an ended fortress left standing on its site (`02` § Ruins, T-690): the
+ * building type at its origin tile and orientation, and its linked item, weathered.
+ */
+export interface RuinBuilding {
+  readonly tile: number;
+  /** Building type id. */
+  readonly type: string;
+  readonly orientation: number;
+  /** The linked item's type and material ids, and its quality. */
+  readonly item: string;
+  readonly material: string;
+  readonly quality: number;
 }
 
 export interface WorldgenState {

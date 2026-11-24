@@ -29,3 +29,7 @@ export const RUIN_ITEM_KEEP_PERMILLE = 500;
 export const RUIN_ITEM_VALUABLE_PERMILLE = 200;
 /** `02` § Ruins: the most items one ruin keeps (*unmeasured*). */
 export const RUIN_ITEMS_MAX = 60;
+/** `02` § Ruins (T-690): the chance a piece of furniture still stands where it was built (*unmeasured*). */
+export const RUIN_FURNITURE_STAND_PERMILLE = 500;
+/** `02` § Ruins (T-690): the most pieces of furniture one ruin keeps standing (*unmeasured*). */
+export const RUIN_FURNITURE_MAX = 40;
