@@ -834,6 +834,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
   const currentWants = ((zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? defaultWants) as Record<string, number>) ?? defaultWants;
   const suppliesList: readonly { key: string; item: string; label: string }[] = [
     { key: 'cloth', item: 'cloth', label: 'Cloth' },
+    { key: 'bandages', item: 'bandage', label: 'Bandages' },
     { key: 'thread', item: 'thread', label: 'Thread' },
     { key: 'splints', item: 'splint', label: 'Splints' },
     { key: 'crutches', item: 'crutch', label: 'Crutches' },

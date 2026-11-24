@@ -165,12 +165,13 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(fgOfText(s, 2, 'Room:')).not.toBe(hexOf(theme.bad));
     expect(rows[7]).toBe('Beds: 0  Traction: 0  Chests: 0');
     expect(rows[8]).toBe('Supplies (current / wanted):');
-    expect(rows.slice(9, 17).map((row) => row.replace(/ +\[-\]\[\+\]$/, ''))).toEqual([
-      'Cloth: 0/10', 'Thread: 0/5', 'Splints: 0/4', 'Crutches: 0/2', 'Brightleaf: 0/6', 'Buckets: 0/2', 'Honey: 0/0', 'Soap: 0/0',
+    expect(rows.slice(9, 18).map((row) => row.replace(/ +\[-\]\[\+\]$/, ''))).toEqual([
+      'Cloth: 0/10', 'Bandages: 0/0', 'Thread: 0/5', 'Splints: 0/4', 'Crutches: 0/2', 'Brightleaf: 0/6', 'Buckets: 0/2', 'Honey: 0/0',
+      'Soap: 0/0',
     ]);
-    for (const row of rows.slice(9, 17)) expect(row).toMatch(/\[-\]\[\+\]$/);
-    expect(rows[17]).toBe('Patients:');
-    expect(rows[18]).toContain(`${patientName}: suture`);
+    for (const row of rows.slice(9, 18)) expect(row).toMatch(/\[-\]\[\+\]$/);
+    expect(rows[18]).toBe('Patients:');
+    expect(rows[19]).toContain(`${patientName}: suture`);
     expect(rows[31]).toBe('[x] remove zone  [e] resize');
   });
 

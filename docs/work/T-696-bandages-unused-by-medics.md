@@ -12,6 +12,15 @@ Make the treatments that take a cloth take a bandage as well (one bandage a trea
 
 Spec: 17 § Patients and hospitals (`stop_bleeding`, `dress_burn`, the supply record), § Animals; `items.md` § bandage; `workshops-and-recipes.md` (`make_bandages`).
 
+## Decision
+
+Bandages are taken, first, and nothing else about them changes (17 § Patients and hospitals, *Bandages first*; § Animals; `items.md` § bandage):
+
+- **A bandage or a cloth, one a treatment.** `stop_bleeding`, `dress_burn` and `bandage_animal` take one `bandage` while one is to be had, else one `cloth`. A bandage is neither quicker nor a better clot: the spec gives it no number, and none is invented. It is preferred because it is the cheaper dressing (a cloth makes four), so the cloth stays for the clothier and the loom while bandages last. The choice is made when the job is made (each job a health tick makes takes one from the bandages counted at its start); a job still waiting for a worker whose bandage is gone while a cloth is to be had, or the reverse, is made again with the other (`dressing_in_place`). Honey stands in for `dress_burn` only when neither is to be had.
+- **The supply record has `bandages`, default 0.** As honey and soap: a fortress that never asks keeps its hospital as it was (the T-693 reserve with the default record stays 10). The hospital panel shows `Bandages: n/m` under Cloth with its `[-][+]`; the chests take bandages whatever filter the record was made with, as they take soap.
+- **T-693's reserve counts dressings.** The dressings the hospitals keep are the sum of their `cloth` and `bandages` settings; the spare a light burn may take is the bandages and cloth to be had together, less that. A bandage counts one, as a cloth does (not a quarter of a cloth): the reserve is in treatments, and a treatment takes one of either.
+- **Not taken:** counting a cloth as four bandages in the reserve; a nonzero default for `bandages` (it would raise every fortress's reserve with no bandages to fill it); a faster or better bandage (no spec number).
+
 ## Done
 
-- [ ] Tests: a medic bandages a bleeding dwarf with a bandage when there is no cloth.
+- [x] Tests: a medic bandages a bleeding dwarf with a bandage when there is no cloth (`test/unit/health/t696-bandages.test.ts`; also: a bandage before cloth, cloth when there is no bandage, a waiting job takes a bandage that comes to be had, a serious burn dressed with bandages, T-693's reserve with a bandage counted with the cloth and with the `bandages` setting, an animal bandaged with a bandage, the hospital wants none by default and stocks them when asked). The hospital panel test (`t332`) shows the `Bandages` row.

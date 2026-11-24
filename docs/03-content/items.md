@@ -202,7 +202,7 @@ A `horn` is of `horn`, a `tusk` of `ivory`, a `feather` of `feather`: the butche
 | `wyrmblood_draught` | draught of wyrmblood | medical/draught | 2 | 5 | bag | 0 | `!` | `wyrm_red` | `draught` |
 | `soap` | soap | medical/soap | 1 | 20 | bag | 0 | `▪` | `soap_white` | |
 
-Bandages are cloth cut at the clothier (1 cloth → 4 bandages); `stop_bleeding` and `dress_burn` accept a bandage or a cloth.
+Bandages are cloth cut at the clothier (1 cloth → 4 bandages). `stop_bleeding`, `dress_burn` and `bandage_animal` take one bandage, or one cloth when no bandage is to be had; a bandage does what the cloth does ([17](../02-systems/17-health-and-medicine.md) § Patients and hospitals, Bandages first). A hospital keeps them by its `bandages` setting.
 
 Soap, of `soap`, is boiled at the kitchen from tallow and potash; a medic washes a patient with it, and a washed patient takes no infection for the rest of the admission ([17](../02-systems/17-health-and-medicine.md) § Patients and hospitals).
 

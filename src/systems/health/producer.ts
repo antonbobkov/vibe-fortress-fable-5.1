@@ -29,30 +29,34 @@ import {
 import { updatePatient } from './tick';
 import { awaitsBandage, needsCleaning, onlyLightBurnsUndressed, woundTreatmentNeeds } from './wounds';
 
-/** The cloth `stop_bleeding` and `dress_burn` take. */
+/** The cloth `stop_bleeding`, `dress_burn` and `bandage_animal` take when no bandage is to be had. */
 const CLOTH_FILTER = { category: 'textile/cloth' } as const;
+/** 17 § Patients and hospitals: the bandage those treatments take first, one a treatment as one cloth. */
+const BANDAGE_FILTER = { category: 'medical/bandage' } as const;
+/** The treatments that take a dressing: a bandage, else a cloth. */
+const DRESSING_TREATMENTS: readonly string[] = ['stop_bleeding', 'dress_burn', 'bandage_animal'];
 
 /**
- * 17 § Patients and hospitals: the cloth the fortress's hospitals keep for bandages, the sum of their
- * `cloth` supply settings (as 13's hospital chests read them); none without a hospital.
+ * 17 § Patients and hospitals: the dressings the fortress's hospitals keep, the sum of their `cloth`
+ * and `bandages` supply settings (as 13's hospital chests read them); none without a hospital.
  */
-function hospitalCloth(buildings: BuildingsReader | null): number {
+function hospitalDressings(buildings: BuildingsReader | null): number {
   if (buildings === null) return 0;
   let kept = 0;
   for (const zoneId of buildings.zonesOfType('hospital')) {
     const wants = (buildings.zoneSetting(zoneId, 'desired supplies') ?? buildings.zoneSetting(zoneId, 'wants') ??
       HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
-    kept += wants['cloth'] ?? 0;
+    kept += (wants['cloth'] ?? 0) + (wants['bandages'] ?? 0);
   }
   return kept;
 }
 
-/** 17 § Patients and hospitals: the honey a medic takes in place of a bucket or a cloth, when they are not to be had. */
+/** 17 § Patients and hospitals: the honey a medic takes in place of a bucket or a dressing, when they are not to be had. */
 const HONEY_FILTER = { category: 'food/honey' } as const;
-/** The supply a treatment takes before honey: `clean_wound`'s bucket of water, `dress_burn`'s cloth. */
-const REGULAR_SUPPLY: Readonly<Record<string, { readonly category: string }>> = Object.freeze({
-  clean_wound: { category: 'container/bucket' },
-  dress_burn: { category: 'textile/cloth' },
+/** The supplies a treatment takes before honey: `clean_wound`'s bucket of water, `dress_burn`'s bandage or cloth. */
+const REGULAR_SUPPLY: Readonly<Record<string, readonly { readonly category: string }[]>> = Object.freeze({
+  clean_wound: [{ category: 'container/bucket' }],
+  dress_burn: [BANDAGE_FILTER, CLOTH_FILTER],
 });
 
 /**
@@ -198,17 +202,44 @@ export class HealthProducer implements JobProducer {
       if (honeyLeft <= 0 || regular === undefined || items === null) return false;
       let out = regularOut.get(need);
       if (out === undefined) {
-        out = items.countAvailable(regular) === 0;
+        out = regular.every((filter) => items.countAvailable(filter) === 0);
         regularOut.set(need, out);
       }
       return out;
     };
-    // 17 § Patients and hospitals: a light burn's dressing takes only cloth beyond what the hospitals
-    // keep for bandages. Counted once a pass; each light dressing waiting for its cloth takes one.
+    // 17 § Patients and hospitals: a dressing is a bandage while one is to be had, else a cloth. The
+    // bandages are counted once a pass, and each dressing made takes one from the count.
+    let bandagesHad: number | undefined;
+    let bandagesLeft: number | undefined;
+    let clothHad: number | undefined;
+    const bandagesToHave = (): number => {
+      bandagesHad ??= items === null || !ctx.registry.table('items').has('bandage') ? 0 : items.countAvailable(BANDAGE_FILTER);
+      return bandagesHad;
+    };
+    const bandageCount = (): number => {
+      bandagesLeft ??= bandagesToHave();
+      return bandagesLeft;
+    };
+    const clothCount = (): number => {
+      clothHad ??= items === null ? 0 : items.countAvailable(CLOTH_FILTER);
+      return clothHad;
+    };
+    const takeBandage = (): boolean => {
+      if (bandageCount() <= 0) return false;
+      bandagesLeft = bandageCount() - 1;
+      return true;
+    };
+    // A dressing still waiting for a worker whose bandage (or cloth) is gone while a cloth (or bandage) is to be had.
+    const otherDressing = (job: Job): boolean => job.data['bandage'] === true
+      ? bandagesToHave() === 0 && clothCount() > 0
+      : clothCount() === 0 && bandageCount() > 0;
+    const dressingFilter = (bandage: boolean): Record<string, unknown> => ({ ...(bandage ? BANDAGE_FILTER : CLOTH_FILTER) });
+    // 17 § Patients and hospitals: a light burn's dressing takes only dressings (bandages and cloth)
+    // beyond what the hospitals keep. Counted once a pass; each light dressing waiting for one takes one.
     let clothSpare: number | undefined;
     const spareCloth = (): number => {
-      clothSpare ??= items === null ? 0 : items.countAvailable(CLOTH_FILTER) -
-        hospitalCloth(ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null);
+      clothSpare ??= items === null ? 0 : bandagesToHave() + clothCount() -
+        hospitalDressings(ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null);
       return clothSpare;
     };
     for (const patientId of Array.from(targets).sort((a, b) => a - b)) {
@@ -332,6 +363,10 @@ export class HealthProducer implements JobProducer {
         } else if (existing && existing.workerId === 0 && existing.data['honey'] !== true && byHoney(need)) {
           // A waiting treatment with no bucket or cloth to be had takes honey instead.
           sink.cancelKey(key, 'honey_in_place');
+        } else if (existing && existing.workerId === 0 && DRESSING_TREATMENTS.includes(need) && existing.data['honey'] !== true &&
+          otherDressing(existing)) {
+          // A waiting dressing whose bandage or cloth is gone while the other is to be had takes the other.
+          sink.cancelKey(key, 'dressing_in_place');
         } else if (existing && need === 'dress_burn' && existing.workerId === 0 && lightDressing && existing.data['honey'] !== true) {
           // A light dressing still waiting for its cloth gives way once the cloth left is the hospitals' to keep.
           clothSpare = spareCloth() - 1;
@@ -340,23 +375,18 @@ export class HealthProducer implements JobProducer {
         if (sink.exists(key)) continue;
 
         switch (need) {
-          case 'stop_bleeding':
+          case 'stop_bleeding': {
+            const bandage = takeBandage();
             sink.create(key, {
               type: 'stop_bleeding',
               target: { kind: 'entity', ref: patientId },
               workTile: 'adjacent',
               priority: 1,
-              inputs: [
-                {
-                  filter: {
-                    category: 'textile/cloth',
-                  },
-                  count: 1,
-                },
-              ],
-              data: { patient: patientId, inputUnits: true, excludeWorker: patientId },
+              inputs: [{ filter: dressingFilter(bandage), count: 1 }],
+              data: { patient: patientId, inputUnits: true, excludeWorker: patientId, ...(bandage ? { bandage: true } : {}) },
             });
             break;
+          }
           case 'set_bone':
             sink.create(key, {
               type: 'set_bone',
@@ -421,8 +451,8 @@ export class HealthProducer implements JobProducer {
             break;
           }
           case 'dress_burn': {
-            // Cloth first; honey when no cloth is to be had, and a honeyed burn is cleaned as well. A
-            // light dressing takes no cloth the hospitals keep: honey then, or it waits for a later pass.
+            // A bandage first, then cloth; honey when neither is to be had, and a honeyed burn is cleaned as
+            // well. A light dressing takes no dressing the hospitals keep: honey then, or it waits for a later pass.
             let honey = byHoney(need);
             if (lightDressing && !honey) {
               if (spareCloth() >= 1) clothSpare = spareCloth() - 1;
@@ -430,22 +460,16 @@ export class HealthProducer implements JobProducer {
               else break;
             }
             if (honey) honeyLeft -= 1;
+            const bandage = !honey && takeBandage();
             sink.create(key, {
               type: 'dress_burn',
               target: { kind: 'entity', ref: patientId },
               workTile: 'adjacent',
               priority: lightDressing ? 4 : 3,
-              inputs: [
-                {
-                  filter: honey ? { ...HONEY_FILTER } : {
-                    category: 'textile/cloth',
-                  },
-                  count: 1,
-                },
-              ],
+              inputs: [{ filter: honey ? { ...HONEY_FILTER } : dressingFilter(bandage), count: 1 }],
               data: {
                 patient: patientId, inputUnits: true, excludeWorker: patientId,
-                ...(honey ? { honey: true } : {}), ...(lightDressing ? { light: true } : {}),
+                ...(honey ? { honey: true } : {}), ...(bandage ? { bandage: true } : {}), ...(lightDressing ? { light: true } : {}),
               },
             });
             break;
@@ -531,21 +555,17 @@ export class HealthProducer implements JobProducer {
       const isBleeding = ab.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
       const key = `bandage_animal:${animalId}`;
       if (isBleeding) {
+        const existing = sink.byKey(key);
+        if (existing !== undefined && existing.workerId === 0 && otherDressing(existing)) sink.cancelKey(key, 'dressing_in_place');
         if (!sink.exists(key)) {
+          const bandage = takeBandage();
           sink.create(key, {
             type: 'bandage_animal',
             target: { kind: 'entity', ref: animalId },
             workTile: 'adjacent',
             priority: 1,
-            inputs: [
-              {
-                filter: {
-                  category: 'textile/cloth',
-                },
-                count: 1,
-              },
-            ],
-            data: { labor: 'animal_care', patient: animalId, inputUnits: true },
+            inputs: [{ filter: dressingFilter(bandage), count: 1 }],
+            data: { labor: 'animal_care', patient: animalId, inputUnits: true, ...(bandage ? { bandage: true } : {}) },
           });
         }
       } else if (sink.exists(key)) {
@@ -637,7 +657,7 @@ export class HealthProducer implements JobProducer {
         break;
       }
       case 'stop_bleeding': {
-        // 17 Â§ Patients: "1 `cloth` â†’ every bleeding wound `bandaged`"; bandaging sets bleed 0.
+        // 17 § Patients: 1 bandage or cloth → every bleeding wound `bandaged`; bandaging sets bleed 0.
         this.consumeDelivered(job, ctx);
         const b = ctx.world.entities.get(patientId, C.Body);
         if (b) for (const p of b.parts) for (const w of p.wounds) {
