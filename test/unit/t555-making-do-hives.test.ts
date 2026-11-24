@@ -340,7 +340,9 @@ describe('T-555 honey dresses a wound where there is no cloth or bucket', () => 
     for (const [type, material, n] of supplies) w.spawnItem(type, material, w.index(11, 11, Z), n);
     // Meals to eat, so a hungry medic does not eat the honey.
     w.spawnItem('easy_meal', 'boar_meat', w.index(13, 13, Z), 6, 2);
-    for (const id of medics) world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part: 'left_arm', damageType: 'burn', amount: 5 });
+    // T-693: four light burns each, enough pain to want a dressing; one dressing brings it below.
+    for (const id of medics) for (const part of ['left_arm', 'right_arm', 'left_leg', 'right_leg'])
+      world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part, damageType: 'burn', amount: 5 });
     w.step(3);
     const burns = (id: number) => world.entities.get(id, C.Body)!.parts.flatMap((p) => p.wounds).filter((x) => x.type === 'burn');
     return { w, medics, burns };
@@ -348,16 +350,15 @@ describe('T-555 honey dresses a wound where there is no cloth or bucket', () => 
 
   it('with no cloth and no bucket, the medics dress and clean their burns with honey: each honeyed burn is cleaned', () => {
     const a = burned('t555-honey-burn', [['honey', 'honey', 10]]);
-    a.w.until(() => a.medics.every((id) => a.burns(id).every((b) => b.dressed && b.cleaned)), 2 * TICKS_PER_DAY);
-    for (const id of a.medics) for (const b of a.burns(id)) expect(b).toMatchObject({ dressed: true, cleaned: true });
+    a.w.until(() => a.medics.every((id) => a.burns(id).some((b) => b.dressed && b.cleaned)), 2 * TICKS_PER_DAY);
+    for (const id of a.medics) for (const b of a.burns(id).filter((x) => x.dressed)) expect(b).toMatchObject({ dressed: true, cleaned: true });
     expect(units(a.w, 'honey')).toBeLessThan(10);
     expect(units(a.w, 'honey')).toBeGreaterThanOrEqual(10 - 4);
   });
 
   it('with cloth and a bucket to hand, the honey stays: cloth and water first', () => {
     const a = burned('t555-cloth-first', [['honey', 'honey', 10], ['cloth', 'flax_cloth', 10], ['bucket', 'oak', 2]]);
-    a.w.until(() => a.medics.every((id) => a.burns(id).every((b) => b.dressed)), 2 * TICKS_PER_DAY);
-    for (const id of a.medics) for (const b of a.burns(id)) expect(b.dressed).toBe(true);
+    a.w.until(() => a.medics.every((id) => a.burns(id).some((b) => b.dressed)), 2 * TICKS_PER_DAY);
     a.w.step(TICKS_PER_DAY / 2);
     expect(units(a.w, 'honey')).toBe(10);
   });
