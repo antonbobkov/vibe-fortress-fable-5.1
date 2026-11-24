@@ -88,6 +88,6 @@ The drink is kept and better (fewer drinks of water). The steel is kept at peril
 
 ## Follow-ups
 
-- [A patient is watered only with drink](../../docs/work/T-666-patient-water.md).
-- [The three-year farm stops growing at its strips' cap](../../docs/work/T-667-farm-strip-cap.md).
+- [A patient is watered only with drink](../../docs/archive/tasks/T-666-patient-water.md).
+- [The three-year farm stops growing at its strips' cap](../../docs/archive/tasks/T-667-farm-strip-cap.md).
 - [Peril-2 steel after T-664](../../docs/work/T-668-peril2-steel-after-farm.md).

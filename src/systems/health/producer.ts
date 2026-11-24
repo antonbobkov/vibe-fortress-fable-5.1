@@ -13,6 +13,7 @@ import type { JobProducer, TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
 import type { ItemsReader } from '@systems/items/reader';
+import { water } from '@systems/dwarves/activities';
 import { grantXp } from '@systems/dwarves/skills';
 import type { Job, JobSink } from '@systems/jobs';
 import {
@@ -40,6 +41,13 @@ const REGULAR_SUPPLY: Readonly<Record<string, { readonly category: string }>> = 
  */
 const MEAL_FILTER = { category: 'food/meal', edible: true } as const;
 const FOOD_FILTER = { edible: true } as const;
+
+/**
+ * 17 § Patients and hospitals: `water_patient` brings a drink, or, when no drink is to be had, water
+ * in a bucket filled at a working well or at drinkable water a dwarf could drink from (T-666).
+ */
+const DRINK_FILTER = { category: 'drink' } as const;
+const BUCKET_FILTER = { category: 'container/bucket' } as const;
 
 /** 17 § Patients and hospitals: the soap `wash_patient` takes. */
 const SOAP_FILTER = { category: 'medical/soap' } as const;
@@ -150,6 +158,21 @@ export class HealthProducer implements JobProducer {
       mealsOut ??= items !== null && items.countAvailable(MEAL_FILTER) === 0 && items.countAvailable(FOOD_FILTER) > 0;
       return mealsOut;
     };
+    // T-666: a patient is brought water in a bucket when no drink is to be had, a bucket is, and
+    // there is water to fill it: a working well, or drinkable water within reach of the patient.
+    let drinkOut: boolean | undefined;
+    let wellOn: boolean | undefined;
+    const byBucket = (patientId: EntityId): boolean => {
+      drinkOut ??= items !== null && items.countAvailable(DRINK_FILTER) === 0 && items.countAvailable(BUCKET_FILTER) > 0;
+      if (!drinkOut) return false;
+      if (wellOn === undefined) {
+        const br = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null;
+        wellOn = br !== null && br.wells().some((id) => br.wellWorking(id));
+      }
+      if (wellOn) return true;
+      const pos = entities.get(patientId, C.Position);
+      return pos !== undefined && water(ctx, ctx.world.map.index(pos.x, pos.y, pos.z), () => true) >= 0;
+    };
     const byHoney = (need: string): boolean => {
       const regular = REGULAR_SUPPLY[need];
       if (honeyLeft <= 0 || regular === undefined || items === null) return false;
@@ -226,21 +249,23 @@ export class HealthProducer implements JobProducer {
           }
 
           if (needs.thirst >= 60) {
+            // T-666: a job waiting for a drink while none is to be had gives way to one that brings
+            // water in a bucket, when there are a bucket and water; it is made again on the next pass.
+            const watered = sink.byKey(waterKey);
+            if (watered !== undefined && watered.state === 'blocked' && watered.blockedReason === 'missing_input' && watered.data['bucket'] !== true &&
+              ctx.tick % HEALTH_CADENCE === 0 && byBucket(patientId)) {
+              sink.cancelKey(waterKey, 'no_drink');
+            }
             if (!sink.exists(waterKey)) {
+              const bucket = byBucket(patientId);
               sink.create(waterKey, {
                 type: 'water_patient',
                 target: { kind: 'entity', ref: patientId },
                 workTile: 'adjacent',
                 priority: 2,
-                inputs: [
-                  {
-                    filter: {
-                      category: 'drink',
-                    },
-                    count: 1,
-                  },
-                ],
-                data: { patient: patientId, excludeWorker: patientId },
+                inputs: bucket ? [] : [{ filter: { ...DRINK_FILTER }, count: 1 }],
+                ...(bucket ? { tool: 'bucket' as const } : {}),
+                data: { patient: patientId, excludeWorker: patientId, ...(bucket ? { bucket: true } : {}) },
               });
             }
           } else if (sink.exists(waterKey)) {
