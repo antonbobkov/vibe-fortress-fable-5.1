@@ -340,13 +340,17 @@ export class TerrainProducer implements JobProducer {
         ? { ...raw, drops: raw.drops.map((d) => ({ ...d, type: core.constructionItemAt(tile, material) })) }
         : raw;
 
-    // A channel removes the floor under the worker: it steps off first (`03` § Digging as a job).
-    if (kind === Designation.Channel) this.stepOff(worker, tile, ctx);
+    // A channel removes the floor under the worker, and under any creature standing there with it:
+    // the worker steps off first, then the others in id order (`03` § Digging as a job).
+    const standing = kind === Designation.Channel
+      ? [worker, ...ctx.readers.entities.at(tile).filter((id) => id !== worker && ctx.world.entities.has(id, C.Creature)).sort((a, b) => a - b)]
+      : [worker];
+    if (kind === Designation.Channel) for (const id of standing) this.stepOff(id, tile, ctx);
 
     core.writeMany(result.changes);
-    // With nowhere to step off to, the worker falls (22 movement helper).
+    // With nowhere to step off to, they fall (22 movement helper).
     const movement = ctx.world.services.movement;
-    if (movement !== null && movement.tileOf(worker) === tile && map.kindAt(tile) === TileKind.Open) movement.fall(worker, ctx);
+    if (movement !== null && map.kindAt(tile) === TileKind.Open) for (const id of standing) if (movement.tileOf(id) === tile) movement.fall(id, ctx);
     if (kind === Designation.Engrave) {
       const skills = core.host.entities.get(worker, C.Skills);
       const level = skills === undefined ? 0 : ((skills.level[this.skillIndex(ctx, 'engraving')] ?? 0) as number);
@@ -435,7 +439,7 @@ export class TerrainProducer implements JobProducer {
     return ctx.registry.table('skills').index(id);
   }
 
-  /** Move the worker off a tile that is about to open, to a walkable 8-neighbour on its level. */
+  /** Move a creature off a tile that is about to open, to a walkable 8-neighbour on its level. */
   private stepOff(worker: EntityId, tile: TileIndex, ctx: TickContext): void {
     const movement = ctx.world.services.movement;
     if (movement === null || movement.tileOf(worker) !== tile) return;
