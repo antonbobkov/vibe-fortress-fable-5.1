@@ -31,7 +31,7 @@ As a player would, in the script (testing-strategy.md § The long scenarios):
 - **A second woodcutter.** Once the logs fall under a quarter of the 40 the script fells for, a dwarf no role holds takes the woodcutter's trade beside the founder (woodcutting, carpentry and hauling), and the forge makes him an axe.
 - **The brew's stock on the brew.** The still's standing brew is found by its recipe.
 
-Keeping the thirsty in until the watch has looked was not done: the look (T-653) already holds the alert until the watch has been out, and after it a dwarf at critical thirst with no drink below has nowhere else to drink. The game gives a player no water inside the gate: no water lies under the halls, there is no aquifer yet, and a well stands only over open water (14), so over the brook. That is [a follow-up](../../docs/work/T-663-water-inside-the-gate.md).
+Keeping the thirsty in until the watch has looked was not done: the look (T-653) already holds the alert until the watch has been out, and after it a dwarf at critical thirst with no drink below has nowhere else to drink. The game gives a player no water inside the gate: no water lies under the halls, there is no aquifer yet, and a well stands only over open water (14), so over the brook. That is [a follow-up](../../docs/archive/tasks/T-663-water-inside-the-gate.md).
 
 ## Probes, days 100 to 250
 
