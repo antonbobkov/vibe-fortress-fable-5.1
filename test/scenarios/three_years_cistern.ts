@@ -23,9 +23,10 @@ import type { FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
 
 /**
- * The longest feed tunnel to a cistern under the hearth hall: a level tunnel carries the brook's water
- * some thirty tiles from its shaft before the levels run out (04 § The four movement rules, rule 2),
- * and the floodgate and the well want it there at more than a film.
+ * The longest feed tunnel to a cistern under the hearth hall. A level tunnel fed by the shaft's full
+ * column carries the water and its pressure to its end (04 § The four movement rules, rule 3),
+ * so the length is the script's choice; with the floodgate left open the water would rise up the
+ * well's column into the hall (a follow-up of T-688 weighs a longer tunnel).
  */
 export const HALL_TUNNEL_MAX = 20;
 /** The farthest from the brook a well room is dug, and the longest feed tunnel to it. */
