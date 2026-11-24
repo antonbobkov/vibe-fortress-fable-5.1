@@ -344,9 +344,14 @@ export class TerrainProducer implements JobProducer {
     if (kind === Designation.Channel) this.stepOff(worker, tile, ctx);
 
     core.writeMany(result.changes);
-    // With nowhere to step off to, the worker falls (22 movement helper).
+    // With nowhere to step off to, the worker falls (22 movement helper), and so does every other
+    // creature standing on the tile as it opens: nothing is left in the air over the ramp below.
     const movement = ctx.world.services.movement;
-    if (movement !== null && movement.tileOf(worker) === tile && map.kindAt(tile) === TileKind.Open) movement.fall(worker, ctx);
+    if (movement !== null && map.kindAt(tile) === TileKind.Open) {
+      for (const id of core.host.entitiesAt(tile).slice()) {
+        if (core.host.entities.kind(id) === 'creature') movement.fall(id, ctx);
+      }
+    }
     if (kind === Designation.Engrave) {
       const skills = core.host.entities.get(worker, C.Skills);
       const level = skills === undefined ? 0 : ((skills.level[this.skillIndex(ctx, 'engraving')] ?? 0) as number);
