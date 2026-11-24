@@ -8,7 +8,7 @@ import type { ReaderSetLike } from '@core/system';
 import type { EntityId, Fixed, Severity, Tick, WoundType } from '@core/types';
 import type { JobsReader } from '@systems/jobs';
 import { RESERVE_KEEP_TICKS } from '@systems/jobs/constants';
-import { FRACTURE_PERCENT, HEAL_BASE_TICKS, LIGHT_MAX, SERIOUS_MAX } from './constants';
+import { FRACTURE_PERCENT, HEAL_BASE_TICKS, LIGHT_MAX, PAIN_DISCHARGE, SERIOUS_MAX } from './constants';
 
 /**
  * A cut, puncture or serious or grievous burn left uncovered: not cleaned, sutured or bandaged; it can
@@ -29,6 +29,31 @@ export function needsCleaning(wound: Wound): boolean {
   return wound.infected ? wound.curedAt === undefined : exposed(wound);
 }
 
+/**
+ * Whether a burn wants dressing (§ Patients and hospitals, `dress_burn`): a serious or grievous burn
+ * always; a light burn only while its dwarf's light burns together give `PAIN_DISCHARGE` pain or more
+ * (their table pain, a dressed one's halved), so a scorch or two waits for no cloth and heals alone.
+ */
+export function burnNeedsDressing(wounds: readonly Wound[]): boolean {
+  let lightPain = 0;
+  let lightUndressed = false;
+  for (const w of wounds) {
+    if (w.type !== 'burn') continue;
+    if (w.severity !== 'light') {
+      if (!w.dressed) return true;
+      continue;
+    }
+    lightPain += w.pain;
+    if (!w.dressed) lightUndressed = true;
+  }
+  return lightUndressed && lightPain >= PAIN_DISCHARGE;
+}
+
+/** Whether every undressed burn is light: its dressing waits behind the hospitals' cloth (§ Patients and hospitals). */
+export function onlyLightBurnsUndressed(wounds: readonly Wound[]): boolean {
+  return !wounds.some(w => w.type === 'burn' && w.severity !== 'light' && !w.dressed);
+}
+
 /** Wound-driven care is independent of whether a dwarf is still admitted. */
 export function woundTreatmentNeeds(wounds: readonly Wound[]): string[] {
   const needs: string[] = [];
@@ -37,7 +62,7 @@ export function woundTreatmentNeeds(wounds: readonly Wound[]): string[] {
   if (wounds.some(w => (w.type === 'cut' || w.type === 'puncture') &&
       (w.severity === 'serious' || w.severity === 'grievous') && !w.sutured)) needs.push('suture');
   if (wounds.some(needsCleaning)) needs.push('clean_wound');
-  if (wounds.some(w => w.type === 'burn' && !w.dressed)) needs.push('dress_burn');
+  if (burnNeedsDressing(wounds)) needs.push('dress_burn');
   return needs;
 }
 
