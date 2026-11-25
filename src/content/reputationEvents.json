@@ -30,7 +30,7 @@
     "civ": "that civ"
   },
   {
-    "event": "Hillfolk bandit killed",
+    "event": "Hillfolk bandit killed by the fortress (a fortress creature or a trap)",
     "delta": "−1",
     "civ": "Hillfolk"
   },
