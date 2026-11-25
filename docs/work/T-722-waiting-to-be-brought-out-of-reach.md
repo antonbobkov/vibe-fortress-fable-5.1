@@ -15,7 +15,15 @@ Decisions:
 
 Spec: `ui-screens/panels.md` § Jobs (the paragraph on a job blocked for its inputs), 11 § Player-facing behavior.
 
+Decisions taken in the work:
+
+- **The reach test is the blocked retry's own search**, not a separate label test per worker: 11's new reader `jobs.unfoundInput(id)` runs the search `retryBlocked` runs for a `missing_input` job (from the job's first stand tile, labels only, nothing reserved) and returns the first input it does not find. The line says "out of reach" exactly when the retry would leave the job blocked, and "to be brought" when the retry will open it. The board's `inputsAvailable` now calls the same split-out helper, unchanged in behaviour.
+- **The input named is the one the search does not find**, not always the first undelivered one (they differ only when the first is in reach and a later one is not).
+- Long line: "waiting: 1 barrel, out of reach — none in stock can be reached: open a door, unforbid a way, or move one within reach". Where the unit lies is not given: no reader names an out-of-reach unit's place without a second search over the stock.
+- A job read without its id (a synthetic job in a test) is never read as out of reach.
+
 ## Done
 
-- [ ] Tests (`describe` with the task id): a still whose only barrel lies behind a locked door reads "out of reach"; with the door open it reads "to be brought".
-- [ ] UI only; world hashes unchanged.
+- [x] Tests (`describe` with the task id, `test/unit/ui/t722-input-out-of-reach.test.ts`): a still whose only barrel is walled in (labels cut as by a locked door) reads "out of reach" and its job stays blocked across retries; with the wall gone it reads "to be brought" and the retry opens the job; a barrel in reach from the start reads "to be brought".
+- [x] UI only; world hashes unchanged (the retry's search is split out, not changed).
+- [x] Spec: 11 § Reader and § Player-facing behavior, `panels.md` § Jobs.
