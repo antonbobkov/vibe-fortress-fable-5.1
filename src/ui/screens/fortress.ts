@@ -55,26 +55,31 @@ import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../pan
 import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays';
 import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
 import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
-import type { Strings } from '../strings';
+import { Strings } from '../strings';
 import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { captionButtons, drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
 import { blockedText, buildingName, commandFocus, pluralName, rejectionText, speciesPlural, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
 
+/** A panel the UI draws itself, titled `ui.panel.<id>.title` as the default table gives it. */
+function uiPanel(id: string, hotkey: string): PanelSpec {
+  return { id, title: new Strings().get(`ui.panel.${id}.title`), hotkey };
+}
+
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
-  { id: 'designate', title: 'Designate', hotkey: 'd' },
-  { id: 'look', title: 'Look', hotkey: 'k' },
-  { id: 'log', title: 'Log', hotkey: 'a' },
+  uiPanel('designate', 'd'),
+  uiPanel('look', 'k'),
+  uiPanel('log', 'a'),
   // 23 § Compositor step 8, `ui-screens/panels.md` § Overlays (f) (T-M3-08).
-  { id: 'overlays', title: 'Overlays', hotkey: 'f' },
+  uiPanel('overlays', 'f'),
   // `06` § Player-facing behavior: opened from the status bar date; no hotkey (D-103).
-  { id: 'calendar', title: 'Calendar', hotkey: '' },
-  { id: 'population', title: 'Population', hotkey: 'p' },
-  { id: 'civilizations', title: 'Civilizations', hotkey: 'c' },
+  uiPanel('calendar', ''),
+  uiPanel('population', 'p'),
+  uiPanel('civilizations', 'c'),
   // `ui-screens/panels.md` §§ Help, Debug; their keys are the global `?` and `F12` rows (T-M7-08).
-  { id: 'help', title: 'Help', hotkey: '?' },
-  { id: 'debug', title: 'Debug', hotkey: 'F12' },
+  uiPanel('help', '?'),
+  uiPanel('debug', 'F12'),
 ];
 
 /** A panel's default letter (§ Fortress panels): a caption names it, and shows the key the panel has now. */
@@ -870,7 +875,7 @@ export class FortressScreen implements Screen {
     surface.fill(rect, t.black);
     const rule = surface.glyphs.index('│');
     for (let r = 0; r < rect.rows; r += 1) surface.put(rect.col, rect.row + r, rule, t.border, t.black);
-    const panel = this.panels().find((p) => p.id === this.ui.panel) ?? (this.ui.panel === 'workshop' || this.ui.panel === 'depot' ? { id: this.ui.panel, title: this.ui.panel === 'depot' ? 'Depot' : 'Workshop', hotkey: '' }
+    const panel = this.panels().find((p) => p.id === this.ui.panel) ?? (this.ui.panel === 'workshop' || this.ui.panel === 'depot' ? { id: this.ui.panel, title: this.strings.get(`ui.panel.${this.ui.panel}.title`), hotkey: '' }
         : this.ui.panel === 'building' ? { id: 'building', title: this.strings.get('ui.panel.building.title'), hotkey: '' } : undefined);
     if (panel === undefined) return;
     const inner = { col: rect.col + 1, row: rect.row, cols: rect.cols - 1, rows: rect.rows };

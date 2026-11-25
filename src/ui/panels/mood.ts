@@ -8,7 +8,7 @@ import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { MoraleReader, ThoughtView } from '@systems/morale';
 import { MOOD_SUMMARY_THOUGHTS } from '../constants';
-import { UI_STRINGS, type Strings } from '../strings';
+import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, separator, wrapLabel, type ListState } from '../widgets';
 import { dwarvesOf, fitName, nameOf } from './units';
@@ -18,9 +18,6 @@ import type { PanelContext } from './context';
 export function moodTierName(strings: Strings, tier: number): string {
   return strings.get(`ui.mood_tier.${tier}`);
 }
-
-/** The tier names as the default table gives them, for the views that have no strings at hand. */
-export const MOOD_TIER_NAMES: readonly string[] = [0, 1, 2, 3, 4].map((tier) => UI_STRINGS[`ui.mood_tier.${tier}`] as string);
 
 /** Cells of the tier column: the longest tier name and a blank. */
 const TIER_COLS = 10;

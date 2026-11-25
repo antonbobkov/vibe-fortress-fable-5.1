@@ -229,7 +229,7 @@ export class BuildingPanel {
     const types = reader.inputTypes('mechanism');
     const have = it === null || types.length === 0 ? 0 : it.countAvailable({ types });
     if (have > 0) this.say(ctx, 'ui.building.link_sent', { building: source, target: name });
-    else this.say(ctx, 'ui.building.link_waits', { building: source, target: name, where: whereMade(ctx.registry, ['mechanism']) || ctx.strings.get('ui.build.stock.a_workshop') });
+    else this.say(ctx, 'ui.building.link_waits', { building: source, target: name, where: whereMade(ctx.registry, ['mechanism'], ctx.strings) || ctx.strings.get('ui.build.stock.a_workshop') });
     return cmd;
   }
 
@@ -434,7 +434,7 @@ export class BuildingPanel {
     const held = reader.held(this.id).map((id) => this.heldName(ctx, id)).filter((n) => n !== '');
     const missing = wants.filter((w) => w.held < w.count).map((w) => {
       const n = w.count - w.held;
-      return n === 1 ? matchName(ctx.registry, w.match) : `${n} ${matchName(ctx.registry, w.match, n)}`;
+      return n === 1 ? matchName(ctx.registry, w.match, 1, ctx.strings) : `${n} ${matchName(ctx.registry, w.match, n, ctx.strings)}`;
     });
     const stand = reader.standCandles(this.id);
     if (tags.includes('rack')) out.push(...this.rackLines(ctx));
@@ -729,7 +729,7 @@ export class BuildingPanel {
     const s = ctx.strings;
     const material = ctx.registry.table<{ id: string; name: string }>('materials').byId(stand.burning)?.name ?? stand.burning;
     // A dark stand says where its candles come from: the workshops whose recipes make what it wants.
-    const where = whereMade(ctx.registry, wanted);
+    const where = whereMade(ctx.registry, wanted, s);
     const dark = where === '' ? s.get('ui.building.stand_dark') : s.get('ui.building.stand_dark_where', { where });
     return [
       { id: 'stand:candles', text: s.get('ui.building.stand_candles', { n: stand.candles, max: STAND_CANDLES }), tone: stand.candles > 0 ? 'value' : 'dim', help: s.get('ui.building.stand_help') },

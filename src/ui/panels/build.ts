@@ -505,7 +505,7 @@ export class BuildTool {
         }
       }
     }
-    const workshops = itemId === null ? '' : whereMade(ctx.registry, [itemId]) || ctx.strings.get('ui.build.stock.a_workshop');
+    const workshops = itemId === null ? '' : whereMade(ctx.registry, [itemId], ctx.strings) || ctx.strings.get('ui.build.stock.a_workshop');
     return { match: first.match, have: this.available(ctx, row), waiting: Math.ceil(units / per), itemId, recipeId, workshops };
   }
 
@@ -517,7 +517,7 @@ export class BuildTool {
   /** "0 doors in stock: 5 will wait", then "[o] order 5" or the workshop to build first; `key` is the Orders key. */
   offerText(ctx: PanelContext, offer: StockOffer, key: string): { stock: string; action: string } {
     const s = ctx.strings;
-    const stock = s.get('ui.build.stock.short', { have: offer.have, items: alternativesName(ctx.registry, offer.match, offer.have), n: offer.waiting });
+    const stock = s.get('ui.build.stock.short', { have: offer.have, items: alternativesName(ctx.registry, offer.match, offer.have, s), n: offer.waiting });
     if (offer.itemId === null) return { stock, action: '' };
     if (offer.recipeId !== null) return { stock, action: s.get('ui.build.stock.order', { key, n: offer.waiting }) };
     // An input with alternatives says which of them the workshop would make: "build a farmer's workshop to make fiber".
