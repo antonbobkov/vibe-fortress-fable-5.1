@@ -970,6 +970,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // Stocks panel (`panels.md` § Stocks).
   'ui.stocks.wealth': 'Wealth {wealth}',
   'ui.stocks.wealth_buildings': '(buildings {buildings})',
+  // The line under the tree for a row of like stacks: how many stacks it holds, and what of them rots soon.
+  'ui.stocks.stacks': '{n|stack|stacks}',
+  'ui.stocks.stacks_rot': '{stacks} · {rot}',
   // The selected row's units that a build or an order cannot have now, and why.
   'ui.stocks.usable': 'Usable {usable} of {n}: {reasons}',
   'ui.stocks.why.depot': '{n} at the depot',

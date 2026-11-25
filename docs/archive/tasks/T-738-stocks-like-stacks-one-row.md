@@ -1,6 +1,8 @@
 # T-738 — Stocks at scale: a type opens to one row per stack, and a filter opens every type it touches
 
-**Source:** playtest 2026-11-25 (mid game) ([report](../../reports/data/2026-11-25-playtest-3.md), finding 5) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 825b3f8f.
+
+**Source:** playtest 2026-11-25 (mid game) ([report](../../../reports/data/2026-11-25-playtest-3.md), finding 5) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

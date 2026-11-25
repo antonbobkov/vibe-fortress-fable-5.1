@@ -61,6 +61,26 @@ export function stocksCategory(category: string): string {
   return category === SOIL_NODE || category.startsWith(`${SOIL_NODE}/`) ? `${STOCKS_SOIL}${category.slice(SOIL_NODE.length)}` : category;
 }
 
+/** The id prefix of a row of like stacks under a type: `stacks:<type>:<what they share>`. */
+const STACKS_ROW = 'stacks:';
+
+/** Whether a row is a stack or a row of like stacks, which a filter matches only by its material. */
+function isStackRow(id: string): boolean {
+  return id.startsWith('item:') || id.startsWith(STACKS_ROW);
+}
+
+/** The marks that keep a stack on a row apart from unmarked ones (`panels.md` § Stocks). */
+const STACK_MARKS = ItemFlag.Forbidden | ItemFlag.Dump | ItemFlag.Melt;
+
+/**
+ * What stacks of one type that read alike share: their name as the row writes it (the material,
+ * its cellar stage and years, an enchantment), quality, rot stage and alert colour, and the forbid,
+ * dump and melt marks.
+ */
+function stackKey(rec: { material: number; quality: number; rotStage: number; flags: number }, label: string, alert: boolean): string {
+  return `${rec.material}.${rec.quality}.${rec.rotStage}.${alert ? 1 : 0}.${rec.flags & STACK_MARKS}.${label}`;
+}
+
 /** A type's row, whose stack rows are built the first time they are read and kept. */
 function lazyNode(id: string, name: string, open: boolean, build: () => TreeNode[]): TreeNode {
   let built: TreeNode[] | null = null;
@@ -75,6 +95,8 @@ export class StocksPanel {
   private forest: TreeNode[] | null = null;
   private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]>; rot: Map<string, NodeRot> } | null = null;
   private forestCache: { totals: object; query: string; forest: TreeNode[] } | null = null;
+  /** The stacks of each row of like stacks in the current forest, filled as its types are opened. */
+  private readonly stackGroups = new Map<string, EntityId[]>();
 
   categories(): TreeNode[] {
     // The soil row comes right after stone, whose other rows its path order keeps together.
@@ -151,6 +173,7 @@ export class StocksPanel {
     const totals = this.totals(ctx);
     const query = this.filter.value.toLowerCase();
     if (this.forestCache !== null && this.forestCache.totals === totals && this.forestCache.query === query) return this.forestCache.forest;
+    this.stackGroups.clear();
     const forest = this.buildForest(ctx, totals, query);
     this.forestCache = { totals, query, forest };
     return forest;
@@ -164,29 +187,64 @@ export class StocksPanel {
         if (it !== null) for (const type of types.get(n.id) ?? []) {
           if (stocksCategory(it.categoryOf(type)) !== n.id) continue;
           const stacks = itemIds.get(type) ?? [];
-          children.push(lazyNode(`type:${type}`, it.def(type)?.name ?? String(type), stacks.length > 0, () => stacks.map((id) => {
-            const rec = it.get(id);
-            const plain = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
-            // 13 § Aging in a cellar: an aged stack names its stage and its years ("aged bellwine ×20 (aged, 1 year in the cellar)").
-            const material = agedMaterial(ctx.strings, plain, rec?.age);
-            const note = rec === undefined ? '' : ageNote(ctx.strings, ctx.registry, rec, rec.containerId === 0 ? undefined : it.get(rec.containerId));
-            // An enchanted stack carries its suffix (25 § Setting stones): "keen iron ×1".
-            // 13 § Rot: a stale stack, or one that rots within `ROT_ALERT_DAYS`, is drawn in the alert colour.
-            const outlook = rec === undefined ? null : it.rotOutlook(id);
-            const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
-            return { id: `item:${id}`, name: `${enchantedName(ctx.readers, id, material)} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, children: [], ...(alert ? { alert } : {}) };
-          })));
+          children.push(lazyNode(`type:${type}`, it.def(type)?.name ?? String(type), stacks.length > 0, () => this.stackRows(ctx, type, stacks)));
         }
         return { ...n, children };
       });
     const forest = keep(this.categories());
     if (query === '') return forest;
-    const narrow = (nodes: readonly TreeNode[]): TreeNode[] => nodes.flatMap(n => {
-      if (n.name.toLowerCase().includes(query) || (!n.id.includes(':') && n.id.toLowerCase().includes(query))) return [n];
-      const children = narrow(n.children);
-      return children.length ? [{ ...n, children }] : [];
+    // A row whose own name or path matches keeps everything under it. A category or type that
+    // matches, or holds one that does, is listed before one that holds only stacks whose material
+    // matches, so `bar` shows the bars before the barley seed.
+    const narrow = (nodes: readonly TreeNode[]): Array<{ node: TreeNode; strong: boolean }> => {
+      const kept = nodes.flatMap((n) => {
+        if (n.name.toLowerCase().includes(query) || (!n.id.includes(':') && n.id.toLowerCase().includes(query))) return [{ node: n, strong: !isStackRow(n.id) }];
+        const children = narrow(n.children);
+        return children.length ? [{ node: { ...n, children: children.map((c) => c.node) }, strong: children.some((c) => c.strong) }] : [];
+      });
+      return [...kept.filter((k) => k.strong), ...kept.filter((k) => !k.strong)];
+    };
+    return narrow(forest).map((k) => k.node);
+  }
+
+  /**
+   * A type's rows: its stacks, those that read alike (`stackKey`) as one row with their units,
+   * which opens to them, and a stack unlike the others as a row of its own; each in the place of
+   * its first stack.
+   */
+  private stackRows(ctx: PanelContext, type: number, stacks: readonly EntityId[]): TreeNode[] {
+    const it = items(ctx);
+    if (it === null) return [];
+    const groups = new Map<string, { name: string; alert: boolean; rows: TreeNode[]; ids: EntityId[] }>();
+    for (const id of stacks) {
+      const rec = it.get(id);
+      const plain = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
+      // 13 § Aging in a cellar: an aged stack names its stage and its years ("aged bellwine ×20 (aged, 1 year in the cellar)").
+      const material = agedMaterial(ctx.strings, plain, rec?.age);
+      const note = rec === undefined ? '' : ageNote(ctx.strings, ctx.registry, rec, rec.containerId === 0 ? undefined : it.get(rec.containerId));
+      // An enchanted stack carries its suffix (25 § Setting stones): "keen iron ×1".
+      const name = enchantedName(ctx.readers, id, material);
+      // 13 § Rot: a stale stack, or one that rots within `ROT_ALERT_DAYS`, is drawn in the alert colour.
+      const outlook = rec === undefined ? null : it.rotOutlook(id);
+      const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
+      const row = { id: `item:${id}`, name: `${name} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, children: [], ...(alert ? { alert } : {}) };
+      const label = note === '' ? name : `${name} (${note})`;
+      const key = rec === undefined ? `${id}` : stackKey(rec, label, alert);
+      const group = groups.get(key);
+      if (group === undefined) groups.set(key, { name: label, alert, rows: [row], ids: [id] });
+      else { group.rows.push(row); group.ids.push(id); }
+    }
+    return Array.from(groups, ([key, group]): TreeNode => {
+      if (group.rows.length === 1) return group.rows[0] as TreeNode;
+      const id = `${STACKS_ROW}${type}:${key}`;
+      this.stackGroups.set(id, group.ids);
+      return { id, name: group.name, children: group.rows, ...(group.alert ? { alert: true } : {}) };
     });
-    return narrow(forest);
+  }
+
+  /** Whether a row is open: under a filter every row but a row of like stacks is, unless the player opened it. */
+  opens(id: string): boolean {
+    return this.tree.expanded.has(id) || (this.filter.value !== '' && !id.startsWith(STACKS_ROW));
   }
 
   private visible(ctx: PanelContext): string[] {
@@ -194,7 +252,7 @@ export class StocksPanel {
     const walk = (nodes: readonly TreeNode[]): void => {
       for (const n of nodes) {
         out.push(n.id);
-        if (this.filter.value !== '' || this.tree.expanded.has(n.id)) walk(n.children);
+        if (this.opens(n.id)) walk(n.children);
       }
     };
     walk(this.visibleForest(ctx));
@@ -229,11 +287,7 @@ export class StocksPanel {
     const node = this.selectedNode(ctx);
     const reader = items(ctx);
     if (!node || !reader) return [];
-    const totals = this.totals(ctx);
-    const ids = node.startsWith('item:') ? [Number(node.slice(5))]
-      : node.startsWith('type:') ? totals.itemIds.get(Number(node.slice(5))) ?? []
-        : (totals.types.get(node) ?? []).flatMap((type) => totals.itemIds.get(type) ?? []);
-    return ids.filter((id) => {
+    return this.rowItems(ctx, node).filter((id) => {
       const item = reader.get(id);
       return item !== undefined && (item.flags & (ItemFlag.Merchant | ItemFlag.Owned | ItemFlag.Installed | ItemFlag.Forbidden | ItemFlag.AtDepot)) === 0;
     });
@@ -272,17 +326,38 @@ export class StocksPanel {
       const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
       return text === '' ? { text: '', alert: false } : { text: `${this.selectedName(ctx)} · ${text}`, alert };
     }
+    if (node.startsWith(STACKS_ROW)) {
+      // A row of like stacks says how many stacks it holds, and, of perishable ones, the units that rot soon.
+      const ids = this.stackGroups.get(node) ?? [];
+      let perishable = false;
+      let soon = 0;
+      for (const id of ids) {
+        const rec = it.get(id);
+        const outlook = rec === undefined || rec.rotStage >= 2 ? null : it.rotOutlook(id);
+        if (rec === undefined || outlook === null) continue;
+        perishable = true;
+        if (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY) soon += rec.count;
+      }
+      const stacks = ctx.strings.get('ui.stocks.stacks', { n: ids.length });
+      if (!perishable) return { text: stacks, alert: false };
+      return { text: ctx.strings.get('ui.stocks.stacks_rot', { stacks, rot: ctx.strings.get('ui.stocks.rot_soon', { n: soon, days: ROT_ALERT_DAYS }) }), alert: soon > 0 };
+    }
     const r = this.totals(ctx).rot.get(node);
     if (r === undefined) return { text: '', alert: false };
     return { text: ctx.strings.get('ui.stocks.rot_soon', { n: r.soon, days: ROT_ALERT_DAYS }), alert: r.soon > 0 };
   }
 
-  /** The stacks under the selected row: the stack itself, a type's stacks, or every stack of a category's types. */
+  /** The stacks under the selected row. */
   private selectedItems(ctx: PanelContext): EntityId[] {
     const node = this.selectedNode(ctx);
-    if (node === null) return [];
+    return node === null ? [] : this.rowItems(ctx, node);
+  }
+
+  /** The stacks under a row: the stack itself, a row of like stacks, a type's stacks, or every stack of a category's types. */
+  rowItems(ctx: PanelContext, node: string): EntityId[] {
     const { types, itemIds } = this.totals(ctx);
     if (node.startsWith('item:')) return [Number(node.slice(5))];
+    if (node.startsWith(STACKS_ROW)) return this.stackGroups.get(node) ?? [];
     if (node.startsWith('type:')) return itemIds.get(Number(node.slice(5))) ?? [];
     return (types.get(node) ?? []).flatMap((type) => itemIds.get(type) ?? []);
   }
@@ -320,7 +395,7 @@ export class StocksPanel {
     const find = (nodes: readonly TreeNode[]): string | null => {
       for (const n of nodes) {
         if (n.id === id) return n.name;
-        if (this.filter.value === '' && !this.tree.expanded.has(n.id)) continue;
+        if (!this.opens(n.id)) continue;
         const below = find(n.children);
         if (below !== null) return below;
       }
@@ -355,6 +430,15 @@ export class StocksPanel {
       const rec = it.get(itemId);
       if (rec === undefined || (kind === 'MeltItem' && !this.isMetal(ctx, rec.material))) return [];
       return [{ type: kind, itemId, on: (rec.flags & flag) === 0 }];
+    }
+    if (node.startsWith(STACKS_ROW)) {
+      // A row of like stacks acts on each of its stacks, turning the mark on unless all carry it.
+      const chosen = (this.stackGroups.get(node) ?? []).filter((id) => {
+        const rec = it.get(id);
+        return rec !== undefined && (kind !== 'MeltItem' || this.isMetal(ctx, rec.material));
+      });
+      const on = chosen.some((id) => ((it.get(id)?.flags ?? 0) & flag) === 0);
+      return chosen.map((itemId) => ({ type: kind, itemId, on }));
     }
     if (node.startsWith('type:')) {
       const type = Number(node.slice(5));
@@ -404,7 +488,14 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   const height = Math.max(1, rect.rows - 4 - wealth.length - STOCKS_USE_ROWS);
   const state = panel.filter.value === '' ? panel.tree : { ...panel.tree, expanded: new Set<string>() };
   if (panel.filter.value !== '') {
-    const expand = (nodes: readonly TreeNode[]): void => { for (const n of nodes) { state.expanded.add(n.id); expand(n.children); } };
+    // A filter opens the rows down to the rows of like stacks; one of those opens when the player opens it.
+    const expand = (nodes: readonly TreeNode[]): void => {
+      for (const n of nodes) {
+        if (n.children.length === 0 || !panel.opens(n.id)) continue;
+        state.expanded.add(n.id);
+        expand(n.children);
+      }
+    };
     expand(panel.visibleForest(ctx));
   }
   tree(
@@ -416,11 +507,9 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
     { select: (index) => { panel.tree.selected = index; } },
     (n) => {
       const it = items(ctx);
-      const v = n.id.startsWith('item:') && it !== null
-        ? { count: it.get(Number(n.id.slice(5)))?.count ?? 0, value: it.value(Number(n.id.slice(5))) }
-        : n.id.startsWith('type:') && it !== null
-          ? (panel.totals(ctx).itemIds.get(Number(n.id.slice(5))) ?? []).reduce((sum, id) => ({ count: sum.count + (it.get(id)?.count ?? 0), value: sum.value + it.value(id) }), { count: 0, value: 0 })
-          : totals.get(n.id) ?? { count: 0, value: 0 };
+      const v = isStackRow(n.id) || n.id.startsWith('type:')
+        ? panel.rowItems(ctx, n.id).reduce((sum, id) => ({ count: sum.count + (it?.get(id)?.count ?? 0), value: sum.value + (it?.value(id) ?? 0) }), { count: 0, value: 0 })
+        : totals.get(n.id) ?? { count: 0, value: 0 };
       return `${v.count.toLocaleString('en-US').padStart(6)} ${marks(v.value).padStart(8)}`;
     },
   );
