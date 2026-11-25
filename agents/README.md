@@ -7,8 +7,8 @@ The owner's standing rules for delegating work in this repository, set on 2026-1
 Changed by the owner on 2026-10-15: Codex and Gemini are no longer used, and the time limits on Claude are lifted.
 
 - **All work goes to Claude subagents, at any hour.** Codex and Gemini are not used any more; their notes below are kept for the record.
-- **At most two working subagents at a time, plus one review-only agent** (owner, 2026-10-15). The review agent reads diffs and runs nothing heavy (no full suites, no instrument); it does not count against the two.
-- **Why the limit.** Opus and Sonnet share the Claude plan, so two together drain the 5-hour window faster; have each commit each piece as soon as it is green, so that a cut-off loses nothing, and resume a cut-off agent after the reset.
+- **At most three working subagents at a time, plus one review-only agent** (owner, 2026-10-15; three since 2026-11-24). The review agent reads diffs and runs nothing heavy (no full suites, no instrument); it does not count against the three. Pause new work when the 5-hour or the weekly limit passes 90% (owner, 2026-11-24; was 80%).
+- **Why the limit.** Opus and Sonnet share the Claude plan, so parallel agents drain the 5-hour window faster; have each commit each piece as soon as it is green, so that a cut-off loses nothing, and resume a cut-off agent after the reset.
 - **Pick the subagent's model by the task.** Use Opus 5.5 for the complex work: audits, diagnoses, design decisions, and anything where a wrong conclusion is expensive. Use Sonnet 5.5 for the mechanical work: implementing a decided task from its work file, test authoring, docs triage, merges. This is a guide, not a rule; judge each task. Sonnet spends the plan limits more slowly. The `Agent` tool sets the model with its `model` parameter ([claude-subagents.md](claude-subagents.md)).
 - **Two agents never share a worktree or touch the same files.** Give each its own worktree and a set of tasks that do not overlap.
 - **Audits go to Opus.** An audit task (a report under `reports/audits/`) is done by an Opus subagent. Fix tasks that come out of an audit follow the ordinary rules.
