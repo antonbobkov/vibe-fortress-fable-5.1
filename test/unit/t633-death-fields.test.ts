@@ -82,8 +82,8 @@ describe('T-633 a slaughter and a restless dead carry a death\'s fields', () => 
       expect(ent.alive(died['id'] as number)).toBe(false);
       // Its bones are its remains: no corpse of it.
       expect(w.events('CorpseCreated').some((e) => e['creatureId'] === died['id'])).toBe(false);
-      // A cause with no line of its own: the plain line, naming its kind.
-      expect(log.announce(died, w.readers, w.tick)?.line.text).toBe('A restless dead has died.');
+      // Its own line: it falls to dust at dawn (T-714).
+      expect(log.announce(died, w.readers, w.tick)?.line.text).toBe('A restless dead has fallen to dust.');
     }
     expect(ent.with(C.Corpse).filter((id) => ent.get(id, C.Corpse)?.species === species)).toEqual([]);
   });

@@ -673,6 +673,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.died.lightning` | "{name} has been struck dead by lightning." |
 | `announce.died.fell` | "{name} has died in a fall." |
 | `announce.died.slaughter` | "{name} has been slaughtered." |
+| `announce.died.dawn` | "{name} has fallen to dust." |
 | `announce.immigrant_named` | "{names} has come to join the hall." |
 | `announce.immigrants_named` | "{names} have come to join the hall." |
 | `announce.immigrant_skilled` | "{name} ({skill} {level})" |
