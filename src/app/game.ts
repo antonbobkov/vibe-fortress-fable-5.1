@@ -1037,7 +1037,14 @@ export class Game {
     const blob = await this.files.pick('.deepholm');
     if (blob === null) return;
     try {
-      await this.importBlob(blob);
+      const id = await this.importBlob(blob);
+      // The save just imported is the one to open: the Load screen's cursor moves to it.
+      const top = this.top();
+      if (top instanceof LoadScreen) {
+        top.selected = id;
+        top.setMessage(null);
+        this.render();
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.note('alert', this.strings.get('ui.load.import_failed', { reason: message }));

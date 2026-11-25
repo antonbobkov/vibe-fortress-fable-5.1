@@ -273,6 +273,8 @@ Strings: `ui.settings.title`, `ui.settings.title_keybindings`, `ui.settings.row.
 
 A Finished row is an ended fortress's final save. It says how the fortress ended and that it is a view-only record, not its date and counts: "{fortress} · fell in Year {n} (view only)" (`ui.load.end.fell`), "retired in Year {n}" and "abandoned in Year {n}" (`ui.load.end.retired`, `ui.load.end.abandoned`). The end is the save header's `end` (`save-format.md` § Header JSON); a final save written before the header kept it reads "fell" when no dwarf was living and "retired" otherwise.
 
+After a successful `Import` the imported save is selected, with its thumbnail, so `Enter` loads it; a failed import leaves the selection where it was and says why under the list.
+
 ## Legend
 
 ```

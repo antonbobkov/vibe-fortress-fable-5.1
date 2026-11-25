@@ -201,7 +201,7 @@ Modal `confirm` dialogs with `Yes`/`No` (keys `y`/`n`, `Enter` for the default) 
 - **Trade session** (20): modal two-column table; a merchant good priced at the scarcity price says "scarce here" (20 § The scarcity price).
 - **Legend**: the record of a fortress (see 24 › Legend record below), its lines wrapped at the screen's width, scrolled by `↑` `↓` and the wheel, a page by `PageUp` `PageDown`, to its ends by `Home` `End`, and never past its last page; `Back`.
 - **Settings**: keybindings (rebind by selecting a row and pressing a key), auto-pause toggles per severity, hints on/off, zoom, colorblind palette, edge scrolling, autosave on/off, music volume, music on/off, intro at launch (first time, always, off), intro style (deep, hall), reduced motion, which way the wheel up goes over the map (down a level, up a level), `Reset to defaults`.
-- **Load**: manual saves and autosaves with thumbnails, and the final saves under Finished, each saying how its fortress ended ("fell in Year 4 (view only)"); `Load`, `Delete` (confirm), `Export`, `Import`.
+- **Load**: manual saves and autosaves with thumbnails, and the final saves under Finished, each saying how its fortress ended ("fell in Year 4 (view only)"); `Load`, `Delete` (confirm), `Export`, `Import` (the imported save is selected).
 
 ### The legend record
 
