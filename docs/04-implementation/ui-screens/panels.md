@@ -472,7 +472,9 @@ A caravan whose stay ends with the request still waiting (`TradeMissed`) raises 
 ```
 │ Military                       [x]  │
 │ Alert: (•) Calm ( ) Watchful ( ) Hearth │
-│ Calm: everyone works.               │
+│ Calm: everyone works but 3 in The   │
+│ Hearthguard (Train) and 2 in The    │
+│ Cold Bolts (Active).                │
 │ Squads                              │
 │ ▶ The Hearthguard  3/6  train       │
 │   The Cold Bolts   2/6  active      │
@@ -481,6 +483,8 @@ A caravan whose stay ends with the request still waiting (`TradeMissed`) raises 
 │ Leader  Halvar Grimshield (Warden)  │
 │         [l] pick  [n] rename    │
 │ Mode    [off] [train] [active]      │
+│ 3 dwarves off work: they drill at   │
+│   the barracks.                     │
 │ Members Halvar G., Einar R., Tova E.│
 │         [a] add  [r] remove       │
 │ Armed 2 of 3 · unarmed: Tova E.     │
@@ -502,7 +506,7 @@ While the squad has a kill or a follow order, the Orders row names it in the val
 
 Choosing a station, a patrol point, or the creature or dwarf of a kill or follow order waits for the map: a click picks the tile, or the arrows move the map cursor and `Enter` picks the tile at it. `Enter` on a tile with no creature says "No creature there." ("No dwarf there." for a follow order). A kill order on a tile that holds several creatures takes the most hostile: a raider or monster before a wild animal, a wild animal before any other, and a fortress creature (the dog fighting the raider it stands on) only when nothing else is there.
 
-The line under the alert row says what the current alert does, wrapped in up to three rows: "Calm: everyone works.", "Watch: squads stand to; civilians work." or "Hearth: civilians stop work and shelter in the hall or behind a door; Lock on alert doors shut." Under a Hearth alert, while some civilian has no shelter (10's `dwarves.unsheltered()`: 19 § Hearth alert retreat found no hearth hall, no indoor tile behind a door and no bedroom for it), a line in the alert colour under it says how many and what to do: "No shelter: 7 dwarves keep working in the open. Make a Hearth hall [z] or a room behind a door.", or, when the fortress has a hearth hall (14's `hearthHallTiles`), "No shelter: 2 dwarves keep working, unable to reach the hall or a room behind a door." (such dwarves work as under a Watchful alert, 10 § Behavior selection step 2) With no squad, two dim lines under "No squads yet: [+] makes one." say what a first squad needs: "A squad of three with iron spears and a kill order holds off boars." (a club does not stop a boar).
+The line under the alert row says what the current alert does, wrapped whole over as many rows as it needs: "Calm: everyone works.", "Watch: squads stand to; civilians work." or "Hearth: civilians stop work and shelter in the hall or behind a door; Lock on alert doors shut." Under a Calm alert the members of a squad on `train` or `active` are on duty and work no job (16 § Squads), so while any squad with members is in one of those modes the Calm line names each such squad, in the squads' order, with its members and its mode: "Calm: everyone works but 3 in The Hearthguard (Train).", "Calm: everyone works but 3 in The Hearthguard (Train) and 2 in The Cold Bolts (Active)."; a squad that is off, or has no members, is not named. Under a Hearth alert, while some civilian has no shelter (10's `dwarves.unsheltered()`: 19 § Hearth alert retreat found no hearth hall, no indoor tile behind a door and no bedroom for it), a line in the alert colour under it says how many and what to do: "No shelter: 7 dwarves keep working in the open. Make a Hearth hall [z] or a room behind a door.", or, when the fortress has a hearth hall (14's `hearthHallTiles`), "No shelter: 2 dwarves keep working, unable to reach the hall or a room behind a door." (such dwarves work as under a Watchful alert, 10 § Behavior selection step 2) With no squad, two dim lines under "No squads yet: [+] makes one." say what a first squad needs: "A squad of three with iron spears and a kill order holds off boars." (a club does not stop a boar).
 
 `[a] add` and `[r] remove` open a multi-select list in place of the squad's details; `[l] pick` (the leader, among the members) and `[b]` (the barracks zones, with "None" first) open a single-choice list:
 
@@ -524,6 +528,7 @@ The line under the alert row says what the current alert does, wrapped in up to 
 - The leader list sends `SetSquadLeader`; `[n]` opens the text input and sends `RenameSquad`.
 - The barracks list sends `SetZoneSetting { key: squad }`: the zone the squad had lets go and the chosen one takes it; "None" clears it. Without a barracks zone the status row says to make one in Zones. Changing the assignment moves training to that barracks, including for a squad that has already trained. The barracks row shows the assigned zone; with none assigned, the zone the squad trains at by default (16 § Training: the one it last trained at while that zone stands, else the first barracks) marked "(default)", read from the zones, so a barracks made while paused shows at once. A squad on `train` with no barracks zone at all trains nothing: the row reads "No barracks: the squad cannot train. [z] Barracks, then [b]." in the alert colour.
 - Setting a squad with members to `train` with no barracks zone says the same on the status row; with a barracks, while a member holds no weapon, it says "Unarmed members train dodging only: see the Armed line." (16 § Training: an unarmed member gains no weapon skill).
+- Under the mode's keys, a squad on `train` with members says what Train costs, wrapped with a two-cell indent: "3 dwarves off work: they drill at the barracks." (dim), or, with no barracks zone at all, "3 dwarves off work, and with no barracks they cannot drill: [z] Barracks, then [b], or [o] Off." in the alert colour. A squad that is off, active or empty has no such line.
 - The new keys are on `Shift` because `l`, `b`, `n` and `d` are panel hotkeys.
 - A key of the squad panel with no squad does nothing but say "No squad yet: [+] makes one." in the status row. A mode of work (`train` or `active`) set on a squad with no members is set, and the status row says "The Hearthguard has no members: [a] adds them."
 - While a station, a patrol point, a kill order or a follow order waits for the map, the status row says what to do ("Station: click or press Enter on a floor tile · [Esc] cancel", "Patrol point: click or press Enter on a floor tile · [Esc] cancel", "Kill order: click or press Enter on a creature · [Esc] cancel", "Follow order: click or press Enter on a dwarf · [Esc] cancel") and drops any older line. A tile the squad cannot stand on sends nothing, says "The squad cannot stand there: pick a floor tile." and keeps the pick armed; the prompt returns when the pointer moves.

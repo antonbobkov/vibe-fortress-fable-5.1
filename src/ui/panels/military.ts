@@ -24,7 +24,7 @@ import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
 import { creatureWords } from '../announcements';
-import { militaryNoSquad, wrapHang, wrapText, zoneName } from '../messages';
+import { listText, militaryNoSquad, wrapHang, wrapText, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
@@ -167,6 +167,20 @@ export function squadOrdersText(ctx: PanelContext, squad: Pick<SquadWithId, 'ord
   const whom = follow[follow.length - 1];
   if (whom !== undefined) parts.push(ctx.strings.get('ui.military.orders_follow', { dwarf: shortDwarfName(ctx.readers.entities.get(whom, C.Creature)?.name ?? '') }));
   return parts.join('; ');
+}
+
+/**
+ * What the current alert does, in words. Under a calm alert the members of a squad on Train or
+ * Active are on duty and work no job (16 § Squads), so the line names each such squad with its
+ * members and its mode: "Calm: everyone works but 3 in The Hearthguard (Train)."; with none it is
+ * "Calm: everyone works.".
+ */
+export function alertLine(strings: Strings, alert: Alert, squads: readonly Pick<SquadWithId, 'name' | 'members' | 'mode'>[]): string {
+  if (alert !== 'calm') return strings.get(`ui.military.alert_${alert}`);
+  const parts = squads.flatMap((sq) => (sq.mode === 'off' || sq.members.length === 0 ? [] : [
+    strings.get(sq.mode === 'train' ? 'ui.military.alert_calm_part_train' : 'ui.military.alert_calm_part_active', { n: sq.members.length, squad: sq.name }),
+  ]));
+  return parts.length === 0 ? strings.get('ui.military.alert_calm') : strings.get('ui.military.alert_calm_but', { list: listText(strings, parts, 'and') });
 }
 
 export function shortDwarfName(fullName: string): string {
@@ -647,8 +661,8 @@ export function drawMilitaryPanel(
     () => ctx.submit({ type: 'SetAlert', level: 'hearth' }),
   ], { width });
   row += 1;
-  // One line says what the current alert does.
-  for (const line of wrapText(ctx.strings.get(`ui.military.alert_${currentAlert}`), width, 3)) {
+  // One line says what the current alert does, and under Calm who does not work; it wraps whole.
+  for (const line of wrapText(alertLine(ctx.strings, currentAlert, panel.squads(ctx)), width, Infinity)) {
     label(s, col, row, line, { fg: t.dim, width, keys: false });
     row += 1;
   }
@@ -736,6 +750,15 @@ export function drawMilitaryPanel(
     () => panel.changeMode(ctx, 'active', host),
   ], { width });
   row += 1;
+  // 16 § Squads: a member of a squad on Train works no job, with or without a barracks to drill at; the line under the mode's keys says so.
+  if (squad.mode === 'train' && squad.members.length > 0) {
+    const noBarracks = panel.assignedBarracks(ctx, squad.id) === 0 && panel.defaultBarracks(ctx, squad) === 0;
+    const cost = ctx.strings.get(noBarracks ? 'ui.military.train_cost_no_barracks' : 'ui.military.train_cost', { n: squad.members.length });
+    for (const line of wrapHang(cost, width, 2)) {
+      label(s, col, row, line, { fg: noBarracks ? t.alert : t.dim, width });
+      row += 1;
+    }
+  }
 
   // Members line: Members Halvar G., Einar R.
   const memberNames = squad.members.map((mid) => {
