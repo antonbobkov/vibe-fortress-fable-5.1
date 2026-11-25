@@ -1,0 +1,59 @@
+/** Playtest 11-25 driver (not committed): the three-year script on a new seed, saving at points. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY, DAYS_PER_YEAR } from '@core/constants';
+import { C } from '@core/components';
+import { saveGame } from '@app/game-save';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense } from '../scenarios/three_years_fortress';
+
+const SEED = process.env['PT_SEED'] ?? 'playtest-1125-p2';
+const PERIL = Number(process.env['PT_PERIL'] ?? 2);
+const OUT = process.env['PT_OUT'] ?? 'out/pt3';
+const SAVE_DAYS = (process.env['PT_SAVES'] ?? '60,112,150,190,224,260,300,336').split(',').map(Number);
+const END_DAY = Number(process.env['PT_END'] ?? 336);
+
+describe('playtest 3 drive', () => {
+  it('drives', async () => {
+    mkdirSync(OUT, { recursive: true });
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const counts: Record<string, number> = {};
+    const notable: string[] = [];
+    const keep = /Raid|Siege|Immigr|Caravan|Died|Death|Killed|Artifact|Strange|Mood|Tantrum|Noble|Mandate|Title|Thane|Ambush|Thief|Cavern|Fire|Flood|Breach|Legendary|Mandate|Demand|Request/;
+    w.game.world.onEvents((events) => {
+      const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+      for (const e of events) {
+        counts[e.type] = (counts[e.type] ?? 0) + 1;
+        if (keep.test(e.type) && e.type !== 'MoodTierChanged') {
+          const { type, ...rest } = e as unknown as Record<string, unknown>;
+          notable.push(`d${day} ${String(type)} ${JSON.stringify(rest).slice(0, 220)}`);
+        }
+      }
+    });
+    const saves = new Set(SAVE_DAYS);
+    const timing: string[] = [];
+    let last = performance.now();
+    for (let day = 1; day <= END_DAY; day++) {
+      const end = day * TICKS_PER_DAY;
+      while (w.tick < end) {
+        playThreeYears(w, state, Math.min(day <= 20 ? 100 : 300, end - w.tick));
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+      }
+      const ent = w.game.world.entities;
+      const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const now = performance.now();
+      if (day % 7 === 0) timing.push(`d${day} pop ${pop} ents ${ent.with(C.Position).length} items ${ent.with(C.Item).length} ms/day ${Math.round(now - last)}`);
+      last = now;
+      if (saves.has(day)) {
+        writeFileSync(`${OUT}/${SEED}-d${day}.bin`, await saveGame(w.game, { kind: 'manual', name: `pt3 d${day}` } as never));
+        writeFileSync(`${OUT}/log.txt`, [`year length ${DAYS_PER_YEAR}`, ...timing, '', ...notable, '', JSON.stringify(counts, null, 1)].join('\n'));
+        console.log(`saved d${day} pop ${pop}`);
+      }
+    }
+    writeFileSync(`${OUT}/log.txt`, [`year length ${DAYS_PER_YEAR}`, ...timing, '', ...notable, '', JSON.stringify(counts, null, 1)].join('\n'));
+  }, 3_600_000);
+});
