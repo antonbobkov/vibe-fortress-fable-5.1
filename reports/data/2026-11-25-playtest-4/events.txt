@@ -1,0 +1,122 @@
+# Peril-4 runs of the three-year script (drive.test.ts.txt): population and key events
+# "with orders": the playtest's cistern begun on day 30 and a 6-bed ward from day 50; "plain": the script alone (PT_PLAIN=1, to day 200). A year is 112 days.
+
+## Population every 14 days
+playtest-1125-p4 with orders: d14 7; d28 7; d42 6; d56 6; d70 8; d84 8; d98 8; d112 6; d126 6; d140 6; d154 6; d168 6; d182 9; d196 9; d210 9; d224 9; d238 7; d252 2; d266 2; d280 2; d294 2; d308 2; d322 2; d336 2
+playtest-1125-p4b with orders: d14 7; d28 7; d42 9; d56 9; d70 4; d84 3; d98 3; d112 2; d126 2; d140 2; d154 1; d168 0; d182 0; d196 0; d210 0; d224 0; d238 0; d252 0; d266 0; d280 0; d294 0; d308 0; d322 0; d336 0
+playtest-1125-p4c with orders: d14 7; d28 7; d42 8; d56 7; d70 7; d84 7; d98 7; d112 7; d126 6; d140 6; d154 6; d168 5; d182 5; d196 4; d210 4; d224 4; d238 3; d252 3; d266 2; d280 2; d294 2; d308 2; d322 2; d336 2
+playtest-1125-p4 plain: d14 7; d28 7; d42 11; d56 11; d70 14; d84 14; d98 14; d112 12; d126 12; d140 12; d154 13; d168 13; d182 18; d196 18
+playtest-1125-p4b plain: d14 7; d28 7; d42 9; d56 9; d70 2; d84 2; d98 2; d112 1; d126 1; d140 1; d154 0; d168 0; d182 0; d196 0
+
+## playtest-1125-p4 with orders: parties, waves, titles, the cistern and the ward
+d2 t1678 TitleAssigned {"dwarfId":16777284,"title":"broker","previousId":0}
+d25 t28972 RaidEnded {"partyId":16777616,"outcome":"withdrew"}
+d29 t33601 WhimSet {"thaneId":16777281,"whimId":"whim_spirits"}
+d29 t33660 ImmigrantsArrived {"ids":[83886379,50332118,16777690,16777694],"count":4,"children":1,"guaranteed":true}
+d30 CISTERN started by the driver; well at 23,36 room 16
+d37 t44212 a dwarf died: Hilde Embergate, bled_out, killer "wolf"
+d38 t44877 a dwarf died: Norna Copperspark, bled_out, killer "wolf"
+d38 t45547 a dwarf died: Ylva Mossfell, bled_out, killer "wolf"
+d39 t45762 a dwarf died: Eydis Goldstone, bled_out, killer ""
+d40 t46800 TitleAssigned {"dwarfId":16777285,"title":"broker","previousId":0}
+d42 t49357 a dwarf died: Vigga Granitefist, bled_out, killer ""
+d50 t58924 RaidEnded {"partyId":50332387,"outcome":"withdrew"}
+d50 WARD designated 27,2 28,2 29,2 30,2 31,2 27,3 28,3 29,3 30,3 31,3 27,4 28,4 29,4 30,4 31,4 z25
+d57 t67201 WhimJudged {"thaneId":16777281,"whimId":"whim_spirits","met":false}
+d57 t67201 WhimSet {"thaneId":16777281,"whimId":"whim_fine_meal"}
+d57 t67260 ImmigrantsArrived {"ids":[50332359,117441036,117441038,50332344],"count":4,"children":1,"guaranteed":true}
+d64 t75708 AmbushSprung {"partyId":50332308}
+d64 t76232 a dwarf died: Ymir Stonehammer, killed, killer "gloam_warrior"
+d64 t76782 a dwarf died: Magnhild Grimdelve, bled_out, killer "gloam_archer"
+d65 t76800 TitleAssigned {"dwarfId":16777286,"title":"broker","previousId":0}
+d66 t78324 RaidEnded {"partyId":50332210,"outcome":"looted"}
+d67 t79774 RaidEnded {"partyId":50332308,"outcome":"looted"}
+d68 t80401 RaidArrived {"partyId":83886716,"kind":"bandits","size":3,"tile":73730,"edge":"n"}
+d68 t80556 RaidEnded {"partyId":83886716,"outcome":"looted"}
+d75 t88801 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"a band","edge":"the northern edge"}
+d76 t90001 RaidArrived {"partyId":218104497,"kind":"raid","size":12,"tile":73730,"edge":"n"}
+d78 t92703 RaidEnded {"partyId":218104497,"outcome":"looted"}
+d81 WARD zoned true beds 6
+d85 t100801 WhimJudged {"thaneId":16777281,"whimId":"whim_fine_meal","met":false}
+d85 t100801 WhimSet {"thaneId":16777281,"whimId":"whim_fine_meal"}
+d85 t100801 ImmigrationSkipped {"reason":"spirit"}
+d85 t101008 RaidEnded {"partyId":184549506,"outcome":"withdrew"}
+d108 t128520 RaidEnded {"partyId":83886807,"outcome":"looted"}
+d109 t129811 AmbushSprung {"partyId":150995787}
+d109 t130077 a dwarf died: Jarl Frostvein, bled_out, killer "gloam_archer"
+d109 t130202 a dwarf died: Kettil Mossspark, killed, killer "gloam_warrior"
+d111 t132849 RaidEnded {"partyId":150995787,"outcome":"looted"}
+d113 t134401 WhimJudged {"thaneId":16777281,"whimId":"whim_fine_meal","met":false}
+d113 t134401 WhimSet {"thaneId":16777281,"whimId":"whim_spirits"}
+d113 t134401 ImmigrationSkipped {"reason":"spirit"}
+d132 t157320 RaidEnded {"partyId":520094241,"outcome":"looted"}
+d141 t168001 WhimJudged {"thaneId":16777281,"whimId":"whim_spirits","met":false}
+d141 t168001 WhimSet {"thaneId":16777281,"whimId":"whim_fine_meal"}
+d141 t168001 ImmigrationSkipped {"reason":"spirit"}
+d149 t177815 AmbushSprung {"partyId":218104770}
+d151 t180799 RaidEnded {"partyId":218104770,"outcome":"looted"}
+d152 t181201 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"a band","edge":"the northern edge"}
+d153 t182401 RaidArrived {"partyId":218103916,"kind":"raid","size":12,"tile":73730,"edge":"n"}
+d155 t185102 RaidEnded {"partyId":218103916,"outcome":"looted"}
+d158 t188520 RaidEnded {"partyId":285213643,"outcome":"looted"}
+d169 t201601 WhimJudged {"thaneId":16777281,"whimId":"whim_fine_meal","met":false}
+d169 t201601 WhimSet {"thaneId":16777281,"whimId":"whim_fine_meal"}
+d169 t201640 ImmigrantsArrived {"ids":[218104620,520093780,385876645],"count":3,"children":0,"guaranteed":false}
+d179 t213706 RaidEnded {"partyId":419430430,"outcome":"withdrew"}
+d180 t214801 ThreatWarning {"kind":"siege","civ":"gloam","sizeBand":"a horde","edge":"the northern edge"}
+d181 t216001 RaidArrived {"partyId":184549526,"kind":"siege","size":20,"tile":73730,"edge":"n"}
+d182 t217603 RaidEnded {"partyId":486539976,"outcome":"looted"}
+d186 t222258 RaidEnded {"partyId":184549526,"outcome":"looted"}
+d197 t235201 WhimJudged {"thaneId":16777281,"whimId":"whim_fine_meal","met":false}
+d197 t235201 WhimSet {"thaneId":16777281,"whimId":"whim_fine_meal"}
+d197 t235201 ImmigrationSkipped {"reason":"wealth"}
+d199 t237720 RaidEnded {"partyId":251658899,"outcome":"looted"}
+d202 t241201 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"a band","edge":"the northern edge"}
+d203 t242401 RaidArrived {"partyId":150995336,"kind":"raid","size":12,"tile":73730,"edge":"n"}
+d205 t245142 RaidEnded {"partyId":150995336,"outcome":"looted"}
+d223 t266520 RaidEnded {"partyId":117440657,"outcome":"looted"}
+d225 t268801 WhimJudged {"thaneId":16777281,"whimId":"whim_fine_meal","met":false}
+d225 t268801 WhimSet {"thaneId":16777281,"whimId":"whim_spirits"}
+d225 t268801 ImmigrationSkipped {"reason":"wealth"}
+d231 t276146 AmbushSprung {"partyId":352322191}
+d231 t276397 a dwarf died: Ragnvald Deepbrook, bled_out, killer "gloam_archer"
+d233 t278896 RaidEnded {"partyId":352322191,"outcome":"looted"}
+d238 t284607 a dwarf died: Bergthor Veinfell, bled_out, killer ""
+d239 t285738 RaidEnded {"partyId":150995828,"outcome":"looted"}
+d240 t287787 a dwarf died: Dagr Cragcloak, bled_out, killer "wolf"
+d240 t287992 a dwarf died: Gudrun Coldheart, bled_out, killer "wolf"
+d241 t288000 TitleAssigned {"dwarfId":520093780,"title":"broker","previousId":0}
+d241 t288872 a dwarf died: Rolf Stormmark, bled_out, killer ""
+d244 t291601 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"a band","edge":"the northern edge"}
+d245 t292801 RaidArrived {"partyId":352322164,"kind":"raid","size":11,"tile":73730,"edge":"n"}
+d245 t292968 a dwarf died: Steinn Wolfvein, killed, killer "gloam_warrior"
+d245 t293156 a dwarf died: Embla Stonestone, killed, killer "gloam_warrior"
+d246 t294000 TitleAssigned {"dwarfId":385876645,"title":"broker","previousId":0}
+d247 t295798 RaidEnded {"partyId":352322164,"outcome":"looted"}
+d253 t302401 WhimJudged {"thaneId":0,"whimId":"whim_spirits","met":false}
+d253 t302401 ImmigrationSkipped {"reason":"spirit"}
+d255 t304910 RaidEnded {"partyId":150995222,"outcome":"looted"}
+d269 t321601 RaidArrived {"partyId":83886701,"kind":"bandits","size":3,"tile":73730,"edge":"n"}
+d269 t321756 RaidEnded {"partyId":83886701,"outcome":"looted"}
+d269 t321872 RaidEnded {"partyId":318767825,"outcome":"looted"}
+d280 t335263 AmbushSprung {"partyId":553648837}
+d282 t337937 RaidEnded {"partyId":553648837,"outcome":"looted"}
+d283 t338401 ImmigrationSkipped {"reason":"spirit"}
+d285 t341072 RaidEnded {"partyId":620757701,"outcome":"looted"}
+d309 t369601 ImmigrationSkipped {"reason":"spirit"}
+d311 t372356 RaidEnded {"partyId":150995960,"outcome":"looted"}
+d316 t378944 AmbushSprung {"partyId":251659112}
+d319 t381919 RaidEnded {"partyId":251659112,"outcome":"looted"}
+d324 t387601 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"a band","edge":"the northern edge"}
+d325 t388801 RaidArrived {"partyId":184549810,"kind":"raid","size":11,"tile":73730,"edge":"n"}
+d327 t391574 RaidEnded {"partyId":184549810,"outcome":"looted"}
+d332 t397444 RaidEnded {"partyId":285213107,"outcome":"looted"}
+ "TitleAssigned": 5,
+ "RaidArrived": 24,
+ "RaidEnded": 31,
+ "WhimSet": 8,
+ "ImmigrantsArrived": 3,
+ "WhimJudged": 8,
+ "AmbushSprung": 6,
+ "ThreatWarning": 6,
+ "ImmigrationSkipped": 8,
