@@ -20,8 +20,6 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { BuildingsReader, ZoneView } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
-import type { AnimalsReader } from '@systems/animals';
-import { GRASS_PER_GRAZER, SHRUB_GRAZE_WEIGHT } from '@systems/animals/constants';
 import type { PlantRow } from '@systems/plants';
 import { ripeningOutlook, seasonAllows } from '@systems/plants/growth';
 import { lightMatches } from '@systems/plants/plots';
@@ -41,6 +39,7 @@ import { acceleratorLabel } from '../keymap';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
 import { stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
+import { feedDetailText, feedsText, overGrazed, pastureFeed } from '../pasture';
 import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building';
 import { dwarvesOf, nameOf } from './units';
 import { drawStockpileEditor, StockpileEditor, PRESET_ORDER } from './stockpile-editor';
@@ -553,17 +552,20 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
   if (zone.type === 'stockpile') { drawStockpileEditor(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool.stockpile, ctx, zone.id, zone.tiles.length); row = bottom; }
   else if (zone.type === 'farm_plot') row = drawFarmSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   else if (zone.type === 'pasture') {
-    const animals = ctx.readers.has('08') ? ctx.readers.of<AnimalsReader>('08') : null;
-    const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
-    const grass = zone.tiles.filter((tile) => plants?.hasGrass(tile)).length;
-    // 08 § Grazing shrubs: a grazable shrub counts as 1 / SHRUB_GRAZE_WEIGHT of a grass tile.
-    const shrubs = zone.tiles.filter((tile) => plants !== null && plants.def(plants.speciesAt(tile))?.graze === true &&
-      plants.def(plants.speciesAt(tile))?.kind === 'shrub').length;
-    const feed = grass + shrubs / SHRUB_GRAZE_WEIGHT;
-    const assigned = animals?.tameList().filter((id) => animals.pastureOf(id) === zone.id && animals.def(ctx.readers.entities.get(id, C.Creature)?.species ?? 0)?.diet === 'grazer').length ?? 0;
-    const what = shrubs > 0 ? `${grass} grass, ${shrubs} grazing shrubs` : `${grass} grass`;
-    label(s, rect.col + 1, row, `Capacity: ${what} / ${assigned} grazers (${Math.floor(feed / GRASS_PER_GRAZER)} supported)`, { fg: assigned > feed / GRASS_PER_GRAZER ? t.bad : t.value, width: rect.cols - 2 });
-    row += 1;
+    // 08 § Pastures and feeding: the verdict first, so the sidebar never cuts it; then what it rests on.
+    const feed = pastureFeed(ctx.readers, zone.id);
+    if (feed !== null) {
+      label(s, rect.col + 1, row, feedsText(strings, feed), { fg: overGrazed(feed) ? t.alert : t.value, width: rect.cols - 2 });
+      row += 1;
+      for (const line of wrapText(feedDetailText(strings, feed), rect.cols - 2, 2)) {
+        if (row < bottom) label(s, rect.col + 1, row, line, { fg: t.dim, width: rect.cols - 2 });
+        row += 1;
+      }
+      if (feed.animals === 0 && row < bottom) {
+        label(s, rect.col + 1, row, strings.get('ui.zone.pasture.put_here'), { fg: t.dim, width: rect.cols - 2 });
+        row += 1;
+      }
+    }
   } else if (zone.type === 'hospital') {
     row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   } else if (zone.type === 'sanctum') {

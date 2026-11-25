@@ -174,6 +174,21 @@ What a butchered corpse gives besides meat, hide, bone, fat, skull and shell ([0
 | `chicken` | `feather` | `feather` | 2 |
 | `cave_crawler` | `shell_piece` | `chitin` | 2 |
 
+## Plurals
+
+More than one of a species is named by the plural of its name's last word: a word ending in `lf` or `fe`, and `dwarf`, take `ves` ("wolves", "dwarves", "elves"); a word ending in `s`, `x`, `z`, `ch` or `sh` takes `es` ("lynxes", "foxes"); a consonant and `y` take `ies`; any other word takes `s` ("cows", "snow leopards"). The rows below name their own plural, as a row's `plural` field.
+
+| id | plural |
+|---|---|
+| `sheep` | sheep |
+| `deer` | deer |
+| `reindeer` | reindeer |
+| `elk` | elk |
+| `cave_ox` | cave oxen |
+| `blind_fish` | blind fish |
+| `trollkin` | trollkin |
+| `restless_dead` | restless dead |
+
 ## Fish pools
 
 Water body kinds and their fish material: river → `trout`, lake → `perch`, cavern lake → `blindfish`. These are not creatures; the `blind_fish` creature above is the visible schooling animal in cavern lakes and is separate from the pool.
