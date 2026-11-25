@@ -1035,10 +1035,20 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   /**
-   * `11` § Assignment: an open job for a patient at `PATIENT_SUMMON_PRIORITY` does not wait for a
-   * worker to finish what it is doing. When no free worker in the queue could take it, the nearest
-   * worker to the patient at interruptible work that is not itself for a patient is interrupted,
-   * progress kept, and claims the job at once (queued for this tick if the claim fails).
+   * A job that calls a worker off its work (`11` § Assignment): a patient's at `PATIENT_SUMMON_PRIORITY`,
+   * or one its producer marks `summon` (20's `trade` job, which exists only while its caravan is at the depot).
+   */
+  private summons(job: Job): boolean {
+    return job.data['summon'] === true || (job.priority === PATIENT_SUMMON_PRIORITY && this.isPatientCare(job));
+  }
+
+  /**
+   * `11` § Assignment: an open job that calls a worker (a patient's at `PATIENT_SUMMON_PRIORITY`, or
+   * one marked `summon`) does not wait for a worker to finish what it is doing. When no free worker
+   * in the queue could take it, the nearest worker to the patient (else to the job's anchor) at
+   * interruptible work that is not itself for a patient, and, for a call that is not for a patient,
+   * less urgent than the calling job, is interrupted, progress kept, and claims the job at
+   * once (queued for this tick if the claim fails).
    */
   private summonForPatients(): void {
     const map = this.world.map;
@@ -1047,10 +1057,11 @@ export class JobBoard implements JobsApi, JobSink {
     let workers: EntityId[] | null = null;
     for (const id of this.ids) {
       const job = this.jobs.get(id);
-      if (job === undefined || job.state !== 'open' || job.priority !== PATIENT_SUMMON_PRIORITY || !this.isPatientCare(job)) continue;
+      if (job === undefined || job.state !== 'open' || !this.summons(job)) continue;
       if (this.assignQueue.some((w) => this.workerOf(w).jobId === 0 && !this.isDown(w) && this.eligible(job, w))) continue;
-      // Nearest to the patient itself (a `carry_patient` job's anchor is the bed).
-      const patientTile = job.target.kind === 'entity' ? this.workerTile(job.target.ref) : -1;
+      const patient = this.isPatientCare(job);
+      // Nearest to the patient itself (a `carry_patient` job's anchor is the bed); a call's nearest to its anchor.
+      const patientTile = patient && job.target.kind === 'entity' ? this.workerTile(job.target.ref) : -1;
       const anchor = map.unpack(patientTile >= 0 ? patientTile : this.anchorTile(job));
       let best: EntityId = 0;
       let bestD = Number.POSITIVE_INFINITY;
@@ -1058,6 +1069,8 @@ export class JobBoard implements JobsApi, JobSink {
       for (const w of workers) {
         const held = this.jobs.get(this.workerOf(w).jobId);
         if (held === undefined || held.workerId !== w || !this.typeRow(held).interruptible || this.isPatientCare(held)) continue;
+        // A call that is not for a patient takes no worker off work as urgent as itself.
+        if (!patient && held.priority <= job.priority) continue;
         if (entities.get(w, C.Brain)?.behavior !== 'work' || entities.has(w, C.Patient) || onDuty?.onDuty(w) === true) continue;
         if (!this.eligible(job, w)) continue;
         const d = estDistance(map.unpack(this.workerTile(w)), anchor);
