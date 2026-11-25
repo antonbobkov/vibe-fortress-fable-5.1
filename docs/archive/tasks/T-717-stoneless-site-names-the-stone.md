@@ -1,6 +1,8 @@
 # T-717 — On a site with no surface stone, the game never says stone is what is missing
 
-**Source:** playtest 2026-11-24 (second) ([report](../../reports/data/2026-11-24-playtest-2.md), finding 4) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 53987bdf,4926579f,6a0ae7a9,6e3f0d9b,fec1366d.
+
+**Source:** playtest 2026-11-24 (second) ([report](../../../reports/data/2026-11-24-playtest-2.md), finding 4) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

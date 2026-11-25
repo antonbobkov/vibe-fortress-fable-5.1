@@ -200,14 +200,15 @@ describe('T-703 the lines the playtest found cut', () => {
     const f = setup();
     f.screen.openPanel('build');
     f.screen.build.choose('w');
-    const { rows } = side(f);
+    // The list is longer than the sidebar since a figure may read "(no stone)" (T-717): its scroll bar is left off.
+    const rows = side(f).rows.map((row) => row.replace(/ *[│█]$/, ''));
     expect(rows[1]).toMatch(/^\[c\] Constructions +\[f\] Furniture$/);
     expect(rows[2]).toMatch(/^\[w\] Workshops +\[m\] Mechanisms$/);
     const at = rows.findIndex((row) => row.startsWith("Butcher's shop"));
-    expect(`${rows[at] as string} ${(rows[at + 1] as string).trim()}`).toMatch(/^Butcher's shop 1 table\+1 stone .*\(\d+\)$/);
+    expect(`${rows[at] as string} ${(rows[at + 1] as string).trim()}`).toMatch(/^Butcher's shop 1 table\+1 stone .*\((\d+|no [a-z ]+)\)$/);
     expect(rows.join('\n')).not.toContain('»');
     // A row that fits keeps its one row, the count at the right.
-    expect(rows.find((row) => row.startsWith('Kiln'))).toMatch(/^Kiln +3 blocks \(\d+\)$/);
+    expect(rows.find((row) => row.startsWith('Loom'))).toMatch(/^Loom +2 logs \((\d+|no log)\)$/);
   });
 
   it('Stocks: a five-digit value and its ☼ fit the value column', () => {

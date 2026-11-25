@@ -150,7 +150,8 @@ describe('U-01 blocked jobs and workshops name the item, count and maker (Q4, §
   it('a workshop waiting line names its input, and fuel says where fuel is made', () => {
     const w = new TestWorld({ seed: 'u01-workshop', world: 'flat-test', embark: 'none' });
     const ctx = ctxOf(w);
-    expect(workshopBlockText(ctx, 'waiting for raw_stone')).toBe('Waiting for stone (0 available)');
+    // No recipe makes stone: the line says where the rock is (T-717), here under the test map's soil.
+    expect(workshopBlockText(ctx, 'waiting for raw_stone')).toMatch(/^Waiting for stone \(0 available\) — dig down to rock: the soil here is \d+ levels deep$/);
     expect(workshopBlockText(ctx, 'missing_input')).toContain('Needs fuel — order at a wood furnace');
     expect(workshopBlockText(ctx, 'workshop_suspended')).toBe('Suspended: [S-s] resume');
     expect(workshopBlockText(ctx, null)).toBe('');

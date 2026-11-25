@@ -699,6 +699,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.build.stock.needs_workshop': 'build {workshop} to make them',
   'ui.build.stock.needs_workshop_item': 'build {workshop} to make {item}',
   'ui.build.stock.a_workshop': 'a workshop',
+  'ui.build.count_none': 'no {item}',
   'ui.status.zone': '{tool} · drag a rectangle · [Esc] cancel',
   'ui.status.zone_drag': '{tool} {w}×{h} ({n} tiles, {ok} qualify)',
   'ui.build.category.construction': 'Constructions',
@@ -1077,6 +1078,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // form, and the selected job's long form below the table.
   'ui.jobs.reason.unreachable': 'no path',
   'ui.jobs.reason.missing_input': 'waiting: {what}',
+  'ui.jobs.reason.to_be_brought': 'waiting: {what} to be brought',
   'ui.jobs.reason.no_tool': 'waiting: {tool}',
   'ui.jobs.reason.no_worker': 'no worker',
   'ui.jobs.reason.workshop_suspended': 'suspended',
@@ -1570,6 +1572,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // A workshop's waiting line (`12` § Operation 3: "waiting for <input>"; D-U4).
   'ui.block.waiting_for': 'Waiting for {item} ({n} available)',
   'ui.block.order_at': '{text} — order at {where}',
+  'ui.block.advice': '{text} — {advice}',
+  'ui.advice.stone_dig': 'dig down to rock: the soil here is {n|level|levels} deep',
+  'ui.advice.stone_rock': 'dig into the rock for stone',
+  'ui.advice.stone_trade': 'trade for stone or blocks',
   'ui.block.fuel': 'Needs fuel',
   'ui.block.out_of_reach': 'Skipped: {item} out of reach. Tried again later, or when a door opens.',
   'ui.block.inputs': 'Waiting for inputs',

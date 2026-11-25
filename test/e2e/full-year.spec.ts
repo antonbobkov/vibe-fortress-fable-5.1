@@ -153,6 +153,8 @@ async function closePanels(page: Page): Promise<void> {
 async function placeBuilding(page: Page, categoryKey: string, nameQuery: string, clickX: number, clickY: number): Promise<void> {
   await page.keyboard.press('b');
   await page.keyboard.press(categoryKey);
+  // A long list scrolls (a row whose figure reads "(no stone)" wraps, T-717): the highlight brings the row into view.
+  for (let k = 0; k < 40 && !(await textOf(page)).includes(nameQuery); k += 1) await page.keyboard.press('ArrowDown');
   await clickText(page, nameQuery);
   await expect.poll(async () => (await textOf(page)).toLowerCase()).toContain(`${nameQuery.toLowerCase()} ·`);
   if (nameQuery === 'Trade depot') {
@@ -394,8 +396,12 @@ async function tradeThroughUi(page: Page, clock: ReturnType<typeof playClock>): 
   await page.keyboard.press('Shift+M');
   await expect.poll(() => textOf(page)).toContain('Stocks');
   // The bars are goods the year does not use: down to their row (food, drink, seed, stone, wood, bar), `Space` marks
-  // the stacks under it, `Shift+T` sends them to the depot.
-  for (let row = 0; row < 5; row += 1) await page.keyboard.press('ArrowDown');
+  // the stacks under it, `Shift+T` sends them to the depot. Soil loads dug from the hill are a row of their own after
+  // stone (T-717), so the rows above bar are counted from those shown.
+  const tree = await textOf(page);
+  const above = ['food', 'drink', 'seed', 'stone', 'soil', 'wood'].filter((name) => new RegExp(`[►▼] ${name}(?![\\w/])`).test(tree)).length;
+  expect(above, 'the stocks rows above bar').toBeGreaterThanOrEqual(5);
+  for (let row = 0; row < above; row += 1) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Space');
   await page.keyboard.press('Shift+T');
   await expect.poll(() => textOf(page)).toContain('goods at depot');

@@ -31,6 +31,8 @@ import type { TradeReader } from '@systems/trade';
 import type { JobsReader } from '@systems/jobs';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { CombatReader } from '@systems/combat';
+import { siteSummary, type LocalMapSpec } from '@systems/embark';
+import type { TerrainReader } from '@systems/terrain';
 import type { HealthReader } from '@systems/health';
 import type { MagicReader } from '@systems/magic';
 import { withSuffix } from '@content/generate';
@@ -406,6 +408,74 @@ export function whereMade(registry: Registry, itemIds: readonly string[], string
   return workshopList(Array.from(new Set(itemIds.flatMap((id) => producersOf(registry, id)))), strings);
 }
 
+/** A building row's inputs as the buildings table gives them. */
+interface BuildingInputsRow {
+  readonly id: string;
+  readonly name: string;
+  readonly inputs?: readonly { readonly match: string; readonly count: number | 'tiles' }[];
+}
+
+/** Units of a building input in stock, every alternative counted (13 `countAvailable`). */
+export function inputUnits(readers: ReaderSet, match: string): number {
+  const b = buildingsOf(readers);
+  const it = readers.has('13') ? readers.of<ItemsReader>('13') : null;
+  if (b === null || it === null) return 0;
+  const types = b.inputTypes(match);
+  return types.length === 0 ? 0 : it.countAvailable({ types });
+}
+
+/** The soil depth of each site spec, from the site summary the world map shows (03 stage 3). */
+const SOIL_DEPTHS = new WeakMap<LocalMapSpec, number>();
+
+/**
+ * Where stone comes from on this site (`fortress-screen.md` § Build tool): dig down through the
+ * soil, as deep as the site panel says it is; dig into the rock where there is no soil; trade for
+ * it on a map with no site.
+ */
+export function stoneAdvice(env: MessageEnv): string {
+  const s = env.strings;
+  const spec = env.readers.has('03') ? env.readers.of<TerrainReader>('03').spec() : null;
+  if (spec === null) return s.get('ui.advice.stone_trade');
+  let depth = SOIL_DEPTHS.get(spec);
+  if (depth === undefined) {
+    depth = siteSummary(spec, env.registry).soil?.depth ?? 0;
+    SOIL_DEPTHS.set(spec, depth);
+  }
+  return depth > 0 ? s.get('ui.advice.stone_dig', { n: depth }) : s.get('ui.advice.stone_rock');
+}
+
+/**
+ * Where a short item can come from (`fortress-screen.md` § Build tool, `panels.md` § Jobs): the
+ * workshops whose recipes make it, leaving out one whose own building takes it unless it is built
+ * or the stock can build it (a mason's workshop, a kiln and a forge for blocks, on a site with no
+ * stone); `where` names them as {@link whereMade} does, `count` says how many there are. For stone
+ * or blocks, when none of them is built and the stock cannot build one, `advice` says where the
+ * rock is ({@link stoneAdvice}) and `where` is empty.
+ */
+export function sourceOf(env: MessageEnv, itemIds: readonly string[]): { where: string; count: number; advice: string } {
+  const b = buildingsOf(env.readers);
+  const items = env.registry.table<{ id: string; category?: string }>('items');
+  const buildingRows = env.registry.table<BuildingInputsRow>('buildings');
+  const recipes = env.registry.table<RecipeRow>('recipes');
+  const wanted = new Set(itemIds);
+  const makers = new Set<string>();
+  for (const id of recipes.ids()) {
+    const recipe = recipes.byId(id);
+    if (recipe !== undefined && recipe.outputs.some((o) => wanted.has(o.item))) makers.add(recipe.workshop);
+  }
+  const wantedTypes = new Set(itemIds.filter((id) => items.has(id)).map((id) => items.index(id)));
+  const takes = (row: BuildingInputsRow): boolean =>
+    b !== null && (row.inputs ?? []).some((input) => b.inputTypes(input.match).some((t) => wantedTypes.has(t)));
+  const built = (row: BuildingInputsRow): boolean => b !== null && b.byType(row.id).some((id) => b.get(id)?.state === 'built');
+  const buildable = (row: BuildingInputsRow): boolean =>
+    (row.inputs ?? []).every((input) => inputUnits(env.readers, input.match) >= (input.count === 'tiles' ? 1 : input.count));
+  const listed = buildingRows.ids().filter((id) => makers.has(id)).map((id) => buildingRows.byId(id))
+    .filter((row): row is BuildingInputsRow => row !== undefined && (!takes(row) || built(row) || buildable(row)));
+  const stone = itemIds.some((id) => /^stone\/(raw|block)$/.test(items.byId(id)?.category ?? ''));
+  if (stone && !listed.some((row) => built(row) || buildable(row))) return { where: '', count: 0, advice: stoneAdvice(env) };
+  return { where: workshopList(listed.map((row) => row.name), env.strings), count: listed.length, advice: '' };
+}
+
 /** The tile a command is about, for the log line's focus (24 § Announcements: "jumps to the focus"). */
 export function commandFocus(readers: ReaderSet, command: Command | undefined): TileIndex | undefined {
   if (command === undefined) return undefined;
@@ -564,31 +634,49 @@ function filterItemIds(registry: Registry, filter: Readonly<Record<string, unkno
   return ids.map((i) => items.byIndex(i)?.id ?? '').filter((id) => id !== '');
 }
 
+/** An item filter as 13's `countAvailable` takes it. */
+type ItemFilterLike = Parameters<ItemsReader['countAvailable']>[0];
+
 /** A job as the blocked-reason column reads it. */
 export interface BlockedJob {
   readonly type: number;
   readonly blockedReason: string | null;
   readonly tool: string | null;
-  readonly inputs: readonly { readonly filter: object; readonly count: number; readonly delivered: readonly number[] }[];
+  readonly inputs: readonly { readonly filter: object; readonly count: number; readonly reserved?: readonly number[]; readonly delivered: readonly number[] }[];
 }
 
 /**
- * A blocked job's reason: `short` for the jobs table's cell ("waiting: 1 door"), `long` for the
+ * A blocked job's reason: `short` for the jobs table's cell ("waiting: 1 stone"), `long` for the
  * selected job's line, which also says where to get the missing item ("— order at a carpenter's
- * workshop") or what to do.
+ * workshop", "— dig down to rock: …") or what to do. The input named is the first that is short:
+ * fewer units available (13 `countAvailable`) than it still needs beyond what is reserved and
+ * delivered; when none is, the first not yet delivered, which waits to be brought.
  */
 export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string; long: string } {
   const s = env.strings;
   const reason = job.blockedReason ?? '';
   if (reason === 'missing_input') {
-    const input = job.inputs.find((i) => i.count - i.delivered.length > 0) ?? job.inputs[0];
+    const it = env.readers.has('13') ? env.readers.of<ItemsReader>('13') : null;
+    const owed = (i: BlockedJob['inputs'][number]): number => i.count - i.delivered.length - (i.reserved?.length ?? 0);
+    const short = it === null ? undefined : job.inputs.find((i) => owed(i) > 0 && it.countAvailable(i.filter as ItemFilterLike) < owed(i));
+    const input = short ?? job.inputs.find((i) => i.count - i.delivered.length > 0) ?? job.inputs[0];
     if (input !== undefined) {
-      const n = Math.max(1, input.count - input.delivered.length);
       const filter = input.filter as Readonly<Record<string, unknown>>;
-      const what = filterText(env.registry, filter, n, s);
-      const where = whereMade(env.registry, filterItemIds(env.registry, filter), s);
-      const short = s.get('ui.jobs.reason.missing_input', { what });
-      return { short, long: where === '' ? short : s.get('ui.block.order_at', { text: short, where }) };
+      if (short === undefined && it !== null) {
+        const text = s.get('ui.jobs.reason.to_be_brought', { what: filterText(env.registry, filter, Math.max(1, input.count - input.delivered.length), s) });
+        return { short: text, long: text };
+      }
+      const what = filterText(env.registry, filter, Math.max(1, owed(input)), s);
+      const text = s.get('ui.jobs.reason.missing_input', { what });
+      // Where it comes from is read only for the long line: the jobs table asks for the short one on every row.
+      return {
+        short: text,
+        get long(): string {
+          const source = sourceOf(env, filterItemIds(env.registry, filter));
+          return source.advice !== '' ? s.get('ui.block.advice', { text, advice: source.advice })
+            : source.where === '' ? text : s.get('ui.block.order_at', { text, where: source.where });
+        },
+      };
     }
   }
   if (reason === 'no_tool') {
@@ -648,8 +736,10 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
   const waiting = waitingFor(env, reason);
   if (waiting !== null) {
     const text = s.get('ui.block.waiting_for', { item: waiting.item, n: waiting.n });
-    const where = whereMade(env.registry, waiting.match.split('|'), s);
-    return where === '' ? text : s.get('ui.block.order_at', { text, where });
+    // Where it comes from, as a blocked job's line says it (jobBlockText): stone says where the rock is.
+    const source = sourceOf(env, waiting.match.split('|'));
+    if (source.advice !== '') return s.get('ui.block.advice', { text, advice: source.advice });
+    return source.where === '' ? text : s.get('ui.block.order_at', { text, where: source.where });
   }
   if (reason === 'missing_input') {
     const items = env.registry.table<NamedRow>('items');
