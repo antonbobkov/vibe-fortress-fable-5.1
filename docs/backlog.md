@@ -15,7 +15,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-732 | [The defence script and the fortress script's look before the all-clear flap the north door](work/T-732-defence-north-door-flaps-on-the-look.md) | [T-724](archive/tasks/T-724-defence-squad-refill-remnant.md) | — | open |
 | T-733 | [The defence fortress's economy makes a soldier at drill its woodcutter](work/T-733-defence-economy-names-a-soldier.md) | [T-724](archive/tasks/T-724-defence-squad-refill-remnant.md) | — | open |
 | T-735 | [Every row of a scrolling table ends in "»": Units, Jobs and the other tables at scale](work/T-735-table-rows-cut-by-scrollbar.md) | [the mid-game playtest of 2026-11-25](../reports/data/2026-11-25-playtest-3.md) | — | open |
-| T-739 | [Jobs at scale: identical hauls and builds are a row each](work/T-739-jobs-batch-named-targets.md) | [the mid-game playtest of 2026-11-25](../reports/data/2026-11-25-playtest-3.md) | — | open |
 | T-742 | [Stocks: a deep stack row cuts its units, and stacks of two qualities read the same](work/T-742-stocks-stack-rows-fit-and-quality.md) | [T-738](archive/tasks/T-738-stocks-like-stacks-one-row.md) | — | open |
 | T-743 | [The Hillfolk blame the fortress for every bandit's death, whoever killed it](work/T-743-bandit-death-blame.md) | [T-740](archive/tasks/T-740-caravan-own-guard-kill-reputation.md) | — | open |
 
