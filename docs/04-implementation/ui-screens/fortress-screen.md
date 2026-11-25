@@ -168,6 +168,31 @@ A tame grazer's view has a third key row, its pasture (`[p] pasture: none` off p
 
 `Enter` or a click on a row sends `AssignPasture` and says on the status row what it did, as the Animals panel's `[p]` does; `Esc`, `Backspace` or `[p]` close the picker. A dwarf's view, a wild animal's and a tame animal's that does not graze have no pasture row.
 
+A hostile's view (18's `creature › hostile`) has, under the rule, the same dim label and value a row, in the Threats panel's words:
+
+```
+│ gloam warrior                         [x] │
+│ Activity: Attacking                       │
+│ At (52, 12, z27)                          │
+│ ───────────────────────────────────────── │
+│ Party     Gloam raid, 7 of 10, attacking  │
+│ Morale    shaken                          │
+│ Role      warrior                         │
+│ Leader    gloam captain                   │
+│ State     hostile, carrying loot          │
+│ Health: Blood 100%, Pain 0                │
+│   Conscious                               │
+│   head ▓▓▓▓▓ 30/30 hp                     │
+│   torso ▓▓▓▓▓ 60/60 hp                    │
+│ Equipment copper short sword, leather     │
+│           cap, 2 iron bars                │
+│ ───────────────────────────────────────── │
+│ [c] center  [f] follow off                │
+│ [h] here  [Bksp] back  [Tab] link         │
+```
+
+`Party` names its party as the log does, with the members still on the map and what the party is doing, as the Threats panel's line has them (`Gloam raid, 7 of 10, attacking`, `thief, 1, coming`); `Morale` is the party's morale in words (`steady`, `shaken`, `wavering`, `breaking`) while it has one and has not broken; `Role` is its part in the party (`thief`, `warrior`, `archer`, `captain`, `hexer`), with `, leads the party` for its leader; `Leader` is the member that leads it, a link, when that is another creature the map shows; and `State` is `hostile`, then `breaking a door`, `carrying loot` and `lost its nerve` while they hold. A hostile without a party (a cavern monster, the Hollow-born, the restless dead) has its `Role` (`cavern monster`, `Hollow-born`, `restless dead`) and `State` only. A hostile the map hides (stealthed and not yet spotted) is never counted, named or linked: the party counts only the members the map does not hide, and its own view reads `Out of sight.` (24 § Inspection). Under them come the health lines and, when it holds something, `Equipment`.
+
 A click on one loose item opens the item's view:
 
 ```
@@ -273,7 +298,7 @@ A long line wraps under its text. Another creature has the `Equipment` line when
 
 Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another item, another tile, or another view.
 
-Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training, health, equipment (tame animal); species, state, huntable, health, equipment (wild animal); party, role, state (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
+Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training, health, equipment (tame animal); species, state, huntable, health, equipment (wild animal); party, morale, role, leader, state, health, equipment (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 
 ## Designate tool
 

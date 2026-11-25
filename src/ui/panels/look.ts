@@ -34,6 +34,7 @@ import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { creatureActivity } from './look-activity';
 import { ANIMAL_FIELDS, animalFields } from './look-animal';
+import { HOSTILE_FIELDS, hostileFields } from './look-hostile';
 import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
 import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
 import { creatureGone, drawGoneView, drawLookFoot, footRows, itemGone, type LookFoot } from './look-gone';
@@ -693,13 +694,18 @@ export function drawCreatureView(
 function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, dwarf: boolean): void {
   const t = s.theme;
   const { line, wrapped, put } = pen;
-  // 08's `creature › animal`: species, state, owner, pasture, condition and training, a dim label and a value a row.
+  // 08's `creature › animal` (species, state, owner, pasture, condition, training) and 18's
+  // `creature › hostile` (party, role, state): a dim label and a value a row, the values in one column.
+  const labels = [...ANIMAL_FIELDS.map((f) => `ui.look.animal.field.${f}`), ...HOSTILE_FIELDS.map((f) => `ui.look.hostile.field.${f}`)];
+  const pad = Math.max(...labels.map((key) => Array.from(strings.get(key)).length)) + 2;
   const fields = animalFields({ readers, registry, strings }, id);
-  if (fields.length > 0) {
-    const pad = Math.max(...ANIMAL_FIELDS.map((f) => Array.from(strings.get(`ui.look.animal.field.${f}`)).length)) + 2;
-    for (const f of fields) {
-      const head = strings.get(`ui.look.animal.field.${f.name}`).padEnd(pad);
-      pen.spans([{ text: head, fg: t.dim }, ...f.value], f.tone === 'bad' ? t.bad : f.tone === 'alert' ? t.alert : t.text, pad);
+  for (const f of fields) {
+    const head = strings.get(`ui.look.animal.field.${f.name}`).padEnd(pad);
+    pen.spans([{ text: head, fg: t.dim }, ...f.value], f.tone === 'bad' ? t.bad : f.tone === 'alert' ? t.alert : t.text, pad);
+  }
+  if (fields.length === 0) {
+    for (const f of hostileFields({ readers, registry, strings, shown: (other) => creatureShown(readers, other) }, id)) {
+      pen.spans([{ text: strings.get(`ui.look.hostile.field.${f.name}`).padEnd(pad), fg: t.dim }, ...f.value], t.text, pad);
     }
   }
   const skills = registry.table<{ id: string; name: string }>('skills');
