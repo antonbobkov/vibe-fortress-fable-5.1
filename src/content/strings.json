@@ -137,6 +137,7 @@
   "hint.hint_hunter": "Hunters need a crossbow and bolts, or a bow and arrows.",
   "hint.hint_immigration": "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it.",
   "hint.hint_magma": "A forge over channeled magma needs no fuel. Build it of magma-safe stone.",
+  "hint.hint_mood": "A miserable dwarf works slower and may sulk. The Mood panel [e] says what helps.",
   "hint.hint_no_miners": "No one has mining enabled. Turn it on in Labors [l].",
   "hint.hint_no_path": "Jobs are blocked: no path. Check for doors, water and undug rock.",
   "hint.hint_pallet": "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor.",

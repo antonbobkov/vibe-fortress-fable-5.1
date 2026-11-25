@@ -228,5 +228,10 @@
     "id": "hint_panel_letters",
     "trigger": "a panel's own letter acts where that letter also opens a panel (§ Panels)",
     "text": "Inside a panel its own letters come first. Esc, then a letter, opens another panel."
+  },
+  {
+    "id": "hint_mood",
+    "trigger": "the first miserable line of the fortress, after it (MoodTierChanged)",
+    "text": "A miserable dwarf works slower and may sulk. The Mood panel [e] says what helps."
   }
 ]

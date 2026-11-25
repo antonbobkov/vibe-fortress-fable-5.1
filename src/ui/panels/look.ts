@@ -28,7 +28,7 @@ import type { MagicReader, SpellView } from '@systems/magic';
 import type { PlantsReader } from '@systems/plants';
 import { bodyPartNames, permanentText } from '@systems/health';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
-import { moodTierName, thoughtText } from './mood';
+import { helpedThought, helpsText, moodTierName, thoughtText, weighedThoughts } from './mood';
 import type { Surface } from '../surface';
 import { captionButtons, label, separator, wrapLabel } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
@@ -770,7 +770,14 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
       const morale = readers.of<MoraleReader>('15');
       line(strings.get('ui.look.mood', { tier: moodTierName(strings, morale.tier(id)), value: Math.round(morale.mood(id)) }), t.value);
       // Only a thought that moves the mood by a whole point or more: one that rounds to 0 is not listed.
-      for (const thought of morale.thoughts(id)) if (Math.round(thought.value) !== 0) wrapped('  ', thoughtText(thought));
+      // Under the strongest negative thought that has one, what helps (`panels.md` § Mood).
+      let helped = helpedThought(strings, weighedThoughts(morale, id));
+      for (const thought of morale.thoughts(id)) {
+        if (Math.round(thought.value) === 0) continue;
+        wrapped('  ', thoughtText(thought));
+        const helps = thought.id === helped ? helpsText(strings, thought.id) : null;
+        if (helps !== null) { wrapped('    ', helps, t.dim); helped = null; }
+      }
     }
   }
   // 08 § Wild behavior, `sleep` (T-540): a wild animal that sleeps through noise.

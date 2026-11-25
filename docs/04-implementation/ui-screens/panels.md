@@ -644,7 +644,10 @@ While the fortress's wealth is below what the evaluation to come asks (`immigrat
 │  -15 My friend is dead.        ×31 │
 │  +10 Had a lavish meal.        ×28 │
 │  -3 I am tired.                ×12 │
-│  +3 Had a chat.                 ×9 │
+│  -4 There is nowhere to sit.    ×9 │
+│     Helps: a chair at a table in a │
+│       dining room, or a hearth hall│
+│       [b > Special]                │
 │  -2 The food was stale.         ×4 │
 │ Name                Tier           │
 │ Ragnhild Brightvein Unhappy        │
@@ -652,17 +655,20 @@ While the fortress's wealth is below what the evaluation to come asks (`immigrat
 │   -3 I am tired.                   │
 │   -1 I have not talked to anyone   │
 │     in a while.                    │
+│     Helps: a hearth hall or a      │
+│       meeting area [z], where      │
+│       dwarves meet and talk        │
 │ Ragnhild Brimhammer Content        │
 │   +10 Had a lavish meal.           │
 │ ────────────────────────────────── │
 │ [Enter] holders  [s] sort tier   │
 ```
 
-The panel opens on a summary. Under the hall spirit, the `MOOD_SUMMARY_THOUGHTS` thoughts held by most dwarves, each with its weight and the number of dwarves who hold it (`×31`) at the right of its first row, the thought wrapping under itself, indented two cells, when it does not fit, most held first, then by the larger total weight, then by text. A thought is counted by its text; its weight is its holders' mean, rounded to a whole number; a thought whose weight rounds to 0 for a dwarf is not counted for that dwarf, and a dwarf holding one text twice counts once, at the stronger. "No dwarf holds a thought now." when none is held.
+The panel opens on a summary. Under the hall spirit, the `MOOD_SUMMARY_THOUGHTS` thoughts held by most dwarves, each with its weight and the number of dwarves who hold it (`×31`) at the right of its first row, the thought wrapping under itself, indented two cells, when it does not fit, most held first, then by the larger total weight, then by text. Under each of the first three summary rows with a negative weight whose thought says what helps, a dim line `Helps: …` (`ui.mood.helps_line`, the remedy `ui.mood.helps.<thought>`), two cells in and wrapping under itself, part of its row: `uncomfortable` "a chair at a table in a dining room, or a hearth hall [b > Special]"; `lonely` "a hearth hall or a meeting area [z], where dwarves meet and talk"; `bored` "a hearth hall to visit; fine meals"; `restless` "work: dig, chop or order goods; or a squad on Train"; `slept_outdoors` "a bed indoors: a dug hall with beds or pallets"; `slept_on_floor` "a bed or a pallet for each dwarf [b > Furniture]"; `hungry` "food they can reach; see Stocks [s]"; `thirsty` "drink they can reach; see Stocks [s]" (10 § Needs, § Social, comfort, joy). Another thought says nothing. A thought is counted by its text; its weight is its holders' mean, rounded to a whole number; a thought whose weight rounds to 0 for a dwarf is not counted for that dwarf, and a dwarf holding one text twice counts once, at the stronger. "No dwarf holds a thought now." when none is held.
 
 The cursor runs over the summary's rows and then the dwarves. `Enter` on a summary row lists only the dwarves who hold that thought, its row marked `•` and the cursor on the first of them; `Enter` on the marked row, `Esc` or `Backspace` lists every dwarf again (`Esc` closes the panel only when every dwarf is listed). A click on a summary row does what `Enter` does. The listed thought stays in the summary while anyone holds it, in place of the fifth; when nobody holds it any more, the list is every dwarf again. The key row reads `[Enter] holders  [s] sort tier` on the summary, `[Enter] inspect  [Esc] all` while one thought's holders are listed, and `[Enter] inspect  [s] sort tier` otherwise.
 
-Under the summary, each dwarf has its name and its tier on one row, and under them its three strongest thoughts (those that round to a whole point or more), one to a row, indented two cells and dim, a thought too long for its row wrapping under itself two cells further in; no thought is cut. The name column is as wide as the longest name listed, as far as the tier column leaves room, and a name that does not fit is shortened as the Units list shortens it ([fortress-screen.md](fortress-screen.md) § Sidebar open), its tooltip the whole name. The cursor's dwarf is inverted over all its rows, and a click selects it. `Enter` on a dwarf inspects it, as Units does; `[s]` sorts the dwarves by mood, lowest first, or back to list order, the cursor on the first dwarf.
+Under the summary, each dwarf has its name and its tier on one row, and under them its three strongest thoughts (those that round to a whole point or more), one to a row, indented two cells and dim, a thought too long for its row wrapping under itself two cells further in; no thought is cut. Under the strongest of those three that is negative and says what helps, its `Helps: …` line, two cells further in. The name column is as wide as the longest name listed, as far as the tier column leaves room, and a name that does not fit is shortened as the Units list shortens it ([fortress-screen.md](fortress-screen.md) § Sidebar open), its tooltip the whole name. The cursor's dwarf is inverted over all its rows, and a click selects it. `Enter` on a dwarf inspects it, as Units does; `[s]` sorts the dwarves by mood, lowest first, or back to list order, the cursor on the first dwarf.
 
 ## Log (a)
 
@@ -712,7 +718,7 @@ Three tabs: `Keys` (the keymap table grouped by context, live from the keymap; u
 
 Nothing in Help is cut: a line that does not fit the panel wraps, with a hanging indent under its description. `Keys` writes a Shift key the way the panels do (`[n]`) and starts with the line "S- is Shift". `PageDown` and `PageUp` move a page less one line, and the foot of the panel reads "page 2/7".
 
-`Start` reads, wrapped: "1. Dig in: [d], drag over a rock face. Dwarves dig from the side. 2. Storage: [z] Stockpile, drag on floor, then choose its Preset: a new stockpile takes nothing. 3. Wood: [d] Chop tree. 4. Workshops: [b] Workshops; then orders with [o]. Build a carpenter's workshop and a still first. 5. Food: [z] Farm plot on soil; pick a crop for each season. 6. Beds: order beds, place them [b], draw a Bedroom over each. 7. Safety: a door on your hall set to Lock on alert, and a squad [m] with iron spears. 8. Space pauses. [?] opens this help."
+`Start` reads, wrapped: "1. Dig in: [d], drag over a rock face. Dwarves dig from the side. 2. Storage: [z] Stockpile, drag on floor, then choose its Preset: a new stockpile takes nothing. 3. Wood: [d] Chop tree. 4. Workshops: [b] Workshops; then orders with [o]. Build a carpenter's workshop and a still first. 5. Food: [z] Farm plot on soil; pick a crop for each season. 6. Home: order beds, place them [b], draw a Bedroom over each. A hearth [b > Special] makes a hall where dwarves sit and talk; [e] Mood says what they miss. 7. Safety: a door on your hall set to Lock on alert, and a squad [m] with iron spears. 8. Space pauses. [?] opens this help."
 
 Every panel that shows an `[x]` caption ends with one dim line, "S- is Shift", when its last row is free.
 
