@@ -37,6 +37,7 @@ import {
 } from './tick';
 
 export type { HealthReader } from './reader';
+export { bodyPartNames, permanentText } from './reader';
 export * from './constants';
 export * from './wounds';
 export * from './state';

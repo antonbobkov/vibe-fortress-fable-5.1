@@ -124,7 +124,8 @@ Tame animals get bandaging only, and a summon (a creature with `Summoned`) gets 
 - `health.wounds(id)` (full list; the UI applies the diagnosis rule), `health.permanent(id)`
 - `health.isPatient(id)`, `health.needsTreatment(id)` (list of job kinds)
 - `health.speedModifier(id)`, `health.productivityModifier(id)`, `health.canWield(id, hands)`, `health.canWork(id)`
-- `health.summaryText(id)` ("Bleeding from the left arm; broken right leg (splinted); in pain")
+- `health.summaryText(id)` ("Bleeding from the left arm; broken right leg (splinted); in pain"), each part named as `health.partNames` names it: a cow is "bleeding from the left foreleg"
+- `health.partNames(id)`: the name of each of the six slots, in the order of its body's parts, as the creature's body plan names it (`creatures.md` § Body plans: "left foreleg", "left wing", "tail", "maw"), the slot's own name spaced ("left arm") where the plan gives none, and none for a slot of hit weight 0 (a fish's arms, the Hollow Maw's limbs); a slot that shares its name with another (a fish's two "tail" slots) keeps it
 
 ### Commands
 
