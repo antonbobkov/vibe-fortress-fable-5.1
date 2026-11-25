@@ -233,5 +233,10 @@
     "id": "hint_paused",
     "trigger": "the first designation, zone, building or work order made while the fortress is paused and has not run since it was entered (embarked or loaded); not while the tutorial runs",
     "text": "Time is paused, so nothing happens yet. [Space] runs the fortress, [+] and [-] change the speed."
+  },
+  {
+    "id": "hint_mood",
+    "trigger": "the first miserable line of the fortress, after it (MoodTierChanged)",
+    "text": "A miserable dwarf works slower and may sulk. The Mood panel [e] says what helps."
   }
 ]

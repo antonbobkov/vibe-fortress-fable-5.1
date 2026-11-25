@@ -1263,11 +1263,15 @@ export class JobBoard implements JobsApi, JobSink {
    * of the kind is within the worker's reach and some other worker with the labor carries one, a
    * worker without it leaves the job to them rather than blocking it (D-076).
    */
-  private toolHeldElsewhere(job: Job, workerId: EntityId, labor: number): boolean {
+  private toolHeldElsewhere(job: Job, workerId: EntityId, labor: number, cached = true): boolean {
     const tool = job.tool;
     if (tool === null || this.items.hasTool(workerId, tool)) return false;
     const holders = this.workers().some((o) => o !== workerId && this.laborEnabled(o, labor) && this.items.hasTool(o, tool));
     if (!holders) return false;
+    if (!cached) {
+      const from = this.workerTile(workerId);
+      return !(from >= 0 && this.items.findTool(tool, from) !== 0);
+    }
     const cache = this.freeToolCache;
     if (cache.tick !== this.now) {
       cache.tick = this.now;
@@ -1281,6 +1285,15 @@ export class JobBoard implements JobsApi, JobSink {
       cache.found.set(key, free);
     }
     return !free;
+  }
+
+  /**
+   * `jobs.leavesForTool`: the worker, without the job's tool, leaves the job to another worker with
+   * its labor who carries one, as no free one is within its reach (11 § Assignment). Read between
+   * ticks by the Jobs panel, so it does not touch the per-tick cache.
+   */
+  leavesForTool(job: Job, workerId: EntityId): boolean {
+    return this.toolHeldElsewhere(job, workerId, this.jobLabor(job), false);
   }
 
   /**

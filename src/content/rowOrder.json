@@ -1818,5 +1818,9 @@
   {
     "table": "hints",
     "id": "hint_paused"
+  },
+  {
+    "table": "hints",
+    "id": "hint_mood"
   }
 ]

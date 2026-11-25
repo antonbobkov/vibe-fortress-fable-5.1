@@ -1,6 +1,8 @@
 # T-762 — Six idle woodcutters and 35 chops waiting: the Jobs reason says "it may need … a tool another dwarf holds" when it knows the only axe is with Dis
 
-**Source:** playtest 2026-11-25 (newcomer) ([report](../../reports/data/2026-11-25-playtest-5.md), finding 8) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 7d6edb2e,43c8f7da.
+
+**Source:** playtest 2026-11-25 (newcomer) ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 8) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

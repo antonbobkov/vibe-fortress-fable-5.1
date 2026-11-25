@@ -1,6 +1,8 @@
 # T-760 — "X is miserable" from the second day, and nothing says what would help
 
-**Source:** playtest 2026-11-25 (newcomer) ([report](../../reports/data/2026-11-25-playtest-5.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 7d6edb2e,43c8f7da.
+
+**Source:** playtest 2026-11-25 (newcomer) ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

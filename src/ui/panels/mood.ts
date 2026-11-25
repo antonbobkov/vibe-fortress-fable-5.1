@@ -2,7 +2,9 @@
  * `ui-screens/panels.md` § Mood; `15` § Player-facing behavior. The panel opens on a summary: the
  * hall spirit and the thoughts held by most dwarves, each with its weight and how many hold it;
  * `Enter` on one lists only the dwarves who hold it. Under it, every dwarf with its tier and its
- * strongest thoughts under its name, one to a row, each wrapped under itself.
+ * strongest thoughts under its name, one to a row, each wrapped under itself. A negative thought with
+ * a `ui.mood.helps.<thought>` string says what helps under it: the summary's three heaviest negative
+ * thoughts, and each dwarf's strongest negative thought that has one.
  */
 import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
@@ -25,9 +27,26 @@ const TIER_COLS = 10;
 const TOP_THOUGHTS = 3;
 /** Indent of a dwarf's second row, under its name. */
 const THOUGHT_INDENT = 2;
+/** The summary's negative thoughts, most held first, that say what helps. */
+const HELPS_THOUGHTS = 3;
+/** Indent of a "Helps:" line under its thought. */
+const HELPS_INDENT = 2;
+
+/** "Helps: a bed or a pallet for each dwarf [b > Furniture]": what relieves a thought (10 § Needs, § Social, comfort, joy), or null for a thought with no `ui.mood.helps.<id>` string. */
+export function helpsText(strings: Strings, thoughtId: string): string | null {
+  const key = `ui.mood.helps.${thoughtId}`;
+  return strings.has(key) ? strings.get('ui.mood.helps_line', { what: strings.get(key) }) : null;
+}
+
+/** Of a dwarf's thoughts, strongest first, the id of the first negative one that says what helps; null for none. */
+export function helpedThought(strings: Strings, thoughts: readonly { readonly id: string; readonly value: number }[]): string | null {
+  return thoughts.find((t) => Math.round(t.value) < 0 && helpsText(strings, t.id) !== null)?.id ?? null;
+}
 
 /** One thought as the summary counts it: its text, its weight (the holders' mean, rounded) and who holds it. */
 export interface HeldThought {
+  /** The id of the first thought counted with this text. */
+  readonly id: string;
   readonly text: string;
   readonly value: number;
   readonly holders: readonly EntityId[];
@@ -50,21 +69,21 @@ export function weighedThoughts(morale: MoraleReader, id: EntityId): ThoughtView
  * not counted; a dwarf holding one text twice counts once, at its stronger weight.
  */
 export function heldThoughts(morale: MoraleReader, ids: readonly EntityId[]): HeldThought[] {
-  const byText = new Map<string, { sum: number; holders: EntityId[] }>();
+  const byText = new Map<string, { id: string; sum: number; holders: EntityId[] }>();
   for (const id of ids) {
-    const strongest = new Map<string, number>();
-    for (const t of weighedThoughts(morale, id)) if (!strongest.has(t.text)) strongest.set(t.text, Math.round(t.value));
-    for (const [text, value] of strongest) {
-      const entry = byText.get(text) ?? { sum: 0, holders: [] };
+    const strongest = new Map<string, { id: string; value: number }>();
+    for (const t of weighedThoughts(morale, id)) if (!strongest.has(t.text)) strongest.set(t.text, { id: t.id, value: Math.round(t.value) });
+    for (const [text, { id: thought, value }] of strongest) {
+      const entry = byText.get(text) ?? { id: thought, sum: 0, holders: [] };
       entry.sum += value;
       entry.holders.push(id);
       byText.set(text, entry);
     }
   }
   return [...byText.entries()]
-    .map(([text, { sum, holders }]) => ({ text, value: Math.round(sum / holders.length), holders, sum }))
+    .map(([text, { id, sum, holders }]) => ({ id, text, value: Math.round(sum / holders.length), holders, sum }))
     .sort((a, b) => b.holders.length - a.holders.length || Math.abs(b.sum) - Math.abs(a.sum) || (a.text < b.text ? -1 : a.text > b.text ? 1 : 0))
-    .map(({ text, value, holders }) => ({ text, value, holders }));
+    .map(({ id, text, value, holders }) => ({ id, text, value, holders }));
 }
 
 export class MoodPanel {
@@ -162,13 +181,22 @@ function layoutDwarves(ctx: PanelContext, morale: MoraleReader, ids: readonly En
   const names = ids.map((id) => nameOf(ctx, id));
   const longest = names.reduce((most, name) => Math.max(most, Array.from(name).length), 0);
   const nameCols = Math.max(1, Math.min(longest + 1, listCols - TIER_COLS));
-  const dwarves = ids.map((id, k) => ({
-    id,
-    full: names[k] as string,
-    name: fitName(names[k] as string, nameCols - 1, names),
-    tier: moodTierName(ctx.strings, morale.tier(id)),
-    lines: weighedThoughts(morale, id).slice(0, TOP_THOUGHTS).flatMap((t) => wrapHang(thoughtText(t), listCols - THOUGHT_INDENT, THOUGHT_INDENT)),
-  }));
+  const room = listCols - THOUGHT_INDENT;
+  const dwarves = ids.map((id, k) => {
+    const shown = weighedThoughts(morale, id).slice(0, TOP_THOUGHTS);
+    const helped = helpedThought(ctx.strings, shown);
+    return {
+      id,
+      full: names[k] as string,
+      name: fitName(names[k] as string, nameCols - 1, names),
+      tier: moodTierName(ctx.strings, morale.tier(id)),
+      lines: shown.flatMap((t) => {
+        const own = wrapHang(thoughtText(t), room, THOUGHT_INDENT);
+        const helps = t.id === helped ? helpsText(ctx.strings, t.id) : null;
+        return helps === null ? own : [...own, ...wrapHang(helps, room - HELPS_INDENT, THOUGHT_INDENT).map((line) => `${' '.repeat(HELPS_INDENT)}${line}`)];
+      }),
+    };
+  });
   return { nameCols, dwarves };
 }
 
@@ -186,6 +214,8 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
   label(s, col, rect.row + 1, ctx.strings.get('ui.mood.held'), { fg: t.key, width, keys: false });
   if (summary.length === 0) label(s, col, rect.row + 2, ctx.strings.get('ui.mood.held_none'), { fg: t.dim, width, keys: false });
   // A thought too long for its row wraps under itself, its count staying on the first row.
+  // Under each of the three heaviest negative thoughts, most held first, what helps, dim.
+  const helped = summary.filter((thought) => thought.value < 0).slice(0, HELPS_THOUGHTS);
   let summaryRow = rect.row + 2;
   summary.forEach((thought, k) => {
     const row = summaryRow;
@@ -193,7 +223,9 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
     const mark = thought.text === panel.held ? '•' : ' ';
     const room = width - 1 - Array.from(count).length - 1;
     label(s, col, row, mark, { fg: t.value, width: 1, keys: false });
-    const rows = wrapLabel(s, col + 1, row, thoughtText(thought), { width: room, indent: 2, keys: false });
+    let rows = wrapLabel(s, col + 1, row, thoughtText(thought), { width: room, indent: 2, keys: false });
+    const helps = helped.includes(thought) ? helpsText(ctx.strings, thought.id) : null;
+    if (helps !== null) rows += wrapLabel(s, col + 1 + HELPS_INDENT, row + rows, helps, { fg: t.dim, width: room - HELPS_INDENT, indent: 2, keys: false });
     label(s, col + width - Array.from(count).length, row, count, { fg: t.value, keys: false });
     const cells = { col, row, cols: width, rows };
     if (k === panel.list.selected) s.invert(cells);

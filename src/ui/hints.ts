@@ -19,6 +19,9 @@ import { HINT_ALERT_REPEAT_DAYS, HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAY
 import { raidArrival } from './raid-lines';
 import { foodAtHand } from './food-at-hand';
 
+/** The string key the miserable line is filled from (`announce.mood_tier`, `_why`, `_many`, `_many_why`). */
+const MISERABLE_KEY = 'announce.mood_tier';
+
 export interface HintRow { readonly id: string; readonly trigger: string; readonly text: string }
 
 export interface HintFacts {
@@ -37,6 +40,8 @@ export interface HintFacts {
   foodShort?: boolean;
   /** Shown on its `Starving` event with the food at hand (`onEvents`), never by the hourly facts. */
   starving?: boolean;
+  /** Shown on the `MoodTierChanged` event that made the fortress's first miserable line (`onEvents`), never by the hourly facts. */
+  miserableLine?: boolean;
   noMiners?: boolean;
   noPath?: boolean;
   /** 25 § Player-facing behavior: the runecraft hints, each on stock or buildings. */
@@ -78,6 +83,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_predator_open': return f.predatorNoShelter === true;
     case 'hint_food': return f.foodShort === true;
     case 'hint_starving': return f.starving === true;
+    case 'hint_mood': return f.miserableLine === true;
     case 'hint_no_miners': return f.noMiners === true;
     case 'hint_no_path': return f.noPath === true;
     case 'hint_haulers': return f.haulingPressure === true;
@@ -172,6 +178,10 @@ export class HintEngine {
       // The first `Starving` for hunger names the food at hand, after the day's starving line.
       if (event.type === 'Starving' && event['need'] === 'hunger' && !this.ui.hintsShown.includes('hint_starving')) {
         this.show('hint_starving', readers.calendar.tick, true, this.starvingText(readers));
+      }
+      // The first miserable line of the fortress says where to read what helps, after it.
+      if (event.type === 'MoodTierChanged' && !this.ui.hintsShown.includes('hint_mood') && this.log.lines.some((line) => line.key?.startsWith(MISERABLE_KEY) === true)) {
+        this.show('hint_mood', readers.calendar.tick);
       }
       if (event.type === 'DayPassed' && readers.has('11')) {
         const jobs = readers.of<JobsReader>('11');

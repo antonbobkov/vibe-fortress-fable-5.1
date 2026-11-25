@@ -463,3 +463,4 @@ Every new row of every table goes at the end of this table, including generated 
 | confirmations | c_abandon |
 | hints | hint_starving |
 | hints | hint_paused |
+| hints | hint_mood |

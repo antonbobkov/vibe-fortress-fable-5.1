@@ -51,6 +51,8 @@ export interface JobsReader {
   holdsShelterWork(dwarfId: EntityId): boolean;
   /** True when a claimed hunt job has this creature as its quarry after the quarry has died. */
   isHuntQuarry(creatureId: EntityId): boolean;
+  /** True when the dwarf, without the job's tool, leaves it to another worker with the labor who carries one, no free one being in its reach (§ Assignment). */
+  leavesForTool(jobId: number, dwarfId: EntityId): boolean;
 }
 
 function copy(job: Job | undefined): Job | undefined {
@@ -114,6 +116,10 @@ export function makeReader(board: JobBoard): JobsReader {
     hasUrgent: (dwarfId, priority) => board.hasUrgent(dwarfId, priority),
     hasWork: (dwarfId) => board.hasWork(dwarfId),
     isHuntQuarry: (creatureId) => board.isHuntQuarry(creatureId),
+    leavesForTool: (jobId, dwarfId) => {
+      const job = board.jobs.get(jobId);
+      return job !== undefined && board.leavesForTool(job, dwarfId);
+    },
     holdsPatientCare: (dwarfId) => {
       const job = board.jobs.get(board.workerOf(dwarfId).jobId);
       return job !== undefined && board.isPatientCare(job);
