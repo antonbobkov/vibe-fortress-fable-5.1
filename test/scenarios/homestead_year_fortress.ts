@@ -14,6 +14,7 @@ import type { Registry } from '@core/registry';
 import { contentRegistry } from '@content/loader';
 import { EmbarkSession } from '@systems/embark';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
+import type { ForagingReader } from '@systems/foraging/reader';
 import { TestWorld } from './test-world';
 
 export function createHomesteadEmbarkSession(registry: Registry, seed: string): EmbarkSession {
@@ -622,8 +623,12 @@ export function runHomesteadYear(w: TestWorld): void {
 
     // T-655: whether a wild animal stands where the hunter can walk to it (a herd that spawns beyond
     // the brook, which edge tile depends on where the dwarves stand, can be out of reach all year).
+    // Only a quarry counts: a huntable species (09 § Hunting), not the rabbits too small to hunt (T-714).
     const hp = w.game.world.entities.get(hunter, C.Position);
+    const foraging = w.readers.of<ForagingReader>('09');
     if (hp !== undefined && w.animals.reader().wildList().some((id) => {
+      const species = w.game.world.entities.get(id, C.Creature)?.species;
+      if (species === undefined || !foraging.isHuntable(species)) return false;
       const p = w.game.world.entities.get(id, C.Position);
       return p !== undefined && w.reachable(w.index(hp.x, hp.y, hp.z), w.index(p.x, p.y, p.z));
     })) quarryInReach += 1;
