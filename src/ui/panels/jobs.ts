@@ -14,7 +14,7 @@ import type { JobsReader } from '@systems/jobs';
 import type { Surface } from '../surface';
 import { acceleratorLabel } from '../keymap';
 import { PanelFilter, drawPanelFilter } from './filter';
-import { jobBlockText, wrapText } from '../messages';
+import { jobBlockText, keepCounts, wrapHang, wrapText } from '../messages';
 import { jobWait } from '../job-wait';
 import { clampList, label, separator, table, wrapLabel, type ListState } from '../widgets';
 import { buildings, tileXyz, type PanelContext } from './context';
@@ -292,6 +292,15 @@ export function blockedSummary(ctx: PanelContext, jobs: readonly JobLike[]): str
 
 /** How many "Orders waiting" rows show at once. */
 const WAITING_ROWS = 3;
+/** The Jobs table's priority and job columns, each with its blank; the reason column takes the rest. */
+const PRI_COLS = 4;
+const JOB_COLS = 16;
+
+/** A cell's text: whole when it fits `room`, else its shorter form when that fits, else the text (cut by the table as a name). */
+function fitCell(text: string, shorter: string, room: number): string {
+  if (Array.from(text).length <= room) return text;
+  return Array.from(shorter).length <= room ? shorter : text;
+}
 
 /** Orders with no job and why, with a way to open Orders on one (the "Orders waiting" section). */
 export interface WaitingOrders {
@@ -338,23 +347,38 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const batch = chosenRow !== undefined && chosenRow.jobs.length > 1;
   const detailText = batch ? `${batchDetail(ctx, panel, chosenRow)} ${reason}`.trim() : reason;
   const waiting = panel.waitingOf(orders);
-  const waitingRows = waiting.length === 0 ? 0 : Math.min(WAITING_ROWS, waiting.length) + 1;
+  // Three orders show at a time, each wrapped under itself ("×1 Brew drink · waiting for" / "plant (0)").
+  const list = panel.waitingList;
+  if (waiting.length === 0) panel.focusWaiting = false;
+  clampList(list, waiting.length, WAITING_ROWS);
+  const waitingShown = waiting.slice(list.scroll, list.scroll + WAITING_ROWS).map((o) => ({ ...o, lines: wrapHang(keepCounts(o.text), width, 2) }));
+  const waitingRows = waiting.length === 0 ? 0 : waitingShown.reduce((n, o) => n + o.lines.length, 0) + 1;
   // The reason wraps over as many rows as it needs, the list giving them up down to its header and one row.
   const detail = detailText === '' ? [] : wrapText(detailText, width, Math.max(2, rect.rows - top - 4 - priorities.length - waitingRows - 2));
   const detailColor = waitText !== '' ? t.value : t.alert;
   const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length - waitingRows);
+  // The columns keep their widths and cut names only: a job too long for its column is named by its
+  // kind ("Haul to depot"), a reason too long by its first word ("waiting"), the whole in the cell's
+  // tooltip and, for the selected job, on the line under the list.
+  const scrolls = rows.length > height - 1;
+  const jobRoom = JOB_COLS - 1;
+  const whoRoom = width - PRI_COLS - JOB_COLS - (scrolls ? 1 : 0);
+  const cells = rows.map((r) => {
+    const j = r.jobs[0] as JobLike;
+    const job = r.jobs.length > 1 ? batchText(ctx, r) : jobText(ctx, panel, j);
+    const who = whoText(ctx, r);
+    const type = ctx.readers.of<JobsReader>('11').typeOf(j.id) ?? '';
+    return { job, who, shownJob: fitCell(job, jobTypeName(ctx, type), jobRoom), shownWho: fitCell(who, who.split(/[:,]/)[0] ?? who, whoRoom) };
+  });
   table(
     s,
-    { col: rect.col + 1, row: rect.row + top, cols: rect.cols - 2, rows: height },
+    { col: rect.col + 1, row: rect.row + top, cols: width, rows: height },
     [
-      { title: strings.get('ui.jobs.pri'), width: 4 },
-      { title: strings.get('ui.jobs.job'), width: 17 },
-      { title: strings.get('ui.jobs.who'), width: 13 },
+      { title: strings.get('ui.jobs.pri'), width: PRI_COLS },
+      { title: strings.get('ui.jobs.job'), width: JOB_COLS },
+      { title: strings.get('ui.jobs.who'), width: width - PRI_COLS - JOB_COLS },
     ],
-    rows.map((r) => {
-      const j = r.jobs[0] as JobLike;
-      return [` ${j.priority}`, r.jobs.length > 1 ? batchText(ctx, r) : jobText(ctx, panel, j), whoText(ctx, r)];
-    }),
+    rows.map((r, k) => [` ${(r.jobs[0] as JobLike).priority}`, cells[k]?.shownJob ?? '', cells[k]?.shownWho ?? '']),
     panel.list,
     (index) => {
       panel.list.selected = index;
@@ -364,8 +388,12 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   for (let r = 0; r < height - 1; r += 1) {
     const index = panel.list.scroll + r;
     const job = rows[index]?.jobs[0];
-    if (!job) break;
-    s.hit({ col: rect.col + 5, row: rect.row + top + 1 + r, cols: 17, rows: 1 }, () => {
+    const cell = cells[index];
+    if (!job || cell === undefined) break;
+    const at = rect.row + top + 1 + r;
+    if (cell.shownJob !== cell.job) s.tooltip({ col: rect.col + 1 + PRI_COLS, row: at, cols: JOB_COLS, rows: 1 }, cell.job);
+    if (cell.shownWho !== cell.who) s.tooltip({ col: rect.col + 1 + PRI_COLS + JOB_COLS, row: at, cols: whoRoom, rows: 1 }, cell.who);
+    s.hit({ col: rect.col + 1 + PRI_COLS, row: at, cols: JOB_COLS, rows: 1 }, () => {
       panel.list.selected = index;
       const tile = panel.tileOf(ctx, job);
       if (tile !== null) ctx.focusOn(tile);
@@ -379,19 +407,16 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   if (waiting.length > 0 && orders !== undefined) {
     separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.jobs.orders_waiting', { n: waiting.length }));
     row += 1;
-    // Three rows show at a time; the cursor (Tab, then up and down) scrolls the rest into view.
-    const list = panel.waitingList;
-    if (waiting.length === 0) panel.focusWaiting = false;
-    clampList(list, waiting.length, WAITING_ROWS);
-    waiting.slice(list.scroll, list.scroll + WAITING_ROWS).forEach((o, k) => {
-      const cells = { col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 };
-      label(s, cells.col, row, o.text, { fg: t.alert, width: cells.cols, keys: false });
+    // Three orders show at a time; the cursor (Tab, then up and down) scrolls the rest into view.
+    waitingShown.forEach((o, k) => {
+      const cells = { col: rect.col + 1, row, cols: rect.cols - 2, rows: o.lines.length };
+      o.lines.forEach((line, n) => label(s, cells.col, row + n, line, { fg: t.alert, width: cells.cols, keys: false }));
       if (panel.focusWaiting && list.scroll + k === list.selected) {
         s.invert(cells);
         s.text(rect.col, row, '►', t.value);
       }
       s.hit(cells, () => { list.selected = list.scroll + k; orders.open(o.index); });
-      row += 1;
+      row += o.lines.length;
     });
   }
   separator(s, rect.col + 1, row, rect.cols - 2);

@@ -25,7 +25,7 @@ import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
 import { jobLabor, jobWait } from '../job-wait';
-import { buildingName, capitalize, itemName, jobBlockText, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, wrapHang, wrapText } from '../messages';
+import { buildingName, capitalize, itemName, jobBlockText, keepCounts, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, wrapHang, wrapText } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -982,51 +982,11 @@ export interface GroupRow {
 }
 
 /**
- * A list with group headings: `state.selected` counts the rows that are not headings, and the
- * selected row's heading stays in view. The text of a row is asked for only when it is drawn.
- */
-function groupedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: ListState, onSelect: (index: number) => void): void {
-  const items: number[] = [];
-  rows.forEach((row, k) => { if (row.heading === undefined) items.push(k); });
-  state.selected = Math.max(0, Math.min(items.length - 1, state.selected));
-  const at = items[state.selected] ?? 0;
-  if (at - 1 < state.scroll) state.scroll = Math.max(0, at - 1);
-  if (at >= state.scroll + rect.rows) state.scroll = at - rect.rows + 1;
-  state.scroll = Math.max(0, Math.min(Math.max(0, rows.length - rect.rows), state.scroll));
-  const scrollbar = rows.length > rect.rows;
-  const width = scrollbar ? rect.cols - 1 : rect.cols;
-  for (let r = 0; r < rect.rows; r += 1) {
-    const k = state.scroll + r;
-    const row = rows[k];
-    const y = rect.row + r;
-    s.fill({ col: rect.col, row: y, cols: width, rows: 1 }, s.theme.black);
-    if (row === undefined) continue;
-    if (row.heading !== undefined) { separator(s, rect.col, y, width, row.heading); continue; }
-    label(s, rect.col, y, row.text?.() ?? '', { width, keys: false, ...(row.fg === undefined ? {} : { fg: row.fg }) });
-    const cells = { col: rect.col, row: y, cols: width, rows: 1 };
-    if (k === at && items.length > 0) s.invert(cells);
-    const index = items.indexOf(k);
-    s.hit(cells, () => onSelect(index));
-  }
-  if (!scrollbar) return;
-  const thumbRow = Math.floor((state.scroll * (rect.rows - 1)) / Math.max(1, rows.length - rect.rows));
-  for (let r = 0; r < rect.rows; r += 1) {
-    s.put(rect.col + rect.cols - 1, rect.row + r, s.glyphs.index(r === thumbRow ? '█' : '│'), s.theme.border, s.theme.black);
-  }
-  // A press or a drag on the track moves the cursor to the first row at the pointer's place: this list scrolls to keep the cursor in view.
-  s.scrollbar({ col: rect.col + rect.cols - 1, row: rect.row, cols: 1, rows: rect.rows }, (row) => {
-    const at = Math.max(0, Math.min(rect.rows - 1, row - rect.row));
-    const target = Math.round((at * (rows.length - 1)) / Math.max(1, rect.rows - 1));
-    const index = items.findIndex((k) => k >= target);
-    state.selected = index < 0 ? items.length - 1 : index;
-  });
-}
-
-/**
- * {@link groupedList} whose rows wrap at the list's width rather than cutting (the notes of Add order
- * and of the Workshop panel's recipes): a row's later lines hang under its name. `state.scroll` is
- * the first row drawn; a row's text is asked for only when it is drawn or the scroll needs its
- * height. Returns whether the list drew its scrollbar.
+ * A list with group headings whose rows wrap at the list's width rather than cutting (the Orders
+ * list, the notes of Add order and of the Workshop panel's recipes): a row's later lines hang under
+ * its first. `state.selected` counts the rows that are not headings, and the selected row and the
+ * heading over it stay in view. `state.scroll` is the first row drawn; a row's text is asked for only
+ * when it is drawn or the scroll needs its height. Returns whether the list drew its scrollbar.
  */
 export function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: ListState, onSelect: (index: number) => void): boolean {
   const items: number[] = [];
@@ -1234,9 +1194,10 @@ export function drawOrdersPanel(s: Surface, rect: Rect, panel: OrdersPanel, ctx:
         : row.entry.workshopId === 0 ? strings.get('ui.orders.group.global') : buildingName(ctx, row.entry.workshopId);
       if (heading !== group) grouped.push({ heading });
       group = heading;
-      grouped.push({ text: () => panel.rowText(ctx, row), fg: statusColor(s, panel.status(ctx, row).kind) });
+      grouped.push({ text: () => keepCounts(panel.rowText(ctx, row)), fg: statusColor(s, panel.status(ctx, row).kind) });
     }
-    groupedList(s, { col, row: rect.row + 1, cols: width, rows: height }, grouped, panel.list, (i) => { panel.list.selected = i; });
+    // A row too long for the panel ("×1 Brew drink · waiting for plant (0)") wraps its status under itself.
+    wrappedList(s, { col, row: rect.row + 1, cols: width, rows: height }, grouped, panel.list, (i) => { panel.list.selected = i; });
   }
   let row = rect.row + 1 + height;
   const end = rect.row + rect.rows;
@@ -1382,11 +1343,16 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
   }
   const orderRows = reader.ordersOf(id);
   separator(s, col, foot, width, strings.get('ui.workshop.orders', { n: orderRows.length }));
-  for (let k = 0; k < Math.min(WORKSHOP_ORDER_ROWS, orderRows.length); k += 1) {
+  // The orders in their rows, each wrapped under itself; one the rows left cannot hold whole waits for `[o]`.
+  let orderAt = foot + 1;
+  for (let k = 0; k < orderRows.length; k += 1) {
     const row: OrderRow = { kind: 'live', entry: { workshopId: id, index: k, order: orderRows[k] as WorkOrder } };
-    label(s, col, foot + 1 + k, panel.rowText(ctx, row), { fg: statusColor(s, panel.status(ctx, row).kind), width, keys: false });
+    const lines = wrapHang(keepCounts(panel.rowText(ctx, row)), width, 2);
+    if (orderAt + lines.length > foot + 1 + WORKSHOP_ORDER_ROWS) break;
+    lines.forEach((line, n) => label(s, col, orderAt + n, line, { fg: statusColor(s, panel.status(ctx, row).kind), width, keys: false }));
     const click = run('orders');
-    if (click !== undefined) s.hit({ col, row: foot + 1 + k, cols: width, rows: 1 }, click);
+    if (click !== undefined) s.hit({ col, row: orderAt, cols: width, rows: lines.length }, click);
+    orderAt += lines.length;
   }
   const actions = foot + 1 + WORKSHOP_ORDER_ROWS;
   actionRow(s, col, actions, width, [part(strings.get('ui.workshop.new'), 'new'), part(strings.get('ui.workshop.its_orders'), 'orders')]);

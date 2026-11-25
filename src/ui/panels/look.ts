@@ -30,7 +30,7 @@ import { bodyPartNames, permanentText } from '@systems/health';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
 import { moodTierName, thoughtText } from './mood';
 import type { Surface } from '../surface';
-import { captionButtons, label, separator } from '../widgets';
+import { captionButtons, label, separator, wrapLabel } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { creatureActivity } from './look-activity';
@@ -676,7 +676,9 @@ export function drawCreatureView(
     const words = creatureActivity({ readers, registry, strings }, id);
     const activity = dwarves.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: words }) : words;
     const job = has(readers, '11') ? readers.of<JobsReaderLike>('11').forWorker(id) : undefined;
-    pinned(job === undefined ? strings.get('ui.look.activity', { activity }) : strings.get('ui.look.activity_priority', { activity, priority: job.priority }));
+    // The activity is a fact: too long for its row, it wraps under itself.
+    const line = job === undefined ? strings.get('ui.look.activity', { activity }) : strings.get('ui.look.activity_priority', { activity, priority: job.priority });
+    if (row < bottom) row += wrapLabel(s, rect.col + 1, row, line, { width, indent: 2, maxRows: Math.max(1, bottom - row) });
   }
   pinned(atLine(readers, strings, id, viewZ), t.value);
   if (row < bottom) {

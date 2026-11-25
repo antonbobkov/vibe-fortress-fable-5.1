@@ -73,7 +73,7 @@ describe('T-614 the log panel filter', () => {
     expect(screen).toContain('Zorbleflax left.');
     expect(screen).toContain('Zorbleflax the merchant');
     expect(screen).not.toContain('Line 3.');
-    expect(screen).toMatch(/Log · filter: zorbleflax \(2/);
+    expect(screen).toMatch(/Log · 2 of \d+ · filter: zorbl/);
     // Esc finishes typing and keeps the text; the arrows then move over the matches.
     game.handleKey(press('Esc'));
     expect(f.logView.filter.focused).toBe(false);

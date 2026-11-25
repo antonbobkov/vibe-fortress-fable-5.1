@@ -133,8 +133,9 @@ describe('T-710 a tame animal\'s view: species, state, owner, pasture, hunger, t
     ]);
     expect(fgOfText(s, rule + 4, 'Ragnhild Brightvein')).toBe(hexOf(theme.value));
     for (const gone of ['Pasture', 'Hunger', 'Mood:', 'Hunted', '[p] pasture']) expect(rows.some((row) => row.startsWith(gone)), gone).toBe(false);
-    // The pinned activity line is one row: the dwarf's name, a name, may end in `»`; the With row gives it whole.
-    expect(cuts).toEqual(['Activity: Following Ragnhild Bri»']);
+    // The pinned activity line wraps under itself (T-719): nothing is cut.
+    expect(cuts).toEqual([]);
+    expect(rows.join('\n')).toMatch(/Activity: Following Ragnhild\n {2}Brightvein\n/);
   });
 
   it('a pet names the dwarf it adopted as its owner; an untrained dog is untrained', () => {

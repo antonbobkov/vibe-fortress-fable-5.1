@@ -43,10 +43,12 @@ export function table(
 ): void {
   if (rect.rows <= 0) return;
   label(s, rect.col, rect.row, tableRow(columns, columns.map((c) => c.title), rect.cols), { fg: s.theme.key, width: rect.cols, keys: false });
+  // The rows are laid out in the cells the list leaves beside its scrollbar, so a last cell that fits is not marked cut.
+  const scrolls = rows.length > rect.rows - 1;
   list(
     s,
     { col: rect.col, row: rect.row + 1, cols: rect.cols, rows: rect.rows - 1 },
-    rows.map((r) => tableRow(columns, r, rect.cols)),
+    rows.map((r) => tableRow(columns, r, scrolls ? rect.cols - 1 : rect.cols)),
     state,
     onSelect,
   );

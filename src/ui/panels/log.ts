@@ -132,6 +132,9 @@ function layoutLog(s: Surface, shown: readonly LogLine[], dates: (index: number)
   for (let index = scroll; index < shown.length && used < height; index += 1) {
     const parts = wrapHang(shownText(s, shown[index] as LogLine), textCols, 0);
     const rows = Math.min(parts.length, height - used);
+    // The log never cuts an entry: one the rows left cannot hold whole is left for the scroll, unless it is
+    // the first drawn (an entry taller than the panel).
+    if (rows < parts.length && entries.length > 0) break;
     entries.push({ index, date: dates(index), parts, rows });
     used += rows;
   }
@@ -305,15 +308,15 @@ export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], 
     if (!combatOnly(line)) tail.unshift(line);
   }
   const shown = pinned !== null && !tail.includes(pinned) ? [...tail.slice(1), pinned] : tail;
-  // Fill from the newest line back. A hint that does not fit one line takes two of the strip's lines when
-  // both fit, and is one line cut with `»` when only one is left; every other line is one line, cut with `»`.
+  // Fill from the newest line back. A hint that does not fit one line wraps over as many of the strip's
+  // lines as are left, so an older line is the one cut; every other line is one line, cut with `»`.
   const width = rect.cols - 2;
   const rows: { text: string; color: Rgb }[] = [];
   for (let k = shown.length - 1; k >= 0 && rows.length < rect.rows; k -= 1) {
     const line = shown[k] as LogLine;
     const hint = line.category === 'hint';
     const color = hint ? s.theme.value : colorOf(s.theme, line.severity);
-    const parts = hint && rect.rows - rows.length >= 2 ? wrapText(shownText(s, line), width, 2) : [shownText(s, line)];
+    const parts = hint && rect.rows - rows.length >= 2 ? wrapText(shownText(s, line), width, rect.rows - rows.length) : [shownText(s, line)];
     for (let p = parts.length - 1; p >= 0; p -= 1) rows.unshift({ text: parts[p] as string, color });
   }
   const offset = rect.rows - rows.length;
