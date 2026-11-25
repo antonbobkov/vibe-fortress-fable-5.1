@@ -136,7 +136,7 @@ Hostile parties target caravan members like fortress creatures (traders are `tra
 ### Reader
 
 - `threats.activeParties()`, `threats.party(id)`, `threats.partyOf(creatureId)`, `threats.moraleWord(partyId)` (§ Morale: `steady`, `shaken`, `wavering`, `breaking`, or empty for a party without morale), `threats.isHostile(id)`, `threats.isStealthed(id)`, `threats.isSpotted(id)`
-- `threats.renown()`, `threats.schedulePreview()` (per kind: "possible from Autumn, Year 2"; never the exact next date)
+- `threats.renown()`, `threats.schedulePreview()` (per kind: the season and year it is first possible, `{ season, year }`, or `null` for a kind that never comes; never the exact next date; the Threats panel words it, "from Autumn, Y2")
 - `threats.deepPressure()`, `threats.deepLevel()`, `threats.deepNextThreshold()`
 - `threats.monstersInCavern(n)`
 - `threats.coming()`: the parties a `ThreatWarning` announced that have not arrived, soonest first, each `{ kind, civ, sizeBand, edge, arrivalTick }` (the warning's size band, never the count)

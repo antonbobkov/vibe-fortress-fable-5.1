@@ -36,9 +36,23 @@ import type { TerrainReader } from '@systems/terrain';
 import type { HealthReader } from '@systems/health';
 import type { MagicReader } from '@systems/magic';
 import { withSuffix } from '@content/generate';
-import type { Strings } from './strings';
+import { Strings } from './strings';
 import type { Binding } from './keymap';
 import { actionText, contextTitle } from './panels/help';
+
+/** The default table, for the helpers called without the game's strings. */
+const DEFAULT_STRINGS = new Strings();
+
+/** Parts in a line: "a, b and c" (`ui.list.and`) or "a, b or c" (`ui.list.or`); one part alone, '' for none. */
+export function listText(strings: Strings, parts: readonly string[], conjunction: 'and' | 'or'): string {
+  if (parts.length <= 1) return parts[0] ?? '';
+  return strings.get(`ui.list.${conjunction}`, { rest: parts.slice(0, -1).join(', '), last: parts[parts.length - 1] as string });
+}
+
+/** Every part joined by the conjunction alone: "a or b or c" (`ui.list.or` with each part as the last). */
+export function chainText(strings: Strings, parts: readonly string[], conjunction: 'and' | 'or'): string {
+  return parts.reduce((rest, last, i) => (i === 0 ? last : strings.get(`ui.list.${conjunction}`, { rest, last })), '');
+}
 
 /** What the message helpers read. A {@link PanelContext} is one. */
 export interface MessageEnv {
@@ -62,7 +76,7 @@ interface RecipeRow {
 
 /** Settings failures use the same action and context wording as Help. */
 export function bindingConflict(strings: Strings, binding: Binding): string {
-  return strings.get('ui.settings.binding_conflict', { context: contextTitle(binding.context), action: actionText(binding) });
+  return strings.get('ui.settings.binding_conflict', { context: contextTitle(binding.context, strings), action: actionText(binding, strings) });
 }
 
 export function invalidBindingModifiers(strings: Strings): string {
@@ -167,9 +181,9 @@ export function zoneEditorMessage(env: MessageEnv, reason: 'unavailable' | 'boun
   return env.strings.get(`ui.zone.edit.${reason}`);
 }
 
-/** A civilization id as a name ("hillfolk" → "Hillfolk"). */
-export function civName(civ: string): string {
-  return capitalize(civ);
+/** A civilization id as a name (`ui.civ.name.<civ>`: "hillfolk" → "Hillfolk"); an unknown one capitalised. */
+export function civName(civ: string, strings: Strings = DEFAULT_STRINGS): string {
+  return strings.has(`ui.civ.name.${civ}`) ? strings.get(`ui.civ.name.${civ}`) : capitalize(civ);
 }
 
 /**
@@ -183,8 +197,8 @@ export function tradeBlocked(env: MessageEnv, depotId: EntityId): string | null 
   const trade = env.readers.of<TradeReader>('20');
   const active = trade.activeCaravan();
   if (active?.state === 'atDepot') return null;
-  if (active !== null) return caravanUnreachable(env, depotId) ?? s.get('ui.status.caravan_coming', { civ: civName(active.civ) });
-  const when = Object.entries(trade.schedule()).map(([civ, season]) => s.get('ui.status.caravan_when', { civ: civName(civ), season }));
+  if (active !== null) return caravanUnreachable(env, depotId) ?? s.get('ui.status.caravan_coming', { civ: civName(active.civ, s) });
+  const when = Object.entries(trade.schedule()).map(([civ, season]) => s.get('ui.status.caravan_when', { civ: civName(civ, s), season }));
   return when.length === 0 ? s.get('ui.status.no_caravan_soon') : s.get('ui.status.no_caravan', { when: when.join(', ') });
 }
 
@@ -201,7 +215,7 @@ export function caravanUnreachable(env: MessageEnv, depotId: EntityId): string |
   const reach = trade.caravanReach(footprint).find((r) => r.civ === active.civ);
   if (reach === undefined || reach.reaches) return null;
   return env.strings.get('announce.caravan_unreachable', {
-    civ: civName(active.civ), depot: buildingName(env, depotId), edge: env.strings.get(`ui.edge.${reach.edge}`),
+    civ: civName(active.civ, env.strings), depot: buildingName(env, depotId), edge: env.strings.get(`ui.edge.${reach.edge}`),
   });
 }
 
@@ -214,10 +228,10 @@ export function unreachableFrom(env: MessageEnv, tiles: readonly TileIndex[]): s
   const byEdge = new Map<string, string[]>();
   for (const r of env.readers.of<TradeReader>('20').caravanReach(tiles)) {
     if (r.reaches) continue;
-    byEdge.set(r.edge, [...(byEdge.get(r.edge) ?? []), civName(r.civ)]);
+    byEdge.set(r.edge, [...(byEdge.get(r.edge) ?? []), civName(r.civ, env.strings)]);
   }
   return Array.from(byEdge, ([edge, civs]) => env.strings.get('ui.depot.unreachable_from', {
-    civs: civs.length > 1 ? `${civs.slice(0, -1).join(', ')} and ${civs[civs.length - 1] as string}` : civs[0] as string,
+    civs: listText(env.strings, civs, 'and'),
     edge: env.strings.get(`ui.edge.${edge}`),
   })).join('; ');
 }
@@ -310,8 +324,8 @@ export function enchantedName(readers: ReaderSet, itemId: EntityId, name: string
 }
 
 /** A building input or recipe match ("block|log") as words: "block or log". */
-export function matchName(registry: Registry, match: string, n = 1): string {
-  return match.split('|').map((part) => itemName(registry, part, n)).join(' or ');
+export function matchName(registry: Registry, match: string, n = 1, strings: Strings = DEFAULT_STRINGS): string {
+  return chainText(strings, match.split('|').map((part) => itemName(registry, part, n)), 'or');
 }
 
 /**
@@ -319,11 +333,10 @@ export function matchName(registry: Registry, match: string, n = 1): string {
  * tool): one item in the plural of `n` ("2 logs" names "logs"), several in the singular, every one
  * of them: "fiber, straw or reed".
  */
-export function alternativesName(registry: Registry, match: string, n = 1): string {
+export function alternativesName(registry: Registry, match: string, n = 1, strings: Strings = DEFAULT_STRINGS): string {
   const parts = match.split('|');
   if (parts.length === 1) return itemName(registry, parts[0] as string, n);
-  const names = parts.map((part) => itemName(registry, part, 1));
-  return `${names.slice(0, -1).join(', ')} or ${names[names.length - 1] as string}`;
+  return listText(strings, parts.map((part) => itemName(registry, part, 1)), 'or');
 }
 
 /** A row of the `whims` table as the UI names it (`personality-and-thoughts.md` § Whims). */
@@ -359,7 +372,7 @@ export function whimProgressText(strings: Strings, registry: Registry, whimId: s
  * Where a whim's item is made (`10` § The Thane's whim): the workshops of the recipes that make its
  * item type, of its material when it names one; '' for any item, or none or more than three.
  */
-export function whimWhereMade(registry: Registry, whimId: string): string {
+export function whimWhereMade(registry: Registry, whimId: string, strings: Strings = DEFAULT_STRINGS): string {
   const row = whimRow(registry, whimId);
   if (row === undefined || row.item === 'any') return '';
   const recipes = registry.table<{ id: string; workshop: string; outputs: readonly { item: string; material?: { fixed?: string } }[] }>('recipes');
@@ -369,14 +382,13 @@ export function whimWhereMade(registry: Registry, whimId: string): string {
     if (recipe?.outputs.some((o) => o.item === row.item && (row.material === undefined || o.material?.fixed === row.material)) === true) workshops.add(recipe.workshop);
   }
   const buildings = registry.table<NamedRow>('buildings');
-  return workshopList(buildings.ids().filter((id) => workshops.has(id)).map((id) => buildings.byId(id)?.name ?? id));
+  return workshopList(buildings.ids().filter((id) => workshops.has(id)).map((id) => buildings.byId(id)?.name ?? id), strings);
 }
 
 /** "a carpenter's workshop", "a carpenter's workshop or a forge"; empty for none or more than three. */
-function workshopList(names: readonly string[]): string {
+function workshopList(names: readonly string[], strings: Strings): string {
   if (names.length === 0 || names.length > 3) return '';
-  const each = names.map((n) => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`);
-  return each.length === 1 ? (each[0] as string) : `${each.slice(0, -1).join(', ')} or ${each[each.length - 1] as string}`;
+  return listText(strings, names.map((n) => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`), 'or');
 }
 
 /** The building types whose recipes make an item type, in the buildings table's order. */
@@ -392,8 +404,8 @@ export function producersOf(registry: Registry, itemId: string): string[] {
 }
 
 /** "a carpenter's workshop", "a carpenter's workshop or a forge"; empty for none or more than three. */
-export function whereMade(registry: Registry, itemIds: readonly string[]): string {
-  return workshopList(Array.from(new Set(itemIds.flatMap((id) => producersOf(registry, id)))));
+export function whereMade(registry: Registry, itemIds: readonly string[], strings: Strings = DEFAULT_STRINGS): string {
+  return workshopList(Array.from(new Set(itemIds.flatMap((id) => producersOf(registry, id)))), strings);
 }
 
 /** A building row's inputs as the buildings table gives them. */
@@ -461,7 +473,7 @@ export function sourceOf(env: MessageEnv, itemIds: readonly string[]): { where: 
     .filter((row): row is BuildingInputsRow => row !== undefined && (!takes(row) || built(row) || buildable(row)));
   const stone = itemIds.some((id) => /^stone\/(raw|block)$/.test(items.byId(id)?.category ?? ''));
   if (stone && !listed.some((row) => built(row) || buildable(row))) return { where: '', count: 0, advice: stoneAdvice(env) };
-  return { where: workshopList(listed.map((row) => row.name)), count: listed.length, advice: '' };
+  return { where: workshopList(listed.map((row) => row.name), env.strings), count: listed.length, advice: '' };
 }
 
 /** The tile a command is about, for the log line's focus (24 § Announcements: "jumps to the focus"). */
@@ -586,7 +598,7 @@ export function blockedText(env: MessageEnv, typeId: string, ghost: { reason: st
 }
 
 /** The item filter of a job input as words, with its count: "1 door", "2 blocks or logs". */
-export function filterText(registry: Registry, filter: Readonly<Record<string, unknown>>, n: number): string {
+export function filterText(registry: Registry, filter: Readonly<Record<string, unknown>>, n: number, strings: Strings = DEFAULT_STRINGS): string {
   const items = registry.table<NamedRow>('items');
   const nameOf = (index: number): string => {
     const row = items.byIndex(index);
@@ -598,9 +610,9 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
     // Several alternatives are each named, in the singular, as the build tool names them: "3 fiber, straw or reed".
     const types = filter['types'] as number[];
     const names = types.map((t) => (types.length === 1 ? nameOf(t) : items.byIndex(t)?.name ?? '')).filter((x) => x !== '');
-    name = names.length <= 1 ? (names[0] ?? '') : `${names.slice(0, -1).join(', ')} or ${names[names.length - 1] as string}`;
+    name = listText(strings, names, 'or');
   }
-  else if (typeof filter['emptyContainer'] === 'string') name = `empty ${itemName(registry, filter['emptyContainer'], n)}`;
+  else if (typeof filter['emptyContainer'] === 'string') name = strings.get('ui.item.empty_container', { item: itemName(registry, filter['emptyContainer'], n) });
   else if (typeof filter['category'] === 'string') name = (filter['category'].split('/').pop() ?? '').replace(/_/g, ' ');
   else if (filter['edible'] === true) name = 'food';
   else if (filter['drinkable'] === true) name = 'drink';
@@ -651,10 +663,10 @@ export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string;
     if (input !== undefined) {
       const filter = input.filter as Readonly<Record<string, unknown>>;
       if (short === undefined && it !== null) {
-        const text = s.get('ui.jobs.reason.to_be_brought', { what: filterText(env.registry, filter, Math.max(1, input.count - input.delivered.length)) });
+        const text = s.get('ui.jobs.reason.to_be_brought', { what: filterText(env.registry, filter, Math.max(1, input.count - input.delivered.length), s) });
         return { short: text, long: text };
       }
-      const what = filterText(env.registry, filter, Math.max(1, owed(input)));
+      const what = filterText(env.registry, filter, Math.max(1, owed(input)), s);
       const text = s.get('ui.jobs.reason.missing_input', { what });
       // Where it comes from is read only for the long line: the jobs table asks for the short one on every row.
       return {
@@ -687,7 +699,7 @@ export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string;
  * The input a `waiting for <match>` reason names and how many of it can be used now, or null for
  * any other reason (the order list's "waiting for stone (0)", D-U5).
  */
-export function waitingFor(env: Omit<MessageEnv, 'strings'>, reason: string | null): { match: string; item: string; n: number } | null {
+export function waitingFor(env: Omit<MessageEnv, 'strings'> & { readonly strings?: Strings }, reason: string | null): { match: string; item: string; n: number } | null {
   const waiting = reason === null ? null : /^waiting for (.+)$/.exec(reason);
   if (waiting === null) return null;
   const match = waiting[1] as string;
@@ -696,7 +708,7 @@ export function waitingFor(env: Omit<MessageEnv, 'strings'>, reason: string | nu
   // An input with alternatives ("fiber|straw|reed") is named "fiber or straw or reed", and counts them all.
   let n = 0;
   for (const part of match.split('|')) if (items !== null && table.has(part)) n += items.countAvailable({ type: table.index(part) });
-  return { match, item: matchName(env.registry, match), n };
+  return { match, item: matchName(env.registry, match, 1, env.strings), n };
 }
 
 /**
@@ -704,11 +716,11 @@ export function waitingFor(env: Omit<MessageEnv, 'strings'>, reason: string | nu
  * but none within reach of the workshop's worker is skipped for a while): "charcoal", "charcoal or
  * coal"; null for any other reason.
  */
-export function outOfReach(env: Omit<MessageEnv, 'strings'>, reason: string | null): { match: string; item: string } | null {
+export function outOfReach(env: Omit<MessageEnv, 'strings'> & { readonly strings?: Strings }, reason: string | null): { match: string; item: string } | null {
   const far = reason === null ? null : /^out of reach (.+)$/.exec(reason);
   if (far === null) return null;
   const match = far[1] as string;
-  return { match, item: matchName(env.registry, match) };
+  return { match, item: matchName(env.registry, match, 1, env.strings) };
 }
 
 /**
@@ -732,7 +744,7 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
   if (reason === 'missing_input') {
     const items = env.registry.table<NamedRow>('items');
     const fuels = items.ids().filter((id) => items.byId(id)?.tags?.includes('fuel') === true);
-    const where = whereMade(env.registry, fuels);
+    const where = whereMade(env.registry, fuels, s);
     return where === '' ? s.get('ui.block.fuel') : s.get('ui.block.order_at', { text: s.get('ui.block.fuel'), where });
   }
   return s.has(`ui.block.${reason}`) ? s.get(`ui.block.${reason}`) : s.get('ui.jobs.reason.other');

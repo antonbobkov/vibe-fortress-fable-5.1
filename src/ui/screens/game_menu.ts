@@ -10,9 +10,12 @@ import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import { acceleratorOf, type KeyContext } from '../keymap';
 import type { Surface } from '../surface';
-import { UI_STRINGS, type Strings } from '../strings';
+import { Strings } from '../strings';
 import { label, menu, moveSelection, type MenuItem } from '../widgets';
 import { GAME_MENU_MESSAGE_MS } from '../constants';
+
+/** The default table, for a menu made without the game's strings. */
+const DEFAULT_STRINGS = new Strings();
 
 export interface GameMenuHost {
   /** The title row: `Deepholm · <fortress>`. */
@@ -68,15 +71,16 @@ export class GameMenuScreen implements Screen {
 
   items(): MenuItem[] {
     const enabled = !this.host.viewOnly();
+    const s = this.strings ?? DEFAULT_STRINGS;
     return [
-      { id: 'resume', key: 'r', label: 'Resume' },
-      { id: 'save', key: 'S-s', label: 'Save', enabled },
-      { id: 'load', key: 'S-l', label: 'Load' },
-      { id: 'settings', key: 'S-o', label: 'Settings' },
-      { id: 'rename', key: 'S-n', label: this.strings?.get('ui.menu.rename') ?? UI_STRINGS['ui.menu.rename'] ?? '', enabled },
-      { id: 'retire', key: 'S-x', label: 'Retire fortress', enabled },
-      { id: 'abandon', key: 'S-a', label: this.strings?.get('ui.menu.abandon') ?? UI_STRINGS['ui.menu.abandon'] ?? '', enabled: enabled && this.host.abandon !== undefined && this.host.canAbandon?.() !== false },
-      { id: 'main_menu', key: 'S-m', label: 'Main menu' },
+      { id: 'resume', key: 'r', label: s.get('ui.game_menu.resume') },
+      { id: 'save', key: 'S-s', label: s.get('ui.game_menu.save'), enabled },
+      { id: 'load', key: 'S-l', label: s.get('ui.game_menu.load') },
+      { id: 'settings', key: 'S-o', label: s.get('ui.game_menu.settings') },
+      { id: 'rename', key: 'S-n', label: s.get('ui.menu.rename'), enabled },
+      { id: 'retire', key: 'S-x', label: s.get('ui.game_menu.retire'), enabled },
+      { id: 'abandon', key: 'S-a', label: s.get('ui.menu.abandon'), enabled: enabled && this.host.abandon !== undefined && this.host.canAbandon?.() !== false },
+      { id: 'main_menu', key: 'S-m', label: s.get('ui.game_menu.main_menu') },
     ];
   }
 
@@ -84,7 +88,7 @@ export class GameMenuScreen implements Screen {
     this.last = surface;
     const col = Math.max(2, Math.floor(surface.cols / 2) - 12);
     const row = Math.max(1, Math.floor(surface.rows / 2) - 5);
-    label(surface, col, row, `Deepholm · ${this.host.fortressName()}`, { fg: surface.theme.key });
+    label(surface, col, row, (this.strings ?? DEFAULT_STRINGS).get('ui.game_menu.title', { fortress: this.host.fortressName() }), { fg: surface.theme.key });
     const message = this.message;
     if (message !== null) label(surface, col, row + 1, message, { fg: surface.theme.good, width: Math.max(1, surface.cols - col - 1) });
     menu(surface, col, row + 2, this.items(), this.selected, (id) => this.choose(id));

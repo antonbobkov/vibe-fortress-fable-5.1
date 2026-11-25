@@ -82,7 +82,7 @@ export function whimLine(ctx: PanelContext, whim: { readonly id: string; readonl
   const s = ctx.strings;
   const progress = whimProgressText(s, ctx.registry, whim.id, whim.have);
   const text = s.get(whim.met ? 'ui.units.whim_met' : 'ui.units.whim_unmet', { whim: whim.text, season: ctx.readers.calendar.seasonName, progress });
-  const where = whim.met ? '' : whimWhereMade(ctx.registry, whim.id);
+  const where = whim.met ? '' : whimWhereMade(ctx.registry, whim.id, ctx.strings);
   return where === '' ? text : s.get('ui.units.whim_where', { text, where });
 }
 

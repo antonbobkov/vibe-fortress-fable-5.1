@@ -32,51 +32,6 @@ export const KEY_CONTEXTS = [
 
 export type KeyContext = (typeof KEY_CONTEXTS)[number];
 
-/** Each context's heading, as § Keymap names its table (the editor and Help show it). */
-const CONTEXT_TITLES: Readonly<Record<KeyContext, string>> = Object.freeze({
-  global: 'Global',
-  map: 'Map',
-  fortress_panel: 'Fortress panels',
-  panel: 'Panels',
-  selection: 'Map selection',
-  designate_panel: 'Designate panel',
-  build_panel: 'Build panel',
-  zones_panel: 'Zones panel',
-  zone_inspector: 'Zone inspector',
-  units_panel: 'Units panel',
-  labors_panel: 'Labors panel',
-  jobs_panel: 'Jobs panel',
-  orders_panel: 'Orders panel',
-  workshop_panel: 'Workshop panel',
-  building_panel: 'Building panel',
-  stocks_panel: 'Stocks panel',
-  depot_panel: 'Depot panel',
-  military_panel: 'Military panel',
-  animals_panel: 'Animals panel',
-  civilizations_panel: 'Civilizations panel',
-  population_panel: 'Population panel',
-  mood_panel: 'Mood panel',
-  log_panel: 'Log panel',
-  look_panel: 'Look panel',
-  help_panel: 'Help panel',
-  debug_panel: 'Debug panel',
-  labor_manager: 'Labor manager',
-  labor_templates: 'Profession templates',
-  trade_session: 'Trade session',
-  game_menu: 'Game menu',
-  confirm: 'Confirmation',
-  main_menu: 'Main menu',
-  world_gen: 'World generation',
-  world_map: 'World map',
-  embark: 'Embark',
-  load: 'Load',
-});
-
-/** A key context's heading; an unknown name is returned as it is. */
-export function contextTitle(context: string): string {
-  return (CONTEXT_TITLES as Readonly<Record<string, string>>)[context] ?? context;
-}
-
 /** The context of each sidebar panel's own keys (panels without own keys have none). */
 export const PANEL_CONTEXTS: Readonly<Record<string, KeyContext>> = Object.freeze({
   designate: 'designate_panel', build: 'build_panel', zones: 'zones_panel', units: 'units_panel',

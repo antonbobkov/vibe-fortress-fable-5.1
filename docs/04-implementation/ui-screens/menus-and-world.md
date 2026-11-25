@@ -248,6 +248,8 @@ Keybindings sub-screen:
 
 Every binding is listed under its context's heading (24 § Settings gives the order and the rules); the cursor moves over the bindings and skips the headings, `PageUp` `PageDown` by ten. `Enter` on a row, or a click on it, then a key rebinds it; `Esc` cancels the capture. `Delete` or `Backspace` gives the row its default back ("pause / resume: back to Space."), and `[d]` every binding ("Every key is back to its default."). A refusal is shown on the last line in red, and a conflict also draws the binding that has the key in red. Failed rebinding uses the shared registry messages `ui.settings.binding_conflict`, `ui.settings.binding_modifiers`, `ui.settings.binding_fixed` and `ui.settings.binding_browser` and leaves every binding unchanged; a reset says `ui.settings.binding_reset` or `ui.settings.bindings_reset`. The sub-screen's own keys are fixed (`03-content/ui-keymap-and-screens.md` § Fixed keys).
 
+Strings: `ui.settings.title`, `ui.settings.title_keybindings`, `ui.settings.row.*` (the rows), `ui.settings.value.*` (each value as the settings store spells it, a space written `_`: `ui.settings.value.hits_only` "hits only"), `ui.settings.footer`, `ui.settings.editor.*` (the editor's column heads, `fixed`, `(default {key})`, `[letter]` and its two key lines), and the context headings `ui.keymap.context.<context>`, which Help shares. An action's wording is its keymap row's own text.
+
 ## Load
 
 ```
@@ -295,6 +297,8 @@ Every binding is listed under its context's heading (24 § Settings gives the or
 │ [Esc] Back                                                       │
 └──────────────────────────────────────────────────────────────────┘
 ```
+
+Strings: `ui.legend.*`: the list's title and rows (`ui.legend.row`, `ui.legend.row_testing`), `ui.legend.none`, the record's lines (`ui.legend.founded`, `ui.legend.stats`, `ui.legend.milestones`, `ui.legend.notable`, `ui.legend.last_words`), a testing fortress's mark and note, the scroll line and the two buttons.
 
 ## A new embark on the same world
 

@@ -342,7 +342,7 @@ export class BuildTool {
     let fewest = Infinity;
     for (const input of inputs) {
       const have = this.units(ctx, input.match);
-      if (have === 0) return ctx.strings.get('ui.build.count_none', { item: alternativesName(ctx.registry, input.match, 1) });
+      if (have === 0) return ctx.strings.get('ui.build.count_none', { item: alternativesName(ctx.registry, input.match, 1, ctx.strings) });
       const per = input.count === 'tiles' ? 1 : Math.max(1, input.count);
       fewest = Math.min(fewest, Math.floor(have / per));
     }
@@ -578,7 +578,7 @@ export class BuildTool {
   /** "0 doors in stock: 5 will wait", then "[o] order 5" or the workshop to build first; `key` is the Orders key. */
   offerText(ctx: PanelContext, offer: StockOffer, key: string): { stock: string; action: string } {
     const s = ctx.strings;
-    const stock = s.get('ui.build.stock.short', { have: offer.have, items: alternativesName(ctx.registry, offer.match, offer.have), n: offer.waiting });
+    const stock = s.get('ui.build.stock.short', { have: offer.have, items: alternativesName(ctx.registry, offer.match, offer.have, s), n: offer.waiting });
     if (offer.recipeId !== null) return { stock, action: s.get('ui.build.stock.order', { key, n: offer.waiting }) };
     if (offer.advice !== undefined && offer.advice !== '') return { stock, action: offer.advice };
     if (offer.itemId === null || offer.workshops === '') return { stock, action: '' };

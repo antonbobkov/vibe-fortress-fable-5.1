@@ -14,18 +14,13 @@ import type { ForagingReader } from '@systems/foraging';
 import type { ItemsReader } from '@systems/items';
 import type { PlantsReader } from '@systems/plants';
 import type { TradeReader } from '@systems/trade';
-import { capitalize, pluralName } from './messages';
+import { capitalize, listText, pluralName } from './messages';
 import type { Strings } from './strings';
 
 interface SpeciesRow { readonly id: string; readonly name: string; readonly plural?: string; readonly meatValue?: number; readonly flags?: Readonly<Record<string, unknown>> }
 
-/** "2 cows, 2 goats and 4 chickens". */
-export function andList(parts: readonly string[]): string {
-  return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} and ${parts[parts.length - 1] as string}` : parts[0] ?? '';
-}
-
 /** Tame animals of the fortress a slaughter mark would take now, as "2 cows, 2 goats", or ''. */
-function animals(readers: ReaderSet, registry: Registry): string {
+function animals(readers: ReaderSet, registry: Registry, strings: Strings): string {
   if (!readers.has('08')) return '';
   const species = registry.table<SpeciesRow>('creatures');
   const counts = new Map<number, number>();
@@ -43,7 +38,7 @@ function animals(readers: ReaderSet, registry: Registry): string {
     const row = species.byIndex(index) as SpeciesRow;
     return { name: row.name, text: n === 1 ? `1 ${row.name}` : `${n} ${row.plural ?? pluralName(row.name)}` };
   }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0));
-  return andList(named.map((entry) => entry.text));
+  return listText(strings, named.map((entry) => entry.text), 'and');
 }
 
 /** The water a fishing zone could take, when no fishing zone exists (09 § Fishing), or null. */
@@ -85,7 +80,7 @@ function caravanFood(readers: ReaderSet, registry: Registry): { civ: string; dep
 /** The clauses of `hint_starving`, in the hint's order; empty when nothing to eat is at hand. */
 export function foodAtHand(readers: ReaderSet, registry: Registry, strings: Strings): string[] {
   const out: string[] = [];
-  const herd = animals(readers, registry);
+  const herd = animals(readers, registry, strings);
   if (herd !== '') {
     const butcher = readers.has('14') && readers.of<BuildingsReader>('14').byType('butcher')
       .some((id) => readers.of<BuildingsReader>('14').get(id)?.state === 'built');

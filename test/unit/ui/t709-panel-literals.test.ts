@@ -11,7 +11,7 @@ import { describe, expect, it } from 'vitest';
 import { Strings } from '@ui/strings';
 import { eligibilityText } from '@ui/panels/population';
 import { deepQuote } from '@ui/panels/threats';
-import { MOOD_TIER_NAMES } from '@ui/panels/mood';
+import { moodTierName } from '@ui/panels/mood';
 import { SQUAD_PRESET_NAMES } from '@ui/panels/military';
 // @ts-expect-error -- a plain .mjs script without type declarations
 import { check, literalsIn, looksPlayerFacing, panelLiterals } from '../../../scripts/strings-check.mjs';
@@ -64,7 +64,7 @@ describe('T-709 panel texts are in the strings table', () => {
     expect(eligibilityText(['something_new'])).toBe('Eligible: no · something_new');
     expect(deepQuote(1, strings)).toBe('The Deep stirs. Something has noticed the pale metal being taken.');
     expect(deepQuote(9, strings)).toBe('The Hollow does not forget.');
-    expect(MOOD_TIER_NAMES).toEqual(['Miserable', 'Unhappy', 'Fine', 'Content', 'Ecstatic']);
+    expect([0, 1, 2, 3, 4].map((tier) => moodTierName(strings, tier))).toEqual(['Miserable', 'Unhappy', 'Fine', 'Content', 'Ecstatic']);
     expect(SQUAD_PRESET_NAMES[0]).toBe('The Hearthguard');
     expect(SQUAD_PRESET_NAMES).toHaveLength(8);
     expect(strings.get('ui.threats.pressure', { bar: '▓░', pressure: 12, next: 50, level: 0 })).toBe('Pressure ▓░ 12 / 50 (lvl 0)');
