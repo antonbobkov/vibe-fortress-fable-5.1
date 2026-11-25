@@ -20,5 +20,5 @@ Spec: 24 § Legends ("the last 50 alert or danger announcements"), `ui-screens/m
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): the legend screen's offset stops at its last page and `End` reaches it; a record whose log has 30 daily starving lines and 3 deaths shows one starving line with its day count and all 3 deaths.
-- [ ] UI and the legend record only: world hashes unchanged.
+- [x] Tests (`describe` with the task id): the legend screen's offset stops at its last page and `End` reaches it; a record whose log has 30 daily starving lines and 3 deaths shows one starving line with its day count and all 3 deaths.
+- [x] UI and the legend record only: world hashes unchanged (no system, event or save field changes; no sweep).
