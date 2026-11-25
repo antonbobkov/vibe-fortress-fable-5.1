@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-711 | [The creature view, the screens and the UI's shared modules still write text in code](work/T-711-ui-texts-outside-panels.md) | [T-709](archive/tasks/T-709-panel-texts-in-strings.md) | — | open |
-| T-712 | [A wild grazer eats grass that snow fell on while it walked there](work/T-712-wild-grazer-eats-snowed-grass.md) | [T-701](archive/tasks/T-701-precipitation-follows-temperature.md) | — | open |
 | T-713 | [A hostile's view lacks the hostile sections the inspector list names](work/T-713-hostile-view-sections.md) | [T-710](archive/tasks/T-710-animal-view-sections.md) | — | open |
 | T-714 | ["X is miserable." repeats several times a day and buries the alerts](work/T-714-miserable-line-flaps.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-715 | [The caravan leaves untraded while the trader hauls goods to the depot](work/T-715-trade-waits-behind-depot-hauls.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
