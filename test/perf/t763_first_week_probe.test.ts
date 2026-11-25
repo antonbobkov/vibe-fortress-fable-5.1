@@ -79,6 +79,7 @@ interface RunResult {
   readonly firstOnceMiserable: { name: string; day: number }[];
   readonly thoughtHours: Record<string, number>;
   readonly orders: string[];
+  readonly deaths: string[];
 }
 
 function siteRegion(seed: string): { spec: ReturnType<typeof localMapSpec>; region: number; biome: string } {
@@ -212,7 +213,22 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
   const seenOnce = new Set<EntityId>();
   const thoughtHours: Record<string, number> = {};
   let talks = 0;
-  w.game.world.onEvents((batch) => { for (const e of batch) if (e.type === 'Talked') talks += 1; });
+  const deaths: string[] = [];
+  w.game.world.onEvents((batch) => {
+    for (const e of batch) {
+      if (e.type === 'Talked') talks += 1;
+      if (process.env['T763_DAMAGE'] === '1' && (e.type === 'WoundInflicted' || e.type === 'Fell' || e.type === 'AttackResolved' || e.type === 'ConstructionCollapsed' || e.type === 'BurnDamage')) {
+        deaths.push(`ev day ${Math.floor((w.tick - startTick) / TICKS_PER_DAY) + 1} ${e.type} ${String(e['woundType'] ?? '')}/${String(e['severity'] ?? '')} on ${w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(e['id'] as number, C.Creature)?.species ?? -1)?.id ?? '?'}`);
+      }
+      if (e.type === 'DamageDealt' && process.env['T763_DAMAGE'] === '1') {
+        const att = w.game.world.entities.get(e['attackerId'] as number, C.Creature);
+        const def = w.game.world.entities.get(e['defenderId'] as number, C.Creature);
+        const sp = (c: typeof att): string => (c === undefined ? 'none' : `${w.game.registry.table<{ id: string }>('creatures').byIndex(c.species)?.id ?? '?'}/${c.faction}`);
+        deaths.push(`hit day ${Math.floor((w.tick - startTick) / TICKS_PER_DAY) + 1} ${sp(att)}>${sp(def)}`);
+      }
+      if (e.type === 'CreatureDied' && e['faction'] === 'fortress') deaths.push(`day ${Math.floor((w.tick - startTick) / TICKS_PER_DAY) + 1} ${String(e['cause'])}${e['killerSpecies'] === undefined ? '' : ` by ${String(e['killerSpecies'])}`}`);
+    }
+  });
   const dwarvesAtStart = entities.with(C.Brain).length;
   for (let day = 1; day <= DAYS; day += 1) {
     const row: DayRow = { day, alive: 0, lonelyMadeHours: 0, dwarfHours: 0, miserableHours: 0, miserableDwarves: 0, onceMiserableHours: 0, onceMiserableDwarves: 0, lonelyHours: 0, talks: 0, meanMood: 0, minMood: 100 };
@@ -271,7 +287,7 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
     days.push(row);
   }
   expect(w.tick - startTick).toBe(DAYS * TICKS_PER_DAY);
-  return { seed, variant: `${meeting ? 'meeting' : 'busy'}+${shift}`, region: site.region, biome: site.biome, dwarves: dwarvesAtStart, days, firstMiserable, firstOnceMiserable, thoughtHours, orders };
+  return { seed, variant: `${meeting ? 'meeting' : 'busy'}+${shift}`, region: site.region, biome: site.biome, dwarves: dwarvesAtStart, days, firstMiserable, firstOnceMiserable, thoughtHours, orders, deaths };
 }
 
 describe('T-763 probe: a busy first fortnight', () => {
@@ -292,7 +308,7 @@ describe('T-763 probe: a busy first fortnight', () => {
         console.log(`  min mood ${r.days.map((d) => Math.round(d.minMood)).join(' ')}`);
         console.log(`  lonely share ${r.days.map((d) => Math.round((100 * d.lonelyHours) / Math.max(1, d.dwarfHours))).join(' ')}`);
         console.log(`  talks ${r.days.map((d) => d.talks).join(' ')}`);
-        console.log(`  alive ${r.days.map((d) => d.alive).join(' ')}`);
+        console.log(`  alive ${r.days.map((d) => d.alive).join(' ')}${r.deaths.length > 0 ? ` | deaths: ${r.deaths.join(', ')}` : ''}`);
         console.log(`  miserable dwarf-hours ${r.days.map((d) => d.miserableHours).join(' ')} | of them lonely-made ${r.days.map((d) => d.lonelyMadeHours).join(' ')}`);
         for (const f of r.firstMiserable) console.log(`  first miserable ${f.name} day ${f.day} h${f.hour} mood ${f.mood.toFixed(1)} (once ${f.onceMood.toFixed(1)}) ${f.parts} social ${f.social} [${f.traits.join(',')}] ${f.top.join('; ')}`);
         const top = Object.entries(r.thoughtHours).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${k} ${Math.round((100 * n) / (r.dwarves * 24 * DAYS))}%`);
