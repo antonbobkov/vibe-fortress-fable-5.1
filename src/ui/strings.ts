@@ -1712,7 +1712,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.military.mode_no_members': '{squad} has no members: [a] adds them.',
   'ui.military.train_no_barracks': 'No barracks: the squad cannot train. [z] Barracks, then [b].',
   'ui.military.train_cost': '{n|dwarf|dwarves} off work: they drill at the barracks.',
-  'ui.military.train_cost_no_barracks': '{n|dwarf|dwarves} off work, and with no barracks they cannot drill: [z] Barracks, then [b], or [o] Off.',
+  // No-break spaces keep each key with its word when the line wraps.
+  'ui.military.train_cost_no_barracks': '{n|dwarf|dwarves} off work, and with no barracks they cannot drill: [z] Barracks, then [b], or [o] Off.',
   'ui.military.train_unarmed': 'Unarmed members train dodging only: see the Armed line.',
   'ui.military.cannot_stand': 'The squad cannot stand there: pick a floor tile.',
   'ui.status.pick_station': 'Station: click or press Enter on a floor tile · [Esc] cancel',

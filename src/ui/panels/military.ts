@@ -862,22 +862,16 @@ export function drawMilitaryPanel(
 
   // Barracks: the zone assigned to the squad (`SetZoneSetting`), and the one it trains at when
   // that differs (16 keeps the first barracks a squad trained in).
-  // With no barracks at all, a squad on Train trains nothing: the line says so in the alert colour.
+  // With no barracks at all, a squad on Train trains nothing: the row is in the alert colour, and
+  // the warning is the mode line's alone.
   const strings = ctx.strings;
   const assigned = panel.assignedBarracks(ctx, squad.id);
   const used = assigned !== 0 ? 0 : panel.defaultBarracks(ctx, squad);
-  if (assigned === 0 && used === 0 && squad.mode === 'train') {
-    for (const line of wrapHang(strings.get('ui.military.train_no_barracks'), width, 2)) {
-      label(s, col, row, line, { fg: t.alert, width });
-      s.hit({ col, row, cols: width, rows: 1 }, () => panel.openChoice(ctx, 'barracks'));
-      row += 1;
-    }
-    return;
-  }
   const barracks = assigned !== 0
     ? strings.get('ui.military.barracks_assigned', { zone: zoneName(ctx, assigned) })
     : used !== 0 ? strings.get('ui.military.barracks_used', { zone: zoneName(ctx, used) }) : strings.get('ui.military.barracks_none');
-  label(s, col, row, barracks, { fg: assigned !== 0 ? t.text : t.dim, width });
+  const fg = assigned !== 0 ? t.text : used === 0 && squad.mode === 'train' ? t.alert : t.dim;
+  label(s, col, row, barracks, { fg, width });
   s.hit({ col, row, cols: width, rows: 1 }, () => panel.openChoice(ctx, 'barracks'));
 }
 

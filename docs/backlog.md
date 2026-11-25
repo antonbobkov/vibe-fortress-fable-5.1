@@ -14,8 +14,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-714 | ["X is miserable." repeats several times a day and buries the alerts](work/T-714-miserable-line-flaps.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-719 | [Facts still cut with "»" after T-703: room lines, the log, orders, the status bar](work/T-719-cut-facts-second-pass.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-721 | [Single words and readers' English the strings scan cannot see](work/T-721-ui-words-the-scan-cannot-see.md) | [T-711](archive/tasks/T-711-ui-texts-outside-panels.md) | — | open |
-| T-727 | [The Threats panel counts a thief the map still hides](work/T-727-threats-hidden-thief-count.md) | [T-713](archive/tasks/T-713-hostile-view-sections.md) | — | open |
-| T-729 | [The Military panel warns twice of no barracks for a squad on Train](work/T-729-one-no-barracks-warning.md) | [T-718](archive/tasks/T-718-calm-says-everyone-works.md) | — | open |
 | T-730 | [An animal's view and the Animals panel say nothing of its wounds](work/T-730-animal-view-bleeding.md) | [T-723](archive/tasks/T-723-animal-no-dressing-alert.md) | — | open |
 | T-731 | [The miserable line keeps its string key](work/T-731-miserable-line-key.md) | [T-725](archive/tasks/T-725-log-line-string-key.md) | — | open |
 | T-732 | [The defence script and the fortress script's look before the all-clear flap the north door](work/T-732-defence-north-door-flaps-on-the-look.md) | [T-724](archive/tasks/T-724-defence-squad-refill-remnant.md) | — | open |

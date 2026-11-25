@@ -1,6 +1,8 @@
 # T-727 — The Threats panel counts a thief the map still hides
 
-**Source:** T-713 ([work file](../archive/tasks/T-713-hostile-view-sections.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in d9d3776f,220077cf.
+
+**Source:** T-713 ([work file](T-713-hostile-view-sections.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -14,5 +16,5 @@ At `twilight_pass` thieves come in pairs, one party of two (18 § Schedule). Onc
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a pair of thieves with one spotted reads `1`; both spotted `2`; a revealed ambush is unchanged.
-- [ ] UI only: world hashes unchanged.
+- [x] Tests (`describe` with the task id): a pair of thieves with one spotted reads `1`; both spotted `2`; a revealed ambush is unchanged (`test/unit/ui/t727-threats-hidden-count.test.ts`, with the click on a hidden leader going to the spotted member, and a hidden member gone from the map in neither number).
+- [x] UI only: world hashes unchanged (only `src/ui` changed).
