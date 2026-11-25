@@ -646,6 +646,15 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.miasma_advice` | "A refuse stockpile outdoors, or a dump, takes rotten food away." |
 | `announce.rot_soon` | "{n} food will rot within {days\|day\|days}; the largest stack is {stack} in {place}." |
 | `announce.starving_many` | "{n} dwarves are starving: {names}." |
+| `ui.starving_hint.slaughter` | "{animals} to slaughter ([n] then [S-s])" |
+| `ui.starving_hint.slaughter_shop` | "{animals} to slaughter ([n] then [S-s]) at a butcher's shop [b > Workshops]" |
+| `ui.starving_hint.fish` | "a {water} to fish (a fishing zone, [z] then [i])" |
+| `ui.starving_hint.river` | "river" |
+| `ui.starving_hint.lake` | "lake" |
+| `ui.starving_hint.gather` | "{n\|ripe shrub\|ripe shrubs} to gather ([d] then [g])" |
+| `ui.starving_hint.caravan_depot` | "the {civ} caravan sells food: build a trade depot [b > Special]" |
+| `ui.starving_hint.caravan_trade` | "the {civ} caravan sells food: trade at the depot [c]" |
+| `ui.starving_hint.none` | "Dwarves are starving, and nothing to eat is at hand: dig down to a cavern, or trade with the next caravan." |
 | `announce.died.bled_out` | "{name} has bled to death." |
 | `announce.died.starvation` | "{name} has starved to death." |
 | `announce.died.infection` | "{name} has died of an infection." |
@@ -682,7 +691,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Hints
 
-Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed). Ids and triggers:
+Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed and `hint_starving` on its `Starving` event). Ids and triggers:
 
 | id | Trigger | Text |
 |---|---|---|
@@ -713,6 +722,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_predator` | first `AnimalSpawned` of a dangerous species while the fortress has a shelter (a hearth hall, a built door or a bedroom zone) | "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is." |
 | `hint_predator_open` | first `AnimalSpawned` of a dangerous species while the fortress has no shelter | "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert once your hall has a door: before that there is nowhere to shelter, and the dwarves work on in the open. [n] then [2] shows where it is." |
 | `hint_food` | edible items in stock fall below `HINT_FOOD_DAYS` days for the population, hourly | "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]." |
+| `hint_starving` | the first `Starving` of the fortress for hunger, after that day's starving line | "Dwarves are starving, and there is food at hand: {food}." |
 | `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
 | `hint_glowcap` | glowcap seeds in stock | "Glowcap grows in the dark under a glowstone lamp." |
 | `hint_runeforge` | a runeforge is placed | "The runeforge burns vials, not coal." |
@@ -731,6 +741,15 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_rot` | the first food item of the fortress turns stale | "Food rots: meals and raw food keep two or three weeks. Barrels in a food stockpile slow it four times; smoked or salted meat keeps. Cook, farm and fish for more." |
 | `hint_breach` | first cavern breach | "A cavern lies open to the fortress, and what lives there can walk in. Wall the opening off [b > Constructions] or hang a door in it set to Lock on alert." |
 | `hint_panel_letters` | a panel's own letter acts where that letter also opens a panel (§ Panels) | "Inside a panel its own letters come first. Esc, then a letter, opens another panel." |
+
+`hint_starving`'s `{food}` is what the fortress could eat now, read when the hint shows, as clauses joined by "; " in this order and only those that hold (`ui.starving_hint.*`, § Announcement strings):
+
+1. **Animals to slaughter**: the living tame animals of a butcherable species with meat that a slaughter mark would take (not marked already, not war- or hunting-trained, not assigned to a dwarf; 08 § Slaughter), counted by species in name order ("2 cows, 2 goats and 4 chickens"); `slaughter_shop` in place of `slaughter` while no butcher's shop is built.
+2. **Water to fish**: no fishing zone exists, and a body of open water (09 § Fishing's bodies, not a cavern's) of at least `MIN_FISHING_TILES` tiles has a bank a fishing zone could take; the largest names its kind, `river` or `lake`.
+3. **Shrubs to gather**: the mature shrubs with an edible yield (`plants.md`) that no gather designation covers.
+4. **A caravan**: a caravan on the map, not packing or leaving, whose merchant goods hold an edible item; `caravan_depot` while no trade depot exists, else `caravan_trade`.
+
+With none of them the hint is `ui.starving_hint.none`. Its keys follow the live bindings as every hint's do.
 
 ## Tutorial
 

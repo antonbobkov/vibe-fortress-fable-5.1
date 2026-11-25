@@ -73,6 +73,7 @@ Feed the fortress from the wild: hunt animals with ranged weapons, gather plants
 
 - `foraging.isHuntable(species)`, `foraging.huntTargets()` (animal ids currently eligible)
 - `foraging.waterBodyAt(i)`, `foraging.fishPool(bodyId)`, `foraging.canFishAt(i)`
+- `foraging.fishableWater()` — the kind (`river` or `lake`) of the largest body of open water, not a cavern's, of at least `MIN_FISHING_TILES` tiles with a bank a fishing zone could take, or null; a fresh flood fill of the map that leaves the saved bodies as they are (24's `hint_starving` reads it once)
 - `foraging.butcherYields(species)` — computed from the rules above, for the inspector, with the species' butcher parts
 
 ### Commands

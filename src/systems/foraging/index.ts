@@ -15,7 +15,7 @@ import type { Job, JobSink } from '@systems/jobs';
 import type { ItemsReader } from '@systems/items';
 import type { PlantsReader } from '@systems/plants';
 import { butcherParts, butcherYields } from './butcher';
-import { waterOfBank, floodBodies, type WaterBody } from './fishing';
+import { cardinal, waterOfBank, floodBodies, type WaterBody } from './fishing';
 import { BUTCHER_ROT_LIMIT, BUTCHER_TICKS, FISH_BASE_PERMILLE, FISH_PER_SKILL, FISH_PER_TILE, FISH_REGEN_PERCENT,
   FISH_RETRY_TICKS, FISH_TICKS, HUNT_MIN_SIZE, MIN_FISHING_TILES, NETTLE_STING_PERMILLE } from './constants';
 
@@ -80,6 +80,7 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
       waterBodyAt: (tile) => { this.ensureBodies(); const id = this.bodyOfTile.get(tile); return id === undefined ? undefined : this.body(id); },
       fishPool: (id) => { this.ensureBodies(); return this.body(id)?.fishPool ?? 0; },
       canFishAt: (tile) => this.canFishAt(tile),
+      fishableWater: () => this.fishableWater(),
       butcherYields: (s) => {
         const row = this.row(s);
         return { ...butcherYields(row?.size ?? 0, row?.shell === true, false, false, (row?.meatValue ?? 0) > 0, (row?.hideValue ?? 0) > 0),
@@ -131,6 +132,19 @@ export class ForagingSystem extends BaseSystem<ForagingStateV1> {
 
   private waterOfBank(tile: TileIndex): number {
     return waterOfBank(this.map, tile);
+  }
+  private fishableWater(): 'river' | 'lake' | null {
+    const { bodies, bodyOfTile } = floodBodies(this.map, 0);
+    const banked = new Set<number>();
+    for (const [tile, body] of bodyOfTile) {
+      if (!banked.has(body) && cardinal(this.map, tile).some((n) => this.canFishAt(n))) banked.add(body);
+    }
+    let best: WaterBody | undefined;
+    for (const body of bodies) {
+      if (body.kind === 'cavern' || body.tileCount < MIN_FISHING_TILES || !banked.has(body.id)) continue;
+      if (best === undefined || body.tileCount > best.tileCount) best = body;
+    }
+    return best === undefined ? null : best.kind === 'river' ? 'river' : 'lake';
   }
   private canFishAt(tile: TileIndex): boolean {
     return this.map.validIndex(tile) && this.ctx.readers.pathing.passable(tile, 'walker') && this.waterOfBank(tile) >= 0;

@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-694 | [The three-year cistern under the hearth hall](work/T-694-cistern-under-the-hall.md) | [T-688](archive/tasks/T-688-pressure-through-a-level-tunnel.md) | — | open |
 | T-698 | [A hospital never stocks honey, and raising a supply does not call goods already lying loose](work/T-698-hospital-honey-and-raised-supplies.md) | [T-696](archive/tasks/T-696-bandages-unused-by-medics.md) | — | open |
-| T-699 | [A starving fortress is told nothing about the food at hand](work/T-699-starving-fortress-food-at-hand.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-700 | [A pasture too small for its grazers starves them, and nothing says so](work/T-700-pasture-too-small-starves-grazers.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-701 | [Snow falls at 11 °C and rain at −2 °C](work/T-701-precipitation-follows-temperature.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-702 | [A new embark on the same world brings back the same seven dwarves under the same name](work/T-702-new-embark-new-names.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
