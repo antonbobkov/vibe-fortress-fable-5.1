@@ -1821,7 +1821,7 @@ function checkFarm(w: TestWorld, state: FortressState): void {
   // tiles; a strip with a dark tile (dug rock one level down) is not a surface plot and refuses its crops.
   for (const level of [z, z - 1, z + 1, z - 2, z + 2]) {
     if (tiles.length >= FARM_STRIP.width) break;
-    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width).filter((t) => buildings.cropLitAt(t)));
+    tiles.splice(0, tiles.length, ...siteTiles(w, 'farm_plot', x0, y0, FARM_STRIP.width, FARM_STRIP.rows, level, { x: state.cx + 6, y: state.cy + 6 }, FARM_STRIP.width).filter((t) => buildings.cropLitAt(t) && !isKeptOff(w, t)));
   }
   // T-667: the places run in rows south of the first field and leave the map after a few rows: a
   // place with too little ground takes the nearest free sunlit soil on the wagon's side, as by the
