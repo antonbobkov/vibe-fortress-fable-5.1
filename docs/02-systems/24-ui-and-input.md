@@ -109,7 +109,7 @@ Panel conventions:
 
 ### Inspection
 
-Look shows one of three views: the tile list of a tile, the view of one creature, or the view of one item. Its title row names what it shows: "Tile (58, 93, z27)", the creature's name, or the item's name without its count ("pine bed", "bellwine"). Every number the simulation uses for that thing is shown, in the section registered by its owner. Undiagnosed patients hide wound details (17). What Look shows is presentation state, as the map cursor is, and is not saved.
+Look shows one of three views: the tile list of a tile, the view of one creature, or the view of one item. Its title row names what it shows: "Tile (58, 93, z27)", the creature's name, or the item's name without its count ("pine bed", "bellwine"). A creature is named, here and wherever a screen names it (the tile list, the hover line, the Units panel, a link), by its own name, or by its species' name when it has none ("gloam captain", "cow"); the species id that spawn keeps as the name of a creature it names nothing is never shown. Every number the simulation uses for that thing is shown, in the section registered by its owner. Undiagnosed patients hide wound details (17). What Look shows is presentation state, as the map cursor is, and is not saved.
 
 **The click ladder.** A left click on the map with no tool armed and no panel picking walks down these steps and opens the first thing it finds:
 

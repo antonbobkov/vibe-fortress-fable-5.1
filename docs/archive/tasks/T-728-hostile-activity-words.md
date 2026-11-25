@@ -1,6 +1,8 @@
 # T-728 — A raider's activity line reads its party's state id
 
-**Source:** T-713 ([work file](../archive/tasks/T-713-hostile-view-sections.md)) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 581996c8,6e4c1d73,2e16a2ec.
+
+**Source:** T-713 ([work file](T-713-hostile-view-sections.md)) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -13,5 +15,5 @@ A party member with no target takes its party's state as its behaviour (`H.behav
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a loitering raider's activity reads `Waiting`, a retreating one's `Leaving`, an engaged one with no target `Attacking`; Units All agrees.
-- [ ] UI only: world hashes unchanged.
+- [x] Tests (`describe` with the task id): a loitering raider's activity reads `Waiting`, a retreating one's `Leaving`, an engaged one with no target `Attacking`; Units All agrees (`test/unit/ui/t726-species-name-not-id.test.ts`, done with T-726).
+- [x] UI only: world hashes unchanged.

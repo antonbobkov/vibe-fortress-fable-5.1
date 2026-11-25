@@ -10,6 +10,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId } from '@core/types';
 import type { HealthReader } from '@systems/health';
+import { creatureName, hasOwnName } from '../creature-name';
 import type { Strings } from '../strings';
 import type { PanelContext } from './context';
 import { creatureShown } from './look';
@@ -64,10 +65,8 @@ export function allCreatures(readers: ReaderSet, registry: Registry): CreatureRo
     const kind = creatureKind(readers, id, dwarves);
     const c = readers.entities.get(id, C.Creature);
     const def = species.byIndex(c?.species ?? -1);
-    const own = c?.name ?? '';
-    const named = own !== '' && own !== def?.name && own !== def?.id;
     const animal = kind === 'tame' || kind === 'wild';
-    const name = !named ? def?.name ?? own : animal && def !== undefined ? `${def.name} ${own}` : own;
+    const name = !hasOwnName(registry, c) || !animal || def === undefined ? creatureName(registry, c) : `${def.name} ${c?.name ?? ''}`;
     out.push({ id, kind, name });
   }
   const order = (k: CreatureKind): number => CREATURE_KINDS.indexOf(k);

@@ -16,9 +16,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-721 | [Single words and readers' English the strings scan cannot see](work/T-721-ui-words-the-scan-cannot-see.md) | [T-711](archive/tasks/T-711-ui-texts-outside-panels.md) | — | open |
 | T-724 | [The defence script leaves its squad at one soldier when every adult has a role](work/T-724-defence-squad-refill-remnant.md) | [T-715](archive/tasks/T-715-trade-waits-behind-depot-hauls.md) | — | open |
 | T-725 | [A log line keeps the string key it was written from](work/T-725-log-line-string-key.md) | [T-720](archive/tasks/T-720-legend-scroll-and-last-words.md) | — | open |
-| T-726 | [A creature called by its species is shown by its species id](work/T-726-species-name-not-id.md) | [T-713](archive/tasks/T-713-hostile-view-sections.md) | — | open |
 | T-727 | [The Threats panel counts a thief the map still hides](work/T-727-threats-hidden-thief-count.md) | [T-713](archive/tasks/T-713-hostile-view-sections.md) | — | open |
-| T-728 | [A raider's activity line reads its party's state id](work/T-728-hostile-activity-words.md) | [T-713](archive/tasks/T-713-hostile-view-sections.md) | — | open |
 | T-729 | [The Military panel warns twice of no barracks for a squad on Train](work/T-729-one-no-barracks-warning.md) | [T-718](archive/tasks/T-718-calm-says-everyone-works.md) | — | open |
 | T-730 | [An animal's view and the Animals panel say nothing of its wounds](work/T-730-animal-view-bleeding.md) | [T-723](archive/tasks/T-723-animal-no-dressing-alert.md) | — | open |
 
