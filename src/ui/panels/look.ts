@@ -27,12 +27,13 @@ import type { MagicReader, SpellView } from '@systems/magic';
 import type { PlantsReader } from '@systems/plants';
 import { bodyPartNames, permanentText } from '@systems/health';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
-import { MOOD_TIER_NAMES, thoughtText } from './mood';
+import { moodTierName, thoughtText } from './mood';
 import type { Surface } from '../surface';
 import { captionButtons, label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { creatureActivity } from './look-activity';
+import { ANIMAL_FIELDS, animalFields } from './look-animal';
 import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
 import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
 import { creatureGone, drawGoneView, drawLookFoot, footRows, itemGone, type LookFoot } from './look-gone';
@@ -686,6 +687,15 @@ export function drawCreatureView(
 function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, dwarf: boolean): void {
   const t = s.theme;
   const { line, wrapped, put } = pen;
+  // 08's `creature › animal`: species, state, owner, pasture, condition and training, a dim label and a value a row.
+  const fields = animalFields({ readers, registry, strings }, id);
+  if (fields.length > 0) {
+    const pad = Math.max(...ANIMAL_FIELDS.map((f) => Array.from(strings.get(`ui.look.animal.field.${f}`)).length)) + 2;
+    for (const f of fields) {
+      const head = strings.get(`ui.look.animal.field.${f.name}`).padEnd(pad);
+      pen.spans([{ text: head, fg: t.dim }, ...f.value], f.tone === 'bad' ? t.bad : f.tone === 'alert' ? t.alert : t.text, pad);
+    }
+  }
   const skills = registry.table<{ id: string; name: string }>('skills');
   if (has(readers, '10')) {
     const dwarves = readers.of<DwarvesReaderLike>('10');
@@ -718,9 +728,10 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
       if (traits !== null) for (const text of hangingRows(traits, rect.cols - 2)) line(text);
       line(productivityText(readers, strings, id));
     }
-    if (has(readers, '15') && readers.entities.get(id, C.Creature)?.faction === 'fortress') {
+    // 15 gives moods to dwarves: a fortress animal has no mood line.
+    if (dwarf && has(readers, '15')) {
       const morale = readers.of<MoraleReader>('15');
-      line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${Math.round(morale.mood(id))})`, t.value);
+      line(strings.get('ui.look.mood', { tier: moodTierName(strings, morale.tier(id)), value: Math.round(morale.mood(id)) }), t.value);
       // Only a thought that moves the mood by a whole point or more: one that rounds to 0 is not listed.
       for (const thought of morale.thoughts(id)) if (Math.round(thought.value) !== 0) wrapped('  ', thoughtText(thought));
     }
@@ -749,36 +760,31 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
       };
       if (isPatient && !body.diagnosed) {
         const bleeding = body.parts.some((p) => p.wounds.some((w) => w.bleed > 0 && !w.bandaged));
-        line(`Health: ${bleeding ? 'Wounded, bleeding' : 'Wounded'}`, t.bad);
+        line(strings.get(bleeding ? 'ui.look.health.wounded_bleeding' : 'ui.look.health.wounded'), t.bad);
         careRows();
       } else {
         const bloodPct = body.maxBlood > 0 ? Math.floor((body.blood * 100) / body.maxBlood) : 100;
-        line(`Health: Blood ${bloodPct}%, Pain ${body.pain}`);
+        line(strings.get('ui.look.health.blood', { blood: bloodPct, pain: body.pain }));
         careRows();
-        line(`  ${body.conscious ? 'Conscious' : 'Unconscious'}`, body.conscious ? t.text : t.bad);
+        line(`  ${strings.get(body.conscious ? 'ui.look.health.conscious' : 'ui.look.health.unconscious')}`, body.conscious ? t.text : t.bad);
         // Each part by its body plan's name ("left foreleg", "left wing"); a slot the plan has no part for is not listed.
         const partNames = bodyPartNames(readers.entities, registry, id);
-        if (body.permanent.length > 0) line(`  Permanent: ${body.permanent.map((mark) => permanentText(mark, partNames)).join(', ')}`, t.dim);
+        if (body.permanent.length > 0) line(`  ${strings.get('ui.look.health.permanent', { list: body.permanent.map((mark) => permanentText(mark, partNames)).join(', ') })}`, t.dim);
         for (let pIdx = 0; pIdx < body.parts.length; pIdx += 1) {
           const part = body.parts[pIdx];
           if (!part) continue;
           const pName = partNames[pIdx];
           if (pName === null || pName === undefined) continue;
           if (part.destroyed) {
-            line(`  ${pName}: destroyed`, t.bad);
+            line(`  ${strings.get('ui.look.health.destroyed', { part: pName })}`, t.bad);
             continue;
           }
           const filled = barCells(part.hp, part.maxHp, HEALTH_PART_BAR_CELLS);
           // Wasting takes fractions of a hit point; the panel writes whole ones, as it writes the mood.
-          line(`  ${pName} ${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)} ${Math.round(part.hp)}/${Math.round(part.maxHp)} hp`);
+          const bar = `${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)}`;
+          line(`  ${strings.get('ui.look.health.part', { part: pName, bar, hp: Math.round(part.hp), max: Math.round(part.maxHp) })}`);
           for (const w of part.wounds) {
-            const flags: string[] = [];
-            if (w.bandaged) flags.push('bandaged');
-            if (w.splinted) flags.push('splinted');
-            if (w.dressed) flags.push('dressed');
-            if (w.sutured) flags.push('sutured');
-            if (w.cleaned) flags.push('cleaned');
-            if (w.infected) flags.push('infected');
+            const flags = WOUND_FLAGS.filter((flag) => w[flag]).map((flag) => strings.get(`ui.look.wound.${flag}`));
             const flagStr = flags.length > 0 ? ` (${flags.join(', ')})` : '';
             line(`    ${w.severity} ${w.type}${flagStr}`);
           }
@@ -1222,6 +1228,9 @@ export function itemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
   }
   return [...new Set(out)].sort((a, b) => a - b);
 }
+
+/** A wound's treatment flags in the order its line names them: `ui.look.wound.<flag>`. */
+const WOUND_FLAGS = ['bandaged', 'splinted', 'dressed', 'sutured', 'cleaned', 'infected'] as const;
 
 const QUALITY_WORDS = ['poor', 'common', 'fine', 'superior', 'exceptional', 'masterwork'];
 const FLAG_WORDS: [number, string][] = [

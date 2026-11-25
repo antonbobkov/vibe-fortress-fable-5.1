@@ -240,7 +240,8 @@ function groupWords(ctx: PanelContext, r: AnimalsReader, ids: readonly EntityId[
   return ids.length === 1 ? `1 ${def?.name ?? '?'}` : `${ids.length} ${speciesPlural(row)}`;
 }
 
-function trainStatus(ctx: PanelContext, id: EntityId, trained: string): string {
+/** The Trained column's words: "training" while a training job exists (also for retraining), else war, hunting or ''. */
+export function trainStatus(ctx: Pick<PanelContext, 'readers' | 'strings'>, id: EntityId, trained: string): string {
   if (ctx.readers.has('11')) {
     const job = ctx.readers.of<JobsReader>('11').byKey(trainKey(id));
     if (job !== undefined && job.state !== 'done' && job.state !== 'cancelled') return ctx.strings.get('ui.animals.training');

@@ -208,11 +208,7 @@ export const LITERAL_DIRS = ['src/ui/panels'];
  * Files of those directories the scan leaves out, each with why. A literal that is not text for
  * the player despite its look is listed in `LITERAL_ALLOWED` instead.
  */
-export const LITERAL_FILES_SKIPPED = new Map([
-  // The creature view's mood and health lines still draw literals; they move to the strings table
-  // with the follow-up of T-709 (docs/work), which then removes this line.
-  ['src/ui/panels/look.ts', 'the creature view: not yet moved'],
-]);
+export const LITERAL_FILES_SKIPPED = new Map([]);
 
 /** Literals that read as text but are not drawn for the player, by file: `file` → texts. */
 export const LITERAL_ALLOWED = new Map([
