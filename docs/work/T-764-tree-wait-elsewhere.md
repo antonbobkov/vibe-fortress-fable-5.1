@@ -24,4 +24,4 @@ Spec: `ui-screens/panels.md` § Orders (the not-built note).
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): an order for a carpenter's recipe, with a carpenter's workshop planned over two trees, shows the note with "2 trees to fell first"; after both fall, the note is the usual one.
+- [x] Tests (`describe` with the task id): an order for a carpenter's recipe, with a carpenter's workshop planned over two trees, shows the note with "2 trees to fell first"; after both fall, the note is the usual one. Test: `test/unit/ui/t764-orders-tree-wait.test.ts`.

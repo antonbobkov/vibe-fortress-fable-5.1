@@ -1351,6 +1351,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.pick.build_wait.needs': '· {workshop} not built: waiting {days} for a builder',
   'ui.orders.pick.build_wait.not_taken': '· {workshop} not built: waiting {days} for a builder',
   'ui.orders.pick.build_wait.blocked': '· {workshop} not built: waiting {days} ({why})',
+  'ui.orders.pick.build_wait.trees.one': '· {workshop} not built: a tree to fell first',
+  'ui.orders.pick.build_wait.trees.many': '· {workshop} not built: {n} trees to fell first',
   'ui.orders.no_recipes': 'No recipes here.',
   'ui.orders.no_selection': 'No order is selected: [n] adds one.',
   'ui.orders.nothing_to_repeat': 'There is no order to repeat yet.',
