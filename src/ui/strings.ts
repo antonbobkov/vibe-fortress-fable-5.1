@@ -245,6 +245,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.embark.keys.supplies': '[←][→] group  [↑][↓] select  [+][-] count  [0] none  [/] find  [l] loadouts',
   'ui.embark.keys.animals': '[↑][↓] select  [+][-] count  [0] none  [/] find',
   'ui.embark.hint': 'Hint: two picks and one axe are the minimum for a working start.',
+  // The log's first line on a site where a fortress ended (`ui-screens/menus-and-world.md` § A new embark on the same world).
+  'ui.embark.ruin_here': 'The ruins of {fortress} lie somewhere on this site.',
   'ui.embark.hint_beasts': 'Hint: boars, wolves and bears come in the first season. Bring iron spears; clubs lose to boars.',
   'ui.embark.unavailable': 'Not offered here: {condition}.',
   'ui.embark.over_budget': 'Over budget by {n} ☼',

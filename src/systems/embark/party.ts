@@ -18,8 +18,22 @@ import { makeDwarf, type DwarfRecord } from '@systems/dwarves/rules/make-dwarf';
 /** The embark party's stream (`02` § Party generation: "from the `embark.party` rng stream"). */
 export const PARTY_STREAM = 'embark.party';
 
-export function partyStream(worldSeed: string): RngStream {
-  return RngStream.forStream(worldSeed, PARTY_STREAM);
+/**
+ * What the world's earlier fortresses leave to the next embark's draw (`02` § Party generation,
+ * § Fortress name): how many have ended on it, and their names, which the default name is not.
+ */
+export interface EmbarkHistory {
+  readonly ended: number;
+  readonly names: readonly string[];
+}
+
+/**
+ * The party stream of an embark on a world on which `ended` fortresses have ended: `embark.party`
+ * for the first, `embark.party.<ended>` after, so each embark on a world draws its own party and
+ * name and the first is the world seed's as it always was.
+ */
+export function partyStream(worldSeed: string, ended = 0): RngStream {
+  return RngStream.forStream(worldSeed, ended > 0 ? `${PARTY_STREAM}.${ended}` : PARTY_STREAM);
 }
 
 export interface EmbarkEntryRow {
@@ -151,12 +165,19 @@ interface FortressNames {
 
 /**
  * The default fortress name: `prefix + suffix` ("Emberhall"); a prefix listed as needing a space
- * is written apart with the suffix capitalised ("Hollow Deep").
+ * is written apart with the suffix capitalised ("Hollow Deep"). A name one of the world's
+ * fortresses already bore (`used`, in any case) is drawn again, at most once per possible name.
  */
-export function defaultFortressName(rng: RngStream, registry: Registry): string {
+export function defaultFortressName(rng: RngStream, registry: Registry, used: readonly string[] = []): string {
   const names = registry.derived<FortressNames>('names');
-  const prefix = rng.pick(names.fortressPrefix);
-  const suffix = rng.pick(names.fortressSuffix);
-  if (names.needsSpace.includes(prefix)) return `${prefix} ${suffix.charAt(0).toUpperCase()}${suffix.slice(1)}`;
-  return `${prefix}${suffix}`;
+  const taken = new Set(used.map((name) => name.trim().toLowerCase()));
+  const draw = (): string => {
+    const prefix = rng.pick(names.fortressPrefix);
+    const suffix = rng.pick(names.fortressSuffix);
+    if (names.needsSpace.includes(prefix)) return `${prefix} ${suffix.charAt(0).toUpperCase()}${suffix.slice(1)}`;
+    return `${prefix}${suffix}`;
+  };
+  let name = draw();
+  for (let tries = names.fortressPrefix.length * names.fortressSuffix.length; tries > 0 && taken.has(name.toLowerCase()); tries--) name = draw();
+  return name;
 }
