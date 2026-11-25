@@ -23,7 +23,7 @@ const sx = cx + 6;
 const sy = cy + 6;
 
 /** T-575's gatehouse with the second line built, three armed soldiers and four civilians in the hearth hall (two of them join the squad); ambushes possible from day 0. */
-function gatehouse(seed: string): { w: TestWorld; state: FortressState; civilians: EntityId[] } {
+function gatehouse(seed: string, northWatch = true): { w: TestWorld; state: FortressState; civilians: EntityId[] } {
   const w = new TestWorld({ seed, registry: contentRegistry() });
   w.carve(w.index(sx, sy, Z), TileKind.StairsDown);
   for (let z = HALL_Z + 1; z < Z; z += 1) w.carve(w.index(sx, sy, z), TileKind.StairsUpDown);
@@ -67,13 +67,14 @@ function gatehouse(seed: string): { w: TestWorld; state: FortressState; civilian
     gateDoorId: south, gateDoorPlaced: true, gateDoorId2: north, gateDoorPlaced2: true, gateWallLostTick: 0,
     squadId, answered: '', lastDangerTick: -1, shutOut: false, eventsRead: 0, warnedUntil: -1, alertSince: -1, wildQuietUntil: -1,
   } as unknown as FortressState;
+  if (!northWatch) state.northWatch = false;
   for (const t of innerRingTiles(w, state)) w.carve(t, TileKind.Floor);
   checkFortressDefense(w, state);
   const system = w.game.world.scheduler.byId('14') as BuildingsSystem;
   for (const id of state.innerDoorIds ?? []) if (id !== 0 && w.readers.of<BuildingsReader>('14').get(id)?.state !== 'built') system.completeNow(id, 0, 0);
   checkFortressDefense(w, state);
   expect(innerLineBuilt(w, state)).toBe(true);
-  expect(state.watch?.length, 'a watch post outside each gate door').toBe(2);
+  expect(state.watch?.length, 'a watch post outside each gate door').toBe(northWatch ? 2 : 1);
   return { w, state, civilians };
 }
 
@@ -191,5 +192,29 @@ describe('T-653 the three-year script looks before an alert comes down', () => {
     expect(w.game.world.fortress.alert).toBe('calm');
     expect(w.map.designationAt(north), 'the tree on the post is to be felled').not.toBe(0);
     expect(combat.squad(state.watch![0]!.squadId)!.orders.some((o) => o.kind === 'station' && o.tile === north)).toBe(false);
+  });
+});
+
+describe('T-732 the look leaves a north door with no watch to the defence script', () => {
+  it('opens the south door and the second line for the look, never the north door, and leaves the mode it finds there', () => {
+    const { w, state } = gatehouse('t732-north', false);
+    const buildings = w.readers.of<BuildingsReader>('14');
+    const north = state.gateDoorId2;
+    expect(buildings.get(north)?.mode, 'the fortress script sets no mode on it').not.toBe('lock_on_alert');
+    // The defence script locks it on the alert (`checkDefenceRaid`).
+    expect(w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: north, mode: 'lock_on_alert' }).ok).toBe(true);
+    raidGone(w, state);
+    checkFortressDefense(w, state);
+    expect(state.looking).toBeDefined();
+    const modes = doorModes(w, state);
+    expect(modes[1], 'the north door stays locked on the alert').toBe('lock_on_alert');
+    expect([modes[0], ...modes.slice(2)].every((m) => m === 'open'), 'the south door and the second line open').toBe(true);
+    // A sally of the defence script opens it: the fortress script leaves it so through the look and after.
+    expect(w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: north, mode: 'open' }).ok).toBe(true);
+    play(w, state, LOOK_MAX_TICKS + 100, () => w.game.world.fortress.alert === 'calm');
+    expect(w.game.world.fortress.alert).toBe('calm');
+    checkFortressDefense(w, state);
+    expect(buildings.get(north)?.mode).toBe('open');
+    expect(buildings.get(state.gateDoorId)?.mode).toBe('lock_on_alert');
   });
 });

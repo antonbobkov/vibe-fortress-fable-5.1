@@ -131,6 +131,15 @@ const scenario: Scenario = {
     // and a timeline change in the economy script alone left it none.
     expect(hearthEpisodes.length).toBeGreaterThan(0);
     expect(hearthEpisodes.every((e) => e.locked), 'the gate locked under every hearth alert').toBe(true);
+    // T-732: the north door is the defence script's alone: it locks on the alert again only after a sally opened it.
+    let opened = false;
+    for (const n of state.notes) {
+      if (n.includes('north door opened to the squad')) opened = true;
+      else if (n.includes('north door locks on the alert again')) {
+        expect(opened, `${n}: no sally before it`).toBe(true);
+        opened = false;
+      }
+    }
     expect(jobsDone('rearm_trap'), 'a trap rearmed').toBeGreaterThan(0);
     // A trap jams on a roll (19: TRAP_JAM_PERMILLE times the corpses on it); a jammed trap is cleaned.
     if (w.events('TrapJammed').length > 0) expect(jobsDone('clean_trap'), 'a jammed trap cleaned').toBeGreaterThan(0);
