@@ -8,6 +8,7 @@ import { seasonName } from '../panels/calendar';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { button } from '../widgets';
+import { cutText, wrapHang } from '../widgets/label';
 
 export interface LegendRecord {
   readonly id: string;
@@ -34,28 +35,74 @@ export interface LegendRecord {
   readonly testing?: boolean;
 }
 
-export function legendLines(record: LegendRecord, strings: Strings): string[] {
+/** One line of the record, and where its continuation rows start when it wraps. */
+interface LegendLine {
+  readonly text: string;
+  /** The cells a continuation row is indented by. */
+  readonly hang: number;
+}
+
+/** The record's own indent: a milestone, a deed and a last word stand two cells in. */
+const INDENT = '  ';
+
+/**
+ * The cause in its lines: the date of the fall is a sentence of its own, and the rest (the last
+ * dwarf and how they died) starts the next line (`ui-screens/menus-and-world.md` § Legend).
+ */
+function causeLines(cause: string): string[] {
+  const end = /\.\s+(?=\S)/.exec(cause);
+  if (end === null) return [cause];
+  return [cause.slice(0, end.index + 1), cause.slice(end.index + end[0].length)];
+}
+
+/** A last word's continuation lines up after its `!!` or `!` mark. */
+function markHang(entry: string): number {
+  const mark = /^!+\s+/.exec(entry);
+  return INDENT.length + (mark === null ? INDENT.length : mark[0].length);
+}
+
+function legendEntries(record: LegendRecord, strings: Strings): LegendLine[] {
   const foundedSeason = SEASON_NAMES[Math.floor(record.foundedTick / (TICKS_PER_YEAR / SEASONS_PER_YEAR)) % SEASONS_PER_YEAR] ?? 'spring';
   const foundedYear = Math.floor(record.foundedTick / TICKS_PER_YEAR) + 1;
   const testing = record.testing === true;
+  const top = (text: string): LegendLine => ({ text, hang: INDENT.length });
   return [
-    testing ? strings.get('ui.legend.name_testing', { name: record.name }) : record.name,
-    ...(testing ? [strings.get('ui.legend.testing_note')] : []),
-    strings.get('ui.legend.founded', { season: seasonName(strings, foundedSeason), year: foundedYear, region: record.region, biome: record.biome, wealth: record.wealthRating, peril: record.perilRating }),
-    record.cause,
-    strings.get('ui.legend.stats', { years: record.yearsSurvived, days: record.daysSurvived, peak: record.peakPopulation, deepest: record.deepestLevel, wealth: record.finalWealth.toLocaleString('en-US') }),
-    strings.get(testing ? 'ui.legend.milestones_testing' : 'ui.legend.milestones'),
-    ...record.milestones.map((entry) => `  ${entry.date}  ${entry.text}`),
-    strings.get('ui.legend.notable'),
-    ...record.killsOfNote.map((entry) => `  ${entry}`),
-    strings.get('ui.legend.last_words'),
-    ...record.lastWords.map((entry) => `  ${entry}`),
+    top(testing ? strings.get('ui.legend.name_testing', { name: record.name }) : record.name),
+    ...(testing ? [top(strings.get('ui.legend.testing_note'))] : []),
+    top(strings.get('ui.legend.founded', { season: seasonName(strings, foundedSeason), year: foundedYear, region: record.region, biome: record.biome, wealth: record.wealthRating, peril: record.perilRating })),
+    ...causeLines(record.cause).map(top),
+    top(strings.get('ui.legend.stats', { years: record.yearsSurvived, days: record.daysSurvived, peak: record.peakPopulation, deepest: record.deepestLevel, wealth: record.finalWealth.toLocaleString('en-US') })),
+    top(strings.get(testing ? 'ui.legend.milestones_testing' : 'ui.legend.milestones')),
+    ...record.milestones.map((entry) => ({ text: `${INDENT}${entry.date}${INDENT}${entry.text}`, hang: INDENT.length * 2 + Array.from(entry.date).length })),
+    top(strings.get('ui.legend.notable')),
+    ...record.killsOfNote.map((entry) => ({ text: `${INDENT}${entry}`, hang: INDENT.length * 2 })),
+    top(strings.get('ui.legend.last_words')),
+    ...record.lastWords.map((entry) => ({ text: `${INDENT}${entry}`, hang: markHang(entry) })),
   ];
 }
 
+/** The record's lines, each whole: the cause's date sentence and its last dwarf on lines of their own. */
+export function legendLines(record: LegendRecord, strings: Strings): string[] {
+  return legendEntries(record, strings).map((line) => line.text);
+}
+
+/**
+ * The record's rows on a screen `width` cells wide: every line wraps at word boundaries, each
+ * continuation indented under its line's own text (a last word's after its mark, a milestone's after
+ * its date). The scroll counts these rows.
+ */
+export function legendRows(record: LegendRecord, strings: Strings, width: number): string[] {
+  return legendEntries(record, strings).flatMap((line) => wrapHang(line.text, width, line.hang));
+}
+
 /** The record's rows on a surface of `rows`: below the title, above the scroll line and the buttons. */
-function legendRows(rows: number): number {
+function pageRows(rows: number): number {
   return Math.max(0, rows - 5);
+}
+
+/** The width the record's rows wrap at: the surface less two cells each side. */
+function rowWidth(cols: number): number {
+  return Math.max(1, cols - 4);
 }
 
 export interface LegendHost {
@@ -97,12 +144,11 @@ export class LegendScreen implements Screen {
     if (this.detail) {
       const record = this.records[this.selected];
       if (record !== undefined) {
-        const lines = legendLines(record, strings);
-        const visible = legendRows(surface.rows);
+        const lines = legendRows(record, strings, rowWidth(surface.cols));
+        const visible = pageRows(surface.rows);
         this.scroll = Math.min(this.scroll, Math.max(0, lines.length - visible));
         for (let i = 0; i < visible && i + this.scroll < lines.length; i += 1) {
-          const line = lines[i + this.scroll] as string;
-          surface.text(2, 3 + i, Array.from(line).slice(0, Math.max(0, surface.cols - 4)).join(''), text);
+          surface.text(2, 3 + i, lines[i + this.scroll] as string, text);
         }
         if (lines.length > visible) surface.text(2, surface.rows - 2, strings.get('ui.legend.scroll', { at: this.scroll + 1, n: lines.length }), dim);
       }
@@ -111,8 +157,10 @@ export class LegendScreen implements Screen {
       for (let i = 0; i < this.records.length && i < surface.rows - 5; i += 1) {
         const record = this.records[i] as LegendRecord;
         const line = strings.get(record.testing === true ? 'ui.legend.row_testing' : 'ui.legend.row', { marker: i === this.selected ? '▶' : ' ', name: record.name, region: record.region, year: Math.floor(record.endedTick / TICKS_PER_YEAR) + 1 });
-        surface.text(2, i + 3, line, i === this.selected ? key : text);
-        surface.hit({ col: 2, row: i + 3, cols: Math.min(surface.cols - 4, Array.from(line).length), rows: 1 }, () => {
+        // A row too long for the screen keeps one row and ends in `»`.
+        const shown = cutText(line, rowWidth(surface.cols));
+        surface.text(2, i + 3, shown, i === this.selected ? key : text);
+        surface.hit({ col: 2, row: i + 3, cols: Array.from(shown).length, rows: 1 }, () => {
           this.selected = i;
           this.detail = true;
         });
@@ -137,7 +185,7 @@ export class LegendScreen implements Screen {
     }
     // T-720: a page at a time, and to either end, as the help and log panels do.
     if (this.detail && (press.key === 'PageUp' || press.key === 'PageDown')) {
-      const page = Math.max(1, legendRows(this.last?.rows ?? 0) - 1);
+      const page = Math.max(1, pageRows(this.last?.rows ?? 0) - 1);
       this.scrollBy(press.key === 'PageUp' ? -page : page);
       return true;
     }
@@ -150,11 +198,11 @@ export class LegendScreen implements Screen {
   pointerDown(p: CellPointer): void { clickHit(this.last, p); }
   wheel(w: CellWheel): void { if (this.detail) this.scrollBy(Math.sign(w.dy)); }
 
-  /** The record's last scroll offset: its last page starts there, so `↓` stops at the last line (T-720). */
+  /** The record's last scroll offset, in wrapped rows: its last page starts there, so `↓` stops at the last row (T-720). */
   maxScroll(): number {
     const record = this.records[this.selected];
     if (record === undefined || this.last === null) return 0;
-    return Math.max(0, legendLines(record, this.host.strings).length - legendRows(this.last.rows));
+    return Math.max(0, legendRows(record, this.host.strings, rowWidth(this.last.cols)).length - pageRows(this.last.rows));
   }
 
   private scrollBy(delta: number): void {

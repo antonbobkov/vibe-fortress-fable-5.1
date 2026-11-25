@@ -300,7 +300,9 @@ Strings: `ui.settings.title`, `ui.settings.title_keybindings`, `ui.settings.row.
 
 Strings: `ui.legend.*`: the list's title and rows (`ui.legend.row`, `ui.legend.row_testing`), `ui.legend.none`, the record's lines (`ui.legend.founded`, `ui.legend.stats`, `ui.legend.milestones`, `ui.legend.notable`, `ui.legend.last_words`, and `ui.legend.folded` for a folded last word, "{line} ({n} days)"), a testing fortress's mark and note, the scroll line and the two buttons.
 
-Keys: `↑` `↓` and the wheel scroll the record a line, `PageUp` `PageDown` a page less one line, `Home` `End` to its ends. The scroll stops at the last page, with the last line on the last row, so the scroll line ("↑↓ Scroll 43/62") never shows a number above its total.
+Every line of the record wraps at the screen's width, at word boundaries, so no word is cut at the edge. A continuation row is indented two cells under its line's own text: a last word's lines up after its `!!` or `!` mark, and a milestone's after its date. The cause's first sentence, the date of the fall, is a line of its own, and the last dwarf's sentence starts the next, as the picture shows. The Legends list keeps one row per fortress, cut with "»" when it is longer than the row.
+
+Keys: `↑` `↓` and the wheel scroll the record a row, `PageUp` `PageDown` a page less one row, `Home` `End` to its ends. The scroll counts wrapped rows and stops at the last page, with the last row on the page's last row, so the scroll line ("↑↓ Scroll 43/62") never shows a number above its total.
 
 ## A new embark on the same world
 
