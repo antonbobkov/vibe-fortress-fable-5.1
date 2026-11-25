@@ -26,6 +26,7 @@ import { creaturesAt } from './look';
 import { creatureWords } from '../announcements';
 import { listText, militaryNoSquad, wrapHang, wrapText, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
+import { cutOff, SHUT_NEEDS } from '../shut-in';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf } from './units';
 import type { MagicReader } from '@systems/magic';
@@ -671,6 +672,15 @@ export function drawMilitaryPanel(
   if (unsheltered > 0) {
     const hall = ctx.readers.has('14') && ctx.readers.of<BuildingsReader>('14').hearthHallTiles().length > 0;
     for (const line of wrapHang(ctx.strings.get(hall ? 'ui.military.no_shelter_reach' : 'ui.military.no_shelter_wagon', { n: unsheltered }), width, 2)) {
+      label(s, col, row, line, { fg: t.alert, width });
+      row += 1;
+    }
+  }
+  // 19 § Hearth alert retreat: the sheltering civilians the locked doors keep from their drink or food.
+  for (const need of currentAlert === 'hearth' ? SHUT_NEEDS : []) {
+    const n = cutOff(ctx.readers, need).length;
+    if (n === 0) continue;
+    for (const line of wrapHang(ctx.strings.get(`ui.military.cut_off.${need}`, { n }), width, 2)) {
       label(s, col, row, line, { fg: t.alert, width });
       row += 1;
     }
