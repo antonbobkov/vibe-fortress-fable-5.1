@@ -109,7 +109,7 @@ describe('T-M2-09 build tool', () => {
     // Place at a cell.
     game.pointerMove(cell(game, 12, 12));
     expect(game.fortress.statusRow2()).toMatch(/^Butcher's shop · click to place/);
-    // T-458: the status bar says what the builder will clear, and to chop a grown tree first.
+    // T-458: the status bar says what the builder will clear; T-756: and the trees the placement fells first.
     const terrain = game.host.headless.world.services.terrain;
     const under = game.fortress.lookTile() as number;
     const ground = map.materialAt(under);
@@ -117,7 +117,10 @@ describe('T-M2-09 build tool', () => {
     terrain.setKind(under, TileKind.Sapling, 1);
     expect(game.fortress.statusRow2()).toMatch(/^Butcher's shop · clears a sapling · click to place/);
     terrain.setKind(under, TileKind.Tree, 1);
-    expect(game.fortress.statusRow2()).toMatch(/blocked: needs the tree chopped first/);
+    expect(game.fortress.statusRow2()).toMatch(/^Butcher's shop · fells a tree first · click to place/);
+    terrain.setKind(under + 1, TileKind.Sapling, 1);
+    expect(game.fortress.statusRow2()).toMatch(/^Butcher's shop · clears a sapling, fells a tree first · click to place/);
+    terrain.setKind(under + 1, TileKind.Floor, ground);
     terrain.setKind(under, TileKind.Floor, ground);
     expect(map.flagsAt(under)).toBe(flags);
     game.pointerDown(cell(game, 12, 12));

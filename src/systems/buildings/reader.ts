@@ -78,10 +78,11 @@ export interface BuildingsReader {
   /** The wagon, or 0. */
   wagon(): EntityId;
   /**
-   * The build tool's ghost: footprint, failing tiles, the reason `PlaceBuilding` would give (or null), the `on` rule.
+   * The build tool's ghost: footprint, failing tiles, the plants the builder clears, the trees the
+   * placement fells first, the reason `PlaceBuilding` would give (or null), the `on` rule.
    * `planned` are tiles counted as planned floors (the tiles of a drag placed before this one).
    */
-  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number, planned?: ReadonlySet<TileIndex>): { tiles: TileIndex[]; bad: TileIndex[]; clears: TileIndex[]; reason: string | null; rule: string };
+  ghost(typeId: string, origin: TileIndex, orientation: number, width?: number, height?: number, planned?: ReadonlySet<TileIndex>): { tiles: TileIndex[]; bad: TileIndex[]; clears: TileIndex[]; fells: TileIndex[]; reason: string | null; rule: string };
   /** Every building type row (for the build menu). */
   types(): readonly BuildingRow[];
   /** The item types an input's `match` names (by id or tag; D-012). */

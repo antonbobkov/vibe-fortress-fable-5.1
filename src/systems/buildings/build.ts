@@ -37,7 +37,7 @@ import type { CoreServices, JobProducer, TickContext } from '@core/system';
 import { BODY_SLOTS, type EntityId, type Idx, type MovementClass, type TileIndex } from '@core/types';
 import { killCreature } from '@systems/health/tick';
 import { CLEAR_PLANT_TICKS } from '@systems/plants/constants';
-import { CONSTRUCTION_KIND, constructionFlags, isClearablePlant, onRuleHolds, onRuleOf, standsAt, supported, treeRefuses, type OnRule } from './constructions';
+import { CONSTRUCTION_KIND, constructionFlags, fellsTrees, isClearablePlant, onRuleHolds, onRuleOf, standsAt, supported, treeRefuses, type OnRule } from './constructions';
 import { BRIDGE_MAX, BRIDGE_CRUSH_DAMAGE, DOOR_MODES, HATCH_MODES, LINK_WORK_TICKS, MADE_UP_REST_PERCENT, STONE_WORKSHOP_TICKS_PERCENT, WAGON_CAPACITY, WELL_DEPTH } from './constants';
 import { ALERT_LOCK_GRACE_TICKS, ALERT_OUTSIDE_CLEAR_TICKS } from '@systems/defense/constants';
 
@@ -121,6 +121,8 @@ export interface BuildGhost {
   readonly bad: TileIndex[];
   /** The saplings and shrubs the builder will clear (14 § Placement). */
   readonly clears: TileIndex[];
+  /** The grown trees the placement marks for felling, which fall before the build (14 § Placement). */
+  readonly fells: TileIndex[];
   readonly reason: string | null;
   /** The failing rule; `chop_first` when a grown tree stands on a failing tile. */
   readonly rule: OnRule | 'chop_first';
@@ -585,14 +587,15 @@ export class BuildingStore {
     const held = this.plannedFloor(planned);
     const type = this.typeOf(typeId);
     const rule = onRuleOf(typeId);
-    if (type === 0 || !map.validIndex(origin)) return { tiles: [], bad: [], clears: [], reason: 'not_found', rule };
+    if (type === 0 || !map.validIndex(origin)) return { tiles: [], bad: [], clears: [], fells: [], reason: 'not_found', rule };
     const row = this.row(type);
     if (row.tags.includes('bridge') && (width !== undefined || height !== undefined) &&
       (!Number.isInteger(width) || !Number.isInteger(height) || (width ?? 0) < 1 || (height ?? 0) < 1 || (width ?? 0) > BRIDGE_MAX || (height ?? 0) > BRIDGE_MAX)) {
-      return { tiles: [], bad: [], clears: [], reason: 'out_of_range', rule };
+      return { tiles: [], bad: [], clears: [], fells: [], reason: 'out_of_range', rule };
     }
     const tiles = this.footprint(row, origin, orientation, width, height);
-    if (tiles === null) return { tiles: [], bad: [], clears: [], reason: 'out_of_bounds', rule };
+    if (tiles === null) return { tiles: [], bad: [], clears: [], fells: [], reason: 'out_of_bounds', rule };
+    const trees = fellsTrees(row.category);
     const bad: TileIndex[] = [];
     let reason: string | null = null;
     const note = (r: string): void => {
@@ -605,7 +608,7 @@ export class BuildingStore {
       } else if (map.buildingAtTile(t) !== 0) {
         bad.push(t);
         note('footprint_blocked');
-      } else if (!onRuleHolds(map, rule, t, this.soilMaterial, held)) {
+      } else if (!onRuleHolds(map, rule, t, this.soilMaterial, held, trees)) {
         bad.push(t);
         note('bad_placement');
       }
@@ -614,7 +617,8 @@ export class BuildingStore {
     if (reason === null && row.tags.includes('hearth') && this.hearthId !== 0 && this.host.entities.alive(this.hearthId)) reason = 'hearth_exists';
     if (reason === null && row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) reason = 'bad_placement';
     const clears = tiles.filter((t) => isClearablePlant(map.kindAt(t)));
-    return { tiles, bad, clears, reason, rule: bad.some((t) => treeRefuses(map, rule, t)) ? 'chop_first' : rule };
+    const fells = trees ? tiles.filter((t) => map.kindAt(t) === TileKind.Tree) : [];
+    return { tiles, bad, clears, fells, reason, rule: !trees && bad.some((t) => treeRefuses(map, rule, t)) ? 'chop_first' : rule };
   }
 
   /** `PlaceBuilding { buildingType, origin, orientation, materialChoice, priority }`; the new id through `placed`. */
@@ -660,7 +664,8 @@ export class BuildingStore {
     for (const t of tiles) if (map.buildingAtTile(t) !== 0) return reject('footprint_blocked');
     const rule = onRuleOf(row.id);
     const held = this.plannedFloor();
-    for (const t of tiles) if (!onRuleHolds(map, rule, t, this.soilMaterial, held)) return reject('bad_placement');
+    const trees = fellsTrees(row.category);
+    for (const t of tiles) if (!onRuleHolds(map, rule, t, this.soilMaterial, held, trees)) return reject('bad_placement');
     if (row.tags.includes('bridge') && !this.bridgeHinge(tiles, orientation)) return reject('bad_placement');
     if (row.tags.includes('magma') && !this.magmaPoweredAt(tiles)) return reject('bad_placement');
     if (!this.magmaSafe(tiles, material)) return reject('not_magma_safe');
@@ -682,11 +687,42 @@ export class BuildingStore {
       toggled: false,
     });
     for (const t of tiles) map.setBuildingAt(t, id);
+    if (trees) this.markFelling(id, tiles, priority);
     if (row.tags.includes('hearth')) this.hearthId = id;
     this.addPending(id);
     placed?.(id);
     this.host.emit({ type: 'BuildingPlaced', id, buildingType: row.id, tiles: tiles.slice() });
     return OK;
+  }
+
+  /**
+   * 14 § Placement step 1: each grown tree on the footprint is marked for felling (`chop`) at the
+   * build's priority, unless the tile already has a designation. The tiles marked here are kept
+   * (`settings.felling`), so that cancelling the building takes back only these marks.
+   */
+  private markFelling(id: EntityId, tiles: readonly TileIndex[], priority: number): void {
+    const felling: TileIndex[] = [];
+    for (const t of tiles) {
+      if (this.map.kindAt(t) !== TileKind.Tree || this.map.designationAt(t) !== Designation.None) continue;
+      this.host.services.terrain.setDesignation(t, Designation.Chop, priority);
+      felling.push(t);
+    }
+    if (felling.length === 0) return;
+    const b = this.get(id) as Building;
+    this.write(id, { settings: { ...b.settings, felling } });
+  }
+
+  /** A building not yet built takes back the `chop` marks its placement made on trees still standing. */
+  private unmarkFelling(b: Building): void {
+    if (b.state === 'built' || b.state === 'ruined') return;
+    for (const t of (b.settings['felling'] as TileIndex[] | undefined) ?? []) {
+      if (this.map.kindAt(t) === TileKind.Tree && this.map.designationAt(t) === Designation.Chop) this.host.services.terrain.clearDesignation?.(t);
+    }
+  }
+
+  /** 14 § Placement step 4: the build job is not offered while a grown tree stands on the footprint. */
+  treesStanding(b: Building): number {
+    return b.footprint.filter((t) => this.map.kindAt(t) === TileKind.Tree).length;
   }
 
   /** `CancelBuilding { buildingId }`: "planned or constructing". */
@@ -759,6 +795,7 @@ export class BuildingStore {
       if (job !== 0) jobs.cancel(job, 'target_invalid');
     }
     for (const t of b.footprint) if (this.map.buildingAtTile(t) === id) this.map.setBuildingAt(t, 0);
+    this.unmarkFelling(b);
     const value = b.state === 'built' ? this.valueOf(b) : 0;
     // A linked furniture item returns to the ground (14 § Placement); a building's own container
     // (the wagon) leaves its contents where it stood.
@@ -839,7 +876,7 @@ export class BuildingStore {
       const material = (b.settings['materialChoice'] as number | undefined) ?? 0;
       if (b.state === 'planned' || b.state === 'constructing') {
         if (jobs.exists(buildKey(id))) continue;
-        if (this.awaitsSupport(b, row)) { waiting.push(id); continue; }
+        if (this.awaitsSupport(b, row) || this.treesStanding(b) > 0) { waiting.push(id); continue; }
         const inputs = this.inputsFor(row, b.footprint.length, material, isOfBlocks(b));
         const plants = b.footprint.filter((t) => isClearablePlant(this.map.kindAt(t))).length;
         jobs.create(buildKey(id), {
@@ -870,7 +907,7 @@ export class BuildingStore {
         });
       }
     }
-    // A span's unheld floors wait in the list and are looked at again each tick, until a neighbour holds them.
+    // A span's unheld floors, and a site whose trees still stand, wait in the list and are looked at again each tick.
     for (const id of waiting) this.addPending(id);
   }
 
