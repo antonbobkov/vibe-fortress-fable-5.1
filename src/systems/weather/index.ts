@@ -39,6 +39,7 @@ import type { WeatherStateV1 } from './state';
 import {
   constrain,
   daylightWindow,
+  followTemperature,
   growthModifier,
   isDaylightAt,
   isWeatherState,
@@ -186,6 +187,7 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
   // ---------- the hourly tick ----------
 
   override tick(ctx: TickContext): void {
+    const from = this.state;
     if (!this.started) {
       this.started = true;
       this.stateEndsTick = ctx.tick + this.rollHours(this.state) * TICKS_PER_HOUR;
@@ -193,6 +195,8 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
       this.transition(ctx);
     }
     this.refresh();
+    if (this.forced === null) this.followTemperature();
+    if (from !== this.state) ctx.emit({ type: 'WeatherChanged', from, to: this.state });
     const raining = this.state === 'rain' || this.state === 'storm';
     this.rainHours = raining ? this.rainHours + 1 : 0;
     const changed = new Set<ChunkIndex>();
@@ -209,7 +213,7 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
     if (changed.size > 0) ctx.emit({ type: 'SnowCoverChanged', chunks: Array.from(changed).sort((a, b) => a - b) });
   }
 
-  /** `algorithms/environment.md` `transition()`. */
+  /** `algorithms/environment.md` `transition()`: the draw; the tick emits `WeatherChanged`. */
   private transition(ctx: TickContext): void {
     const rng = this.rng as RngStream;
     const season = this.seasonNow();
@@ -218,10 +222,19 @@ export class WeatherSystem extends BaseSystem<WeatherStateV1> {
     const k = weightedIndex(weights, (total) => rng.int(0, total - 1));
     const drawn = k < 0 ? INITIAL_WEATHER : (WEATHER_STATES[k] as WeatherStateId);
     const next = constrain(drawn, this.surfaceTempCached, this.climate);
-    const from = this.state;
     this.state = next;
     this.stateEndsTick = ctx.tick + this.rollHours(next) * TICKS_PER_HOUR;
-    if (from !== next) ctx.emit({ type: 'WeatherChanged', from, to: next });
+  }
+
+  /**
+   * `06` § Weather transitions, the hourly rule: after the hour's temperature, snow above `SNOW_C`
+   * turns to rain and rain or storm at or below it to snow, keeping `stateEndsTick` (no draw).
+   */
+  private followTemperature(): void {
+    const next = followTemperature(this.state, this.surfaceTempCached, this.climate);
+    if (next === this.state) return;
+    this.state = next;
+    this.refresh();
   }
 
   private rollHours(state: string): number {

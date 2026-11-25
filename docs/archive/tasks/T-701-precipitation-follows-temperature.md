@@ -1,6 +1,8 @@
 # T-701 — Snow falls at 11 °C and rain at −2 °C
 
-**Source:** playtest 2026-11-24 ([report](../../reports/data/2026-11-24-playtest.md), finding 3) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in 6d6da63e,cfc441a4.
+
+**Source:** playtest 2026-11-24 ([report](../../../reports/data/2026-11-24-playtest.md), finding 3) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

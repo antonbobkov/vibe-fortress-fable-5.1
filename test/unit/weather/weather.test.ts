@@ -7,6 +7,7 @@ import * as K from '@systems/weather/constants';
 import {
   allowed,
   constrain,
+  followTemperature,
   growthModifier,
   isDaylightAt,
   seasonBase,
@@ -260,5 +261,108 @@ describe('T-M3-06 weather: the system', () => {
     w.forceWeather(null);
     w.step(TICKS_PER_HOUR);
     expect(system.serialize().forced).toBeNull();
+  });
+});
+
+describe('T-701 precipitation follows the temperature every hour', () => {
+  const registry = contentRegistry();
+  const winter = 3 * DAYS_PER_SEASON * TICKS_PER_DAY;
+
+  it('the rule: snow above SNOW_C is rain, rain or storm at or below it is snow unless snow would be above it, frostmarrow always snow', () => {
+    expect(followTemperature('snow', 0, grassland)).toBe('snow');
+    expect(followTemperature('snow', 1, grassland)).toBe('rain');
+    expect(followTemperature('snow', 11, grassland)).toBe('rain');
+    expect(followTemperature('rain', 1, grassland)).toBe('rain');
+    expect(followTemperature('rain', -1, grassland)).toBe('snow');
+    expect(followTemperature('rain', -2, grassland)).toBe('snow');
+    expect(followTemperature('storm', -2, grassland)).toBe('snow');
+    // Freezing rain: snow's weatherDelta (−2) is warmer than rain's (−3) and storm's (−4), so the
+    // same hour under snow would be above SNOW_C; the rain keeps falling rather than flip back.
+    expect(followTemperature('rain', 0, grassland)).toBe('rain');
+    expect(followTemperature('storm', -1, grassland)).toBe('storm');
+    expect(followTemperature('storm', 0, grassland)).toBe('storm');
+    for (const s of ['clear', 'overcast', 'fog', 'heatwave', 'cold_snap'] as const) {
+      expect(followTemperature(s, -10, grassland)).toBe(s);
+      expect(followTemperature(s, 10, grassland)).toBe(s);
+    }
+    const frost = at({ traits: ['frostmarrow'] });
+    expect(followTemperature('rain', 20, frost)).toBe('snow');
+    expect(followTemperature('storm', 20, frost)).toBe('snow');
+    expect(followTemperature('snow', 20, frost)).toBe('snow');
+    // A state the rule gives never flips again at the temperature it brings (no hourly ping-pong).
+    for (let base = -10; base <= 10; base += 1) {
+      for (const s of ['snow', 'rain', 'storm'] as const) {
+        const next = followTemperature(s, base + K.WEATHER_DELTA_C[s], grassland);
+        expect(followTemperature(next, base + K.WEATHER_DELTA_C[next], grassland)).toBe(next);
+      }
+    }
+  });
+
+  it('a spell that crosses 0 °C turns snow to rain and back at the weather tick, keeps its end tick, and lays no cover while it rains', () => {
+    const w = new TestWorld({ seed: 'we-unit', world: 'local', spec: regionSpec('we-unit', { temper: 0, traits: [] }, registry), startTick: winter });
+    const weather = w.weather;
+    const reader = w.readers.of<WeatherReader>('06');
+    w.step(TICKS_PER_HOUR);
+    weather.state = 'snow';
+    const ends = w.tick + 3 * TICKS_PER_DAY;
+    weather.stateEndsTick = ends;
+    const kinds = new Set<string>();
+    let changes = 0;
+    for (let h = 0; h < 48; h += 1) {
+      const before = w.events('WeatherChanged').length;
+      const cover = reader.snowCoveredChunks().length;
+      w.step(TICKS_PER_HOUR);
+      const state = reader.state();
+      const t = reader.surfaceTempC();
+      kinds.add(state);
+      expect(weather.stateEndsTick).toBe(ends);
+      if (state === 'snow') expect(t).toBeLessThanOrEqual(K.SNOW_C);
+      if (state === 'rain') {
+        expect(t - K.WEATHER_DELTA_C.rain + K.WEATHER_DELTA_C.snow).toBeGreaterThan(K.SNOW_C);
+        expect(reader.snowCoveredChunks().length).toBeLessThanOrEqual(cover);
+      }
+      const emitted = w.events('WeatherChanged').slice(before);
+      changes += emitted.length;
+      expect(emitted.length).toBeLessThanOrEqual(1);
+    }
+    expect(kinds).toEqual(new Set(['snow', 'rain']));
+    expect(changes).toBeGreaterThanOrEqual(2);
+    const toSnow = w.events('WeatherChanged').filter((e) => e['to'] === 'snow');
+    const toRain = w.events('WeatherChanged').filter((e) => e['to'] === 'rain');
+    expect(toSnow.every((e) => e['from'] === 'rain')).toBe(true);
+    expect(toRain.every((e) => e['from'] === 'snow')).toBe(true);
+  });
+
+  it('snow does not fall above SNOW_C: a warm spring snow is rain at the next weather tick', () => {
+    const w = new TestWorld({ seed: 'we-unit', world: 'local', spec: regionSpec('we-unit', { temper: 0, traits: [] }, registry), startTick: 14 * TICKS_PER_HOUR });
+    const reader = w.readers.of<WeatherReader>('06');
+    w.step(TICKS_PER_HOUR);
+    expect(reader.surfaceTempC()).toBeGreaterThan(K.SNOW_C + 2);
+    const cover = reader.snowCoveredChunks().length;
+    w.weather.state = 'snow';
+    w.weather.stateEndsTick = w.tick + 10 * TICKS_PER_HOUR;
+    w.step(TICKS_PER_HOUR);
+    expect(reader.state()).toBe('rain');
+    expect(reader.snowCoveredChunks().length).toBeLessThanOrEqual(cover);
+    expect(w.events('WeatherChanged').at(-1)).toMatchObject({ from: 'snow', to: 'rain' });
+  });
+
+  it('frostmarrow: a rain is snow at the next weather tick, whatever the temperature', () => {
+    const w = new TestWorld({ seed: 'we-unit', world: 'local', spec: regionSpec('we-unit', { temper: 0, traits: ['frostmarrow'] }, registry), startTick: DAYS_PER_SEASON * TICKS_PER_DAY + 14 * TICKS_PER_HOUR });
+    const reader = w.readers.of<WeatherReader>('06');
+    w.step(TICKS_PER_HOUR);
+    w.weather.state = 'storm';
+    const ends = w.tick + 10 * TICKS_PER_HOUR;
+    w.weather.stateEndsTick = ends;
+    w.step(TICKS_PER_HOUR);
+    expect(reader.state()).toBe('snow');
+    expect(w.weather.stateEndsTick).toBe(ends);
+  });
+
+  it('a forced state is held: forceWeather snow stays snow on a warm day', () => {
+    const w = new TestWorld({ seed: 'we-unit', world: 'local', spec: regionSpec('we-unit', { temper: 0, traits: [] }, registry), startTick: 14 * TICKS_PER_HOUR });
+    w.forceWeather('snow');
+    w.step(3 * TICKS_PER_HOUR);
+    expect(w.readers.of<WeatherReader>('06').state()).toBe('snow');
   });
 });

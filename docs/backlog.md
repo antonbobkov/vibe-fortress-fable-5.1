@@ -11,8 +11,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-701 | [Snow falls at 11 °C and rain at −2 °C](work/T-701-precipitation-follows-temperature.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-710 | [An animal's view lacks the animal sections the inspector list names](work/T-710-animal-view-sections.md) | [T-707](archive/tasks/T-707-creature-view-pasture-action.md) | — | open |
 | T-711 | [The creature view, the screens and the UI's shared modules still write text in code](work/T-711-ui-texts-outside-panels.md) | [T-709](archive/tasks/T-709-panel-texts-in-strings.md) | — | open |
+| T-712 | [A wild grazer eats grass that snow fell on while it walked there](work/T-712-wild-grazer-eats-snowed-grass.md) | [T-701](archive/tasks/T-701-precipitation-follows-temperature.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

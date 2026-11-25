@@ -150,6 +150,24 @@ export function constrain(next: WeatherStateId, surfaceC: number, climate: Clima
   return next;
 }
 
+/**
+ * `06` § Weather transitions, the hourly rule: precipitation follows the hour's temperature.
+ * `surfaceC` is this hour's surface temperature under `state`. `snow` above `SNOW_C` becomes
+ * `rain`; `rain` or `storm` at or below it becomes `snow` when the hour under `snow` (whose
+ * `weatherDelta` is warmer) is at or below it too, else it stays: rain at 0 °C, a storm at −1 or
+ * 0 °C (freezing rain). So a state never flips back the same hour. `frostmarrow`: always snow.
+ */
+export function followTemperature(state: WeatherStateId, surfaceC: number, climate: Climate): WeatherStateId {
+  const frost = climate.traits.includes('frostmarrow');
+  if (state === 'snow') return frost || surfaceC <= SNOW_C ? 'snow' : 'rain';
+  if (state === 'rain' || state === 'storm') {
+    if (frost) return 'snow';
+    const asSnow = surfaceC - WEATHER_DELTA_C[state] + WEATHER_DELTA_C.snow;
+    return surfaceC <= SNOW_C && asSnow <= SNOW_C ? 'snow' : state;
+  }
+  return state;
+}
+
 /** Draw an index from integer weights with `int(0, total − 1)`; -1 when every weight is 0. */
 export function weightedIndex(weights: readonly number[], draw: (total: number) => number): number {
   let total = 0;

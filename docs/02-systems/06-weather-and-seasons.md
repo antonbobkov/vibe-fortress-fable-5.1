@@ -52,6 +52,14 @@ Each weather state has a duration rolled from its range in the content table (`4
 - `thunderhead` doubles the probability mass of `storm` in every row and renormalizes.
 - `serene_vale` removes `storm`, `heatwave` and `cold_snap`.
 
+Precipitation then follows the temperature every hour, for the whole of the state's duration. Each weather tick, after the hour's temperature is computed under the current state:
+
+- `snow` with `surfaceTempC > SNOW_C` becomes `rain`.
+- `rain` or `storm` with `surfaceTempC ≤ SNOW_C` becomes `snow`, if the hour's temperature under `snow` is at or below `SNOW_C` too; otherwise it keeps falling as it is. Snow's `weatherDelta` is warmer than rain's and storm's, so at the boundary a rain reads 0 °C, or a storm −1 or 0 °C, rather than turning to a snow that would read above `SNOW_C` and turn back: freezing rain.
+- Under `frostmarrow`, `rain` and `storm` are always `snow`.
+
+The change keeps `stateEndsTick` and draws nothing, so the transition rows and the durations are unchanged; the temperature is recomputed under the new state, and `WeatherChanged { from, to }` is emitted as for a drawn change (announced when it turns to `snow`). So snow never falls, and never lays cover, above `SNOW_C`, and rain never falls more than a degree below it. A state forced for a test is held as it is.
+
 ### Effects of each state
 
 | State | Effects |
