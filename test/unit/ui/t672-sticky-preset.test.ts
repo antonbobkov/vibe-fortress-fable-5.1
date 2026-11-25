@@ -95,11 +95,11 @@ describe('T-672: abandon the fortress for a new embark on the same world', () =>
     g.openGameMenu();
     const menu = g.topScreen as GameMenuScreen;
     expect(menu.items().find((item) => item.id === 'abandon')?.enabled).toBe(true);
-    g.handleKey(press('a'));
+    g.handleKey(press('A', { shift: true }));
     expect(g.screen).toBe('confirm');
     g.handleKey(press('Enter'));
     expect(g.screen).toBe('game_menu');
-    g.handleKey(press('a'));
+    g.handleKey(press('A', { shift: true }));
     g.handleKey(press('y'));
     await vi.waitFor(() => expect(g.screen).toBe('world_map'));
 

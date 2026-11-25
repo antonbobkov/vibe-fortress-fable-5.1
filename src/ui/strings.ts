@@ -1070,6 +1070,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.animals.detail.with': 'with {name}',
   'ui.animals.detail.slaughter': 'marked for slaughter',
   'ui.help.animals.train': 'Training: choose War or Hunting with arrows, Enter or click; Esc cancels.',
+  'ui.help.game_menu.letters': 'A panel letter closes the menu and opens its panel; every row but Resume takes its letter with Shift.',
   'ui.help.game_menu.rename': 'The name is typed in a field: Enter accepts it, Esc cancels.',
   'ui.animals.cap': 'Breeding cap:',
   'ui.animals.cap_set': 'Set',
