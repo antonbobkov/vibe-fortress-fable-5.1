@@ -7,7 +7,7 @@ import type { Rect } from '@render/cellbuffer';
 import { C } from '@core/components';
 import type { AnimalsReader } from '@systems/animals';
 import { NEAR_DWARF_RADIUS } from '@systems/animals/constants';
-import type { ThreatsReader } from '@systems/threats';
+import type { SchedulePreview, ThreatsReader } from '@systems/threats';
 import type { TerrainReader } from '@systems/terrain';
 import type { Surface } from '../surface';
 import { label, separator, wrapHang, wrapLabel } from '../widgets';
@@ -28,16 +28,11 @@ export function deepQuote(level: number, strings: Strings = new Strings()): stri
 /** The highest level with a line of its own. */
 const DEEP_QUOTE_LAST = 5;
 
-/**
- * A schedule preview's value as the panel writes it, shorter than the reader's: "possible from
- * Autumn, Year 2" reads "from Autumn, Y2".
- */
-function shortSchedule(strings: Strings, value: string | undefined): string {
+/** A schedule preview's season and year as the panel writes it: "from Autumn, Y2". */
+function shortSchedule(strings: Strings, value: SchedulePreview | null | undefined): string {
   if (value === undefined) return strings.get('ui.threats.schedule_unknown');
-  if (value === 'never') return strings.get('ui.threats.schedule_never');
-  const at = /(\w+), \w+ (\d+)$/.exec(value);
-  if (at === null) return value;
-  return strings.get('ui.threats.schedule_from', { season: seasonName(strings, (at[1] as string).toLowerCase()), year: at[2] as string });
+  if (value === null) return strings.get('ui.threats.schedule_never');
+  return strings.get('ui.threats.schedule_from', { season: seasonName(strings, value.season), year: value.year });
 }
 
 /** The dangerous species on the map: its name, how many, and whether one is within NEAR_DWARF_RADIUS of a dwarf. */
@@ -187,11 +182,11 @@ export function drawThreatsPanel(
 
   // Schedule preview
   const preview = threats ? threats.schedulePreview() : {};
-  if (preview['raid'] !== undefined && preview['raid'] !== 'never') {
+  if (preview['raid'] !== undefined && preview['raid'] !== null) {
     label(s, col, row, ctx.strings.get('ui.threats.raids', { when: shortSchedule(ctx.strings, preview['raid']) }), { width });
     row += 1;
   }
-  if (preview['ambush'] !== undefined && preview['ambush'] !== 'never') {
+  if (preview['ambush'] !== undefined && preview['ambush'] !== null) {
     label(s, col, row, ctx.strings.get('ui.threats.ambushes', { when: shortSchedule(ctx.strings, preview['ambush']) }), { width });
     row += 1;
   }

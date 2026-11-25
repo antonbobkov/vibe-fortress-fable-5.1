@@ -2,7 +2,9 @@
  * Threats reader implementation: `02-systems/18-threats-monsters-and-raids.md` § Reader.
  */
 
+import { SEASON_NAMES } from '@core/calendar';
 import { C, type Party } from '@core/components';
+import { DAYS_PER_SEASON, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import type { EntityStore } from '@core/entities';
 import type { EntityId } from '@core/types';
 import type { ThreatScheduleEntry } from './schedule';
@@ -17,6 +19,12 @@ export interface ComingParty {
   readonly sizeBand: string;
   readonly edge: 'n' | 'e' | 's' | 'w';
   readonly arrivalTick: number;
+}
+
+/** When a threat kind is first possible: a season and a year (1 is the first), never the exact tick. */
+export interface SchedulePreview {
+  readonly season: (typeof SEASON_NAMES)[number];
+  readonly year: number;
 }
 
 /** The warning's size band of a party of `size` (18 § Arrival and warning). */
@@ -34,7 +42,8 @@ export interface ThreatsReader {
   isStealthed(id: EntityId): boolean;
   isSpotted(id: EntityId): boolean;
   renown(): number;
-  schedulePreview(): Readonly<Record<string, string>>;
+  /** Per kind, the season and year it is first possible in, or `null` for a kind that never comes; never the exact next date. */
+  schedulePreview(): Readonly<Record<string, SchedulePreview | null>>;
   deepPressure(): number;
   deepLevel(): number;
   deepNextThreshold(): number;
@@ -78,16 +87,15 @@ export function makeThreatsReader(
     isSpotted: (id: EntityId) => entities.get(id, C.Hostile)?.spotted === true,
     renown: getRenown,
     schedulePreview: () => {
-      const preview: Record<string, string> = {};
+      const preview: Record<string, SchedulePreview | null> = {};
       for (const [kind, entry] of getSchedule()) {
         if (entry.earliestTick < 0) {
-          preview[kind] = 'never';
+          preview[kind] = null;
         } else {
-          const dayIndex = Math.floor(entry.earliestTick / 1200);
-          const year = Math.floor(dayIndex / 112) + 1;
-          const seasonIdx = Math.floor((dayIndex % 112) / 28);
-          const seasonName = ['Spring', 'Summer', 'Autumn', 'Winter'][seasonIdx] ?? 'Spring';
-          preview[kind] = `possible from ${seasonName}, Year ${year}`;
+          const dayIndex = Math.floor(entry.earliestTick / TICKS_PER_DAY);
+          const year = Math.floor(dayIndex / DAYS_PER_YEAR) + 1;
+          const season = SEASON_NAMES[Math.floor((dayIndex % DAYS_PER_YEAR) / DAYS_PER_SEASON)] ?? 'spring';
+          preview[kind] = { season, year };
         }
       }
       return preview;
