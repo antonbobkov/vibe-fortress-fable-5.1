@@ -612,7 +612,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Announcements
 
-`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines are one (`announce.starving_many`), and the alert before food rots is `announce.rot_soon` (24 § Announcements and the log). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations).
+`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines are one (`announce.starving_many`), and so are a day's falls to Miserable (`announce.mood_tier_many`, 15 § Registrations); the alert before food rots is `announce.rot_soon` (24 § Announcements and the log). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations).
 
 ### Announcement strings
 
