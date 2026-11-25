@@ -1,6 +1,8 @@
 # T-750 — A raided fortress is told it is "not yet wealthy enough", with no figure
 
-**Source:** playtest 2026-11-25 (peril 4) ([report](../../reports/data/2026-11-25-playtest-4.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in d591e42d,3fcb49e3.
+
+**Source:** playtest 2026-11-25 (peril 4) ([report](../../../reports/data/2026-11-25-playtest-4.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

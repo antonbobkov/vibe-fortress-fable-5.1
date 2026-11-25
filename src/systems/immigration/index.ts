@@ -24,7 +24,7 @@ import { findEdgeTiles } from '@systems/threats/parties';
 import { ARRIVAL_SPREAD } from '@systems/threats/constants';
 import { AMMO_FETCH } from '@systems/foraging/constants';
 import { ARRIVAL_INTERVAL_TICKS, IMMIGRATION_PERMILLE, IMMIGRATION_SPIRIT_MIN, POPULATION_CAP_MAX, POPULATION_CAP_MIN, REP_PERMILLE_PER_POINT, TOOL_STOCK_MIN, WEALTH_PER_WAVE } from './constants';
-import type { ImmigrationReader } from './reader';
+import type { ImmigrationReader, WealthBar } from './reader';
 import type { ImmigrationStateV1, PendingWave, PlannedImmigrant } from './state';
 import { coverage, guaranteedSize, planWave, seasonRoll, waveSize } from './waves';
 
@@ -46,6 +46,8 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
   private deferredSeason = -1;
   private deferredYear = 0;
   private lastSkip: string | null = null;
+  /** The wealth and the bar at the last skip, when it was for wealth (§ Player-facing behavior). */
+  private lastSkipWealthState: WealthBar | null = null;
   private pending: PendingWave | null = null;
   private raidOngoing = false;
   private readerRef!: ImmigrationReader;
@@ -61,6 +63,16 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
       eligibility: () => this.eligibility(ctx, seasonOf(ctx.world.calendar.tick), yearOf(ctx.world.calendar.tick)),
       nextEvaluation: () => SEASON_NAMES[(seasonOf(ctx.world.calendar.tick) + 1) % SEASON_NAMES.length] ?? 'spring',
       lastSkipReason: () => this.lastSkip,
+      wealthBar: () => {
+        // The evaluation to come: a deferred one, or the next season's. Year 1's guaranteed waves ask no wealth.
+        const tick = ctx.world.calendar.tick;
+        const deferred = this.deferredUntilTick > 0;
+        const season = deferred ? this.deferredSeason : (seasonOf(tick) + 1) % SEASON_NAMES.length;
+        const year = deferred ? this.deferredYear : yearOf(tick) + (season === 0 ? 1 : 0);
+        const bar = this.wealthBar(ctx);
+        return year === 1 && ((season === 1 && !this.guaranteedDone[0]) || (season === 2 && !this.guaranteedDone[1])) ? { ...bar, need: 0 } : bar;
+      },
+      lastSkipWealth: () => this.lastSkipWealthState && { ...this.lastSkipWealthState },
     };
     ctx.register.announcement('ImmigrantsArrived', { severity: 'alert', stringKey: 'announce.immigrants_arrived' });
     ctx.register.announcement('ImmigrationSkipped', { severity: 'note', stringKey: 'announce.immigration_skipped' });
@@ -87,7 +99,8 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     if (guaranteed) return { eligible: true, reasons: [] };
     const reasons: string[] = [];
     if (ctx.readers.of<MoraleReader>('15').hallSpirit() < IMMIGRATION_SPIRIT_MIN) reasons.push('spirit');
-    if (ctx.readers.of<ItemsReader>('13').wealth() < WEALTH_PER_WAVE * this.wavesSoFarState) reasons.push('wealth');
+    const bar = this.wealthBar(ctx);
+    if (bar.wealth < bar.need) reasons.push('wealth');
     if (season === 3 && (this.spec?.temper ?? 0) >= 2) reasons.push('winter');
     return { eligible: reasons.length === 0, reasons };
   }
@@ -134,8 +147,21 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     this.startWave(ctx, size, guaranteedIndex >= 0);
   }
 
+  /** The fortress's wealth (13's, as Stocks shows it) and what the next wave asks: `WEALTH_PER_WAVE × wavesSoFar`. */
+  private wealthBar(ctx: InitContext): WealthBar {
+    return { wealth: ctx.readers.of<ItemsReader>('13').wealth(), need: WEALTH_PER_WAVE * this.wavesSoFarState };
+  }
+
   private skip(ctx: TickContext, reason: string): void {
     this.lastSkip = reason;
+    if (reason === 'wealth') {
+      // The figures as they were at the skip, for its line and the panel's last skip.
+      const bar = this.wealthBar(ctx);
+      this.lastSkipWealthState = { wealth: Math.round(bar.wealth), need: bar.need };
+      ctx.emit({ type: 'ImmigrationSkipped', reason, wealth: this.lastSkipWealthState.wealth, need: bar.need });
+      return;
+    }
+    this.lastSkipWealthState = null;
     ctx.emit({ type: 'ImmigrationSkipped', reason });
   }
 
@@ -153,6 +179,7 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     this.pending = { planned, ids: [], nextIndex: 0, nextSpawnTick: ctx.tick, guaranteed };
     this.wavesSoFarState += 1;
     this.lastSkip = null;
+    this.lastSkipWealthState = null;
     this.spawnNext(ctx);
   }
 
@@ -273,6 +300,7 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     return { stateVersion: 1, wavesSoFar: this.wavesSoFarState, guaranteedDone: [...this.guaranteedDone],
       lastWave: this.lastWaveState && { ...this.lastWaveState }, deferredUntilTick: this.deferredUntilTick,
       deferredSeason: this.deferredSeason, deferredYear: this.deferredYear, lastSkipReason: this.lastSkip,
+      ...(this.lastSkipWealthState === null ? {} : { lastSkipWealth: { ...this.lastSkipWealthState } }),
       pending: this.pending && structuredClone(this.pending), raidOngoing: this.raidOngoing, rng: this.rng.state() };
   }
 
@@ -285,6 +313,7 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     this.deferredSeason = state.deferredSeason;
     this.deferredYear = state.deferredYear;
     this.lastSkip = state.lastSkipReason;
+    this.lastSkipWealthState = state.lastSkipWealth ? { ...state.lastSkipWealth } : null;
     this.pending = state.pending && structuredClone(state.pending);
     this.raidOngoing = state.raidOngoing ?? false;
     this.rng.setState(state.rng);

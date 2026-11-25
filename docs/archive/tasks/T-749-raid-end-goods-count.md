@@ -1,10 +1,12 @@
 # T-749 — A raid's end line and its escape line count the goods differently (27 and 51)
 
-**Source:** playtest 2026-11-25 (peril 4) ([report](../../reports/data/2026-11-25-playtest-4.md), finding 5) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in d591e42d,3fcb49e3.
+
+**Source:** playtest 2026-11-25 (peril 4) ([report](../../../reports/data/2026-11-25-playtest-4.md), finding 5) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
-At the end of the Gloam siege of Autumn, Year 2 (the save [`deepholm-p4-y2-siege.bin`](../../reports/data/2026-11-25-playtest-4/deepholm-p4-y2-siege.bin), played on for about 7,800 ticks under the Hearth alert; `12-siege-log.png`), the log printed two lines in the same minute:
+At the end of the Gloam siege of Autumn, Year 2 (the save [`deepholm-p4-y2-siege.bin`](../../../reports/data/2026-11-25-playtest-4/deepholm-p4-y2-siege.bin), played on for about 7,800 ticks under the Hearth alert; `12-siege-log.png`), the log printed two lines in the same minute:
 
 - "! The Gloam siege is over: 27 raiders fled with 27 goods."
 - "! Raiders have escaped with 51 goods: iron arrows ×9, maple logs ×4, ash logs ×2 and 8 more!"

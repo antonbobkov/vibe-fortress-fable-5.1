@@ -85,7 +85,7 @@ evaluate():
   if population >= cap: reasons.push('cap')
   if wealth < WEALTH_PER_WAVE * wavesSoFar: reasons.push('wealth')
   if season == winter and temper >= 2: reasons.push('winter')
-  if reasons: emit ImmigrationSkipped{reasons[0]}; return
+  if reasons: emit ImmigrationSkipped{reasons[0]} (with {wealth, need: WEALTH_PER_WAVE * wavesSoFar} when it is 'wealth', kept as lastSkipWealth); return
   if not rng.chance(IMMIGRATION_PERMILLE + rep.mountainhome * REP_PERMILLE_PER_POINT): emit ImmigrationSkipped{'luck'}; return
   size = IMMIGRANT_BASE + floor(wealth / WEALTH_PER_IMMIGRANT) + (spiritTier - 2) * SPIRIT_SIZE_STEP + floor(rep.mountainhome / REP_PER_IMMIGRANT)
   if season == winter: size = ceil(size/2)

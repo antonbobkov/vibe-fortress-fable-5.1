@@ -401,7 +401,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   DepotGoodsReturned: "depotId, count",
   ReputationChanged: "civ, delta, reason",
   ImmigrantsArrived: "ids[], count, children, guaranteed",
-  ImmigrationSkipped: "reason",
+  ImmigrationSkipped: "reason[, wealth, need]",
   EntitiesMoved: "moves: [id, from, to][]",
   Fell: "id, levels, landedOn",
   AttuneSession: "id, xp, mishap",

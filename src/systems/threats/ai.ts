@@ -518,7 +518,8 @@ export function despawnMember(m: EntityId, partyId: EntityId, P: Party, ctx: Tic
         material: ctx.registry.table<{ id: string }>('materials').byIndex(it.material)?.id ?? '',
         count: it.count,
       });
-      P.escapedLootCount = (P.escapedLootCount ?? 0) + 1;
+      // Counted in units, as the theft line counts them (18 § The Party): a stack of 9 is 9 goods.
+      P.escapedLootCount = (P.escapedLootCount ?? 0) + Math.max(1, it.count);
       P.loot = P.loot.filter((id) => id !== lootId);
     } else {
       const animal = entities.get(lootId, C.Creature);

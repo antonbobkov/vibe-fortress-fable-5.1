@@ -10,7 +10,7 @@ import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { keyCells, label, wrapLabel } from '../widgets';
 import { seasonName } from './calendar';
-import type { PanelContext } from './context';
+import { markFigure, type PanelContext } from './context';
 import { moodTierName } from './mood';
 import { dwarvesOf } from './units';
 
@@ -56,6 +56,11 @@ export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): 
   // Why no wave comes is the line's fact: it wraps under itself rather than being cut.
   let row = rect.row + 4;
   row += wrapLabel(s, col, row, eligibilityText(immigration.eligibility().reasons, strings), { width, indent: 2 });
+  // While wealth holds the next wave back, its bar and the wealth (Stocks' figure), whatever the first reason.
+  const bar = immigration.wealthBar();
+  if (bar.wealth < bar.need) {
+    row += wrapLabel(s, col, row, strings.get('ui.population.wealth_bar', { need: markFigure(bar.need), wealth: markFigure(bar.wealth) }), { width, indent: 2 });
+  }
   const last = immigration.lastWave();
   const lastText = last
     ? strings.get('ui.population.last_wave', { count: last.count, season: seasonName(strings, SEASON_NAMES[seasonOf(last.tick)] ?? ''), year: yearOf(last.tick) })
@@ -63,5 +68,10 @@ export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): 
   label(s, col, row++, lastText, { width });
   label(s, col, row++, strings.get('ui.population.waves', { n: immigration.wavesSoFar() }), { width });
   const skip = immigration.lastSkipReason();
-  if (skip) wrapLabel(s, col, row, strings.get('ui.population.last_skip', { reason: skip }), { fg: s.theme.dim, width, indent: 2 });
+  // A wealth skip keeps its figures as they were at the skip; an older save's has none.
+  const skipped = skip === 'wealth' ? immigration.lastSkipWealth() : null;
+  const skipText = skipped !== null
+    ? strings.get('ui.population.last_skip_wealth', { wealth: markFigure(skipped.wealth), need: markFigure(skipped.need) })
+    : strings.get('ui.population.last_skip', { reason: skip ?? '' });
+  if (skip) wrapLabel(s, col, row, skipText, { fg: s.theme.dim, width, indent: 2 });
 }

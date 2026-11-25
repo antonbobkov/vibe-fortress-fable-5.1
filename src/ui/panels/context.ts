@@ -67,7 +67,12 @@ export function buildings(ctx: PanelContext): BuildingsReader | null {
 
 /** "Numbers are shown with units; … marks as `1,250 ☼`." */
 export function marks(n: number): string {
-  return `${Math.round(n).toLocaleString('en-US')} ☼`;
+  return `${markFigure(n)} ☼`;
+}
+
+/** A sum of marks without its sign, for a template that places the sign itself: `4,100`. */
+export function markFigure(n: number): string {
+  return Math.round(n).toLocaleString('en-US');
 }
 
 export function tileXyz(ctx: PanelContext, i: TileIndex): { x: number; y: number; z: number } {
