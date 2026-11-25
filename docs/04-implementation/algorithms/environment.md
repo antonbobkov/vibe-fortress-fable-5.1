@@ -55,6 +55,8 @@ burnableTile(T): constructed wood anywhere, or outdoor natural tree/sapling/shru
 onHour():
   if tick >= stateEndsTick: transition()
   surfaceTempCached = seasonBase() + dayCurve[hour] + tempDelta[state] + temperSpread()
+  if not forced: follow = precipitation by temperature (06 § Weather transitions: snow > SNOW_C → rain; rain/storm ≤ SNOW_C → snow when the hour under snow is ≤ SNOW_C too; frostmarrow → snow); if follow != state: state = follow (stateEndsTick kept); recompute surfaceTempCached
+  if state != state at the start of the hour: emit WeatherChanged{from, to}
   growthModifierCached = seasonGrowth[season] * stateGrowth[state] / 100 (stateGrowth: overcast 90, else 100)
   isDaylight = hour in daylight window for (season, temper)
   if state == 'rain' or 'storm': for c in outdoorChunks: wetChunks[c] = tick; flag Wet on outdoor tiles of c (batched); mud on outdoor soil floors with rain for 2+ hours
@@ -65,7 +67,7 @@ onHour():
 transition():
   row = transitions[season][state]; weights = copy; apply temper scaling (storm, fog, heatwave, cold_snap × (1 + temper*0.5); clear × (1 - temper*0.1)); trait rules; disallow heatwave/cold_snap per season and temper
   next = rng.weighted(weights); constraints: snow ↔ rain by SNOW_C using previous hour’s cached surface temperature
-  from = state; state = next; stateEndsTick = tick + rng.int(minHours, maxHours) * TICKS_PER_HOUR; if from != to: emit WeatherChanged{from, to}
+  state = next; stateEndsTick = tick + rng.int(minHours, maxHours) * TICKS_PER_HOUR   // onHour emits WeatherChanged
 ```
 
 Outdoor iteration means exposed tiles (outdoor, non-open, no unfrozen liquid), excluding sky. Snow cover and melt choose chunk columns; stored sets and event arrays name the chunks with exposed tiles. Daylight uses `[sunrise, sunset)`. The seasonal lookups and `frostmarrow` constraints follow 06. A forced test state remains until released with `null`; the next weather tick then transitions.
