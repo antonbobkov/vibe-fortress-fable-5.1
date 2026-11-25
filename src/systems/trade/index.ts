@@ -19,7 +19,7 @@ import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
-import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, TRADE_JOB_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
+import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, TRADE_JOB_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
 import { edgeReaches, edgeSurface, spawnCaravan, wayGap, type WayGap } from './caravan';
 import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
@@ -749,15 +749,17 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       if (!a || !ctx.world.entities.get(a.partyId, C.Party)?.members.includes(id)) return;
       if (a.dead.includes(id)) return;
       a.dead.push(id);
-      const killer = ctx.world.entities.get(event['killerId'] as EntityId, C.Creature);
-      if (killer?.faction === 'fortress') {
+      // § Movement step 5, blame: only a death the fortress caused counts against it; a comrade's
+      // stray arrow, a raider's blow or a wild animal's bite costs the fortress nothing.
+      const blamed = fortressKilled(ctx, event['killerId'] as EntityId);
+      if (blamed) {
         this.reputation(ctx, a.civ, REP_FORTRESS_KILL, 'caravan_member_killed');
         const schedule = this.scheduleState[a.civ];
         if (schedule) schedule.banUntilYear = yearOf(ctx.tick) + CARAVAN_BAN_YEARS;
-      } else this.reputation(ctx, a.civ, REP_OTHER_KILL, 'caravan_member_killed');
+      }
       if (a.merchants.includes(id) && !a.lost) {
         a.lost = true;
-        this.reputation(ctx, a.civ, REP_CARAVAN_LOST, 'caravan_lost');
+        if (blamed) this.reputation(ctx, a.civ, REP_CARAVAN_LOST, 'caravan_lost');
         ctx.emit({ type: 'CaravanLost', civ: a.civ, partyId: a.partyId });
         this.pack(ctx, a);
       }
@@ -784,4 +786,17 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     this.reputationEntries = structuredClone(state.reputationLog ?? []);
     this.rng.setState(state.rng);
   }
+}
+
+/**
+ * 20 § Movement step 5, blame: a caravan member's death is the fortress's doing when its killer is
+ * a fortress creature (a dwarf, a tame or war animal, a called summon) or a building (a trap). A
+ * killer already gone, a caravan member, a raider, a wild or deep creature, or no killer at all
+ * (a fall, a drowning) is not the fortress.
+ */
+function fortressKilled(ctx: TickContext, killerId: EntityId): boolean {
+  if (killerId === 0) return false;
+  const killer = ctx.world.entities.get(killerId, C.Creature);
+  if (killer !== undefined) return killer.faction === 'fortress';
+  return ctx.world.entities.get(killerId, C.Building) !== undefined;
 }
