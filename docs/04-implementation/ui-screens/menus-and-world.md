@@ -84,18 +84,19 @@ The tutorial walks a new player through the basics of a fortress, one step at a 
 **The box.** While the tutorial runs, a box is drawn over the top left corner of the map view, `TUTORIAL_BOX_COLS` wide (narrower when the map view is): its title names the step and the count, the step's text follows, wrapped, and its last row holds two buttons.
 
 ```
-┌─ Tutorial · step 3 of 11 ────────────────┐
+┌─ Tutorial · step 4 of 11 ────────────────┐
 │ Open Designate with [d]: Dig is chosen.  │
-│ Go down a level with [<] into the rock,  │
-│ click one corner of a box, then the      │
-│ opposite corner (or Enter twice). The    │
-│ marked tiles blink while the work waits  │
-│ for a miner.                             │
+│ Click one corner of a box on a hillside  │
+│ or rock face, then the opposite corner   │
+│ (or Enter twice). Dwarves dig into rock  │
+│ from the side; the marked tiles blink    │
+│ while the work waits for a miner. They   │
+│ start once time runs: [Space].           │
 │ [F1] skip step  [Shift+F1] end tutorial  │
 └──────────────────────────────────────────┘
 ```
 
-Every key a step's text or a button names is the key its binding has now (24 § Settings): the text is read as a hint's is, in the global, panel-letter, map and list contexts and then the step's panel, and a panel letter in it puts that panel's keys first for the keys after it (`[z]`, then `[s]`), so a rebound key shows as rebound. `F1` (Global, "skip the tutorial step") goes on to the next step, and `Shift+F1` ("end the tutorial") ends the tutorial at once; a click on a button does the same. A click elsewhere on the box does nothing, and the map under it is reached by panning. The box is drawn only while the fortress screen is on top; a screen or dialog over the fortress hides it, and the tutorial goes on.
+Every key a step's text or a button names is the key its binding has now (24 § Settings): the text is read as a hint's is, in the global, panel-letter, map and list contexts and then the step's panel, and a panel letter in it puts that panel's keys first for the keys after it (`[z]`, then `[s]`), and a kind of the Zones menu puts the zone inspector's keys first, as the new zone's settings show in the menu's place (`[z]`, `[s]`, then `[p]` is the stockpile's preset, not the pasture), so a rebound key shows as rebound. Each step's text names the keys that work from where the step before leaves the player (24 § Input model: inside a panel its own letters come first), or says the keys that get there. `F1` (Global, "skip the tutorial step") goes on to the next step, and `Shift+F1` ("end the tutorial") ends the tutorial at once; a click on a button does the same. A click elsewhere on the box does nothing, and the map under it is reached by panning. The box is drawn only while the fortress screen is on top; a screen or dialog over the fortress hides it, and the tutorial goes on.
 
 **The steps.** The steps are content (`03-content/ui-keymap-and-screens.md` § Tutorial): each row names its text (the string `tutorial.<id>`), its highlight and its check. A step waits for the player: it is done when its check holds, and the next step then begins. The checks are a fixed set, each read from the simulation's readers or the presentation state; a check that compares against the step's start takes that start when the step begins, and a check with two parts holds when each part has held at some time during the step:
 
@@ -105,10 +106,10 @@ Every key a step's text or a button names is the key its binding has now (24 § 
 | `looked` | the look panel has shown a tile with no dwarf of the fortress on it, and one with a dwarf of the fortress |
 | `dig_designated` | a tile is designated for digging |
 | `stairs_designated` | a tile is designated for down stairs or up/down stairs, or more tiles are down or up/down stairs than when the step began |
-| `stockpile_made` | a stockpile zone exists |
+| `stockpile_made` | a stockpile zone exists that accepts at least one item category (a new stockpile takes nothing until its preset or a category is chosen) |
 | `workshop_placed` | a workshop exists, planned, under construction or built |
 | `order_queued` | a work order exists, at a workshop or for the fortress |
-| `farm_plot_made` | a farm plot zone exists |
+| `farm_plot_made` | a farm plot zone exists with a crop chosen for the current season; in a season no surface crop grows in (winter), with a crop chosen for any season |
 | `labors_changed` | any dwarf's labors differ from what they were when the step began |
 | `paused_and_sped` | the game has run at 2× or 4×, and has been paused while it ran, since the step began |
 | `saved` | a manual or quick save of the fortress has been written since the step began |

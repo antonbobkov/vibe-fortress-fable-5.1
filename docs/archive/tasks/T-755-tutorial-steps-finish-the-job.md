@@ -1,6 +1,8 @@
 # T-755 — The tutorial's steps pass before the thing works: a stockpile that takes nothing, a farm with no crop, Bedroom for Build, nine steps paused
 
-**Source:** playtest 2026-11-25 (newcomer) ([report](../../reports/data/2026-11-25-playtest-5.md), finding 1) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 8ee83cc4,5576f017.
+
+**Source:** playtest 2026-11-25 (newcomer) ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 1) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
