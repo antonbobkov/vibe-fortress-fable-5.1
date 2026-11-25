@@ -30,6 +30,9 @@ export const LOG_ENGAGEMENT_TICKS = 300;
 /** The immigrants line names each newcomer, with their best skill, in a wave of at most this many; a larger wave is counted. */
 export const LOG_IMMIGRANT_NAMES = 4;
 
+/** The day's line of animals bleeding with no dressing (17) names at most this many; more are counted. */
+export const LOG_BLEEDING_NAMES = 3;
+
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
 export const CURSOR_SCROLL_MARGIN = 3;
 

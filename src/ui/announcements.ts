@@ -22,7 +22,7 @@ import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
-import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
+import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText } from './messages';
@@ -107,6 +107,8 @@ export class AnnouncementLog {
   private readonly theftLines = new Map<number, { line: LogLine; stolen: Stolen[] }>();
   /** The day's starving line and the dwarves it names (`announceStarving`). */
   private starving: { line: LogLine; ids: number[]; names: string[] } | null = null;
+  /** The day's line of fortress animals bleeding with no dressing and the animals it names (`announceBleedingAnimal`). */
+  private bleeding: { line: LogLine; ids: number[]; names: string[] } | null = null;
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
   private readonly partyTiles = new Map<number, TileIndex>();
 
@@ -462,6 +464,9 @@ export class AnnouncementLog {
     if (spec === undefined) return null;
     if (event.type === 'CropDied') return this.announceFrost(fields, readers, tick, spec);
     if (event.type === 'Starving') return this.announceStarving(event, readers, tick, spec);
+    if (event.type === 'NoDressing' && typeof fields['id'] === 'number' && !readers.entities.has(fields['id'], C.Attributes)) {
+      return this.announceBleedingAnimal(event, fields['id'], readers, tick, spec);
+    }
     if (event.type === 'MiasmaSpread') return this.announceMiasma(fields, readers, tick, spec);
     if (event.type === 'ThiefEscaped') return this.announceTheft(fields, readers, tick, spec);
     if (event.type === 'RaidEnded') return this.announceRaidEnded(fields, readers, tick, spec);
@@ -696,6 +701,48 @@ export class AnnouncementLog {
     const line = this.append(spec.severity, this.starvingText([name], spec), tick, focus, spec.category);
     this.starving = { line, ids: [id], names: [name] };
     return { line, severity: spec.severity, focus };
+  }
+
+  /**
+   * 17 § Player-facing behavior (T-723): a fortress animal's `NoDressing`. The day's are one line that
+   * names each animal once, by its own name or as "the dog" ("the war dog"), and counts more than
+   * `LOG_BLEEDING_NAMES`. Only the first is announced (its flash and pause); a later one changes the
+   * line in place, its focus and subject the latest animal, and returns null.
+   */
+  private announceBleedingAnimal(event: GameEvent, id: number, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const name = this.animalWords(id, readers);
+    const focus = focusOf(event, readers);
+    const open = this.bleeding;
+    if (open !== null && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
+      if (!open.ids.includes(id)) { open.ids.push(id); open.names.push(name); }
+      open.line.text = this.bleedingText(open.names);
+      open.line.tick = tick;
+      if (focus !== undefined) open.line.focus = focus;
+      const subject = subjectOf(event, readers);
+      if (subject !== undefined) open.line.subject = subject;
+      return null;
+    }
+    const line = this.append(spec.severity, this.bleedingText([name]), tick, focus, spec.category);
+    this.bleeding = { line, ids: [id], names: [name] };
+    return { line, severity: spec.severity, focus };
+  }
+
+  private bleedingText(names: readonly string[]): string {
+    if (names.length > LOG_BLEEDING_NAMES) return this.strings.get('announce.no_dressing.animals_counted', { n: names.length });
+    if (names.length === 1) return capitalize(this.strings.get('announce.no_dressing.animal', { animal: names[0] ?? '' }));
+    const animals = this.strings.get('announce.list_and', { list: names.slice(0, -1).join(', '), last: names[names.length - 1] as string });
+    return capitalize(this.strings.get('announce.no_dressing.animals', { animals }));
+  }
+
+  /** An animal by its own name, else "the dog", "the war dog" or "the hunting dog" (as `animalStarvingKey` names one). */
+  private animalWords(id: number, readers: ReaderSet): string {
+    const creature = readers.entities.get(id, C.Creature);
+    const row = creature === undefined ? undefined : this.registry.table<NamedRow>('creatures').byIndex(creature.species);
+    if (creature !== undefined && creature.name !== '' && creature.name !== row?.name && creature.name !== row?.id) return creature.name;
+    const species = (row?.name ?? 'animal').toLowerCase();
+    const trained = readers.entities.get(id, C.Tame)?.trained;
+    const key = trained === 'war' ? 'announce.no_dressing.the_war' : trained === 'hunting' ? 'announce.no_dressing.the_hunting' : 'ui.creature.the_species';
+    return this.strings.get(key, { species });
   }
 
   private starvingText(names: readonly string[], spec: AnnouncementSpec): string {
