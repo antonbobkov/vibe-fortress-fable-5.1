@@ -155,6 +155,30 @@ export function raidEndedText(strings: Strings, registry: Registry, readers: Rea
   return said(key, { party: partyWords(strings, registry, party), counts: parts.join(', ') });
 }
 
+/** The kinds of `RaidArrived` that are announced (a thief comes unseen), and `AmbushSprung`: a raid at the fortress. */
+const ARRIVED_KINDS: readonly unknown[] = ['raid', 'siege', 'bandits'];
+
+/** Whether an event is a raid's danger line: `RaidArrived` of a raid, a siege or bandits, or `AmbushSprung`. */
+export function raidArrival(event: Readonly<Record<string, unknown>>): boolean {
+  return event['type'] === 'AmbushSprung' || (event['type'] === 'RaidArrived' && ARRIVED_KINDS.includes(event['kind']));
+}
+
+/**
+ * 18 § Registrations: what a raid's or an ambush's danger line adds while the alert is Calm, with
+ * the player's keys: "The alert is Calm: [m] [3] sends the civilians to shelter.", and, while no
+ * squad with members is Active, "…; Active [v] sends the squads.", or with no such squad at all
+ * "…; [m] [+] makes a squad.". Null under Watch or Hearth, when every squad stands to already.
+ */
+export function calmTail(strings: Strings, readers: ReaderSet): string | null {
+  if (!readers.has('16')) return null;
+  const combat = readers.of<CombatReader>('16');
+  if (combat.alert() !== 'calm') return null;
+  const manned = combat.squads().filter((squad) => squad.members.length > 0);
+  const key = manned.length === 0 ? 'announce.raid_calm_tail.no_squad'
+    : manned.some((squad) => squad.mode === 'active') ? 'announce.raid_calm_tail' : 'announce.raid_calm_tail.squads';
+  return strings.get(key);
+}
+
 /**
  * Whether a raid's end leaves the alert up with nothing to raise it for: the alert is Watchful or
  * Hearth, the party that ended was no thief's, and no other threat party but a thief is still on
