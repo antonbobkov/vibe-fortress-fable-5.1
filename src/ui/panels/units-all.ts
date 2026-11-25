@@ -88,7 +88,7 @@ export function creatureGlyph(readers: ReaderSet, registry: Registry, id: Entity
 }
 
 /** A creature's state in words: "grazing", "attacking"; the raw state, spaced, when it has no words. */
-function stateWords(strings: Strings, state: string): string {
+export function stateWords(strings: Strings, state: string): string {
   const key = `ui.units.state.${state}`;
   return strings.has(key) ? strings.get(key) : state.replace(/_/g, ' ');
 }

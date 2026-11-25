@@ -25,12 +25,14 @@ import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import type { MagicReader, SpellView } from '@systems/magic';
 import type { PlantsReader } from '@systems/plants';
+import { bodyPartNames, permanentText } from '@systems/health';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
 import { MOOD_TIER_NAMES, thoughtText } from './mood';
 import type { Surface } from '../surface';
 import { captionButtons, label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
+import { creatureActivity } from './look-activity';
 import { activityLabel } from './units';
 import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
 import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
@@ -657,7 +659,7 @@ export function drawCreatureView(
   if (has(readers, '10')) {
     const dwarves = readers.of<DwarvesReaderLike>('10');
     // 10 § Tipsy: the inspector says "Tipsy" beside the activity.
-    const words = activityLabel({ readers, registry, strings }, id);
+    const words = creatureActivity({ readers, registry, strings }, id);
     const activity = dwarves.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: words }) : words;
     const job = has(readers, '11') ? readers.of<JobsReaderLike>('11').forWorker(id) : undefined;
     pinned(job === undefined ? strings.get('ui.look.activity', { activity }) : strings.get('ui.look.activity_priority', { activity, priority: job.priority }));
@@ -747,12 +749,14 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
         line(`Health: Blood ${bloodPct}%, Pain ${body.pain}`);
         careRows();
         line(`  ${body.conscious ? 'Conscious' : 'Unconscious'}`, body.conscious ? t.text : t.bad);
-        if (body.permanent.length > 0) line(`  Permanent: ${body.permanent.join(', ')}`, t.dim);
-        const partNames = ['head', 'torso', 'left arm', 'right arm', 'left leg', 'right leg'];
+        // Each part by its body plan's name ("left foreleg", "left wing"); a slot the plan has no part for is not listed.
+        const partNames = bodyPartNames(readers.entities, registry, id);
+        if (body.permanent.length > 0) line(`  Permanent: ${body.permanent.map((mark) => permanentText(mark, partNames)).join(', ')}`, t.dim);
         for (let pIdx = 0; pIdx < body.parts.length; pIdx += 1) {
           const part = body.parts[pIdx];
           if (!part) continue;
-          const pName = partNames[pIdx] ?? `part ${pIdx}`;
+          const pName = partNames[pIdx];
+          if (pName === null || pName === undefined) continue;
           if (part.destroyed) {
             line(`  ${pName}: destroyed`, t.bad);
             continue;
