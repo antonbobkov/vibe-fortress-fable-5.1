@@ -474,7 +474,8 @@ export class FortressScreen implements Screen {
           if (this.settings.autoPauseDanger) this.host.setSpeed(0);
         }
       }
-      if (done.severity === 'alert') {
+      // T-741: a standing alert folded into its line of the day before is no news: no flash, no pause.
+      if (done.severity === 'alert' && done.folded !== true) {
         this.flashUntil = this.host.now() + ALERT_FLASH_MS;
         if (this.settings.autoPauseAlert) this.host.setSpeed(0);
       }

@@ -211,9 +211,12 @@ export function lastWords(log: readonly LogLine[], strings: Strings = new String
   for (const entry of newest) if (kept.size < LEGEND_LOG_LINES) kept.add(entry);
   return newest.filter((entry) => kept.has(entry)).map((entry) => {
     const last = entry.lines[entry.lines.length - 1] as LogLine;
-    const days = new Set(entry.lines.map((line) => dayIndexOf(line.tick))).size;
-    if (days > 1) return strings.get('ui.legend.folded', { line: lineText({ ...last, count: 1 }), n: days });
-    return lineText({ ...last, count: entry.lines.reduce((sum, line) => sum + line.count, 0) });
+    // A standing alert the log already folded (T-741) stands for its days in a row, up to its own.
+    const dayset = new Set<number>();
+    for (const line of entry.lines) for (let d = 0; d < (line.days ?? 1); d += 1) dayset.add(dayIndexOf(line.tick) - d);
+    const days = dayset.size;
+    if (days > 1) return strings.get('ui.legend.folded', { line: lineText({ ...last, count: 1, days: 1 }), n: days });
+    return lineText({ ...last, count: entry.lines.reduce((sum, line) => sum + line.count, 0), days: 1 });
   });
 }
 

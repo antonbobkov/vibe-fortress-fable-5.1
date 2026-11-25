@@ -61,7 +61,7 @@ export interface SavedUiState {
   readonly deepFound?: boolean;
   readonly miasmaAdvised?: boolean;
   readonly breaches?: readonly [number, number][];
-  readonly logTail: readonly { tick: number; severity: string; text: string; count?: number; focus?: number; category?: string; subject?: number; key?: string }[];
+  readonly logTail: readonly { tick: number; severity: string; text: string; count?: number; focus?: number; category?: string; subject?: number; key?: string; days?: number }[];
 }
 
 export function defaultUiState(z: number): UiState {
@@ -94,7 +94,8 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
       ...(l.focus === undefined ? {} : { focus: l.focus }),
       ...(l.category === undefined ? {} : { category: l.category }),
       ...(l.subject === undefined ? {} : { subject: l.subject }),
-      ...(l.key === undefined ? {} : { key: l.key }) })),
+      ...(l.key === undefined ? {} : { key: l.key }),
+      ...(l.days === undefined || l.days <= 1 ? {} : { days: l.days }) })),
   };
 }
 
@@ -129,6 +130,8 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
     ...(typeof l.subject === 'number' ? { subject: l.subject } : {}),
     // T-725: an older save's lines have no key; the legend reads theirs back from the text.
     ...(typeof l.key === 'string' && l.key !== '' ? { key: l.key } : {}),
+    // T-741: a standing alert's days in a row; an older save's lines have none (one day).
+    ...(typeof l.days === 'number' && Number.isInteger(l.days) && l.days > 1 ? { days: l.days } : {}),
   }));
 }
 
