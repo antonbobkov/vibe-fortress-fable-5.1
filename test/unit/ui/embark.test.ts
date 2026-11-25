@@ -42,7 +42,7 @@ function text(s: EmbarkScreen): string {
 
 describe('T-M1-13 embark: budget and presets', () => {
   it('the four presets total exactly the documented sums', () => {
-    const documented: Record<string, number> = { balanced: 1480, miner_s_guild: 1490, farmstead: 1466, warband: 1495 };
+    const documented: Record<string, number> = { balanced: 1480, miner_s_guild: 1490, farmstead: 1460, warband: 1453 };
     for (const [id, total] of Object.entries(documented)) {
       const { s } = screen();
       s.applyPreset(id);

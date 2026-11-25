@@ -420,14 +420,6 @@
         "count": 1
       },
       {
-        "entry": "e_seed_pumpkin",
-        "count": 1
-      },
-      {
-        "entry": "e_seed_hops",
-        "count": 1
-      },
-      {
         "entry": "e_cow",
         "count": 2
       },
@@ -458,6 +450,10 @@
       {
         "entry": "e_bag",
         "count": 3
+      },
+      {
+        "entry": "e_cloth",
+        "count": 1
       },
       {
         "entry": "e_splints",
@@ -806,7 +802,7 @@
       },
       {
         "entry": "e_bolts_iron",
-        "count": 2
+        "count": 1
       },
       {
         "entry": "e_quiver",
@@ -843,6 +839,10 @@
       {
         "entry": "e_war_dog",
         "count": 2
+      },
+      {
+        "entry": "e_cloth",
+        "count": 1
       },
       {
         "entry": "e_brightleaf",

@@ -88,6 +88,8 @@ export const CHOSEN_VIEW = SUPPLY_CATEGORIES.length;
 
 /** The attributes in the wireframe's order. */
 const ATTRIBUTES: readonly (keyof Attributes)[] = ['str', 'agi', 'tou', 'end', 'wil', 'wit', 'cha'];
+/** The supplies tab's hint lines, in the order they turn over (`ui-screens/embark.md`). */
+const EMBARK_HINTS: readonly string[] = ['ui.embark.hint', 'ui.embark.hint_beasts', 'ui.embark.hint_linen'];
 
 /** Fortress names are 1–32 characters (`command-catalog.md` `RenameFortress`). */
 export const FORTRESS_NAME_MAX = 32;
@@ -795,9 +797,9 @@ export class EmbarkScreen implements Screen {
     if (current !== undefined && !this.testing && !this.available(current)) note = s.get('ui.embark.unavailable', { condition: current.condition ?? '' });
     else if (current?.note !== undefined) note = current.note;
     else if (this.tab === 1) {
-      // The hint alternates between two lines every EMBARK_HINT_SECONDS of real time and on each tab change.
+      // The hint turns over its three lines every EMBARK_HINT_SECONDS of real time and on each tab change.
       const turn = Math.floor((this.host.now?.() ?? 0) / (EMBARK_HINT_SECONDS * 1000)) + this.tabChanges;
-      note = s.get(turn % 2 === 0 ? 'ui.embark.hint' : 'ui.embark.hint_beasts');
+      note = s.get(EMBARK_HINTS[turn % EMBARK_HINTS.length] ?? 'ui.embark.hint');
     }
     if (note !== null) wrapText(note, surface.cols - 2, 2).forEach((line, k) => label(surface, 1, noteRow + k, line, { fg: t.dim, keys: false }));
     this.drawKeys(surface, top + height - 1, this.tab === 1 ? 'ui.embark.keys.supplies' : 'ui.embark.keys.animals');
