@@ -21,5 +21,5 @@ Spec: 10 § Player-facing behavior (activity words); `ui-screens/fortress-screen
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a patient that loses consciousness reads "Unconscious" in `activityText` and in the Units row; one being carried reads "Carried to the hospital"; on waking it reads its activity again.
-- [ ] UI only (`activityText` is a reader): no world hash moves.
+- [x] Tests (`describe` with the task id): a patient that loses consciousness reads "Unconscious" in `activityText` and in the Units row; one being carried reads "Carried to the hospital"; on waking it reads its activity again (`test/unit/ui/t737-unconscious-activity.test.ts`: a dwarf stunned mid-job reads Unconscious in its view, the tile list, the hover line, Units (alert colour, not idle) and the All tab, and its job word on waking; a casualty reads Carried while its `carry_patient` job has a worker, then "Unconscious in bed"; "on the stairs", "on a ramp"; a stunned deer reads Unconscious and "Wild, unconscious").
+- [x] UI only (`activityText` is a reader): no world hash moves (no simulation code reads `activityText`).

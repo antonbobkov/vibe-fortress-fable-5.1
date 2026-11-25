@@ -1,6 +1,7 @@
 /**
- * The activity line of a creature's view (`ui-screens/fortress-screen.md` § Inspection panel): a
- * dwarf's activity as 10 gives it; for any other creature, what its behaviour is: a wild or hostile
+ * The activity line of a creature's view (`ui-screens/fortress-screen.md` § Inspection panel): for
+ * any creature in a cage or unconscious, that ("Caged", "Unconscious on the stairs"), over whatever
+ * it was doing; a dwarf's activity as 10 gives it; for any other creature, what its behaviour is: a wild or hostile
  * creature's state ("Grazing", "Asleep", "Hunting"), a tame animal's place ("Following Ketil
  * Ironvein", "Keeping to Pasture #1", "Curled up in the pets' heap"). Never empty.
  */
@@ -30,7 +31,6 @@ function walking(readers: ReaderSet, id: EntityId): boolean {
 function behaviour(ctx: ActivityContext, id: EntityId): string {
   const { readers, strings } = ctx;
   const e = readers.entities;
-  if ((e.get(id, C.Creature)?.cagedIn ?? 0) !== 0) return strings.get('ui.look.creature.caged');
   const state = e.get(id, C.Wild)?.state ?? e.get(id, C.Hostile)?.behaviorState ?? '';
   if (state !== '') return capitalize(stateWords(strings, state));
   const tame = e.get(id, C.Tame);
