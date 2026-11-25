@@ -13,7 +13,9 @@ import type { GameEvent } from '@core/events';
 import type { RngStream } from '@core/rng';
 import { BaseSystem, type InitContext, type TickContext, type ThoughtSource, type WorldLike } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
-import { tickDwarf, type BrainHost } from './brain';
+import { CARRIED_ACTIVITY, tickDwarf, UNCONSCIOUS_ACTIVITY, type BrainHost } from './brain';
+import type { HealthReader } from '@systems/health/reader';
+import type { JobsReader } from '@systems/jobs';
 import { makeReader, type DwarvesReader } from './reader';
 import { dwarfSpeed, jobXp } from './rules/skills';
 import { grantXp } from './skills';
@@ -34,7 +36,7 @@ import { WHIMS_STREAM, whimFacts, whimMet, whimPossible, whimProgress, whimRows,
 import type { WhimView } from './reader';
 
 export { makeReader, type DwarvesReader, type WhimView } from './reader';
-export { NO_JOB, select, tickDwarf, type BrainHost } from './brain';
+export { CARRIED_ACTIVITY, NO_JOB, select, tickDwarf, UNCONSCIOUS_ACTIVITY, type BrainHost } from './brain';
 export { grantXp } from './skills';
 export {
   advanceNeeds,
@@ -378,7 +380,13 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         return holder;
       }, () => ctx.world.calendar.tick, (id) => this.activities.isTipsy(id, ctx.world.calendar.tick), () => this.whimView(),
       () => ctx.world.fortress.alert !== 'hearth' ? [] : Array.from(this.shutOut).filter((id) => ctx.world.entities.alive(id)).sort((a, b) => a - b),
-      (id) => ctx.world.fortress.alert === 'hearth' && this.shutOut.has(id), () => this.wagonTile);
+      (id) => ctx.world.fortress.alert === 'hearth' && this.shutOut.has(id), () => this.wagonTile,
+      (id) => {
+        // § Player-facing behavior: a dwarf that is down does not think, so its brain's word is stale.
+        if (!ctx.readers.has('17') || ctx.readers.of<HealthReader>('17').isConscious(id)) return null;
+        const carry = ctx.readers.has('11') ? ctx.readers.of<JobsReader>('11').byKey(`carry_patient:${id}`) : undefined;
+        return carry !== undefined && carry.workerId !== 0 ? CARRIED_ACTIVITY : UNCONSCIOUS_ACTIVITY;
+      });
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {

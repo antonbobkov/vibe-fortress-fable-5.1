@@ -23,11 +23,12 @@
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import { SQUAD_MAX_SIZE } from '@core/constants';
+import { TileKind } from '@core/map3d';
 import type { EntityId, MoodTier } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
 import type { CombatReader, SquadWithId } from '@systems/combat';
-import { DWARF_NAME_MAX, NO_JOB } from '@systems/dwarves';
+import { CARRIED_ACTIVITY, DWARF_NAME_MAX, NO_JOB, UNCONSCIOUS_ACTIVITY } from '@systems/dwarves';
 import type { HealthReader } from '@systems/health';
 import type { JobsReader } from '@systems/jobs';
 import type { MoraleReader } from '@systems/morale';
@@ -134,15 +135,47 @@ export function isIdle(ctx: PanelContext, id: EntityId): boolean {
 const NEED_ACTIVITIES = new Set(['hunger', 'thirst', 'sleep', 'social', 'comfort', 'joy']);
 
 /**
- * The words for an activity wherever a panel shows one (10 § Player-facing behavior): an idle dwarf
+ * Whether a creature is down (17 § Bleeding, pain, consciousness): a dwarf whose activity 10 gives
+ * as unconscious or carried, any other creature 17 holds unconscious.
+ */
+export function isDown(ctx: Pick<PanelContext, 'readers'>, id: EntityId): boolean {
+  const raw = ctx.readers.has('10') ? ctx.readers.of<DwarvesReaderLike>('10').activityText(id) : '';
+  if (raw === UNCONSCIOUS_ACTIVITY || raw === CARRIED_ACTIVITY) return true;
+  return ctx.readers.has('17') && !ctx.readers.of<HealthReader>('17').isConscious(id);
+}
+
+/**
+ * The words of a creature that is down, over whatever it was doing when it fell: "Carried to the
+ * hospital" while a dwarf's `carry_patient` job has a worker; "Unconscious in bed" on its patient's
+ * bed, "Unconscious on the stairs" on a stair, "Unconscious on a ramp" on a ramp, else "Unconscious".
+ */
+function downLabel(ctx: Pick<PanelContext, 'readers' | 'strings'>, id: EntityId, raw: string): string {
+  const { readers, strings } = ctx;
+  if (raw === CARRIED_ACTIVITY) return strings.get('ui.units.down_carried');
+  const pos = readers.entities.get(id, C.Position);
+  if (pos === undefined) return strings.get('ui.units.down');
+  const tile = readers.map.index(pos.x, pos.y, pos.z);
+  const bed = readers.entities.get(id, C.Patient)?.bedId ?? 0;
+  if (bed !== 0 && readers.map.buildingAt(tile) === bed) return strings.get('ui.units.down_bed');
+  const kind = readers.map.kindAt(tile);
+  if (kind === TileKind.Ramp) return strings.get('ui.units.down_ramp');
+  if (kind === TileKind.StairsUp || kind === TileKind.StairsDown || kind === TileKind.StairsUpDown) return strings.get('ui.units.down_stairs');
+  return strings.get('ui.units.down');
+}
+
+/**
+ * The words for an activity wherever a panel shows one (10 § Player-facing behavior): a creature in
+ * a cage reads "Caged"; one that is down reads as {@link downLabel} says ("Unconscious on the
+ * stairs"), over whatever it was doing; an idle dwarf
  * reads "Idle", or "Idle (no shelter)" while the hearth alert finds it no shelter; a need
  * errand reads as a verb ("Eating"); a job named for its recipe ("Craft (recipe)") names the recipe
  * ("Craft: wooden bolts"). Any other activity reads as 10 gives it; '' for a creature without one.
  */
 export function activityLabel(ctx: Pick<PanelContext, 'readers' | 'registry' | 'strings'>, id: EntityId): string {
+  if ((ctx.readers.entities.get(id, C.Creature)?.cagedIn ?? 0) !== 0) return ctx.strings.get('ui.look.creature.caged');
+  const raw = ctx.readers.has('10') ? ctx.readers.of<DwarvesReaderLike>('10').activityText(id) : '';
+  if (isDown(ctx, id)) return downLabel(ctx, id, raw);
   if (!ctx.readers.has('10')) return '';
-  const dwarves = ctx.readers.of<DwarvesReaderLike>('10');
-  const raw = dwarves.activityText(id);
   if (raw === NO_JOB) return idleLabel(ctx, id);
   if (NEED_ACTIVITIES.has(raw)) return ctx.strings.get(`ui.units.need.${raw}`);
   const RECIPE = ' (recipe)';
@@ -609,14 +642,15 @@ function drawAllTab(s: Surface, rect: Rect, panel: UnitsPanel, ctx: PanelContext
     panel.list,
     (index) => panel.clickRow(ctx, index),
   );
-  // A hostile's fact in the danger colour, a visitor's in the value colour, an idle dwarf's dim
+  // A hostile's fact in the danger colour, a visitor's in the value colour, an idle dwarf's dim, a
+  // dwarf's that is down in the alert colour
   // (the cursor's row stays inverted); the name's tooltip is the whole name.
   for (let k = first; k < last && k < rows.length; k += 1) {
     const r = rows[k] as CreatureRow;
     const row = area.row + 1 + (k - first);
     s.tooltip({ col, row, cols: nameCols - 1, rows: 1 }, r.name, { box: false });
     if (k === panel.list.selected) continue;
-    const fg = r.kind === 'hostile' ? t.danger : r.kind === 'visitor' ? t.value : r.kind === 'dwarf' && isIdle(ctx, r.id) ? t.dim : null;
+    const fg = r.kind === 'hostile' ? t.danger : r.kind === 'visitor' ? t.value : r.kind === 'dwarf' && isDown(ctx, r.id) ? t.alert : r.kind === 'dwarf' && isIdle(ctx, r.id) ? t.dim : null;
     if (fg !== null) label(s, col + nameCols, row, facts.get(k) ?? '', { fg, width: listCols - nameCols, keys: false });
   }
   const foot = rect.row + top + height;
@@ -707,7 +741,7 @@ export function drawUnitsPanel(s: Surface, whole: Rect, panel: UnitsPanel, ctx: 
       s.tooltip(cell, strings.get(`ui.units.mood.${tier}`), { box: false });
     }
   }
-  // An idle dwarf's activity is dim, and a row's tooltip carries what the list no longer shows:
+  // An idle dwarf's activity is dim, a dwarf's that is down in the alert colour, and a row's tooltip carries what the list no longer shows:
   // the whole name, the profession and the titles.
   const activityCol = area.col + nameCols + MOOD_COLS;
   for (let r = 0; r < height - 1 && panel.list.scroll + r < rows.length; r += 1) {
@@ -718,6 +752,11 @@ export function drawUnitsPanel(s: Surface, whole: Rect, panel: UnitsPanel, ctx: 
     const tip = { name: names[index] as string, profession: professionOf(ctx, id), titles: titles.map((title) => strings.get(`ui.title.${title}`)).join(', ') };
     s.tooltip(cells, strings.get(titles.length > 0 ? 'ui.units.row_tip_titled' : 'ui.units.row_tip', tip), { box: false });
     if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, idleLabel(ctx, id), { fg: t.dim, width: listCols - nameCols - MOOD_COLS, keys: false });
+    if (isDown(ctx, id) && index !== panel.list.selected) {
+      const words = activityLabel(ctx, id);
+      const shown = dwarves?.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: words }) : words;
+      label(s, activityCol, cells.row, shown, { fg: t.alert, width: listCols - nameCols - MOOD_COLS, keys: false });
+    }
   }
   const row = rect.row + 1 + top + height;
   const col = rect.col + 1;

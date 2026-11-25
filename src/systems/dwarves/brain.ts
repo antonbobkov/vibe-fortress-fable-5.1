@@ -31,6 +31,10 @@ import { fleeSource, stepFled } from '@systems/combat/fled';
 
 /** "Idle dwarves are shown as 'No job' in the units panel." */
 export const NO_JOB = 'No job';
+/** 10 § Player-facing behavior: the activity text of a dwarf 17 holds unconscious, whatever its brain last said. */
+export const UNCONSCIOUS_ACTIVITY = 'Unconscious';
+/** The activity text of an unconscious dwarf while a `carry_patient` job has a worker to carry it. */
+export const CARRIED_ACTIVITY = 'Carried to the hospital';
 
 export interface BrainHost {
   /** True when 11 is present to ask for work. */

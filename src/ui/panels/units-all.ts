@@ -14,7 +14,7 @@ import { creatureName, hasOwnName } from '../creature-name';
 import type { Strings } from '../strings';
 import type { PanelContext } from './context';
 import { creatureShown } from './look';
-import { activityLabel, idleLabel, isIdle } from './units';
+import { activityLabel, idleLabel, isDown, isIdle } from './units';
 
 /** The kinds of creature, in the All tab's order (the owner's: dwarves, tame, wild, visitors, hostiles), then the rest. */
 export const CREATURE_KINDS = ['dwarf', 'tame', 'wild', 'visitor', 'hostile', 'other'] as const;
@@ -99,7 +99,8 @@ export function isWounded(readers: ReaderSet, id: EntityId): boolean {
 /**
  * The one fact of a row (`panels.md` § Units): a dwarf's activity as the Dwarves tab gives it;
  * "Tame" or "Pet"; "Wild, grazing"; "Merchant" or "Caravan"; "Hostile, attacking"; "Summoned";
- * then "· hurt" for a wounded creature.
+ * ", unconscious" in place of the state, or after the fact, for a creature that is down ("Wild,
+ * unconscious", "Pet, unconscious"); then "· hurt" for a wounded creature.
  */
 export function creatureFact(ctx: PanelContext, row: CreatureRow): string {
   const { readers, strings } = ctx;
@@ -115,6 +116,11 @@ export function creatureFact(ctx: PanelContext, row: CreatureRow): string {
       ? strings.get(`ui.units.fact.${row.kind}`)
       : strings.get(`ui.units.fact.${row.kind}_state`, { state: stateWords(strings, state) });
   } else if (e.has(id, C.Summoned)) fact = strings.get('ui.units.fact.summoned');
+  // A creature that is down says so, over the state it was in when it fell ("Wild, unconscious").
+  if (row.kind !== 'dwarf' && isDown(ctx, id)) {
+    const kind = row.kind === 'wild' || row.kind === 'hostile' ? strings.get(`ui.units.fact.${row.kind}`) : fact;
+    fact = kind === '' ? strings.get('ui.units.down') : strings.get('ui.units.fact.down', { fact: kind });
+  }
   if (!isWounded(readers, id)) return fact;
   return fact === '' ? strings.get('ui.units.fact.hurt_only') : strings.get('ui.units.fact.hurt', { fact });
 }
