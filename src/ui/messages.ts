@@ -639,6 +639,8 @@ type ItemFilterLike = Parameters<ItemsReader['countAvailable']>[0];
 
 /** A job as the blocked-reason column reads it. */
 export interface BlockedJob {
+  /** The job's id, for 11's `unfoundInput` (a job without one is never read as out of reach). */
+  readonly id?: number;
   readonly type: number;
   readonly blockedReason: string | null;
   readonly tool: string | null;
@@ -650,7 +652,9 @@ export interface BlockedJob {
  * selected job's line, which also says where to get the missing item ("— order at a carpenter's
  * workshop", "— dig down to rock: …") or what to do. The input named is the first that is short:
  * fewer units available (13 `countAvailable`) than it still needs beyond what is reserved and
- * delivered; when none is, the first not yet delivered, which waits to be brought.
+ * delivered; when none is, the first that the job's retry does not find within reach (11
+ * `unfoundInput`: "waiting: 1 barrel, out of reach"), else the first not yet delivered, which waits
+ * to be brought.
  */
 export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string; long: string } {
   const s = env.strings;
@@ -663,6 +667,12 @@ export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string;
     if (input !== undefined) {
       const filter = input.filter as Readonly<Record<string, unknown>>;
       if (short === undefined && it !== null) {
+        // Every input is counted available: one the job's own retry cannot find lies out of reach.
+        const far = job.id !== undefined && env.readers.has('11') ? job.inputs[env.readers.of<JobsReader>('11').unfoundInput(job.id)] : undefined;
+        if (far !== undefined) {
+          const text = s.get('ui.jobs.reason.input_out_of_reach', { what: filterText(env.registry, far.filter as Readonly<Record<string, unknown>>, Math.max(1, owed(far)), s) });
+          return { short: text, long: s.get('ui.jobs.reason_long.input_out_of_reach', { text }) };
+        }
         const text = s.get('ui.jobs.reason.to_be_brought', { what: filterText(env.registry, filter, Math.max(1, input.count - input.delivered.length), s) });
         return { short: text, long: text };
       }

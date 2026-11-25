@@ -17,7 +17,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-719 | [Facts still cut with "»" after T-703: room lines, the log, orders, the status bar](work/T-719-cut-facts-second-pass.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-721 | [Single words and readers' English the strings scan cannot see](work/T-721-ui-words-the-scan-cannot-see.md) | [T-711](archive/tasks/T-711-ui-texts-outside-panels.md) | — | open |
 | T-723 | [A war dog bleeding with no bandage or cloth dies with no warning](work/T-723-animal-no-dressing-alert.md) | [T-716](archive/tasks/T-716-no-dressing-bleeds-out-silently.md) | — | open |
-| T-722 | [A job whose inputs are all in stock but out of reach says they are "to be brought"](work/T-722-waiting-to-be-brought-out-of-reach.md) | [T-717](archive/tasks/T-717-stoneless-site-names-the-stone.md) | — | open |
 | T-724 | [The defence script leaves its squad at one soldier when every adult has a role](work/T-724-defence-squad-refill-remnant.md) | [T-715](archive/tasks/T-715-trade-waits-behind-depot-hauls.md) | — | open |
 | T-725 | [A log line keeps the string key it was written from](work/T-725-log-line-string-key.md) | [T-720](archive/tasks/T-720-legend-scroll-and-last-words.md) | — | open |
 

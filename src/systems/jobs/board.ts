@@ -30,7 +30,7 @@ import {
   STAND_POCKET_TILES,
 } from './constants';
 import { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './producers';
-import type { Job, JobsStateV1, Tool } from './state';
+import type { Job, JobInput, JobsStateV1, Tool } from './state';
 import { stepWorker } from './steps';
 import { applySetLabor } from './commands';
 
@@ -699,31 +699,49 @@ export class JobBoard implements JobsApi, JobSink {
     }
   }
 
-  private inputsAvailable(job: Job): boolean {
+  /** Where a blocked job's retry searches for its inputs and tool: its first stand tile, else its anchor; -1 when neither is on the map. */
+  private retryOrigin(job: Job): TileIndex {
     const stands = this.standTiles(job);
     const from = stands.length > 0 ? (stands[0] as TileIndex) : this.anchorTile(job);
-    if (from < 0 || !this.world.map.validIndex(from)) return false;
+    return from < 0 || !this.world.map.validIndex(from) ? -1 : from;
+  }
+
+  /** Whether the units an input still needs are found from `from`, as a blocked job's retry searches (labels only, nothing reserved). */
+  private inputFound(job: Job, input: JobInput, from: TileIndex): boolean {
+    const units = job.data['inputUnits'] === true && input.wholeItem !== true;
+    const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
+    const needed =
+      input.count -
+      input.delivered.reduce((sum, id) => sum + count(id), 0) -
+      input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
+    if (needed <= 0) return true;
+    if (from < 0) return false;
+    const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+    const found =
+      units && this.items.findUnits !== undefined
+        ? this.items.findUnits(filter, needed, from, false)
+        : this.items.findItems(filter, needed, from);
+    return found.reduce((sum, id) => sum + count(id), 0) >= needed;
+  }
+
+  /**
+   * `jobs.unfoundInput(id)` (§ Blocked jobs): the index of the first input a job still needs whose
+   * units its retry does not find from the job's first stand tile, or -1 when every one is found.
+   * The retry's own search, so the Jobs panel says "out of reach" exactly when the retry would leave
+   * the job blocked; labels only, no path search, and nothing is reserved or changed.
+   */
+  unfoundInput(job: Job): number {
+    const from = this.retryOrigin(job);
+    return job.inputs.findIndex((input) => !this.inputFound(job, input, from));
+  }
+
+  private inputsAvailable(job: Job): boolean {
+    const from = this.retryOrigin(job);
+    if (from < 0) return false;
 
     if (job.blockedReason === 'missing_input') {
       this.revalidateDelivered(job);
-      for (const input of job.inputs) {
-        const units = job.data['inputUnits'] === true && input.wholeItem !== true;
-        const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
-        const needed =
-          input.count -
-          input.delivered.reduce((sum, id) => sum + count(id), 0) -
-          input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
-        if (needed <= 0) continue;
-        const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
-        const found =
-          units && this.items.findUnits !== undefined
-            ? this.items.findUnits(filter, needed, from, false)
-            : this.items.findItems(filter, needed, from);
-        if (found.reduce((sum, id) => sum + count(id), 0) < needed) {
-          return false;
-        }
-      }
-      return true;
+      return job.inputs.every((input) => this.inputFound(job, input, from));
     }
 
     if (job.blockedReason === 'no_tool') {
