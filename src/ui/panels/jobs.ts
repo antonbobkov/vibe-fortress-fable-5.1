@@ -22,22 +22,25 @@ import { buildings, tileXyz, type PanelContext } from './context';
 type JobLike = ReturnType<JobsReader['list']>[number];
 
 /**
- * A row of the job list: one job, or a batch (`panels.md` § Jobs): two or more jobs next to each
- * other in the list, of one type and priority, each on a bare tile, all open or all blocked for the
- * same reason.
+ * A row of the job list: one job, or a batch (`panels.md` § Jobs): two or more jobs of one type and
+ * priority, all open or all blocked for the same reason, on bare tiles or on targets of one kind (a
+ * building type, an item type), standing as one row in the place of the first of them.
  */
 export interface JobRow {
   readonly jobs: readonly JobLike[];
 }
 
-/** A job that can join a batch: open, or blocked with a reason, on a bare tile. */
-function batchable(j: JobLike): boolean {
-  return (j.state === 'open' || (j.state === 'blocked' && j.blockedReason !== null)) && j.target.kind === 'tile';
-}
-
-/** Two batchable jobs belong together: same type, priority and state, and the same reason when blocked. */
-function together(a: JobLike, b: JobLike): boolean {
-  return a.type === b.type && a.priority === b.priority && a.state === b.state && a.blockedReason === b.blockedReason;
+/**
+ * What a job batches by: its type, priority, state, its reason when blocked (the words its row
+ * shows) and its target's kind (a bare tile, or the target's name: "bed", "straw"); null for a job
+ * that never batches, claimed or on a creature (its worker, or its creature, is its fact).
+ */
+function batchKey(ctx: PanelContext, panel: JobsPanel, j: JobLike): string | null {
+  if (j.state !== 'open' && !(j.state === 'blocked' && j.blockedReason !== null)) return null;
+  if (j.target.kind !== 'tile' && ctx.readers.entities.get(j.target.ref, C.Creature) !== undefined) return null;
+  const reason = j.state === 'blocked' ? `${j.blockedReason ?? ''}:${jobBlockText(ctx, j).short}` : '';
+  const target = j.target.kind === 'tile' ? '' : jobText(ctx, panel, j);
+  return `${j.type}|${j.priority}|${j.state}|${reason}|${j.target.kind}|${target}`;
 }
 
 export class JobsPanel {
@@ -138,17 +141,26 @@ export class JobsPanel {
     this.resetSelection();
   }
 
-  /** The list's rows: each batch one row until `Enter` opens it; of `jobs` when the caller has them. */
+  /**
+   * The list's rows: each batch one row until `Enter` opens it, in the place of its first job; of
+   * `jobs` (by priority) when the caller has them.
+   */
   rows(ctx: PanelContext, jobs: readonly JobLike[] = this.jobs(ctx)): JobRow[] {
-    const rows: JobLike[][] = [];
+    const runs: JobLike[][] = [];
+    // The batches of the priority being read, by key: a later job of one joins it, wherever it stands.
+    const batches = new Map<string, JobLike[]>();
+    let priority: number | null = null;
     for (const j of jobs) {
-      const run = rows.at(-1);
-      const head = run?.[0];
-      if (run !== undefined && head !== undefined && batchable(j) && batchable(head) && together(j, head)) run.push(j);
-      else rows.push([j]);
+      if (j.priority !== priority) { batches.clear(); priority = j.priority; }
+      // A job of an opened batch is a row of its own, in its own place, while it lasts.
+      const key = this.opened.has(j.id) ? null : batchKey(ctx, this, j);
+      const run = key === null ? undefined : batches.get(key);
+      if (run !== undefined) { run.push(j); continue; }
+      const fresh = [j];
+      runs.push(fresh);
+      if (key !== null) batches.set(key, fresh);
     }
-    return rows.flatMap((run) => (run.length > 1 && run.some((j) => this.opened.has(j.id)) ? run.map((j) => [j]) : [run]))
-      .map((jobs) => ({ jobs }));
+    return runs.map((jobs) => ({ jobs }));
   }
 
   selectedRow(ctx: PanelContext): JobRow | undefined {
@@ -220,11 +232,24 @@ function jobText(ctx: PanelContext, panel: JobsPanel, j: JobLike): string {
   return `${name} (${p.x},${p.y},z${p.z})`;
 }
 
-/** A batch's row: the job's name and how many (`Dig ×19`, `Plant ×16`). */
-function batchText(ctx: PanelContext, row: JobRow): string {
+/** A batch's row: the job's name and how many (`Dig ×19`, `Build bed ×9`, `Haul straw ×18`). */
+function batchText(ctx: PanelContext, panel: JobsPanel, row: JobRow): string {
   const first = row.jobs[0] as JobLike;
   const type = ctx.readers.of<JobsReader>('11').typeOf(first.id) ?? '';
-  return ctx.strings.get('ui.jobs.batch', { name: jobTypeName(ctx, type), n: row.jobs.length });
+  const name = first.target.kind === 'tile' ? jobTypeName(ctx, type) : jobText(ctx, panel, first);
+  return ctx.strings.get('ui.jobs.batch', { name, n: row.jobs.length });
+}
+
+/**
+ * A batch's cell: whole when it fits, else its kind and count (`Haul ×18`), else the kind cut with
+ * `»` before the count: the count is the fact, the name may be cut.
+ */
+function batchCell(ctx: PanelContext, text: string, kind: string, n: number, room: number): string {
+  const short = ctx.strings.get('ui.jobs.batch', { name: kind, n });
+  const fit = fitCell(text, short, room);
+  if (Array.from(fit).length <= room) return fit;
+  const count = Array.from(short).length - Array.from(kind).length;
+  return ctx.strings.get('ui.jobs.batch', { name: `${Array.from(kind).slice(0, Math.max(0, room - count - 1)).join('')}»`, n });
 }
 
 /** A job type's name: its string ("Haul"), else its id in words with a capital ("Plant", "Carry patient"). */
@@ -248,7 +273,11 @@ export function creatureTargetName(ctx: PanelContext, id: EntityId): string | un
  * (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`).
  */
 export function batchDetail(ctx: PanelContext, panel: JobsPanel, row: JobRow): string {
-  const at = row.jobs.map((j) => tileXyz(ctx, panel.tileOf(ctx, j) ?? 0));
+  const at = row.jobs.flatMap((j) => {
+    const tile = panel.tileOf(ctx, j);
+    return tile === null ? [] : [tileXyz(ctx, tile)];
+  });
+  if (at.length === 0) return ctx.strings.get('ui.jobs.batch_count', { n: row.jobs.length });
   const lo = (k: 'x' | 'y' | 'z'): number => Math.min(...at.map((p) => p[k]));
   const hi = (k: 'x' | 'y' | 'z'): number => Math.max(...at.map((p) => p[k]));
   const z = lo('z') === hi('z') ? `z${lo('z')}` : `z${hi('z')}–${lo('z')}`;
@@ -365,10 +394,11 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const whoRoom = width - PRI_COLS - JOB_COLS - (scrolls ? 1 : 0);
   const cells = rows.map((r) => {
     const j = r.jobs[0] as JobLike;
-    const job = r.jobs.length > 1 ? batchText(ctx, r) : jobText(ctx, panel, j);
+    const job = r.jobs.length > 1 ? batchText(ctx, panel, r) : jobText(ctx, panel, j);
     const who = whoText(ctx, r);
-    const type = ctx.readers.of<JobsReader>('11').typeOf(j.id) ?? '';
-    return { job, who, shownJob: fitCell(job, jobTypeName(ctx, type), jobRoom), shownWho: fitCell(who, who.split(/[:,]/)[0] ?? who, whoRoom) };
+    const kind = jobTypeName(ctx, ctx.readers.of<JobsReader>('11').typeOf(j.id) ?? '');
+    const shownJob = r.jobs.length > 1 ? batchCell(ctx, job, kind, r.jobs.length, jobRoom) : fitCell(job, kind, jobRoom);
+    return { job, who, shownJob, shownWho: fitCell(who, who.split(/[:,]/)[0] ?? who, whoRoom) };
   });
   table(
     s,

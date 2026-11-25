@@ -1126,6 +1126,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.jobs.batch': '{name} ×{n}',
   'ui.jobs.trade_at': 'Trade, depot #{n}',
   'ui.jobs.batch_detail': '{n} jobs over {box}, {z}. [Enter] list them.',
+  'ui.jobs.batch_count': '{n} jobs. [Enter] list them.',
   'ui.jobs.open_days.one': 'open 1 day',
   'ui.jobs.open_days.many': 'open {n} days',
   // Why nobody has taken an open job (`panels.md` § Jobs; `src/ui/job-wait.ts`).
