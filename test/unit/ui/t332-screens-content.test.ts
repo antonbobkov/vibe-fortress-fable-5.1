@@ -221,7 +221,7 @@ describe('T-332 screens: what each outside screen says', () => {
   it('the retire dialog names the fortress, says what happens to it, and offers Yes and No', () => {
     const r = rows('confirm');
     expect(r[10]).toBe('Retire Emberhall? The hall will be recorded in the');
-    expect(r[11]).toBe('Legends and cannot be resumed.');
+    expect(r[11]).toBe('Legends. Saves made before now can still be loaded.');
     expect(r[13]).toBe('[y] Yes  [n] No');
   });
 });
