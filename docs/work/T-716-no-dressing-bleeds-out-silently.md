@@ -33,11 +33,12 @@ As above, with these choices made in the work (17 § Patients and hospitals, § 
 - **The Care line names it first**, before the hospital: "Care: bleeding, and no bandage or cloth to bandage it. Buy them from a caravan, or weave cloth at a loom." (when its `stop_bleeding` is blocked for a missing input). In the playtest the hospital had no bed, so a line after the hospital's would have hidden it.
 - **The hospital panel line** reads the fortress's bandages and cloth to be had (not the hospital's chests), above the supplies.
 - **The hint** is a third line the supplies tab turns over to: "Hint: bring linen. Without cloth or bandages no wound can be bandaged, and a deep cut bleeds to death."
-- No golden world hash moved: `world-hashes.json` plays Balanced, which already carried linen. The scenarios that embark Warband (`pp_defence`, T-521's world) or Farmstead (`pp_pasture`) keep no hash; T-521's timeline moved (another dwarf's hunt takes the put-down crossbow at once), and its step accepts that.
+- No golden world hash moved: `world-hashes.json` plays Balanced, which already carried linen. The scenarios that embark Warband (`pp_defence`, T-521's world) or Farmstead (`pp_pasture`) keep no hash; T-521's timeline moved (another dwarf's hunt takes the put-down crossbow at once), and its step accepts that. `pp_defence` moved to seed `pp-defence-5`: on `pp-defence-4` the day-7 badger no longer comes, three boars outlast the wagon's food and the sheltered fortress starves by day 40, as that scenario's fortress does on master's seeds 3 and 7; on `pp-defence-5` a soldier kills a boar on day 17, and the medic bandages with the new linen.
 
 ## Done
 
 - [x] `npm run content:check` passes with the new preset totals; a test reads each preset and finds a `cloth` or `bandage` (`test/unit/health/t716-no-dressing.test.ts`).
 - [x] Tests (`describe` with the task id): a serious cut in a fortress with no cloth or bandage gives the alert once, at the cut, and again for a later serious cut, none for a light cut or with cloth; the patient's Care line names the bandage and cloth; the hospital panel shows the line while both are 0 and not once one exists; the save keeps the record; the embark hint.
 - [x] World hashes: none recorded for Warband or Farmstead embarks (above).
+- [x] Sweep (measure run 45562366410, on 189b68a2): pooled living 1140.25, deaths 111.5, alive 20, grown 7, extinct 0.25, need deaths 0.5; verdict pass, no seed worth tracing (bounds living ≥ 1046.63, deaths ≤ 132.5).
 - [x] Follow-up: `T-NEW-animal-no-dressing-alert.md` (five dogs bled out the same way, unannounced).
