@@ -15,7 +15,7 @@ import { moodTierName } from '@ui/panels/mood';
 import { chainText, civName, listText } from '@ui/messages';
 import { GameMenuScreen, type GameMenuHost } from '@ui/screens/game_menu';
 import { legendLines, type LegendRecord } from '@ui/screens/legend';
-import { UI_PANELS } from '@ui/screens/fortress';
+import { uiPanels } from '@ui/screens/fortress';
 // @ts-expect-error -- a plain .mjs script without type declarations
 import { check, LITERAL_DIRS, LITERAL_FILES_SKIPPED, panelLiterals } from '../../../scripts/strings-check.mjs';
 
@@ -83,10 +83,10 @@ describe('T-711 the UI outside the panels writes no text in its code', () => {
       'Notable',
       'Last words (log)',
     ]);
-    expect(contextTitle('labor_templates')).toBe('Profession templates');
+    expect(contextTitle('labor_templates', strings)).toBe('Profession templates');
     expect(contextTitle('fortress_panel', strings)).toBe('Fortress panels');
-    expect(contextTitle('no_such_context')).toBe('no_such_context');
-    expect(UI_PANELS.map((p) => p.title)).toEqual(['Designate', 'Look', 'Log', 'Overlays', 'Calendar', 'Population', 'Civilizations', 'Help', 'Debug']);
+    expect(contextTitle('no_such_context', strings)).toBe('no_such_context');
+    expect(uiPanels(strings).map((p) => p.title)).toEqual(['Designate', 'Look', 'Log', 'Overlays', 'Calendar', 'Population', 'Civilizations', 'Help', 'Debug']);
     expect(listText(strings, ['Hillfolk', 'Wildwood', 'Gloam'], 'and')).toBe('Hillfolk, Wildwood and Gloam');
     expect(listText(strings, ['fiber', 'straw', 'reed'], 'or')).toBe('fiber, straw or reed');
     expect(listText(strings, ['a forge'], 'or')).toBe('a forge');
@@ -108,7 +108,7 @@ describe('T-711 the UI outside the panels writes no text in its code', () => {
     });
     const host = { fortressName: () => 'Emberhall', viewOnly: () => false } as unknown as GameMenuHost;
     expect(new GameMenuScreen(host, rows).items()[0]?.label).toBe('Weiter');
-    expect(new GameMenuScreen(host).items()[0]?.label).toBe('Resume');
+    expect(new GameMenuScreen(host, new Strings()).items()[0]?.label).toBe('Resume');
     expect(legendLines(RECORD, rows)).toContain('Meilensteine');
     expect(contextTitle('global', rows)).toBe('Allgemein');
     expect(moodTierName(rows, 2)).toBe('Gut');

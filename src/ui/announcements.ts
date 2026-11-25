@@ -30,7 +30,7 @@ import { capitalize, enchantedName, itemName, matchName, materialItemName, stock
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
-import { Strings } from './strings';
+import type { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
 
@@ -80,17 +80,14 @@ export function combatOnly(line: LogLine): boolean {
   return line.category === 'combat' && line.severity === 'note';
 }
 
-/** The UI's own strings, for the words a line is printed with. */
-const PLAIN = new Strings();
-
 /**
  * A line as the strip and the log panel print it, with its merge count; a standing alert that has
  * come on more days than one is marked with them instead, as the legend's last words are
  * ("! 113 food will rot within 3 days; … (6 days)", T-741).
  */
-export function lineText(line: LogLine): string {
+export function lineText(line: LogLine, strings: Strings): string {
   const days = line.days ?? 1;
-  if (days > 1) return PLAIN.get('ui.legend.folded', { line: `${prefixOf(line.severity)}${line.text}`, n: days });
+  if (days > 1) return strings.get('ui.legend.folded', { line: `${prefixOf(line.severity)}${line.text}`, n: days });
   return `${prefixOf(line.severity)}${line.text}${line.count > 1 ? ` ×${line.count}` : ''}`;
 }
 
@@ -155,7 +152,8 @@ export class AnnouncementLog {
   private readonly templates = new Map<string, RegExp>();
 
   constructor(
-    private readonly strings: Strings,
+    /** The game's strings, which every line is worded from. */
+    readonly strings: Strings,
     private readonly registry: Registry,
     private readonly history: { workshopIdleNotes: number[]; miasmaAdvised?: boolean } = { workshopIdleNotes: [] },
   ) {}
@@ -255,6 +253,8 @@ export class AnnouncementLog {
     }
     const edge = e['edge'];
     if ((event.type === 'CaravanWaiting' || event.type === 'RaidArrived') && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);
+    // 18 § Arrival and warning: a warning names the edge as a place ("the eastern edge").
+    if (event.type === 'ThreatWarning' && typeof edge === 'string' && this.strings.has(`ui.edge.side.${edge}`)) out['edge'] = this.strings.get(`ui.edge.side.${edge}`);
     // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs."
     if (event.type === 'HostileFled') {
       const species = typeof speciesOf === 'number' ? speciesOf : readers.entities.get(Number(e['id']), C.Creature)?.species;

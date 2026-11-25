@@ -1,5 +1,7 @@
 # T-744 — UI words still drawn past the strings rows, and the single-word scan's blind spots
 
+**Closed:** 2026-11-25, in ca6566c0,d67946f6.
+
 **Source:** T-721, found while teaching `strings:check` to find drawn single words · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

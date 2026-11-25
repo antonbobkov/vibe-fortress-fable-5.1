@@ -152,7 +152,7 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
     // The name the trade session gives the same stacks: the material and the type, in the plural above one.
     const type = ctx.registry.table<{ id: string; name: string; plural?: string; category?: string }>('items').byIndex(group.type);
     const material = ctx.registry.table<{ id: string; name: string }>('materials').byIndex(group.material)?.name ?? '';
-    const name = materialItemName(material, type ?? { name: ctx.readers.of<ItemsReader>('13').def(group.type)?.name ?? 'goods' }, group.count);
+    const name = materialItemName(material, type ?? { name: ctx.readers.of<ItemsReader>('13').def(group.type)?.name ?? ctx.strings.get('ui.item.goods') }, group.count);
     const row = top + index - panel.list.scroll;
     label(s, col, row, `${index === panel.list.selected ? '▶' : ' '} ${group.count} ${name}  ${Math.round(group.value)} ☼`, { width });
     s.hit({ col, row, cols: width, rows: 1 }, () => { panel.list.selected = index; });

@@ -85,7 +85,7 @@ export class TradeSessionScreen implements Screen {
       const def = items.def(rec.type);
       const material = this.host.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
       const value = side === 'merchant' ? trade.price(civ, id) : trade.valuation(civ, id);
-      return [{ id, count: rec.count, value, name: materialItemName(material, this.host.registry.table<{ id: string; name: string; plural?: string }>('items').byIndex(rec.type) ?? { name: def?.name ?? 'goods' }, rec.count), type: rec.type, material: rec.material, quality: rec.quality, members: [{ id, count: rec.count, value }] }];
+      return [{ id, count: rec.count, value, name: materialItemName(material, this.host.registry.table<{ id: string; name: string; plural?: string }>('items').byIndex(rec.type) ?? { name: def?.name ?? this.strings.get('ui.item.goods') }, rec.count), type: rec.type, material: rec.material, quality: rec.quality, members: [{ id, count: rec.count, value }] }];
     });
   }
 

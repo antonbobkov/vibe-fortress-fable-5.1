@@ -74,7 +74,7 @@ function debugHostOf(w: TestWorld, calls: string[] = []): DebugHost {
 describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', () => {
   describe('Help panel', () => {
     it('lists every keymap row under its context heading', () => {
-      const rows = helpKeyRows(keymap);
+      const rows = helpKeyRows(keymap, strings);
       for (const binding of keymap.bindings) {
         // T-280: Help writes a Shift letter the way the panels do, `[n]`.
         const key = helpKeyLabel(binding.spec);
@@ -91,16 +91,16 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
     it('a rebinding shows in the help rows at once', () => {
       const index = keymap.bindings.findIndex((b) => b.context === 'global' && b.id === 'toggle_sidebar');
       expect(index).toBeGreaterThanOrEqual(0);
-      const before = helpKeyRows(keymap);
+      const before = helpKeyRows(keymap, strings);
       expect(before.some((row) => row.text.startsWith('Tab  '))).toBe(true);
       expect(keymap.rebind(index, { key: 'F8', ctrl: false, shift: false })).toBeNull();
-      const after = helpKeyRows(keymap);
+      const after = helpKeyRows(keymap, strings);
       expect(after.some((row) => row.text.startsWith('F8  toggle sidebar'))).toBe(true);
       keymap.reset();
     });
 
     it('generates the six legend categories from content, with each row its own colour', () => {
-      const rows = helpGlyphRows(registry, (g) => glyphs.char(g));
+      const rows = helpGlyphRows(registry, (g) => glyphs.char(g), strings);
       const headings = rows.filter((row) => row.heading === true).map((row) => row.text);
       expect(headings).toEqual(['Terrain', 'Fluids', 'Creatures', 'Items', 'Buildings', 'Overlays']);
       // Every creature, item and building row of the content tables that carries a glyph is listed.
@@ -118,12 +118,13 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       const fluids = rows.filter((row) => row.category === 'Fluids' && row.heading === undefined);
       expect(fluids).toHaveLength(6);
       expect(fluids.every((row) => palette.has(row.fg as string))).toBe(true);
-      // The overlay rows are the overlay menu's, so the two lists cannot drift.
-      expect(rows.filter((row) => row.category === 'Overlays' && row.heading === undefined)).toHaveLength(OVERLAY_ROWS.length);
+      // The overlay rows are the overlay menu's, so the two lists cannot drift; the three lines on a
+      // designation's blink follow them.
+      expect(rows.filter((row) => row.category === 'Overlays' && row.heading === undefined)).toHaveLength(OVERLAY_ROWS.length + 3);
     });
 
     it('draws the tabs, scrolls, and paints a legend row in its content colour', () => {
-      const panel = new HelpPanel(registry, keymap);
+      const panel = new HelpPanel(registry, keymap, strings);
       const s = surface(rect.cols, rect.rows);
       drawHelpPanel(s, rect, panel);
       expect(s.lines()[0]).toContain('[1] Keys');
@@ -153,7 +154,7 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
     });
 
     it('a click on the tab captions switches tabs', () => {
-      const panel = new HelpPanel(registry, keymap);
+      const panel = new HelpPanel(registry, keymap, strings);
       const s = surface(rect.cols, rect.rows);
       drawHelpPanel(s, rect, panel);
       const hit = s.hitAt(12, 0);
@@ -177,7 +178,7 @@ describe('T-M7-08 help screen, legend of glyphs, overlays panel, debug panel', (
       const menu = new OverlayMenu();
       const overlays: string[] = ['designations', 'zones'];
       const s = surface(40, 16);
-      drawOverlaysPanel(s, { col: 0, row: 0, cols: 40, rows: 16 }, menu, overlays);
+      drawOverlaysPanel(s, { col: 0, row: 0, cols: 40, rows: 16 }, menu, overlays, strings);
       const lines = s.lines();
       expect(lines[FIRST_DEBUG_ROW]).toContain('Debug:');
       expect(lines[FIRST_DEBUG_ROW + 1]).toContain('connectivity');

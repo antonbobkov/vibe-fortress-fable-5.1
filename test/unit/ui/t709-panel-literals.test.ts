@@ -12,7 +12,7 @@ import { Strings } from '@ui/strings';
 import { eligibilityText } from '@ui/panels/population';
 import { deepQuote } from '@ui/panels/threats';
 import { moodTierName } from '@ui/panels/mood';
-import { SQUAD_PRESET_NAMES } from '@ui/panels/military';
+import { squadPresetNames } from '@ui/panels/military';
 // @ts-expect-error -- a plain .mjs script without type declarations
 import { check, literalsIn, looksPlayerFacing, panelLiterals } from '../../../scripts/strings-check.mjs';
 
@@ -60,13 +60,13 @@ describe('T-709 panel texts are in the strings table', () => {
   it('keeps the words the panels drew from their code', () => {
     const strings = new Strings();
     expect(eligibilityText(['spirit'], strings)).toBe('Eligible: no · hall spirit below Content');
-    expect(eligibilityText(['winter'])).toBe('Eligible: no · winter pass closed');
-    expect(eligibilityText(['something_new'])).toBe('Eligible: no · something_new');
+    expect(eligibilityText(['winter'], strings)).toBe('Eligible: no · winter pass closed');
+    expect(eligibilityText(['something_new'], strings)).toBe('Eligible: no · something_new');
     expect(deepQuote(1, strings)).toBe('The Deep stirs. Something has noticed the pale metal being taken.');
     expect(deepQuote(9, strings)).toBe('The Hollow does not forget.');
     expect([0, 1, 2, 3, 4].map((tier) => moodTierName(strings, tier))).toEqual(['Miserable', 'Unhappy', 'Fine', 'Content', 'Ecstatic']);
-    expect(SQUAD_PRESET_NAMES[0]).toBe('The Hearthguard');
-    expect(SQUAD_PRESET_NAMES).toHaveLength(8);
+    expect(squadPresetNames(strings)[0]).toBe('The Hearthguard');
+    expect(squadPresetNames(strings)).toHaveLength(8);
     expect(strings.get('ui.threats.pressure', { bar: '▓░', pressure: 12, next: 50, level: 0 })).toBe('Pressure ▓░ 12 / 50 (lvl 0)');
   });
 });

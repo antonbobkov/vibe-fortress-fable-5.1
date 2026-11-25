@@ -62,7 +62,7 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
 
   it('Overlays lists the map layers with a tick for the two that are on, and the debug layers apart', () => {
     const s = surface(36, 32);
-    drawOverlaysPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, game.fortress.overlayMenu, game.ui.overlays);
+    drawOverlaysPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, game.fortress.overlayMenu, game.ui.overlays, strings);
     const rows = rowsOf(s.lines());
     expect(rows.slice(0, 9)).toEqual([
       '[■] designations', '[ ] priority digits', '[■] zones', '[ ] fluid levels',

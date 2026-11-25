@@ -56,16 +56,16 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
     expect(log.lines.at(-1)).toBe(standing[0]);
     expect(standing[0]?.tick).toBe(at(14));
     expect(standing[0]?.days).toBe(5);
-    expect(lineText(standing[0]!)).toBe(`${BARREL} (5 days)`);
+    expect(lineText(standing[0]!, strings)).toBe(`${BARREL} (5 days)`);
     // A second one the same day merges as any line of a day does, and still reads five days.
     log.announce(barrel(), w.readers, at(14, 10));
     expect(log.lines.filter((l) => l.key === 'announce.workshop_no_container')).toHaveLength(1);
-    expect(lineText(standing[0]!)).toBe(`${BARREL} (5 days)`);
+    expect(lineText(standing[0]!, strings)).toBe(`${BARREL} (5 days)`);
     // Day 15 without it ends the run: day 16's starts a line of its own.
     const later = log.announce(barrel(), w.readers, at(16));
     expect(later?.folded).toBeUndefined();
     const lines = log.lines.filter((l) => l.key === 'announce.workshop_no_container');
-    expect(lines.map((l) => lineText(l))).toEqual([`${BARREL} (5 days)`, BARREL]);
+    expect(lines.map((l) => lineText(l, strings))).toEqual([`${BARREL} (5 days)`, BARREL]);
   });
 
   it('the rot alert five days running is one line with the fifth day\'s numbers; with the barrel alert on the same days, two lines', () => {
@@ -106,8 +106,8 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
     expect(rot[0]?.text).toBe('25 food will rot within 3 days; the largest stack is 7 boar meat in the open.');
     expect(rot[0]?.subject).toBe(stacks[4]);
     expect(rot[0]?.focus).toBe(w.index(14, 10, Z));
-    expect(lineText(rot[0]!)).toMatch(/ \(5 days\)$/);
-    expect(lineText(waits[0]!)).toBe(`${BARREL} (5 days)`);
+    expect(lineText(rot[0]!, strings)).toMatch(/ \(5 days\)$/);
+    expect(lineText(waits[0]!, strings)).toBe(`${BARREL} (5 days)`);
   });
 
   it('deaths and danger lines between them are never folded, and the standing line passes them', () => {
@@ -125,7 +125,7 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
       ['danger', 'Asa Forgehall has starved to death.', undefined],
       ['danger', 'Orm Ashbrow has starved to death.', undefined],
     ]);
-    expect(log.lines.map((l) => lineText(l))).toEqual([
+    expect(log.lines.map((l) => lineText(l, strings))).toEqual([
       '!! Asa Forgehall has starved to death.',
       '!! Orm Ashbrow has starved to death.',
       `${BARREL} (3 days)`,
@@ -150,7 +150,7 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
       log.announce(barrel(), w.readers, at(day, 4));
       log.announce(barrel('bag'), w.readers, at(day, 5));
     }
-    expect(log.lines.map((l) => lineText(l))).toEqual([
+    expect(log.lines.map((l) => lineText(l, strings))).toEqual([
       '! Bramble is starving. (3 days)',
       '! Rex is starving. (3 days)',
       `${BARREL} (3 days)`,
@@ -166,7 +166,7 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
     const log = announcer(w);
     log.announce(event({ type: 'CavernBreached', cavern: 1, tile: w.index(10, 10, Z) }), w.readers, at(40));
     log.announce(event({ type: 'CavernBreached', cavern: 2, tile: w.index(12, 10, Z) }), w.readers, at(41));
-    expect(log.lines.map((l) => lineText(l))).toEqual(['! A cavern has been breached.', '! A cavern has been breached.']);
+    expect(log.lines.map((l) => lineText(l, strings))).toEqual(['! A cavern has been breached.', '! A cavern has been breached.']);
   });
 
   it('a save and a load keep the days, and the run goes on after the load', () => {
@@ -176,9 +176,9 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
     expect(toSaved(defaultUiState(Z), log.lines).logTail.map((l) => l.days)).toEqual([3]);
     const loaded = announcer(w);
     loaded.lines.push(...reloaded(log.lines));
-    expect(loaded.lines.map((l) => lineText(l))).toEqual([`${BARREL} (3 days)`]);
+    expect(loaded.lines.map((l) => lineText(l, strings))).toEqual([`${BARREL} (3 days)`]);
     loaded.announce(barrel(), w.readers, at(53));
-    expect(loaded.lines.map((l) => lineText(l))).toEqual([`${BARREL} (4 days)`]);
+    expect(loaded.lines.map((l) => lineText(l, strings))).toEqual([`${BARREL} (4 days)`]);
     // A line of one day saves no days, and an older save's lines (none) are one day.
     expect(toSaved(defaultUiState(Z), [{ tick: 1, severity: 'alert', text: 'x', count: 1 }]).logTail[0]).not.toHaveProperty('days');
   });
@@ -208,6 +208,6 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
     expect(flash.flashUntil).toBe(0);
     expect(paused).toBe(1);
     const lines = f.log.lines.filter((l) => l.key === 'announce.workshop_no_container');
-    expect(lines.map((l) => lineText(l))).toEqual([`${BARREL} (2 days)`]);
+    expect(lines.map((l) => lineText(l, strings))).toEqual([`${BARREL} (2 days)`]);
   });
 });

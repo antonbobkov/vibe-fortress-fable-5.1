@@ -23,7 +23,8 @@ import {
   readLoadout,
 } from '@systems/embark';
 import { runeMaxMilli } from '@systems/magic/rune';
-import { LEGEND_TESTING_NOTE, legendLines, type LegendRecord } from '@ui/screens/legend';
+import { legendLines, type LegendRecord } from '@ui/screens/legend';
+import { strings } from '../ui/ui-fixture';
 
 const registry = contentRegistry();
 
@@ -191,10 +192,10 @@ describe('T-532 testing mode: arrival, save header and legend', () => {
       foundedTick: 0, endedTick: 0, yearsSurvived: 0, daysSurvived: 3, peakPopulation: 12, deepestLevel: 0,
       finalWealth: 0, milestones: [{ id: 'm_hearth', date: 'Day 2', text: 'The hearth was lit.' }], killsOfNote: [], lastWords: [], cause: 'Retired.',
     };
-    expect(legendLines(record)[0]).toBe('Testhold');
-    const lines = legendLines({ ...record, testing: true });
+    expect(legendLines(record, strings)[0]).toBe('Testhold');
+    const lines = legendLines({ ...record, testing: true }, strings);
     expect(lines[0]).toBe('Testhold (testing)');
-    expect(lines).toContain(LEGEND_TESTING_NOTE);
+    expect(lines).toContain(strings.get('ui.legend.testing_note'));
     expect(lines).toContain('Milestones (testing start)');
   });
 });

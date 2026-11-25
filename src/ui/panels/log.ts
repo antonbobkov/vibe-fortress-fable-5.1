@@ -23,8 +23,8 @@ import type { KeyContext } from '../keymap';
 export const HINT_KEY_CONTEXTS: readonly KeyContext[] = ['global', 'fortress_panel', 'map', 'building_panel'];
 
 /** A log line's text, with a hint's keys named as the live keymap binds them. */
-function shownText(s: Surface, line: LogLine): string {
-  const text = lineText(line);
+function shownText(s: Surface, line: LogLine, strings: Strings): string {
+  const text = lineText(line, strings);
   return line.category === 'hint' && s.keyNames !== null ? s.keyNames(text, HINT_KEY_CONTEXTS) : text;
 }
 
@@ -51,11 +51,11 @@ export function filterLines(lines: readonly LogLine[], filter: LogFilter): LogLi
 }
 
 /** The lines of a tab whose text as the panel shows it contains `text`, ignoring case (panels.md § Log: the filter field). */
-export function matchLines(s: Surface, lines: readonly LogLine[], filter: LogFilter, text: string): LogLine[] {
+export function matchLines(s: Surface, lines: readonly LogLine[], filter: LogFilter, text: string, strings: Strings): LogLine[] {
   const tab = filterLines(lines, filter);
   if (text === '') return tab;
   const needle = text.toLowerCase();
-  return tab.filter((line) => shownText(s, line).toLowerCase().includes(needle));
+  return tab.filter((line) => shownText(s, line, strings).toLowerCase().includes(needle));
 }
 
 /** A log row's date: "Sp 8", with the year ("Y2 Sp 8") for a line of an earlier year than `now`. */
@@ -121,7 +121,7 @@ interface LogLayout {
 }
 
 /** The entries from `scroll` in `height` rows of `cols` cells: the date column, then the text wrapped under itself. */
-function layoutLog(s: Surface, shown: readonly LogLine[], dates: (index: number) => string, scroll: number, height: number, cols: number): LogLayout {
+function layoutLog(s: Surface, strings: Strings, shown: readonly LogLine[], dates: (index: number) => string, scroll: number, height: number, cols: number): LogLayout {
   const end = Math.min(shown.length, scroll + height);
   let widest = 0;
   for (let index = scroll; index < end; index += 1) widest = Math.max(widest, Array.from(dates(index)).length);
@@ -130,7 +130,7 @@ function layoutLog(s: Surface, shown: readonly LogLine[], dates: (index: number)
   const entries: PlacedEntry[] = [];
   let used = 0;
   for (let index = scroll; index < shown.length && used < height; index += 1) {
-    const parts = wrapHang(shownText(s, shown[index] as LogLine), textCols, 0);
+    const parts = wrapHang(shownText(s, shown[index] as LogLine, strings), textCols, 0);
     const rows = Math.min(parts.length, height - used);
     // The log never cuts an entry: one the rows left cannot hold whole is left for the scroll, unless it is
     // the first drawn (an entry taller than the panel).
@@ -162,7 +162,7 @@ export function drawLogPanel(
 ): void {
   label(s, rect.col + 1, rect.row, strings.get('ui.log.filter'), { width: rect.cols - 2 });
   if (rect.rows > 1) drawPanelFilter(s, rect.col + 1, rect.row + 1, rect.cols - 2, view.filter, { strings });
-  const shown = matchLines(s, lines, filter, view.filter.value).reverse();
+  const shown = matchLines(s, lines, filter, view.filter.value, strings).reverse();
   if (shown.length === 0) {
     view.reset();
     const empty = view.filter.value === '' ? 'ui.log.empty' : 'ui.log.no_match';
@@ -193,15 +193,15 @@ export function drawLogPanel(
   };
   const place = (cols: number): LogLayout => {
     view.scroll = Math.max(0, Math.min(view.selected, view.scroll));
-    let layout = layoutLog(s, shown, dates, view.scroll, height, cols);
+    let layout = layoutLog(s, strings, shown, dates, view.scroll, height, cols);
     // Down until the selected entry is whole; an entry taller than the panel is shown from its top.
     while (view.scroll < view.selected && !layout.entries.some((e) => e.index === view.selected && whole(e))) {
       view.scroll += 1;
-      layout = layoutLog(s, shown, dates, view.scroll, height, cols);
+      layout = layoutLog(s, strings, shown, dates, view.scroll, height, cols);
     }
     // Up while every entry from one earlier to the oldest still fits, so the end of the list fills the panel.
     while (view.scroll > 0) {
-      const earlier = layoutLog(s, shown, dates, view.scroll - 1, height, cols);
+      const earlier = layoutLog(s, strings, shown, dates, view.scroll - 1, height, cols);
       const last = earlier.entries[earlier.entries.length - 1];
       if (last === undefined || last.index !== shown.length - 1 || !whole(last)) break;
       view.scroll -= 1;
@@ -229,7 +229,7 @@ export function drawLogPanel(
       label(s, rect.col + 1 + layout.dateCols, row + k, text, { fg, width: layout.textCols, keys: false });
     }
     // Such an entry's tooltip is the whole entry.
-    if (!whole(entry)) s.tooltip(cells, shownText(s, line));
+    if (!whole(entry)) s.tooltip(cells, shownText(s, line, strings));
     if (view.chosen && entry.index === view.selected) s.invert(cells);
     s.hit({ col: rect.col, row, cols: cols + 1, rows: entry.rows }, () => {
       const again = view.chosen && view.selected === entry.index;
@@ -298,7 +298,7 @@ function drawLogScrollbar(s: Surface, track: Rect, view: LogView, count: number)
  * any key) takes the bottom row; `flash` draws the strip on the panel background for the alert's
  * second.
  */
-export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], pinned: LogLine | null, flash: boolean): void {
+export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], pinned: LogLine | null, flash: boolean, strings: Strings): void {
   const bg = flash ? s.theme.panelBg : s.theme.black;
   s.fill(rect, bg);
   // The newest lines but the combat notes, which only the Combat tab lists (16 § Combat log).
@@ -321,7 +321,7 @@ export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], 
     if (left <= 0) continue;
     const hint = line.category === 'hint';
     const color = hint ? s.theme.value : colorOf(s.theme, line.severity);
-    const parts = hint && left >= 2 ? wrapText(shownText(s, line), width, left) : [shownText(s, line)];
+    const parts = hint && left >= 2 ? wrapText(shownText(s, line, strings), width, left) : [shownText(s, line, strings)];
     for (let p = parts.length - 1; p >= 0; p -= 1) rows.unshift({ text: parts[p] as string, color });
   }
   const offset = rect.rows - rows.length;

@@ -185,7 +185,7 @@ describe('T-278 saving', () => {
     const menu = new GameMenuScreen({
       fortressName: () => 'Grimvault', resume: () => {}, save: () => {}, load: () => {}, settings: () => {}, retire: () => {}, mainMenu: () => {},
       viewOnly: () => false, now: () => now,
-    });
+    }, strings);
     menu.flash('Saved Grimvault, Day 1 of Spring, Year 1.');
     const lines = (): string[] => { const s = surface(80, 25); menu.draw(s); return s.lines().map((l) => l.trim()); };
     const title = lines().findIndex((l) => l === 'Deepholm · Grimvault');

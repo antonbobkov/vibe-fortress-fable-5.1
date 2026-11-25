@@ -192,7 +192,7 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
         mainMenu: () => calls.push('main_menu'),
         viewOnly: () => false,
       };
-      const menu = new GameMenuScreen(host);
+      const menu = new GameMenuScreen(host, strings);
       const items = menu.items();
       const renameItem = items.find((i) => i.id === 'rename');
       expect(renameItem).toBeDefined();

@@ -11,7 +11,7 @@ import { MemoryStorage } from '@platform/storage';
 import { LegendSystem } from '@systems/legend';
 import { legendLines } from '@ui/screens/legend';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
-import { press } from './ui-fixture';
+import { press, strings } from './ui-fixture';
 
 describe('T-M7-06 milestone registry and fortress legend', () => {
   it('awards all eighteen content milestones from their event fixtures once', () => {
@@ -70,7 +70,7 @@ describe('T-M7-06 milestone registry and fortress legend', () => {
     expect(record.cause).toContain('Solveig Deephand');
     expect(record.milestones).toEqual([{ id: 'm_hearth', date: 'Day 1 of Spring, Year 1', text: 'The hearth was lit.' }]);
     expect(record.lastWords).toHaveLength(40);
-    expect(legendLines(record).join('\n')).toContain('Orm slew 14 enemies.');
+    expect(legendLines(record, strings).join('\n')).toContain('Orm slew 14 enemies.');
     const store = new LegendStore(new MemoryStorage());
     await store.write(record);
     expect(await store.read(record.id)).toEqual(record);

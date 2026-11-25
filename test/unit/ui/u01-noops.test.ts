@@ -153,10 +153,10 @@ describe('U-01 announcements and keys read as words, not codes (§4.5, Q3)', () 
 
   it('a binding reads with its own context wording (help and the keybindings screen)', () => {
     const trade = keymap.bindings.find((b) => b.context === 'trade_session' && b.spec.key === '+');
-    expect(trade !== undefined && actionText(trade)).toBe('quantity');
+    expect(trade !== undefined && actionText(trade, strings)).toBe('quantity');
     const embark = keymap.bindings.find((b) => b.context === 'embark' && b.spec.key === 'Enter');
-    expect(embark !== undefined && actionText(embark)).toBe('Embark');
+    expect(embark !== undefined && actionText(embark, strings)).toBe('Embark');
     const speed = keymap.bindings.find((b) => b.id === 'speed_up');
-    expect(speed !== undefined && actionText(speed)).not.toContain('_');
+    expect(speed !== undefined && actionText(speed, strings)).not.toContain('_');
   });
 });

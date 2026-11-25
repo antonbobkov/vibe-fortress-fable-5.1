@@ -2,7 +2,7 @@ import { computeLayout } from '@render/cellbuffer';
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
 import { TileFlag, TileKind } from '@core/map3d';
-import { MilitaryPanel, SQUAD_PRESET_NAMES } from '@ui/panels/military';
+import { MilitaryPanel, squadPresetNames } from '@ui/panels/military';
 import { deepQuote, drawThreatsPanel, ThreatsPanel, visibleThreatParties } from '@ui/panels/threats';
 import type { ThreatsReader } from '@systems/threats';
 import type { BuildingsReader } from '@systems/buildings';
@@ -42,13 +42,13 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
 
       // Create new squad
       const createCmd = panel.newSquad(ctx);
-      expect(createCmd).toEqual({ type: 'CreateSquad', name: SQUAD_PRESET_NAMES[0] });
+      expect(createCmd).toEqual({ type: 'CreateSquad', name: squadPresetNames(strings)[0] });
       if (createCmd) w.submit(createCmd);
       w.step(1);
 
       expect(panel.squads(ctx)).toHaveLength(1);
       const squad = panel.selectedSquad(ctx)!;
-      expect(squad.name).toBe(SQUAD_PRESET_NAMES[0]);
+      expect(squad.name).toBe(squadPresetNames(strings)[0]);
       expect(squad.mode).toBe('off');
 
       // Add members
@@ -182,11 +182,11 @@ describe('T-M6-16 Military, threats, health panels; combat log', () => {
       expect(visibleThreatParties(reader)).toEqual([2]);
     });
     it('deep quotes match level specification', () => {
-      expect(deepQuote(0)).toContain('not yet noticed');
-      expect(deepQuote(1)).toContain('pale metal');
-      expect(deepQuote(2)).toContain('hunters');
-      expect(deepQuote(3)).toContain('wyrm');
-      expect(deepQuote(4)).toContain('opens its mouth');
+      expect(deepQuote(0, strings)).toContain('not yet noticed');
+      expect(deepQuote(1, strings)).toContain('pale metal');
+      expect(deepQuote(2, strings)).toContain('hunters');
+      expect(deepQuote(3, strings)).toContain('wyrm');
+      expect(deepQuote(4, strings)).toContain('opens its mouth');
     });
 
     it('renders threats panel with peril, renown, and caverns', () => {

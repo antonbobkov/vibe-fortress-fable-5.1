@@ -10,12 +10,9 @@ import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import { acceleratorOf, type KeyContext } from '../keymap';
 import type { Surface } from '../surface';
-import { Strings } from '../strings';
+import type { Strings } from '../strings';
 import { label, menu, moveSelection, type MenuItem } from '../widgets';
 import { GAME_MENU_MESSAGE_MS } from '../constants';
-
-/** The default table, for a menu made without the game's strings. */
-const DEFAULT_STRINGS = new Strings();
 
 export interface GameMenuHost {
   /** The title row: `Deepholm · <fortress>`. */
@@ -57,7 +54,7 @@ export class GameMenuScreen implements Screen {
   selected = 'resume';
   private last: Surface | null = null;
   private flashed: { text: string; until: number } | null = null;
-  constructor(private readonly host: GameMenuHost, private readonly strings?: Strings) {}
+  constructor(private readonly host: GameMenuHost, private readonly strings: Strings) {}
 
   /** A line under the title for `GAME_MENU_MESSAGE_MS`: what saving did. */
   flash(text: string): void {
@@ -71,7 +68,7 @@ export class GameMenuScreen implements Screen {
 
   items(): MenuItem[] {
     const enabled = !this.host.viewOnly();
-    const s = this.strings ?? DEFAULT_STRINGS;
+    const s = this.strings;
     return [
       { id: 'resume', key: 'r', label: s.get('ui.game_menu.resume') },
       { id: 'save', key: 'S-s', label: s.get('ui.game_menu.save'), enabled },
@@ -88,7 +85,7 @@ export class GameMenuScreen implements Screen {
     this.last = surface;
     const col = Math.max(2, Math.floor(surface.cols / 2) - 12);
     const row = Math.max(1, Math.floor(surface.rows / 2) - 5);
-    label(surface, col, row, (this.strings ?? DEFAULT_STRINGS).get('ui.game_menu.title', { fortress: this.host.fortressName() }), { fg: surface.theme.key });
+    label(surface, col, row, this.strings.get('ui.game_menu.title', { fortress: this.host.fortressName() }), { fg: surface.theme.key });
     const message = this.message;
     if (message !== null) label(surface, col, row + 1, message, { fg: surface.theme.good, width: Math.max(1, surface.cols - col - 1) });
     menu(surface, col, row + 2, this.items(), this.selected, (id) => this.choose(id));

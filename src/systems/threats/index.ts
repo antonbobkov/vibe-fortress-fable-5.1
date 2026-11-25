@@ -373,20 +373,13 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
 
         if (entry.warningDays > 0) {
           const sizeBand = sizeBandOf(size);
-          const edgeDescMap: Record<Edge, string> = {
-            n: 'the northern edge',
-            e: 'the eastern edge',
-            s: 'the southern edge',
-            w: 'the western edge',
-          };
-          const edgeDesc = edgeDescMap[edge] ?? edge;
-
+          // The edge as its id (`n`); the announcement words it (`ui.edge.side.<edge>`).
           ctx.emit({
             type: 'ThreatWarning',
             kind,
             civ,
             sizeBand,
-            edge: edgeDesc,
+            edge,
           });
 
           entry.pendingSpawnTick = ctx.tick + leadTicks + 1;

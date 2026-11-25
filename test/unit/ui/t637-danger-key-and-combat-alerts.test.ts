@@ -102,7 +102,7 @@ describe('T-637 a fight is one engagement line in the Alerts tab, its blows the 
     const lines = screen.log.lines;
     const alerts = filterLines(lines, 1);
     expect(alerts).toHaveLength(1);
-    expect(lineText(alerts[0]!)).toBe('! 3 dwarves and a dog are fighting 4 gloam warriors and a gloam archer.');
+    expect(lineText(alerts[0]!, strings)).toBe('! 3 dwarves and a dog are fighting 4 gloam warriors and a gloam archer.');
     expect(alerts[0]?.category).toBe('combat');
     // Nine blows, each a note of the Combat tab, and the engagement line.
     const combat = filterLines(lines, 2);
@@ -111,7 +111,7 @@ describe('T-637 a fight is one engagement line in the Alerts tab, its blows the 
     // The All tab and the strip leave the blows out.
     expect(filterLines(lines, 0)).toEqual(alerts);
     const s = surface(80, 3);
-    drawLogStrip(s, { col: 0, row: 0, cols: 80, rows: 3 }, lines, null, false);
+    drawLogStrip(s, { col: 0, row: 0, cols: 80, rows: 3 }, lines, null, false, strings);
     expect(s.lines().filter((row) => row.includes('hits'))).toEqual([]);
     expect(s.lines()[2]).toContain('! 3 dwarves and a dog are fighting');
   });
@@ -155,7 +155,7 @@ describe('T-637 a fight is one engagement line in the Alerts tab, its blows the 
     const { screen, dwarves, warriors } = raid('t637-off');
     screen.settings.combatLog = 'off';
     screen.onEvents([blow(warriors[0] as number, dwarves[0] as number)]);
-    expect(screen.log.lines.map((l) => lineText(l))).toEqual(['! Halvar Ironfell is fighting a gloam warrior.']);
+    expect(screen.log.lines.map((l) => lineText(l, strings))).toEqual(['! Halvar Ironfell is fighting a gloam warrior.']);
   });
 
   it('a hit that does no damage says so', () => {
@@ -179,7 +179,7 @@ describe('T-637 a dwarf\'s death by a raider is one line', () => {
     expect(events.map((e) => e.type)).toEqual(['CreatureDied', 'KillRecorded']);
     screen.onEvents(events);
     const named = screen.log.lines.filter((l) => l.text.includes('Halvar'));
-    expect(named.map((l) => lineText(l))).toEqual(['!! Halvar Ironfell has been killed by a hillfolk bandit.']);
+    expect(named.map((l) => lineText(l, strings))).toEqual(['!! Halvar Ironfell has been killed by a hillfolk bandit.']);
     expect(filterLines(screen.log.lines, 2)).toEqual(named);
   });
 

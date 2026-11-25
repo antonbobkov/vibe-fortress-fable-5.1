@@ -18,7 +18,6 @@ import type { AnnouncementLog } from './announcements';
 import { HINT_ALERT_REPEAT_DAYS, HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM } from './constants';
 import { raidArrival } from './raid-lines';
 import { foodAtHand } from './food-at-hand';
-import { Strings } from './strings';
 
 export interface HintRow { readonly id: string; readonly trigger: string; readonly text: string }
 
@@ -194,7 +193,7 @@ export class HintEngine {
 
   /** `hint_starving`'s words: the food at hand now, or the advice for none. */
   private starvingText(readers: ReaderSet): string {
-    const strings = new Strings(this.registry);
+    const strings = this.log.strings;
     const food = foodAtHand(readers, this.registry, strings);
     return food.length === 0 ? strings.get('ui.starving_hint.none') : strings.get('hint.hint_starving', { food: food.join('; ') });
   }

@@ -34,7 +34,7 @@ import {
 } from '@render/glyphs';
 import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
 import { wrapHang } from '../messages';
-import { Strings } from '../strings';
+import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, tabs } from '../widgets';
 import { OVERLAY_ROWS, overlayLabel } from './overlays';
@@ -59,9 +59,6 @@ const WORDING: Readonly<Record<string, string>> = Object.freeze(
     return out;
   }, {}),
 );
-
-/** The default table, for the callers that pass no strings. */
-const DEFAULT_STRINGS = new Strings();
 
 /**
  * § Terrain, the solid rows: the glyphs the compositor draws and the thing they draw
@@ -104,7 +101,7 @@ interface PlantGlyphRow {
  * One row per tree glyph of the plants table, naming the species drawn with it in table order
  * ("↑  tree: ash, birch, stalk fern"), in the colour of its first species.
  */
-export function treeLegendRows(registry: Registry, strings: Strings = DEFAULT_STRINGS): HelpRow[] {
+export function treeLegendRows(registry: Registry, strings: Strings): HelpRow[] {
   const byGlyph = new Map<string, { names: string[]; fg?: string }>();
   const plants = registry.table<PlantGlyphRow>('plants');
   for (const id of plants.ids()) {
@@ -187,7 +184,7 @@ export function helpKeyLabel(spec: KeySpec): string {
 }
 
 /** A group's keys as one label: a run of digits as a range (`1–9`), arrows side by side, the rest spaced. */
-export function keysLabel(labels: readonly string[], strings: Strings = DEFAULT_STRINGS): string {
+export function keysLabel(labels: readonly string[], strings: Strings): string {
   const shown = labels.map((l) => (l === 'any-letter' ? strings.get('ui.help.any_letter') : l));
   const digits = shown.map(Number);
   if (shown.length > 2 && shown.every((l) => /^\d$/.test(l)) && digits.every((d, k) => k === 0 || d === (digits[k - 1] as number) + 1)) {
@@ -201,9 +198,9 @@ export function keysLabel(labels: readonly string[], strings: Strings = DEFAULT_
  * Every binding of the live keymap under its context heading, the panel hotkeys first; the keys
  * of one action with the same wording share a row (Q14: "←→↑↓  pan by 1 cell", "1–9  set priority").
  */
-export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
+export function helpKeyRows(keymap: Keymap, strings: Strings): HelpRow[] {
   const out: HelpRow[] = [];
-  if (strings !== undefined) out.push({ category: 'shift', text: strings.get('ui.panel.shift_note') });
+  out.push({ category: 'shift', text: strings.get('ui.panel.shift_note') });
   for (const context of HELP_CONTEXT_ORDER) {
     const bindings = keymap.of(context);
     if (bindings.length === 0) continue;
@@ -217,10 +214,10 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     }
     for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys, strings)}  ${g.text}`, keys: g.keys });
     // D-253: a panel's own letters come before the panel letters; the keymap table has no row to say so.
-    if (context === 'panel' && strings !== undefined) out.push({ category: context, text: strings.get('ui.help.accelerators') });
+    if (context === 'panel') out.push({ category: context, text: strings.get('ui.help.accelerators') });
     // The panel's notes follow its rows, each key they still name as its binding has it now.
     const extra = PANEL_NOTES[context];
-    if (extra === undefined || strings === undefined) continue;
+    if (extra === undefined) continue;
     const note = (id: string, words: boolean): void => {
       out.push({ category: context, text: keymap.relabel(strings.get(id), extra.contexts, words) });
     };
@@ -234,7 +231,7 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
  * The wording the keymap table gives this row (Q14: per context, so Trade's `+` reads "quantity"),
  * a panel hotkey's panel name, or the action id read as words.
  */
-export function actionText(binding: Binding, strings: Strings = DEFAULT_STRINGS): string {
+export function actionText(binding: Binding, strings: Strings): string {
   if (binding.text !== undefined) return binding.text;
   if (binding.context === 'fortress_panel') return strings.get('ui.help.panel_action', { panel: `${binding.id.charAt(0).toUpperCase()}${binding.id.slice(1)}` });
   return WORDING[binding.id] ?? binding.id.replaceAll('_', ' ');
@@ -244,7 +241,7 @@ export function actionText(binding: Binding, strings: Strings = DEFAULT_STRINGS)
  * A key context's heading, as the keymap table names its sections (`ui.keymap.context.<context>`);
  * an unknown context is returned as it is.
  */
-export function contextTitle(context: string, strings: Strings = DEFAULT_STRINGS): string {
+export function contextTitle(context: string, strings: Strings): string {
   const key = `ui.keymap.context.${context}`;
   return strings.has(key) ? strings.get(key) : context;
 }
@@ -253,10 +250,9 @@ export function contextTitle(context: string, strings: Strings = DEFAULT_STRINGS
 /** The Legend tab's lines on a designation's blink. */
 const DESIGNATION_BLINK_KEYS: readonly string[] = ['ui.help.legend.designation_queued', 'ui.help.legend.designation_assigned', 'ui.help.legend.designation_steady'];
 
-export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => string, strings?: Strings): HelpRow[] {
+export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => string, strings: Strings): HelpRow[] {
   const out: HelpRow[] = [];
-  const str = strings ?? DEFAULT_STRINGS;
-  const title = (category: string): string => str.get(`ui.help.legend.heading.${category}`);
+  const title = (category: string): string => strings.get(`ui.help.legend.heading.${category}`);
   const heading = (text: string): void => { out.push({ category: text, text, heading: true }); };
   const fromTable = (category: string, table: string): void => {
     heading(category);
@@ -276,20 +272,20 @@ export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => str
   const terrain = title('terrain');
   heading(terrain);
   for (const row of TERRAIN_LEGEND) {
-    if (row === 'trees') out.push(...treeLegendRows(registry, str));
-    else out.push({ category: terrain, text: `${row.glyphs.map(charOf).join(' ')}  ${str.get(`ui.help.legend.${row.name}`)}`, ...(row.fg === undefined ? {} : { fg: row.fg }) });
+    if (row === 'trees') out.push(...treeLegendRows(registry, strings));
+    else out.push({ category: terrain, text: `${row.glyphs.map(charOf).join(' ')}  ${strings.get(`ui.help.legend.${row.name}`)}`, ...(row.fg === undefined ? {} : { fg: row.fg }) });
   }
   const fluids = title('fluids');
   heading(fluids);
-  for (const row of FLUID_LEGEND) out.push({ category: fluids, text: `${row.glyph}  ${str.get(`ui.help.legend.${row.name}`)}`, fg: row.fg });
+  for (const row of FLUID_LEGEND) out.push({ category: fluids, text: `${row.glyph}  ${strings.get(`ui.help.legend.${row.name}`)}`, fg: row.fg });
   fromTable(title('creatures'), 'creatures');
   fromTable(title('items'), 'items');
   fromTable(title('buildings'), 'buildings');
   const overlays = title('overlays');
   heading(overlays);
-  for (const row of OVERLAY_ROWS) out.push({ category: overlays, text: `∙  ${overlayLabel(str, row)}` });
+  for (const row of OVERLAY_ROWS) out.push({ category: overlays, text: `∙  ${overlayLabel(strings, row)}` });
   // 23 § Animation: what a designation's blink says.
-  if (strings !== undefined) for (const key of DESIGNATION_BLINK_KEYS) out.push({ category: overlays, text: `∙  ${strings.get(key)}` });
+  for (const key of DESIGNATION_BLINK_KEYS) out.push({ category: overlays, text: `∙  ${strings.get(key)}` });
   return out;
 }
 
@@ -328,11 +324,11 @@ export class HelpPanel {
   visible = 10;
   private legend: HelpRow[] | null = null;
 
-  constructor(private readonly registry: Registry, private readonly keymap: Keymap, readonly strings?: Strings) {}
+  constructor(private readonly registry: Registry, private readonly keymap: Keymap, readonly strings: Strings) {}
 
   rows(charOf: (glyph: number) => string): HelpRow[] {
     if (this.tab === 0) return helpKeyRows(this.keymap, this.strings);
-    if (this.tab === 2) return this.strings === undefined ? [] : helpStartRows(this.strings);
+    if (this.tab === 2) return helpStartRows(this.strings);
     this.legend ??= helpGlyphRows(this.registry, charOf, this.strings);
     return this.legend;
   }
@@ -357,7 +353,7 @@ export class HelpPanel {
 export function drawHelpPanel(surface: Surface, rect: Rect, panel: HelpPanel): void {
   if (rect.rows <= 0) return;
   const t = surface.theme;
-  const strings = panel.strings ?? DEFAULT_STRINGS;
+  const strings = panel.strings;
   tabs(surface, rect.col + 1, rect.row, [{ key: '1', label: strings.get('ui.help.tab.keys') }, { key: '2', label: strings.get('ui.help.tab.legend') }, { key: '3', label: strings.get('ui.help.tab.start') }], panel.tab,
     (index) => panel.setTab(index as HelpTab));
   const width = rect.cols - 2;

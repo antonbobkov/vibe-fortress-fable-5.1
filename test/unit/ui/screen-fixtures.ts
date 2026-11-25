@@ -192,7 +192,7 @@ export function renderScreen(name: ScreenName): ScreenGolden {
         killsOfNote: ['Orm Ashbrow slew 14 enemies.', 'Gnashvein the captain returned twice.'],
         lastWords: ['!! The Hollow opens its mouth.', '!  Brynja Coldhammer has bled to death.'],
       };
-      const screen = new LegendScreen([record], { back: () => {} }, record.id);
+      const screen = new LegendScreen([record], { back: () => {}, strings }, record.id);
       const s = surface(80, 25);
       screen.draw(s);
       return { text: s.lines(), cells: cellRows(s) };
@@ -210,7 +210,7 @@ export function renderScreen(name: ScreenName): ScreenGolden {
         mainMenu: () => {},
         viewOnly: () => false,
       };
-      const screen = new GameMenuScreen(gameMenuHost);
+      const screen = new GameMenuScreen(gameMenuHost, strings);
       const s = surface(80, 25);
       screen.draw(s);
       return { text: s.lines(), cells: cellRows(s) };
