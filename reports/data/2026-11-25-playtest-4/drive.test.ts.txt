@@ -1,0 +1,106 @@
+/** Playtest 11-25b driver (not committed): the three-year script at peril 4 on a new seed, with a cistern begun early and a ward of beds. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY, DAYS_PER_YEAR } from '@core/constants';
+import { C } from '@core/components';
+import { TileKind } from '@core/map3d';
+import { saveGame } from '@app/game-save';
+import type { BuildingsReader } from '@systems/buildings';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense, hallBlockSite, type FortressState } from './three_years_fortress';
+import { command } from './script-commands';
+import { ROUTINE } from './three_years_economy';
+import type { TestWorld } from './test-world';
+
+const SEED = process.env['PT_SEED'] ?? 'playtest-1125-p4';
+const PERIL = Number(process.env['PT_PERIL'] ?? 4);
+const OUT = process.env['PT_OUT'] ?? 'out/pt4';
+const SAVE_DAYS = (process.env['PT_SAVES'] ?? '40,60,100,140,180,220,260,300,336').split(',').map(Number);
+const END_DAY = Number(process.env['PT_END'] ?? 336);
+const WARD_DAY = 50;
+const PLAIN = process.env['PT_PLAIN'] === '1';
+const CISTERN_DAY = PLAIN ? 99999 : 30;
+
+/** A ward: a 5×3 block of rock off a corridor, dug, six beds and a chest, a hospital zone over it. */
+const ward: { tiles: number[] | null; zoned: boolean; beds: number } = { tiles: null, zoned: false, beds: 0 };
+function keepWard(w: TestWorld, state: FortressState, day: number, log: string[]): void {
+  if (PLAIN || day < WARD_DAY) return;
+  if (ward.tiles === null) {
+    ward.tiles = hallBlockSite(w, state, 5, 3);
+    if (ward.tiles === null) { log.push(`d${day} WARD no site`); ward.tiles = []; return; }
+    command(w, { type: 'Designate', kind: 'dig', priority: ROUTINE, tiles: ward.tiles });
+    log.push(`d${day} WARD designated ${ward.tiles.map((t) => `${w.map.xOf(t)},${w.map.yOf(t)}`).join(' ')} z${state.hallZ}`);
+    return;
+  }
+  if (ward.tiles.length === 0 || ward.zoned) return;
+  if (!ward.tiles.every((t) => w.map.kindAt(t) === TileKind.Floor)) return;
+  const buildings = w.readers.of<BuildingsReader>('14');
+  const bedTiles = ward.tiles.filter((_, i) => i % 5 !== 2).slice(0, 6);
+  for (const t of bedTiles) {
+    if (buildings.at(t) !== 0) continue;
+    if (command(w, { type: 'PlaceBuilding', buildingType: 'bed', origin: t, orientation: 0, materialChoice: 0, priority: ROUTINE }, ['bad_placement', 'not_discovered']).ok) ward.beds += 1;
+  }
+  command(w, { type: 'PlaceBuilding', buildingType: 'chest', origin: ward.tiles[2]!, orientation: 0, materialChoice: 0, priority: ROUTINE }, ['bad_placement', 'not_discovered']);
+  ward.zoned = command(w, { type: 'CreateZone', zoneType: 'hospital', tiles: ward.tiles }, ['bad_placement', 'precondition_failed', 'overlap']).ok;
+  log.push(`d${day} WARD zoned ${ward.zoned} beds ${ward.beds}`);
+}
+
+describe('playtest 4 drive', () => {
+  it('drives', async () => {
+    mkdirSync(OUT, { recursive: true });
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const counts: Record<string, number> = {};
+    const notable: string[] = [];
+    const keep = /Raid|Siege|Threat|Immigr|Caravan|Died|Death|Killed|Masterwork|Whim|Title|Ambush|Thief|Cavern|Fire|Flood|Breach|Tantrum|Starv|Dehydr|Collapse|Alert/;
+    let saveFlag = '';
+    w.game.world.onEvents((events) => {
+      const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+      for (const e of events) {
+        counts[e.type] = (counts[e.type] ?? 0) + 1;
+        if (keep.test(e.type) && e.type !== 'MoodTierChanged') {
+          const { type, ...rest } = e as unknown as Record<string, unknown>;
+          notable.push(`d${day} t${w.tick} ${String(type)} ${JSON.stringify(rest).slice(0, 220)}`);
+        }
+        if (e.type === 'ThreatWarning') saveFlag = `warn-${String((e as unknown as { kind: string }).kind)}`;
+      }
+    });
+    const saves = new Set(SAVE_DAYS);
+    const timing: string[] = [];
+    let last = performance.now();
+    let maxPop = 0;
+    let lowSaved = false;
+    const write = (): void => writeFileSync(`${OUT}/log.txt`, [`year length ${DAYS_PER_YEAR}`, ...timing, '', ...notable, '', JSON.stringify(counts, null, 1)].join('\n'));
+    for (let day = 1; day <= END_DAY; day++) {
+      const end = day * TICKS_PER_DAY;
+      while (w.tick < end) {
+        playThreeYears(w, state, Math.min(day <= 20 ? 100 : 300, end - w.tick));
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+        if (day >= CISTERN_DAY && state.cistern && !state.cistern.steps.has('started')) {
+          state.cistern.steps.add('started');
+          notable.push(`d${day} CISTERN started by the driver; well at ${state.cistern.plan.w.x},${state.cistern.plan.w.y} room ${state.cistern.room.length}`);
+        }
+        keepWard(w, state, day, notable);
+      }
+      const ent = w.game.world.entities;
+      const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      maxPop = Math.max(maxPop, pop);
+      const now = performance.now();
+      if (day % 7 === 0) timing.push(`d${day} pop ${pop} ents ${ent.with(C.Position).length} items ${ent.with(C.Item).length} ms/day ${Math.round(now - last)} cistern ${state.cistern === null ? 'none' : [...(state.cistern?.steps ?? [])].filter((s) => !s.includes(':')).join(',')}`);
+      last = now;
+      let name = '';
+      if (saves.has(day)) name = `d${day}`;
+      if (saveFlag !== '') { name = `d${day}-${saveFlag}`; saveFlag = ''; }
+      if (!lowSaved && maxPop >= 15 && pop <= maxPop * 0.6) { name = `d${day}-low${pop}of${maxPop}`; lowSaved = true; }
+      if (name !== '') {
+        writeFileSync(`${OUT}/${SEED}-${name}.bin`, await saveGame(w.game, { kind: 'manual', name: `pt4 ${name}` } as never));
+        write();
+        console.log(`saved ${name} pop ${pop}`);
+      }
+    }
+    write();
+  }, 7_200_000);
+});

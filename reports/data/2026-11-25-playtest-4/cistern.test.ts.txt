@@ -1,0 +1,102 @@
+/** Playtest 11-25b (not committed): bd_cistern_well's fortress, saved once the brook stands at the shut floodgate, and once the well works. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY } from '@core/constants';
+import { TileFlag, TileKind } from '@core/map3d';
+import type { EntityId, TileIndex } from '@core/types';
+import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
+import { saveGame } from '@app/game-save';
+import { cmd, pathWorld, wagon } from './player-path';
+import { CISTERN_DEPTH, cisternWork, lookAtCistern, planCistern, wellWorks, type CisternPlan, type Col } from './cistern-well';
+import type { TestWorld } from './test-world';
+
+const SEED = 'bd-cistern-well';
+const PRIORITY = 4;
+const HALL_BELOW_WATER = 5;
+const DIRS: readonly Col[] = [{ x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 }];
+interface Layout { readonly plan: CisternPlan; readonly entrance: Col; readonly g: Col; readonly across: Col }
+
+function layout(w: TestWorld): Layout | null {
+  const map = w.map;
+  let bz = -1;
+  for (let i = 0; i < map.fluid.length; i += 1) if (map.hasFlag(i, TileFlag.Outdoor) && map.fluidLevelAt(i) > 0) bz = Math.max(bz, map.zOf(i));
+  const H = bz - HALL_BELOW_WATER;
+  const rock = (x: number, y: number, z: number): boolean => map.kindAt(w.index(x, y, z)) === TileKind.Wall && map.fluidLevelAt(w.index(x, y, z)) === 0;
+  let best: Layout | null = null;
+  for (let y = 4; y < map.h - 4; y += 1) for (let x = 4; x < map.w - 4; x += 1) {
+    let solid = true;
+    for (let dy = -3; dy <= 3 && solid; dy += 1) for (let dx = -3; dx <= 3; dx += 1) {
+      if (!rock(x + dx, y + dy, H) || !rock(x + dx, y + dy, H - CISTERN_DEPTH)) { solid = false; break; }
+    }
+    if (!solid) continue;
+    for (const g of DIRS) {
+      const entrance = { x: x + 4 * g.x, y: y + 4 * g.y };
+      if (entrance.x < 2 || entrance.y < 2 || entrance.x >= map.w - 2 || entrance.y >= map.h - 2) continue;
+      const top = map.columnSurfaceZ(entrance.x, entrance.y);
+      if (top <= H || map.kindAt(w.index(entrance.x, entrance.y, top)) !== TileKind.Floor) continue;
+      let column = true;
+      for (let z = H; z < top; z += 1) if (!rock(entrance.x, entrance.y, z)) column = false;
+      if (!column) continue;
+      const across = { x: g.y, y: g.x };
+      const plan = planCistern(w, { x, y }, H, across, 14);
+      if (plan === null || plan.tunnel.length < 6) continue;
+      if (best === null || plan.tunnel.length < best.plan.tunnel.length) best = { plan, entrance, g, across };
+    }
+  }
+  return best;
+}
+
+function placed(w: TestWorld, type: string, at: TileIndex): EntityId {
+  return w.game.world.applyCommand({ type: 'PlaceBuilding', buildingType: type, origin: at, orientation: 0, materialChoice: 0 }).ok
+    ? (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding : 0;
+}
+
+describe('pt4 cistern', () => {
+  it('saves', async () => {
+    mkdirSync('out/pt4cis', { recursive: true });
+    const w = pathWorld(SEED);
+    const map = w.map;
+    const b = w.readers.of<BuildingsReader>('14');
+    const { plan, entrance, g, across } = layout(w) as Layout;
+    const H = plan.hallZ;
+    const W = plan.w;
+    const send = (c: Parameters<typeof cmd>[1]): boolean => w.game.world.applyCommand(c).ok;
+    cmd(w, { type: 'DesignateStairwell', x: entrance.x, y: entrance.y, zTop: map.columnSurfaceZ(entrance.x, entrance.y), zBottom: H, priority: PRIORITY });
+    const hall: TileIndex[] = [];
+    for (let j = -2; j <= 2; j += 1) for (let i = -2; i <= 2; i += 1) hall.push(w.index(W.x + i, W.y + j, H));
+    const doorTile = w.index(W.x + 3 * g.x, W.y + 3 * g.y, H);
+    cmd(w, { type: 'Designate', kind: 'dig', priority: PRIORITY, tiles: [...hall, doorTile] });
+    const hearthTile = w.index(W.x - 2 * g.x, W.y - 2 * g.y, H);
+    const leverTile = w.index(W.x - 2 * across.x, W.y - 2 * across.y, H);
+    const { x: wx, y: wy, z: wz } = wagon(w);
+    const atWagon = w.index(wx, wy, wz);
+    w.spawnItem('floodgate', 'granite', atWagon);
+    w.spawnItem('mechanism', 'granite', atWagon, 3);
+    w.spawnItem('chain', 'iron', atWagon);
+    w.spawnItem('stone_block', 'granite', atWagon, 4);
+    w.spawnItem('door', 'granite', atWagon);
+    const work = cisternWork(plan, leverTile, PRIORITY);
+    let hearth = 0;
+    let door = 0;
+    const look = (): void => {
+      lookAtCistern(w, work, send);
+      if (hearth === 0 && map.kindAt(hearthTile) === TileKind.Floor) hearth = placed(w, 'hearth', hearthTile);
+      if (door === 0 && map.kindAt(doorTile) === TileKind.Floor) door = placed(w, 'door', doorTile);
+    };
+    let savedBreach = false;
+    while (w.tick < 18 * TICKS_PER_DAY && !wellWorks(w, work)) {
+      w.step(20);
+      if (!savedBreach && work.steps.has('breach')) {
+        // Let the brook come down to the shut gate, without the script's look (it would pull the lever).
+        for (let k = 0; k < 30; k += 1) w.step(20);
+        cmd(w, { type: 'CreateZone', zoneType: 'hearth_hall', tiles: hall.filter((t) => map.kindAt(t) === TileKind.Floor) });
+        writeFileSync('out/pt4cis/breach.bin', await saveGame(w.game, { kind: 'manual', name: 'pt4 cistern breach' } as never));
+        console.log('breach saved', w.tick, 'lever', work.leverId, 'gate', work.floodgateId, b.mechanismState(work.floodgateId), 'well', W, 'H', H, 'lever tile', map.xOf(leverTile), map.yOf(leverTile), 'steps', work.log.join(', '));
+        savedBreach = true;
+      }
+      look();
+    }
+    writeFileSync('out/pt4cis/well.bin', await saveGame(w.game, { kind: 'manual', name: 'pt4 cistern well' } as never));
+    console.log('well saved', w.tick, work.log.join(', '));
+  }, 600_000);
+});
