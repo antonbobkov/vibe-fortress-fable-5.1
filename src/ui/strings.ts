@@ -633,6 +633,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // The hospital zone's settings (`ui-screens/panels.md` § Zones).
   'ui.zone.hospital.furniture': 'Beds: {beds}  Traction: {traction}  Chests: {chests}',
   'ui.zone.hospital.supplies': 'Supplies (current / wanted):',
+  'ui.zone.hospital.no_dressing': 'No cloth or bandages: a bleeding dwarf cannot be bandaged.',
   'ui.zone.hospital.supply': '{supply}: {current}/{wanted}',
   'ui.zone.hospital.supply.cloth': 'Cloth',
   'ui.zone.hospital.supply.bandages': 'Bandages',
@@ -2063,6 +2064,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.care.carry': 'Care: waiting to be carried to the hospital.',
   'ui.look.care.treating': 'Care: {job} by {name}.',
   'ui.look.care.needs': 'Care: needs {item} ({n} in stock).',
+  'ui.look.care.no_dressing': 'Care: bleeding, and no bandage or cloth to bandage it. Buy them from a caravan, or weave cloth at a loom.',
   'ui.look.care.waiting': 'Care: waiting for a medic.',
   'ui.look.care.resting': 'Care: resting until healed.',
   'ui.look.care.job.stop_bleeding': 'bandaging',
@@ -2195,6 +2197,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.creature_died': '{name} has died.',
   'announce.summon_faded': '{name} fades.',
   'announce.infection': '{dwarf} has developed an infection.',
+  'announce.no_dressing': '{dwarf} is bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',
   'announce.limb_lost': '{name} has lost a limb.',
   // 19 Defense announcements.
   'announce.trap_triggered': 'A trap has been triggered.',

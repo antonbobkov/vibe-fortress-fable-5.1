@@ -241,16 +241,17 @@ A runecaster (a creature with a `Rune`) has its rune line after the mood, in the
 
 A channel among the items of a tile is named with its spell's suffix (`iron staff of embers (fine)`, its count and value at the right), and a dim line under it gives the spell: `Emberbolt: 24 ember, range 12. Needs a runecaster.` An enchanted item is named with its enchantment's suffix, after the name for one that begins with "of" (`1 steel axe of embers (fine)`) and before it otherwise (`1 keen iron short sword (masterwork)`), and a dim line under it gives what it does at its tier: `+9 ember on a hit.` The stocks panel names an enchanted stack the same way (`keen iron ×1`).
 
-A dwarf who is a patient has a `Care:` line under the Health line, on top of the health details (an undiagnosed patient keeps `Health: Wounded, bleeding` and still has the line). It is the first of these that applies, and it is drawn in the alert color when the player must act (the first three, and a missing supply) and in the normal color otherwise:
+A dwarf who is a patient has a `Care:` line under the Health line, on top of the health details (an undiagnosed patient keeps `Health: Wounded, bleeding` and still has the line). It is the first of these that applies, and it is drawn in the alert color when the player must act (the first four, and a missing supply) and in the normal color otherwise:
 
-1. no hospital zone exists: `Care: no hospital. Make one in Zones [z] > Hospital.`
-2. the patient is not in a hospital bed and no hospital bed is free for them: `Care: no free hospital bed.`
-3. no living dwarf has the `medicine` labor on: `Care: no one has Medicine enabled ([l] Labors).`
-4. an unconscious patient's `carry_patient` job has no worker: `Care: waiting to be carried to the hospital.`
-5. a treatment job of the patient's needs has a worker: `Care: {job} by {name}.` (`Care: diagnosis by Snorri Pinesong.`; the job words are bandaging, bone setting, suturing, wound cleaning, burn dressing, diagnosis, crutch fitting)
-6. a treatment job is blocked for a missing input: `Care: needs {item} ({n} in stock).`, with the count 13 reports as available
-7. otherwise, while a need remains: `Care: waiting for a medic.`
-8. with no need left: `Care: resting until healed.`
+1. the patient's `stop_bleeding` job is blocked for a missing input: `Care: bleeding, and no bandage or cloth to bandage it. Buy them from a caravan, or weave cloth at a loom.`
+2. no hospital zone exists: `Care: no hospital. Make one in Zones [z] > Hospital.`
+3. the patient is not in a hospital bed and no hospital bed is free for them: `Care: no free hospital bed.`
+4. no living dwarf has the `medicine` labor on: `Care: no one has Medicine enabled ([l] Labors).`
+5. an unconscious patient's `carry_patient` job has no worker: `Care: waiting to be carried to the hospital.`
+6. a treatment job of the patient's needs has a worker: `Care: {job} by {name}.` (`Care: diagnosis by Snorri Pinesong.`; the job words are bandaging, bone setting, suturing, wound cleaning, burn dressing, diagnosis, crutch fitting)
+7. a treatment job is blocked for a missing input: `Care: needs {item} ({n} in stock).`, with the count 13 reports as available
+8. otherwise, while a need remains: `Care: waiting for a medic.`
+9. with no need left: `Care: resting until healed.`
 
 The line reads 14's hospital zones and beds, 11's labor and job readers and 13's stock; it is broken at spaces to the panel width, the continuation rows indented under the text. A creature that is not a patient has no such line.
 

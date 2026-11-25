@@ -106,6 +106,10 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       severity: 'alert',
       stringKey: 'announce.infection',
     });
+    ctx.register.announcement('NoDressing', {
+      severity: 'alert',
+      stringKey: 'announce.no_dressing',
+    });
     ctx.register.announcement('LimbLost', {
       severity: 'alert',
       stringKey: 'announce.limb_lost',
