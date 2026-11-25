@@ -16,6 +16,8 @@ import type { WorkshopsReader } from '@systems/workshops';
 import type { UiState } from './ui-state';
 import type { AnnouncementLog } from './announcements';
 import { HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM } from './constants';
+import { foodAtHand } from './food-at-hand';
+import { Strings } from './strings';
 
 export interface HintRow { readonly id: string; readonly trigger: string; readonly text: string }
 
@@ -33,6 +35,8 @@ export interface HintFacts {
   /** A beast that hunts dwarves came while the fortress had no shelter for the Hearth alert. */
   predatorNoShelter?: boolean;
   foodShort?: boolean;
+  /** Shown on its `Starving` event with the food at hand (`onEvents`), never by the hourly facts. */
+  starving?: boolean;
   noMiners?: boolean;
   noPath?: boolean;
   /** 25 § Player-facing behavior: the runecraft hints, each on stock or buildings. */
@@ -71,6 +75,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_predator': return f.predatorArrived === true;
     case 'hint_predator_open': return f.predatorNoShelter === true;
     case 'hint_food': return f.foodShort === true;
+    case 'hint_starving': return f.starving === true;
     case 'hint_no_miners': return f.noMiners === true;
     case 'hint_no_path': return f.noPath === true;
     case 'hint_haulers': return f.haulingPressure === true;
@@ -137,11 +142,12 @@ export class HintEngine {
     if (!this.registered.some((old) => old.id === row.id)) this.registered.push(row);
   }
 
-  show(id: string, tick: number, enabled = true): boolean {
+  /** Shows a hint once; `text` replaces the row's text for a hint whose words are made when it shows (`hint_starving`). */
+  show(id: string, tick: number, enabled = true, text?: string): boolean {
     if (!enabled || this.ui.hintsShown.includes(id)) return false;
     const row = this.registered.find((hint) => hint.id === id);
     if (row === undefined) return false;
-    this.log.append('note', `☼ ${row.text}`, tick, undefined, 'hint');
+    this.log.append('note', `☼ ${text ?? row.text}`, tick, undefined, 'hint');
     this.ui.hintsShown.push(id);
     this.ui.hintsShown.sort();
     this.ui.hintPending = this.ui.hintPending.filter((pending) => pending !== id);
@@ -157,6 +163,10 @@ export class HintEngine {
     if (!enabled) return;
     for (const event of events) {
       this.mark(event, readers);
+      // The first `Starving` for hunger names the food at hand, after the day's starving line.
+      if (event.type === 'Starving' && event['need'] === 'hunger' && !this.ui.hintsShown.includes('hint_starving')) {
+        this.show('hint_starving', readers.calendar.tick, true, this.starvingText(readers));
+      }
       if (event.type === 'DayPassed' && readers.has('11')) {
         const jobs = readers.of<JobsReader>('11');
         if (jobs.wantsHaulingCount() > IDLE_HAULER_WARNING && jobs.workersWithLabor('hauling').length < HAULER_WARNING_MIN_WORKERS) {
@@ -165,6 +175,13 @@ export class HintEngine {
       }
       if (event.type === 'HourPassed' && readers.calendar.hour % HINT_CHECK_HOURS === 0) this.evaluate(readers);
     }
+  }
+
+  /** `hint_starving`'s words: the food at hand now, or the advice for none. */
+  private starvingText(readers: ReaderSet): string {
+    const strings = new Strings(this.registry);
+    const food = foodAtHand(readers, this.registry, strings);
+    return food.length === 0 ? strings.get('ui.starving_hint.none') : strings.get('hint.hint_starving', { food: food.join('; ') });
   }
 
   private pending(id: string): boolean { return this.ui.hintPending.includes(id); }

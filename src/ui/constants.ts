@@ -58,7 +58,7 @@ export const EMBARK_HINT_SECONDS = 5;
 export const EMBARK_LOADOUT_NAME_MAX = 32;
 
 /** `hint_food`: the stock of edible items is below this many days of eating for the population. */
-export const HINT_FOOD_DAYS = 2;
+export const HINT_FOOD_DAYS = 5;
 /** Days one edible item feeds one dwarf at the base hunger rate (a meal takes 100 of the 24 hunger a day brings, rounded down to four). */
 export const HINT_FOOD_DAYS_PER_ITEM = 4;
 /** 13 § Rot: the stocks panel counts, and the alert warns of, food that rots within this many days (24 § Panels). */

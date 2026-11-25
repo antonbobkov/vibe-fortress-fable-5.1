@@ -135,6 +135,11 @@
     "text": "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]."
   },
   {
+    "id": "hint_starving",
+    "trigger": "the first Starving of the fortress for hunger, after that day's starving line",
+    "text": "Dwarves are starving, and there is food at hand: {food}."
+  },
+  {
     "id": "hint_no_path",
     "trigger": "a job remains blocked unreachable for a whole day from first hourly observation",
     "text": "Jobs are blocked: no path. Check for doors, water and undug rock."

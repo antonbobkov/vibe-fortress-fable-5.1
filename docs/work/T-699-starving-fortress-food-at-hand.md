@@ -22,5 +22,6 @@ Spec: `ui-keymap-and-screens.md` § Hints (new row `hint_starving`, `hint_food`'
 
 ## Done
 
-- [ ] Tests: a starving fortress with tame grazers and a lake gets `hint_starving` naming both, once; one with nothing at hand gets the "nothing to eat" text; `hint_food` fires at five days of food.
-- [ ] UI only: no world hash moves.
+- [x] Tests: a starving fortress with tame grazers and a lake gets `hint_starving` naming both, once; one with nothing at hand gets the "nothing to eat" text; `hint_food` fires at five days of food (`test/unit/ui/t699-starving-hint.test.ts`, which also covers the shrubs clause, thirst alone, the hint after the day's starving line in a running game, and a starving dwarf that gathers and eats once the shrubs are designated).
+- [x] UI only: no world hash moves (`world-hashes.test.ts` unchanged). The fishing clause reads a new pure 09 reader, `foraging.fishableWater()`, a fresh flood fill that leaves the saved water bodies alone (the UI's map reader cannot see fluid types or sources).
+- [x] Why seven starving dwarves were idle: not a bug and not a labour setting. Every labour is on by default (`labors.json`), and a dwarf at a critical hunger with no food to reach falls through to work (10 § Behavior selection); there was simply no work. Gathering needs a gather designation or zone, fishing a fishing zone, slaughter a mark and a butcher's shop, all player orders; hunting needs a crossbow or bow. Once shrubs are designated a starving dwarf gathers and eats (the test above). Written into 10 § Eating and drinking. Dwarves feeding themselves unasked stays out of scope, as decided above.
