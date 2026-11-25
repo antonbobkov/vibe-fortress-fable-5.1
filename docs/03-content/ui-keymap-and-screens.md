@@ -612,7 +612,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Announcements
 
-`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines are one (`announce.starving_many`), and so are a day's falls to Miserable (`announce.mood_tier_many`, 15 § Registrations) and a thought many dwarves gain in one tick (`announce.thought_pair`, `announce.thought_many`); the alert before food rots is `announce.rot_soon` (24 § Announcements and the log). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations).
+`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines of one need are one (`announce.starving_many`; thirst's lines are `announce.thirsting` and `announce.thirsting_many`), and so are a day's falls to Miserable (`announce.mood_tier_many`, 15 § Registrations) and a thought many dwarves gain in one tick (`announce.thought_pair`, `announce.thought_many`); the alert before food rots is `announce.rot_soon` (24 § Announcements and the log). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations). The once-per-alert line of sheltering dwarves locked away from their drink or their food is `announce.shut_in.thirst` or `announce.shut_in.hunger` (19 § Hearth alert retreat).
 
 ### Announcement strings
 
@@ -652,6 +652,10 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.miasma_advice` | "A refuse stockpile outdoors, or a dump, takes rotten food away." |
 | `announce.rot_soon` | "{n} food will rot within {days\|day\|days}; the largest stack is {stack} in {place}." |
 | `announce.starving_many` | "{n} dwarves are starving: {names}." |
+| `announce.thirsting` | "{dwarf} is dying of thirst." |
+| `announce.thirsting_many` | "{n} dwarves are dying of thirst: {names}." |
+| `announce.shut_in.thirst` | "The drink is outside the locked doors: {n\|dwarf is\|dwarves are} thirsty. [m] [1] opens them; drink kept inside the hall, or a well, keeps them drinking." |
+| `announce.shut_in.hunger` | "The food is outside the locked doors: {n\|dwarf is\|dwarves are} hungry. [m] [1] opens them; food kept inside the hall keeps them eating." |
 | `ui.starving_hint.slaughter` | "{animals} to slaughter ([n] then [S-s])" |
 | `ui.starving_hint.slaughter_shop` | "{animals} to slaughter ([n] then [S-s]) at a butcher's shop [b > Workshops]" |
 | `ui.starving_hint.fish` | "a {water} to fish (a fishing zone, [z] then [i])" |

@@ -30,6 +30,7 @@ import { capitalize, enchantedName, itemName, matchName, materialItemName, stock
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
+import { ShutInWatch } from './shut-in';
 import type { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
@@ -138,8 +139,10 @@ export class AnnouncementLog {
   private readonly frostLines = new Map<string, { line: LogLine; n: number }>();
   /** The open line of what each party escaped with (`announceTheft`). */
   private readonly theftLines = new Map<number, { line: LogLine; stolen: Stolen[] }>();
-  /** The day's starving line and the dwarves it names (`announceStarving`). */
-  private starving: { line: LogLine; ids: number[]; names: string[] } | null = null;
+  /** The day's starving line of each need and the dwarves it names (`announceStarving`). */
+  private readonly starving = new Map<string, { line: LogLine; ids: number[]; names: string[] }>();
+  /** The once-per-alert lines of sheltering dwarves locked away from their drink or food (`announceShutIn`; not saved). */
+  private readonly shutIn = new ShutInWatch();
   /** The day's miserable line, the dwarves it names and the reasons each gave (`announceMiserable`). */
   private miserable: { line: LogLine; ids: number[]; names: string[]; reasons: Reason[][] } | null = null;
   /** The day's line of fortress animals bleeding with no dressing and the animals it names (`announceBleedingAnimal`). */
@@ -486,6 +489,8 @@ export class AnnouncementLog {
     const fields = event as unknown as Record<string, unknown>;
     // 16 § Kills and loot: a fortress dwarf's death line that named its killer is the kill's only line.
     if (event.type === 'KillRecorded' && typeof fields['victimId'] === 'number' && this.killsTold.delete(fields['victimId'])) return null;
+    if (event.type === 'AlertChanged') this.shutIn.reset();
+    if (event.type === 'HourPassed') return this.announceShutIn(readers, tick);
     // Completion/removal must clear suppression even when the event has no announcement.
     const finished = event.type === 'JobCompleted' && fields['jobType'] === 'craft' ? fields['target']
       : event.type === 'BuildingRemoved' ? fields['id'] : undefined;
@@ -738,27 +743,49 @@ export class AnnouncementLog {
   }
 
   /**
-   * 10 § Needs: one `Starving` comes for each starving dwarf each day. A day's are one line, which
-   * names each dwarf once as it comes: "Asa Forgehall is starving.", then "3 dwarves are starving:
-   * Asa, Njal, Liv." (first names). Its focus is the first dwarf's tile; a new day starts a new line.
+   * 10 § Needs: one `Starving` comes for each starving dwarf each day, naming its need. A day's of one
+   * need are one line, which names each dwarf once as it comes: "Asa Forgehall is starving.", then
+   * "3 dwarves are starving: Asa, Njal, Liv." (first names); thirst reads "Asa Forgehall is dying of
+   * thirst.", "3 dwarves are dying of thirst: Asa, Njal, Liv.". Its focus is the first dwarf's tile;
+   * a new day starts a new line.
    */
   private announceStarving(event: GameEvent, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
-    const id = Number((event as unknown as Record<string, unknown>)['id']);
+    const fields = event as unknown as Record<string, unknown>;
+    const id = Number(fields['id']);
+    const need = fields['need'] === 'thirst' ? 'thirst' : 'hunger';
     const name = String(this.params(event, readers)['dwarf'] ?? '');
-    const open = this.starving;
-    if (open !== null && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
+    const open = this.starving.get(need);
+    if (open !== undefined && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
       if (!open.ids.includes(id)) { open.ids.push(id); open.names.push(name); }
-      const said = this.starvingText(open.names, spec);
+      const said = this.starvingText(open.names, need, spec);
       open.line.text = said.text;
       open.line.key = said.key;
       open.line.tick = tick;
       return { line: open.line, severity: open.line.severity, focus: open.line.focus };
     }
     const focus = focusOf(event, readers);
-    const said = this.starvingText([name], spec);
+    const said = this.starvingText([name], need, spec);
     const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
-    this.starving = { line, ids: [id], names: [name] };
+    this.starving.set(need, { line, ids: [id], names: [name] });
     return { line, severity: spec.severity, focus };
+  }
+
+  /**
+   * 19 § Hearth alert retreat: once in a Hearth alert for each need, the alert that its sheltering
+   * dwarves cannot reach their drink or their food behind the locked doors, with the count cut off
+   * now and what to do ("The drink is outside the locked doors: 8 dwarves are thirsty. [m] [1] opens
+   * them; …"). Checked each game hour (`ShutInWatch`); its focus is the first such dwarf's tile.
+   */
+  private announceShutIn(readers: ReaderSet, tick: number): Announced | null {
+    let done: Announced | null = null;
+    for (const { need, ids } of this.shutIn.check(readers)) {
+      const key = `announce.shut_in.${need}`;
+      const first = readers.entities.get(ids[0] as EntityId, C.Position);
+      const focus = first === undefined ? undefined : readers.map.index(first.x, first.y, first.z);
+      const line = this.append('alert', this.strings.get(key, { n: ids.length }), tick, focus, undefined, key);
+      done = { line, severity: 'alert', focus };
+    }
+    return done;
   }
 
   /**
@@ -903,10 +930,12 @@ export class AnnouncementLog {
     return this.say('announce.thought_many', { n: names.length, thought });
   }
 
-  private starvingText(names: readonly string[], spec: AnnouncementSpec): Said {
-    if (names.length === 1) return { key: spec.stringKey, text: capitalize(this.strings.get(spec.stringKey, { dwarf: names[0] ?? '' })) };
+  /** The starving line's words and key by its need: `announce.starving` and `_many`, or `announce.thirsting` and `_many`. */
+  private starvingText(names: readonly string[], need: 'hunger' | 'thirst', spec: AnnouncementSpec): Said {
+    const one = need === 'thirst' ? 'announce.thirsting' : spec.stringKey;
+    if (names.length === 1) return { key: one, text: capitalize(this.strings.get(one, { dwarf: names[0] ?? '' })) };
     const first = names.map((n) => n.split(' ')[0] ?? n).join(', ');
-    return this.say('announce.starving_many', { n: names.length, names: first });
+    return this.say(need === 'thirst' ? 'announce.thirsting_many' : 'announce.starving_many', { n: names.length, names: first });
   }
 
   /**

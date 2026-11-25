@@ -522,6 +522,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.military.alert_hearth': 'Hearth: civilians stop work and shelter in the hall or behind a door; Lock on alert doors shut.',
   'ui.military.no_shelter_wagon': 'No shelter: {n|dwarf keeps|dwarves keep} working in the open. Make a Hearth hall [z] or a room behind a door.',
   'ui.military.no_shelter_reach': 'No shelter: {n|dwarf keeps|dwarves keep} working, unable to reach the hall or a room behind a door.',
+  'ui.military.cut_off.thirst': 'Thirsty: {n} cannot reach drink behind the locked doors.',
+  'ui.military.cut_off.hunger': 'Hungry: {n} cannot reach food behind the locked doors.',
   'ui.military.alert': 'Alert: {level}',
   'ui.military.alert_level.calm': 'Calm',
   'ui.military.alert_level.watchful': 'Watchful',
