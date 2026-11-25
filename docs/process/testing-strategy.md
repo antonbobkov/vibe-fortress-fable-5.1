@@ -193,7 +193,7 @@ The verdict's table lists each sweep's row and each seed's year-1 and year-3 pop
 npm run lint             eslint src test scripts
 npm run typecheck        tsc --noEmit
 npm run content:check    scripts/content-check.mjs: src/content JSON against schemas and id cross-references, the row numbering baseline, plus a temporary export compared byte for byte
-npm run strings:check    scripts/strings-check.mjs: no missing and no unused string key
+npm run strings:check    scripts/strings-check.mjs: no missing and no unused string key; no literal text in src/ui/panels
 npm run interface:check  scripts/interface-check.mjs: Interfaces sections of docs/02-systems against the code; no "Implementation note:" line in docs/00- … docs/04-
 npm run docs:check       scripts/docs-links-check.mjs: no broken relative link in docs/, reports/, agents/, README.md
 npm test                 vitest run (unit, every scenario except the perf-tier ones, property, golden)
