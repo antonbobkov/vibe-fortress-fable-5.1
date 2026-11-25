@@ -18,7 +18,7 @@ import {
   OVERLAY_STOCKPILE_USAGE,
   OVERLAY_TEMPERATURE,
 } from '@render/compositor';
-import { Strings } from '../strings';
+import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label } from '../widgets';
 
@@ -64,7 +64,7 @@ export class OverlayMenu {
   }
 }
 
-export function drawOverlaysPanel(s: Surface, rect: Rect, menu: OverlayMenu, overlays: string[], strings: Strings = new Strings()): void {
+export function drawOverlaysPanel(s: Surface, rect: Rect, menu: OverlayMenu, overlays: string[], strings: Strings): void {
   const t = s.theme;
   OVERLAY_ROWS.forEach((row, k) => {
     // The `Debug:` label takes one row of its own before the three debug overlays.

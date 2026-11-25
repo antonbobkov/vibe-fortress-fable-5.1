@@ -66,7 +66,7 @@ The full `npm test` runs once, on the merge commit, before `master` moves; the o
 | `npm run lint` | ESLint over `src`, `test` and `scripts`, with the layer boundaries and the determinism bans |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run content:check` | `src/content/*.json` against schemas, id cross-references, the row numbering baseline and a byte-for-byte temporary export of the source tables |
-| `npm run strings:check` | every string key that is used exists, and every key that exists is used; no code in `src/ui` writes player-facing text |
+| `npm run strings:check` | every string key that is used exists, and every key that exists is used; no code in `src/ui` writes player-facing text; no code in `src` builds a strings table without the registry (`new Strings()`) |
 | `npm run interface:check` | each system document's Interfaces section against the readers, events and commands in the code; it also fails on any line of the specification that starts with `Implementation note:` |
 | `npm run docs:check` | no relative link in `docs/`, `reports/`, `agents/` or the root `README.md` points at a file that does not exist |
 | `npm test` | unit, scenario (every scenario), property and golden tests; eight to fourteen minutes locally, so run it on GitHub (`gh workflow run ci.yml --ref <branch>`) |

@@ -11,7 +11,7 @@ import type { SchedulePreview, ThreatsReader } from '@systems/threats';
 import type { TerrainReader } from '@systems/terrain';
 import type { Surface } from '../surface';
 import { label, separator, wrapHang, wrapLabel } from '../widgets';
-import { Strings } from '../strings';
+import type { Strings } from '../strings';
 import { seasonName } from './calendar';
 import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
@@ -21,7 +21,7 @@ import { speciesPlural, withArticle } from '../messages';
 import { comingText, memberShown, partyActiveText } from '../raid-lines';
 
 /** The Deep's line under its gauge, by level (18 § The Deep): `ui.threats.deep_quote.<level>`, the last for every level above. */
-export function deepQuote(level: number, strings: Strings = new Strings()): string {
+export function deepQuote(level: number, strings: Strings): string {
   return strings.get(`ui.threats.deep_quote.${Math.max(0, Math.min(DEEP_QUOTE_LAST, level))}`);
 }
 

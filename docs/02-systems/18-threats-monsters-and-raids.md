@@ -53,7 +53,7 @@ Hostile equipment is generated from the civ's equipment table with a peril-scale
 ### Arrival and warning
 
 - Parties arrive at the map edge nearest the civ (`nearestEdgeTo`), at a walkable outdoor tile at least `ARRIVAL_SPREAD` apart per member, spawned over `ARRIVAL_TICKS` so they trickle in.
-- `ThreatWarning { kind, civ, sizeBand, edge }` is emitted `WARNING_DAYS` before raids and sieges (`sizeBand`: `few` below 6 members, `band` up to 15, `horde` above; the exact count is not shown, and the UI words the band, "a horde of Gloam"). Fog (06) halves the lead time. Thieves, bandits and ambushes give no warning.
+- `ThreatWarning { kind, civ, sizeBand, edge }` is emitted `WARNING_DAYS` before raids and sieges (`sizeBand`: `few` below 6 members, `band` up to 15, `horde` above; the exact count is not shown, and the UI words the band, "a horde of Gloam"; `edge`: the edge id, `n`, `e`, `s` or `w`, which the UI words as a place, "the eastern edge"). Fog (06) halves the lead time. Thieves, bandits and ambushes give no warning.
 - `RaidArrived { partyId, kind, size }` at spawn for parties other than ambushes: a danger announcement that pauses and centers on the edge. Every ambush member arrives hidden; no `RaidArrived` announces that party. Its first spotting instead emits one `AmbushSprung { partyId }`, a danger announcement that pauses and centers on its leader.
 
 ### Party AI

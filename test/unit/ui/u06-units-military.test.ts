@@ -440,7 +440,7 @@ describe('U-06 squads: leader, barracks and name (M11)', () => {
 
 describe('U-06 help and the app', () => {
   it('help lists the new keys; a keymap saved by index still finds the older bindings', () => {
-    const rows = helpKeyRows(keymap).map((r) => r.text);
+    const rows = helpKeyRows(keymap, strings).map((r) => r.text);
     for (const text of [
       'Space  mark the dwarf',
       '+ -  labor priority up / down',

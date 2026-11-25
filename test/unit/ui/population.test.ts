@@ -3,7 +3,7 @@ import { loadContent } from '@content/loader';
 import { Game } from '@app/game';
 import type { ImmigrationReader } from '@systems/immigration/reader';
 import { drawPopulationPanel, eligibilityText } from '@ui/panels/population';
-import { press, surface } from './ui-fixture';
+import { press, strings, surface } from './ui-fixture';
 import { MockCanvas, mockCanvasFactory } from '../render/canvas-mock';
 
 describe('T-M7-05 population panel', () => {
@@ -34,8 +34,8 @@ describe('T-M7-05 population panel', () => {
   });
 
   it('explains current eligibility reasons', () => {
-    expect(eligibilityText([])).toBe('Eligible: yes');
-    expect(eligibilityText(['cap'])).toBe('Immigration paused by cap');
-    expect(eligibilityText(['spirit'])).toContain('Content');
+    expect(eligibilityText([], strings)).toBe('Eligible: yes');
+    expect(eligibilityText(['cap'], strings)).toBe('Immigration paused by cap');
+    expect(eligibilityText(['spirit'], strings)).toContain('Content');
   });
 });

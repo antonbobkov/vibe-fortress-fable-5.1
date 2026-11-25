@@ -254,7 +254,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
         mainMenu: () => calls.push('main_menu'),
         viewOnly: () => false,
       };
-      const menu = new GameMenuScreen(host);
+      const menu = new GameMenuScreen(host, strings);
       const s = surface(60, 24);
       menu.draw(s);
       const text = s.lines().join('\n');
@@ -266,7 +266,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       expect(calls).toEqual(['resume', 'save', 'load', 'settings', 'rename', 'retire', 'abandon', 'main_menu']);
       // Esc resumes; a view-only (final) save disables Save, Rename, Retire and Abandon.
       expect(menu.key(press('Esc'))).toBe(true);
-      const viewOnly = new GameMenuScreen({ ...host, viewOnly: () => true });
+      const viewOnly = new GameMenuScreen({ ...host, viewOnly: () => true }, strings);
       expect(viewOnly.items().filter((i) => i.enabled === false).map((i) => i.id)).toEqual(['save', 'rename', 'retire', 'abandon']);
     });
   });

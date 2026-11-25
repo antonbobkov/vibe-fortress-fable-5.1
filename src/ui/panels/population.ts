@@ -6,7 +6,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { ImmigrationReader } from '@systems/immigration/reader';
 import type { MoraleReader } from '@systems/morale';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
-import { Strings } from '../strings';
+import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { keyCells, label, wrapLabel } from '../widgets';
 import { seasonName } from './calendar';
@@ -23,7 +23,7 @@ export function changePopulationCap(ctx: PanelContext, delta: number): void {
 }
 
 /** Why a wave can come or not (21 § Eligibility), the first reason in words. */
-export function eligibilityText(reasons: readonly string[], strings: Strings = new Strings()): string {
+export function eligibilityText(reasons: readonly string[], strings: Strings): string {
   const reason = reasons[0];
   if (!reason) return strings.get('ui.population.eligible_yes');
   if (reason === 'cap') return strings.get('ui.population.paused_cap');

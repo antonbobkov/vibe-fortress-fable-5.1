@@ -5,12 +5,9 @@ import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import type { KeyContext } from '../keymap';
 import { seasonName } from '../panels/calendar';
-import { Strings } from '../strings';
+import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { button } from '../widgets';
-
-/** The default table, for a legend drawn without the game's strings. */
-const DEFAULT_STRINGS = new Strings();
 
 export interface LegendRecord {
   readonly id: string;
@@ -37,10 +34,7 @@ export interface LegendRecord {
   readonly testing?: boolean;
 }
 
-/** The legend's note on a testing fortress (24 § The legend record), as the default table gives it. */
-export const LEGEND_TESTING_NOTE = DEFAULT_STRINGS.get('ui.legend.testing_note');
-
-export function legendLines(record: LegendRecord, strings: Strings = DEFAULT_STRINGS): string[] {
+export function legendLines(record: LegendRecord, strings: Strings): string[] {
   const foundedSeason = SEASON_NAMES[Math.floor(record.foundedTick / (TICKS_PER_YEAR / SEASONS_PER_YEAR)) % SEASONS_PER_YEAR] ?? 'spring';
   const foundedYear = Math.floor(record.foundedTick / TICKS_PER_YEAR) + 1;
   const testing = record.testing === true;
@@ -68,8 +62,8 @@ export interface LegendHost {
   back(): void;
   /** A fortress's end: `Enter` goes to the world map of its world for a new embark (T-672). */
   embarkAgain?(): void;
-  /** The game's strings; absent, the default table. */
-  readonly strings?: Strings;
+  /** The game's strings. */
+  readonly strings: Strings;
 }
 
 export class LegendScreen implements Screen {
@@ -98,7 +92,7 @@ export class LegendScreen implements Screen {
   draw(surface: Surface): void {
     this.last = surface;
     const { text, key, dim } = surface.theme;
-    const strings = this.host.strings ?? DEFAULT_STRINGS;
+    const strings = this.host.strings;
     surface.text(2, 1, strings.get(this.detail ? 'ui.legend.title_one' : 'ui.legend.title'), key);
     if (this.detail) {
       const record = this.records[this.selected];
@@ -160,7 +154,7 @@ export class LegendScreen implements Screen {
   maxScroll(): number {
     const record = this.records[this.selected];
     if (record === undefined || this.last === null) return 0;
-    return Math.max(0, legendLines(record, this.host.strings ?? DEFAULT_STRINGS).length - legendRows(this.last.rows));
+    return Math.max(0, legendLines(record, this.host.strings).length - legendRows(this.last.rows));
   }
 
   private scrollBy(delta: number): void {

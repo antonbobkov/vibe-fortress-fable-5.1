@@ -1032,7 +1032,7 @@ function itemFields(s: Surface, pen: Pen, readers: ReaderSet, registry: Registry
   const fields = ['type', 'material', 'quality', 'count', 'value', 'rot', 'made_by', 'owner', 'flags', 'for', 'holds'];
   const pad = Math.max(...fields.map((f) => Array.from(strings.get(`ui.look.item.field.${f}`)).length)) + 2;
   const rows: { name: string; value: Span[]; fg?: Rgb }[] = [];
-  const material = agedMaterial(null, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
+  const material = agedMaterial(strings, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
   rows.push({ name: 'type', value: [{ text: def?.name ?? '' }] });
   if (material !== '') rows.push({ name: 'material', value: [{ text: material }] });
   if (def?.quality === true) rows.push({ name: 'quality', value: [{ text: QUALITY_WORDS[rec.quality] ?? '' }] });

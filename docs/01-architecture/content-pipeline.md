@@ -100,7 +100,7 @@ Systems that need fast per-tick lookups copy the property they need into a typed
 
 ## Strings
 
-Player-facing text uses `strings.json` and the `UI_STRINGS` defaults in `ui/strings.ts`, keyed by a `StringKey`; a content row overrides a default of the same key, with placeholders in braces (`"{dwarf} has found {material}."`). Announcements, thoughts, hints, panel labels and rejection reasons are keys. Content `name` fields are the exception: they are display text directly.
+Player-facing text uses `strings.json` and the `UI_STRINGS` defaults in `ui/strings.ts`, keyed by a `StringKey`; a content row overrides a default of the same key, with placeholders in braces (`"{dwarf} has found {material}."`). Announcements, thoughts, hints, panel labels and rejection reasons are keys. Content `name` fields are the exception: they are display text directly. The app builds the strings table once, over the registry, and the UI words every line through it: each helper that words a line takes it, and a system's event carries ids and numbers that the UI words (an edge as `n`, never "the northern edge"). A table built without the registry holds the defaults alone, which no content row reaches, so the game's code builds none (`strings:check` fails on one).
 
 ## Saves and content
 

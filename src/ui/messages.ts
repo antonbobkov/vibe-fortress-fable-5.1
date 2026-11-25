@@ -97,7 +97,7 @@ export function browserBinding(strings: Strings, key: string): string {
 
 /** One binding back to its default: the Help wording and the key it has again. */
 export function bindingReset(strings: Strings, binding: Binding, key: string): string {
-  return strings.get('ui.settings.binding_reset', { action: actionText(binding), key });
+  return strings.get('ui.settings.binding_reset', { action: actionText(binding, strings), key });
 }
 
 /** Words into at most `maxLines` lines of `width` cells; the last line keeps what is left. */
@@ -605,6 +605,21 @@ export function blockedText(env: MessageEnv, typeId: string, ghost: { reason: st
 }
 
 /** The item filter of a job input as words, with its count: "1 door", "2 blocks or logs". */
+/**
+ * A category filter's word, `ui.item.category.<category>` with each `/` a `.` (`food/meal` →
+ * `ui.item.category.food.meal`, "meal"); a category with no row reads as its last part, `_` as spaces.
+ */
+export function categoryWord(strings: Strings, category: string): string {
+  const key = `ui.item.category.${category.replace(/\//g, '.')}`;
+  return strings.has(key) ? strings.get(key) : (category.split('/').pop() ?? '').replace(/_/g, ' ');
+}
+
+/** A tag filter's word, `ui.item.tag.<tag>` ("fuel"); a tag with no row reads as its id, `_` as spaces. */
+export function tagWord(strings: Strings, tag: string): string {
+  const key = `ui.item.tag.${tag}`;
+  return strings.has(key) ? strings.get(key) : tag.replace(/_/g, ' ');
+}
+
 export function filterText(registry: Registry, filter: Readonly<Record<string, unknown>>, n: number, strings: Strings): string {
   const items = registry.table<NamedRow>('items');
   const nameOf = (index: number): string => {
@@ -620,10 +635,10 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
     name = listText(strings, names, 'or');
   }
   else if (typeof filter['emptyContainer'] === 'string') name = strings.get('ui.item.empty_container', { item: itemName(registry, filter['emptyContainer'], n) });
-  else if (typeof filter['category'] === 'string') name = (filter['category'].split('/').pop() ?? '').replace(/_/g, ' ');
+  else if (typeof filter['category'] === 'string') name = categoryWord(strings, filter['category']);
   else if (filter['edible'] === true) name = strings.get('ui.item.food');
   else if (filter['drinkable'] === true) name = strings.get('ui.item.drink');
-  else if (typeof filter['tag'] === 'string') name = filter['tag'].replace(/_/g, ' ');
+  else if (typeof filter['tag'] === 'string') name = tagWord(strings, filter['tag']);
   if (name === '') name = strings.get(n === 1 ? 'ui.item.unnamed' : 'ui.item.unnamed_plural');
   const material = filter['materialId'];
   if (typeof material === 'number') {

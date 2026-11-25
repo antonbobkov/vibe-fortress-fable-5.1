@@ -112,13 +112,16 @@ describe('U-01 lists show every row (Q13)', () => {
 
 describe('U-01 help groups keys and lists the panel hotkeys first (Q14)', () => {
   it('panel hotkeys come first; arrows and digits share a row', () => {
-    const rows = helpKeyRows(keymap);
+    // The Shift note heads the tab; the keymap's rows follow it.
+    const all = helpKeyRows(keymap, strings);
+    expect(all[0]?.category).toBe('shift');
+    const rows = all.slice(1);
     expect(rows[0]).toMatchObject({ heading: true, text: 'Fortress panels' });
     expect(rows[1]?.text).toBe('d  Designate panel');
     expect(rows.some((r) => r.text === '←→↑↓  pan or move the map cursor (Shift: 10)')).toBe(true);
     expect(rows.some((r) => r.text === '1–9  with a designation or zone tool: set priority')).toBe(true);
     expect(rows.some((r) => r.text === '+ -  quantity' && r.category === 'trade_session')).toBe(true);
-    expect(keysLabel(['any-letter'])).toBe('[letter]');
+    expect(keysLabel(['any-letter'], strings)).toBe('[letter]');
     expect(rows.length).toBeLessThan(keymap.bindings.length);
   });
 });

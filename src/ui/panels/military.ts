@@ -61,9 +61,6 @@ export function squadPresetNames(strings: Strings): string[] {
   return Array.from({ length: SQUAD_PRESET_COUNT }, (_, n) => strings.get(`ui.military.squad_name.${n}`));
 }
 
-/** The preset names as the default table gives them. */
-export const SQUAD_PRESET_NAMES: readonly string[] = squadPresetNames(new Strings());
-
 /**
  * The squad's arms under its members (`ui-screens/panels.md` § Military): "Armed 1 of 3 · unarmed:
  * Liv H., Hrolf S.", with the training weapons counted apart ("Armed 6 of 6 (6 wooden)"), in the

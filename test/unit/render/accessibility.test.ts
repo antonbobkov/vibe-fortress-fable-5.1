@@ -6,6 +6,7 @@ import { Game } from '@app/game';
 import { SettingsStore } from '@app/settings-store';
 import { MemoryStorage } from '@platform/storage';
 import { MockCanvas, mockCanvasFactory } from './canvas-mock';
+import { strings } from '../ui/ui-fixture';
 
 describe('T-M8-07 colorblind palette and accessibility checks', () => {
   const registry = loadContent();
@@ -125,9 +126,9 @@ describe('T-M8-07 colorblind palette and accessibility checks', () => {
     const alertLine: LogLine = { tick: 1, severity: 'alert', text: 'Merchant arrived', count: 1 };
     const noteLine: LogLine = { tick: 1, severity: 'note', text: 'Dig completed', count: 1 };
 
-    expect(lineText(dangerLine)).toMatch(/^!! /);
-    expect(lineText(alertLine)).toMatch(/^! /);
-    expect(lineText(noteLine)).not.toMatch(/^!/);
+    expect(lineText(dangerLine, strings)).toMatch(/^!! /);
+    expect(lineText(alertLine, strings)).toMatch(/^! /);
+    expect(lineText(noteLine, strings)).not.toMatch(/^!/);
 
     // 2. State glyphs and inspector representations:
     // Verify creatures / states have distinct textual labels or glyphs.

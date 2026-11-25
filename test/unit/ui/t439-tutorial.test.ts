@@ -13,7 +13,7 @@ import { localMapSpec, siteSummary } from '@systems/embark';
 import { generate } from '@systems/worldgen';
 import { TUTORIAL_BOX_COLS, TUTORIAL_WORLD_SEED } from '@ui/constants';
 import { FORTRESS_PANEL_KEYS, Keymap, type KeySpec } from '@ui/keymap';
-import { UI_PANELS } from '@ui/screens/fortress';
+import { uiPanels } from '@ui/screens/fortress';
 import {
   readTutorialFacts, Tutorial, TUTORIAL_CHECKS, TUTORIAL_FIELDS, tutorialCheck, tutorialRegion,
   type TutorialFacts, type TutorialMemo, type TutorialStep,
@@ -73,7 +73,7 @@ describe('T-439 tutorial: the content table', () => {
   it('lists the eleven steps of the work file in order, each with a known check, a highlight and its string', () => {
     expect(steps.map((s) => s.id)).toEqual(['view', 'look', 'dig', 'stairs', 'stockpile', 'workshop', 'order', 'farm', 'labors', 'speed', 'save']);
     expect(steps.map((s) => s.check)).toEqual([...TUTORIAL_CHECKS]);
-    const panels = new Set([...UI_PANELS.map((p) => p.id), ...FORTRESS_PANEL_KEYS.map((p) => p.id)]);
+    const panels = new Set([...uiPanels(strings).map((p) => p.id), ...FORTRESS_PANEL_KEYS.map((p) => p.id)]);
     for (const step of steps) {
       expect(TUTORIAL_FIELDS.includes(step.highlight) || panels.has(step.highlight), step.highlight).toBe(true);
       expect(strings.get(`tutorial.${step.id}`)).toBe(step.text);

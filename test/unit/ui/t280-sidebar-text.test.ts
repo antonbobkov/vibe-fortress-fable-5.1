@@ -11,7 +11,7 @@ import { MemoryStorage } from '@platform/storage';
 import { SaveManager } from '@app/save-manager';
 import { drawLogStrip } from '@ui/panels/log';
 import type { LogLine } from '@ui/announcements';
-import { fgOfText, hexOf, press, surface, theme } from './ui-fixture';
+import { fgOfText, hexOf, press, strings, surface, theme } from './ui-fixture';
 
 async function game(width = 1280, height = 800): Promise<Game> {
   const g = new Game({ canvas: new MockCanvas(), seed: 't280', registry: loadContent(), createCanvas: mockCanvasFactory(), devicePixelRatio: 1, width, height });
@@ -150,7 +150,7 @@ describe('T-280 the log strip', () => {
 
   it('fills from the newest line back: a hint followed by two newer lines is one cut line, and the newer lines stay', () => {
     const s = surface(40, 3);
-    drawLogStrip(s, { col: 0, row: 0, cols: 40, rows: 3 }, [hint, line('Newer one.'), line('Newest.')], null, false);
+    drawLogStrip(s, { col: 0, row: 0, cols: 40, rows: 3 }, [hint, line('Newer one.'), line('Newest.')], null, false, strings);
     const rows = s.lines().map((l) => l.trim());
     expect(rows[0]).toMatch(/^☼ a hint that is long enough to need »$/);
     expect(rows[1]).toBe('Newer one.');
@@ -159,7 +159,7 @@ describe('T-280 the log strip', () => {
 
   it('a hint followed by one newer line takes two lines, whole', () => {
     const s = surface(40, 3);
-    drawLogStrip(s, { col: 0, row: 0, cols: 40, rows: 3 }, [line('Older.'), hint, line('Newest.')], null, false);
+    drawLogStrip(s, { col: 0, row: 0, cols: 40, rows: 3 }, [line('Older.'), hint, line('Newest.')], null, false, strings);
     const rows = s.lines().map((l) => l.trim());
     expect(rows[0]).toMatch(/^☼ a hint that is long enough to need/);
     expect(rows[0]).not.toContain('»');

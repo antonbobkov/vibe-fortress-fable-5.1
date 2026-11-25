@@ -24,7 +24,7 @@ export type EndReason = { readonly kind: 'retired' } | { readonly kind: 'abandon
  * (`announce.died.<cause>`): "The last dwarf, Solveig Deephand, has bled to death."; a cause with no
  * line of its own "has died.".
  */
-export function endText(tick: number, population: number, reason: EndReason, strings: Strings = new Strings()): string {
+export function endText(tick: number, population: number, reason: EndReason, strings: Strings): string {
   if (reason.kind === 'retired') return `Retired in Year ${Math.floor(tick / TICKS_PER_YEAR) + 1} with ${population} dwarves.`;
   if (reason.kind === 'abandoned') return `Abandoned in Year ${Math.floor(tick / TICKS_PER_YEAR) + 1} by ${population} dwarves.`;
   const who = `The last dwarf, ${reason.lastName},`;
@@ -193,7 +193,7 @@ function who(kind: LineKind, match: RegExpExecArray | null): string | null {
  * Up to `LEGEND_LOG_LINES` lines, newest first; when there are more, deaths and danger lines are
  * kept before the other alerts.
  */
-export function lastWords(log: readonly LogLine[], strings: Strings = new Strings()): string[] {
+export function lastWords(log: readonly LogLine[], strings: Strings): string[] {
   const kinds = new LineKinds(strings);
   const groups = new Map<string, { lines: LogLine[]; order: number }>();
   const entries: { lines: LogLine[]; order: number }[] = [];
@@ -215,8 +215,8 @@ export function lastWords(log: readonly LogLine[], strings: Strings = new String
     const dayset = new Set<number>();
     for (const line of entry.lines) for (let d = 0; d < (line.days ?? 1); d += 1) dayset.add(dayIndexOf(line.tick) - d);
     const days = dayset.size;
-    if (days > 1) return strings.get('ui.legend.folded', { line: lineText({ ...last, count: 1, days: 1 }), n: days });
-    return lineText({ ...last, count: entry.lines.reduce((sum, line) => sum + line.count, 0), days: 1 });
+    if (days > 1) return strings.get('ui.legend.folded', { line: lineText({ ...last, count: 1, days: 1 }, strings), n: days });
+    return lineText({ ...last, count: entry.lines.reduce((sum, line) => sum + line.count, 0), days: 1 }, strings);
   });
 }
 

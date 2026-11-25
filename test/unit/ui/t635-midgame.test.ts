@@ -92,7 +92,7 @@ describe('T-635 a raid says where it comes from, once', () => {
   it('the warning names its edge without doubling it', () => {
     const { w } = setup('t635-warning');
     const log = announcer(w);
-    const warning = { type: 'ThreatWarning', kind: 'raid', civ: 'gloam', sizeBand: 'band', edge: 'the northern edge' } as unknown as GameEvent;
+    const warning = { type: 'ThreatWarning', kind: 'raid', civ: 'gloam', sizeBand: 'band', edge: 'n' } as unknown as GameEvent;
     expect(log.announce(warning, w.readers, 1)?.line.text).toBe('Gloam scouts have been seen at the northern edge. They will come tomorrow.');
   });
 
@@ -154,7 +154,7 @@ describe('T-635 the legend names the biome and counts one enemy', () => {
     expect(spec?.biome).toBeDefined();
     expect(record.biome).toBe(game.registry.table<{ id: string; name: string }>('biomes').byId(spec?.biome ?? '')?.name);
     expect(record.biome).not.toContain('_');
-    const lines = legendLines(record).join('\n');
+    const lines = legendLines(record, strings).join('\n');
     expect(lines).toContain('Modi Veinbrow slew 1 enemy.');
     expect(lines).toContain('Tova Darkcrown slew 2 enemies.');
   });

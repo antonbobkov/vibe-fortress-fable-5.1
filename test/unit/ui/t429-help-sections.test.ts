@@ -89,7 +89,7 @@ describe('T-429 Help shows each panel once', () => {
     for (const context of Object.keys(REMAINING)) {
       const own = rows.map((r, i) => [r, i] as const).filter(([r]) => r.category === context);
       const heading = own.find(([r]) => r.heading === true);
-      expect(heading?.[0].text, context).toBe(contextTitle(context));
+      expect(heading?.[0].text, context).toBe(contextTitle(context, strings));
       const firstNote = own.find(([r]) => r.heading !== true && r.keys === undefined && !r.text.startsWith('Shift+letter'));
       const lastRow = [...own].reverse().find(([r]) => r.keys !== undefined);
       if (firstNote !== undefined && lastRow !== undefined) expect(firstNote[1], context).toBeGreaterThan(lastRow[1]);

@@ -56,32 +56,32 @@ import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../pan
 import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays';
 import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
 import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
-import { Strings } from '../strings';
+import type { Strings } from '../strings';
 import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { captionButtons, drawTooltip, editText, label, labelRow, typedChar, wrapHang } from '../widgets';
 import { blockedText, buildingName, commandFocus, pluralName, rejectionText, speciesPlural, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
 
-/** A panel the UI draws itself, titled `ui.panel.<id>.title` as the default table gives it. */
-function uiPanel(id: string, hotkey: string): PanelSpec {
-  return { id, title: new Strings().get(`ui.panel.${id}.title`), hotkey };
-}
-
-/** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
-export const UI_PANELS: readonly PanelSpec[] = [
-  uiPanel('designate', 'd'),
-  uiPanel('look', 'k'),
-  uiPanel('log', 'a'),
+/** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`), by id and hotkey. */
+const UI_PANEL_KEYS: readonly (readonly [id: string, hotkey: string])[] = [
+  ['designate', 'd'],
+  ['look', 'k'],
+  ['log', 'a'],
   // 23 § Compositor step 8, `ui-screens/panels.md` § Overlays (f) (T-M3-08).
-  uiPanel('overlays', 'f'),
+  ['overlays', 'f'],
   // `06` § Player-facing behavior: opened from the status bar date; no hotkey (D-103).
-  uiPanel('calendar', ''),
-  uiPanel('population', 'p'),
-  uiPanel('civilizations', 'c'),
+  ['calendar', ''],
+  ['population', 'p'],
+  ['civilizations', 'c'],
   // `ui-screens/panels.md` §§ Help, Debug; their keys are the global `?` and `F12` rows (T-M7-08).
-  uiPanel('help', '?'),
-  uiPanel('debug', 'F12'),
+  ['help', '?'],
+  ['debug', 'F12'],
 ];
+
+/** The panels the UI draws itself, each titled `ui.panel.<id>.title` from the game's strings. */
+export function uiPanels(strings: Strings): PanelSpec[] {
+  return UI_PANEL_KEYS.map(([id, hotkey]) => ({ id, title: strings.get(`ui.panel.${id}.title`), hotkey }));
+}
 
 /** A panel's default letter (§ Fortress panels): a caption names it, and shows the key the panel has now. */
 function defaultHotkey(panel: PanelSpec): string {
@@ -383,7 +383,7 @@ export class FortressScreen implements Screen {
 
   /** Every panel: the UI's own and the registered ones, by hotkey. */
   panels(): PanelSpec[] {
-    const out = [...UI_PANELS];
+    const out = uiPanels(this.strings);
     for (const p of this.host.registeredPanels()) if (!out.some((q) => q.id === p.id)) out.push(p);
     return out.map((panel) => {
       // A panel's title is `ui.panel.<id>.title` when the strings table has it
@@ -745,7 +745,7 @@ export class FortressScreen implements Screen {
     this.drawDepotGaps(surface, layout.map);
     this.drawGhost(surface, layout.map);
     if (layout.sidebar !== null) this.drawSidebar(surface, layout.sidebar);
-    drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil);
+    drawLogStrip(surface, layout.log, this.log.lines, this.pinned, this.host.now() < this.flashUntil, this.strings);
     // A pinned danger line is dismissed by a click on it, as by the first key.
     if (this.pinned !== null && layout.log.rows > 0) surface.hit({ col: layout.log.col, row: layout.log.row + layout.log.rows - 1, cols: layout.log.cols, rows: 1 }, () => { this.pinned = null; });
     this.drawStatus(surface, layout.status);
@@ -1401,7 +1401,7 @@ export class FortressScreen implements Screen {
       counts = { shown: this.jobs.jobs(ctx, all).length, total: all.length };
     } else if (id === 'log' && this.logView.filter.value !== '') {
       filter = this.logView.filter.value;
-      counts = { shown: matchLines(surface, this.log.lines, this.logFilter, filter).length, total: filterLines(this.log.lines, this.logFilter).length };
+      counts = { shown: matchLines(surface, this.log.lines, this.logFilter, filter, this.strings).length, total: filterLines(this.log.lines, this.logFilter).length };
     } else if (id === 'stocks' && this.stocks.filter.value !== '') filter = this.stocks.filter.value;
     else if (id === 'civilizations' && this.civilizations.choosingRequest && this.civilizations.filter.value !== '') {
       filter = this.civilizations.filter.value;

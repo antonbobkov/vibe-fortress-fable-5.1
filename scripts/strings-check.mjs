@@ -385,6 +385,31 @@ export function panelLiterals(dir = root) {
   return out;
 }
 
+/**
+ * Each `new Strings()` of the game's code (`src`), outside comments: `path:line`. A table made with
+ * no registry holds the defaults alone, so a `strings.json` row never reaches the text drawn
+ * through it; the code draws with the game's strings (`Game.strings`, built with the registry),
+ * passed to each helper that words a line.
+ */
+export function defaultTables(dir = root) {
+  const out = [];
+  let files;
+  try {
+    files = sourceFiles(join(dir, 'src'));
+  } catch {
+    return out;
+  }
+  for (const file of files) {
+    const rel = relative(dir, file).replace(/\\/g, '/');
+    readFileSync(file, 'utf8').split('\n').forEach((text, k) => {
+      const code = text.trimStart();
+      if (code.startsWith('//') || code.startsWith('*') || code.startsWith('/*')) return;
+      if (/\bnew\s+Strings\s*\(\s*\)/.test(code.replace(/\/\/.*$/, ''))) out.push(`${rel}:${k + 1}`);
+    });
+  }
+  return out;
+}
+
 /** The namespaces whose keys are the canonical text of a content table's rows. */
 export const MIRRORED = [
   { ns: 'confirm', table: 'confirmations' },
@@ -455,7 +480,8 @@ export function check(dir = root) {
     !Array.from(keys).some((k) => k.startsWith(`${key}.`))).sort();
   const unused = Array.from(keys).filter((key) => !reaches(key)).sort();
   const literals = panelLiterals(dir);
-  return { keys: keys.size, content: Object.keys(content).length, ui: ui.length, missing, unused, mismatched: [...mismatched, ...rejectMismatch], literals, namespaces };
+  const defaults = defaultTables(dir);
+  return { keys: keys.size, content: Object.keys(content).length, ui: ui.length, missing, unused, mismatched: [...mismatched, ...rejectMismatch], literals, defaults, namespaces };
 }
 
 function main() {
@@ -473,8 +499,9 @@ function main() {
   for (const key of result.unused) console.error(`strings:check: unused key "${key}"`);
   for (const line of result.mismatched) console.error(`strings:check: ${line}`);
   for (const line of result.literals) console.error(`strings:check: text in code, not in the strings table: ${line}`);
-  if (result.missing.length > 0 || result.unused.length > 0 || result.mismatched.length > 0 || result.literals.length > 0) {
-    console.error(`strings:check: ${result.missing.length} missing, ${result.unused.length} unused, ${result.mismatched.length} mismatched, ${result.literals.length} literal texts in ${LITERAL_DIRS.join(', ')}`);
+  for (const line of result.defaults) console.error(`strings:check: new Strings() draws past the strings.json rows; pass the game's strings: ${line}`);
+  if (result.missing.length > 0 || result.unused.length > 0 || result.mismatched.length > 0 || result.literals.length > 0 || result.defaults.length > 0) {
+    console.error(`strings:check: ${result.missing.length} missing, ${result.unused.length} unused, ${result.mismatched.length} mismatched, ${result.literals.length} literal texts in ${LITERAL_DIRS.join(', ')}, ${result.defaults.length} default tables`);
     process.exit(1);
     return;
   }
