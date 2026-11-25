@@ -56,7 +56,7 @@ export function comingText(strings: Strings, registry: Registry, coming: ComingP
 }
 
 /** A party by its purpose in a line: "Gloam raid", "Gloam siege", "bandit raid", "ambush", "thief", "restless dead". */
-function partyWords(strings: Strings, registry: Registry, party: Party): string {
+export function partyWords(strings: Strings, registry: Registry, party: Party): string {
   const key = `announce.party.${party.purpose}`;
   return strings.has(key) ? strings.get(key, { civ: civWords(registry, party.civ) }) : strings.get('announce.party.raid', { civ: civWords(registry, party.civ) });
 }
@@ -89,10 +89,18 @@ export function partyDoingWords(strings: Strings, readers: ReaderSet, party: Par
  * raid, 7 of 10, attacking", "Active: bandit raid, 4, looting".
  */
 export function partyActiveText(strings: Strings, registry: Registry, readers: ReaderSet, party: Party): string {
-  const total = party.members.length;
-  const here = party.members.filter((m) => onMap(readers, m)).length;
-  const count = here === total ? String(total) : strings.get('ui.threats.party_of', { n: here, total });
-  return strings.get('ui.threats.active_party', { party: partyWords(strings, registry, party), count, doing: partyDoingWords(strings, readers, party) });
+  return strings.get('ui.threats.active_party', { party: partyWords(strings, registry, party), count: partyCountWords(strings, readers, party), doing: partyDoingWords(strings, readers, party) });
+}
+
+/**
+ * How many of a party's members are still on the map: "10", or "7 of 10" when some are dead, fled
+ * or caged. Only the members `counted` keeps are counted (Look leaves out those the map hides).
+ */
+export function partyCountWords(strings: Strings, readers: ReaderSet, party: Party, counted: (m: number) => boolean = () => true): string {
+  const members = party.members.filter(counted);
+  const total = members.length;
+  const here = members.filter((m) => onMap(readers, m)).length;
+  return here === total ? String(total) : strings.get('ui.threats.party_of', { n: here, total });
 }
 
 /** "14 goods", "a stolen item". */
