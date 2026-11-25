@@ -18,6 +18,9 @@ import type { TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { BuildingsReader } from '@systems/buildings';
 import { localMapSpec, siteSummary } from '@systems/embark';
+import type { ItemsReader } from '@systems/items';
+import type { PlantRow, PlantsReader } from '@systems/plants';
+import { seasonAllows } from '@systems/plants/growth';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { WorldMap } from '@systems/worldgen';
 import { TUTORIAL_BOX_COLS } from './constants';
@@ -40,8 +43,8 @@ export interface TutorialStep {
 
 /** The fixed set of checks a step may name (§ Tutorial, The steps). */
 export const TUTORIAL_CHECKS = [
-  'view_moved', 'looked', 'dig_designated', 'stairs_designated', 'stockpile_made', 'workshop_placed',
-  'order_queued', 'farm_plot_made', 'labors_changed', 'paused_and_sped', 'saved',
+  'view_moved', 'looked', 'paused_and_sped', 'dig_designated', 'stairs_designated', 'stockpile_made',
+  'workshop_placed', 'order_queued', 'farm_plot_made', 'labors_changed', 'saved',
 ] as const;
 
 /** The fields of status row 1 a step may highlight; any other highlight is a panel id. */
@@ -67,8 +70,13 @@ export interface TutorialFacts {
   stairDesignations(): number;
   /** Tiles that are down stairs or up/down stairs. */
   downStairs(): number;
-  /** Zones of a type. */
-  zones(type: string): number;
+  /** Stockpile zones that accept at least one item category (a new one takes nothing until its preset is chosen). */
+  stockpilesTaking(): number;
+  /**
+   * Farm plots with a crop chosen for the current season; in a season no surface crop grows in,
+   * farm plots with a crop chosen for any season.
+   */
+  farmPlotsSown(): number;
   /** Workshops in any state: planned, under construction or built. */
   workshops(): number;
   /** Work orders, at a workshop or for the fortress. */
@@ -102,13 +110,13 @@ export function tutorialCheck(check: string, f: TutorialFacts, memo: TutorialMem
       if (first) memo['stairs'] = f.downStairs();
       return f.stairDesignations() > 0 || f.downStairs() > (memo['stairs'] as number);
     case 'stockpile_made':
-      return f.zones('stockpile') > 0;
+      return f.stockpilesTaking() > 0;
     case 'workshop_placed':
       return f.workshops() > 0;
     case 'order_queued':
       return f.orders() > 0;
     case 'farm_plot_made':
-      return f.zones('farm_plot') > 0;
+      return f.farmPlotsSown() > 0;
     case 'labors_changed':
       if (first) memo['labors'] = f.labors();
       return f.labors() !== memo['labors'];
@@ -179,7 +187,21 @@ export function readTutorialFacts(v: TutorialView): TutorialFacts {
     digDesignations: () => counts().dig,
     stairDesignations: () => counts().stairs,
     downStairs: () => counts().down,
-    zones: (type) => buildings?.zonesOfType(type).length ?? 0,
+    stockpilesTaking: () => {
+      const items = readers.has('13') ? readers.of<ItemsReader>('13') : null;
+      return (buildings?.zonesOfType('stockpile') ?? []).filter((id) => (items?.stockpile(id)?.filter.categories.length ?? 0) > 0).length;
+    },
+    farmPlotsSown: () => {
+      if (!readers.has('07')) return 0;
+      const plants = readers.of<PlantsReader>('07');
+      const season = readers.calendar.season;
+      // No surface crop grows in this season (winter): a crop for any season will do.
+      const anySeason = !registry.table<PlantRow>('plants').rows.some((p) => p?.kind === 'crop' && seasonAllows(p, false, season));
+      return (buildings?.zonesOfType('farm_plot') ?? []).filter((id) => {
+        const crops = plants.plotSettings(id);
+        return anySeason ? crops.some((c) => c !== 0) : (crops[season] ?? 0) !== 0;
+      }).length;
+    },
     workshops: () => {
       const types = registry.table<{ id: string; category?: string }>('buildings');
       return readers.entities.with(C.Building).filter((id) => {

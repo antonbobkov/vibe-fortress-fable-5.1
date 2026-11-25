@@ -911,7 +911,9 @@ export class Keymap {
    * A caption with the keys of its rebound bindings: each `[k]` token (`[S-t]`, `[Del]`, the `b` of
    * `[b > Workshops]`) names the default key of the first binding of `contexts` that has it, and
    * becomes that binding's key when it has been rebound. A token naming a panel letter makes that
-   * panel's own keys come first for the tokens after it ("[m] then [3]"). With `words`, the key words
+   * panel's own keys come first for the tokens after it ("[m] then [3]"), and a token naming a kind
+   * of the Zones menu makes the zone inspector's keys come first, as the new zone's settings show in
+   * the menu's place ("[z], [s], then [p]" is the stockpile's preset, not the pasture). With `words`, the key words
    * of prose (`Enter`, `↑↓`, a leading key column) are read the same way. Nothing changes while the
    * bindings are the defaults.
    */
@@ -925,6 +927,7 @@ export class Keymap {
         if (index < 0) continue;
         const binding = this.current[index] as Binding;
         if (binding.context === 'fortress_panel') lead = PANEL_CONTEXTS[binding.id] ?? null;
+        else if (binding.context === 'zones_panel') lead = 'zone_inspector';
         if (!this.rebound(index)) return null;
         const shown = this.label(binding.spec);
         return shown.startsWith('[') && shown.endsWith(']') ? shown.slice(1, -1) : shown;
