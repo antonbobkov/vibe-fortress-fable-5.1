@@ -17,7 +17,7 @@ import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { EntityId } from '@core/types';
 import { visibleHostileIds } from '../status';
-import { speciesPlural } from '../messages';
+import { speciesPlural, withArticle } from '../messages';
 import { comingText, memberShown, partyActiveText } from '../raid-lines';
 
 /** The Deep's line under its gauge, by level (18 § The Deep): `ui.threats.deep_quote.<level>`, the last for every level above. */
@@ -72,8 +72,8 @@ export function hostilesText(ctx: PanelContext, ids: readonly EntityId[]): strin
     groups.set(species, (groups.get(species) ?? 0) + 1);
   }
   const parts = [...groups].map(([species, n]) => {
-    const name = (creatures.byIndex(species)?.name ?? 'creature').toLowerCase();
-    return n === 1 ? `${/^[aeiou]/.test(name) ? 'an' : 'a'} ${name}` : `${n} ${speciesPlural(creatures.byIndex(species))}`;
+    const name = (creatures.byIndex(species)?.name ?? ctx.strings.get('ui.creature.unknown')).toLowerCase();
+    return n === 1 ? withArticle(ctx.strings, name) : `${n} ${speciesPlural(creatures.byIndex(species))}`;
   });
   const shown = parts.slice(0, ACTIVE_KINDS_NAMED);
   const rest = parts.length - shown.length;

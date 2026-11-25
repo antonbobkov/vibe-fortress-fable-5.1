@@ -53,7 +53,7 @@ Hostile equipment is generated from the civ's equipment table with a peril-scale
 ### Arrival and warning
 
 - Parties arrive at the map edge nearest the civ (`nearestEdgeTo`), at a walkable outdoor tile at least `ARRIVAL_SPREAD` apart per member, spawned over `ARRIVAL_TICKS` so they trickle in.
-- `ThreatWarning { kind, civ, sizeBand, edge }` is emitted `WARNING_DAYS` before raids and sieges (`sizeBand`: "a few", "a band", "a horde"; the exact count is not shown). Fog (06) halves the lead time. Thieves, bandits and ambushes give no warning.
+- `ThreatWarning { kind, civ, sizeBand, edge }` is emitted `WARNING_DAYS` before raids and sieges (`sizeBand`: `few` below 6 members, `band` up to 15, `horde` above; the exact count is not shown, and the UI words the band, "a horde of Gloam"). Fog (06) halves the lead time. Thieves, bandits and ambushes give no warning.
 - `RaidArrived { partyId, kind, size }` at spawn for parties other than ambushes: a danger announcement that pauses and centers on the edge. Every ambush member arrives hidden; no `RaidArrived` announces that party. Its first spotting instead emits one `AmbushSprung { partyId }`, a danger announcement that pauses and centers on its leader.
 
 ### Party AI
@@ -139,7 +139,7 @@ Hostile parties target caravan members like fortress creatures (traders are `tra
 - `threats.renown()`, `threats.schedulePreview()` (per kind: the season and year it is first possible, `{ season, year }`, or `null` for a kind that never comes; never the exact next date; the Threats panel words it, "from Autumn, Y2")
 - `threats.deepPressure()`, `threats.deepLevel()`, `threats.deepNextThreshold()`
 - `threats.monstersInCavern(n)`
-- `threats.coming()`: the parties a `ThreatWarning` announced that have not arrived, soonest first, each `{ kind, civ, sizeBand, edge, arrivalTick }` (the warning's size band, never the count)
+- `threats.coming()`: the parties a `ThreatWarning` announced that have not arrived, soonest first, each `{ kind, civ, sizeBand, edge, arrivalTick }` (the warning's size band, `few`, `band` or `horde`, never the count; the Threats panel words it)
 
 ### Commands
 

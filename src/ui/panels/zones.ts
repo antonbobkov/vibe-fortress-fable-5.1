@@ -308,7 +308,7 @@ export class ZoneTool {
     const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
     const kind = plants?.plotKind(this.selected);
     if (kind === undefined || kind === 'none' || kind === 'mixed') return [];
-    return [{ id: '0', label: 'none' }, ...ctx.registry.table<PlantRow>('plants').rows
+    return [{ id: '0', label: ctx.strings.get('ui.zone.farm_none') }, ...ctx.registry.table<PlantRow>('plants').rows
       .filter((p) => (p.kind === 'crop' || p.kind === 'cave_crop') && lightMatches(p, kind))
       .map((p) => ({ id: p.id, label: this.seedsOf(ctx, p) === 0 ? ctx.strings.get('ui.zone.farm_no_seeds', { name: p.name }) : p.name }))];
   }

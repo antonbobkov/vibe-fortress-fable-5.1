@@ -36,12 +36,9 @@ import type { TerrainReader } from '@systems/terrain';
 import type { HealthReader } from '@systems/health';
 import type { MagicReader } from '@systems/magic';
 import { withSuffix } from '@content/generate';
-import { Strings } from './strings';
+import type { Strings } from './strings';
 import type { Binding } from './keymap';
 import { actionText, contextTitle } from './panels/help';
-
-/** The default table, for the helpers called without the game's strings. */
-const DEFAULT_STRINGS = new Strings();
 
 /** Parts in a line: "a, b and c" (`ui.list.and`) or "a, b or c" (`ui.list.or`); one part alone, '' for none. */
 export function listText(strings: Strings, parts: readonly string[], conjunction: 'and' | 'or'): string {
@@ -52,6 +49,11 @@ export function listText(strings: Strings, parts: readonly string[], conjunction
 /** Every part joined by the conjunction alone: "a or b or c" (`ui.list.or` with each part as the last). */
 export function chainText(strings: Strings, parts: readonly string[], conjunction: 'and' | 'or'): string {
   return parts.reduce((rest, last, i) => (i === 0 ? last : strings.get(`ui.list.${conjunction}`, { rest, last })), '');
+}
+
+/** A lower-case noun with its indefinite article: "an ember newt" (`ui.article.an`, before a vowel), "a boar" (`ui.article.a`). */
+export function withArticle(strings: Strings, noun: string): string {
+  return strings.get(/^[aeiou]/i.test(noun) ? 'ui.article.an' : 'ui.article.a', { noun });
 }
 
 /** What the message helpers read. A {@link PanelContext} is one. */
@@ -187,7 +189,7 @@ export function zoneEditorMessage(env: MessageEnv, reason: 'unavailable' | 'boun
 }
 
 /** A civilization id as a name (`ui.civ.name.<civ>`: "hillfolk" → "Hillfolk"); an unknown one capitalised. */
-export function civName(civ: string, strings: Strings = DEFAULT_STRINGS): string {
+export function civName(civ: string, strings: Strings): string {
   return strings.has(`ui.civ.name.${civ}`) ? strings.get(`ui.civ.name.${civ}`) : capitalize(civ);
 }
 
@@ -329,7 +331,7 @@ export function enchantedName(readers: ReaderSet, itemId: EntityId, name: string
 }
 
 /** A building input or recipe match ("block|log") as words: "block or log". */
-export function matchName(registry: Registry, match: string, n = 1, strings: Strings = DEFAULT_STRINGS): string {
+export function matchName(registry: Registry, match: string, n: number, strings: Strings): string {
   return chainText(strings, match.split('|').map((part) => itemName(registry, part, n)), 'or');
 }
 
@@ -338,7 +340,7 @@ export function matchName(registry: Registry, match: string, n = 1, strings: Str
  * tool): one item in the plural of `n` ("2 logs" names "logs"), several in the singular, every one
  * of them: "fiber, straw or reed".
  */
-export function alternativesName(registry: Registry, match: string, n = 1, strings: Strings = DEFAULT_STRINGS): string {
+export function alternativesName(registry: Registry, match: string, n: number, strings: Strings): string {
   const parts = match.split('|');
   if (parts.length === 1) return itemName(registry, parts[0] as string, n);
   return listText(strings, parts.map((part) => itemName(registry, part, 1)), 'or');
@@ -377,7 +379,7 @@ export function whimProgressText(strings: Strings, registry: Registry, whimId: s
  * Where a whim's item is made (`10` § The Thane's whim): the workshops of the recipes that make its
  * item type, of its material when it names one; '' for any item, or none or more than three.
  */
-export function whimWhereMade(registry: Registry, whimId: string, strings: Strings = DEFAULT_STRINGS): string {
+export function whimWhereMade(registry: Registry, whimId: string, strings: Strings): string {
   const row = whimRow(registry, whimId);
   if (row === undefined || row.item === 'any') return '';
   const recipes = registry.table<{ id: string; workshop: string; outputs: readonly { item: string; material?: { fixed?: string } }[] }>('recipes');
@@ -393,7 +395,7 @@ export function whimWhereMade(registry: Registry, whimId: string, strings: Strin
 /** "a carpenter's workshop", "a carpenter's workshop or a forge"; empty for none or more than three. */
 function workshopList(names: readonly string[], strings: Strings): string {
   if (names.length === 0 || names.length > 3) return '';
-  return listText(strings, names.map((n) => `${/^[aeiou]/i.test(n) ? 'an' : 'a'} ${n}`), 'or');
+  return listText(strings, names.map((n) => withArticle(strings, n)), 'or');
 }
 
 /** The building types whose recipes make an item type, in the buildings table's order. */
@@ -409,7 +411,7 @@ export function producersOf(registry: Registry, itemId: string): string[] {
 }
 
 /** "a carpenter's workshop", "a carpenter's workshop or a forge"; empty for none or more than three. */
-export function whereMade(registry: Registry, itemIds: readonly string[], strings: Strings = DEFAULT_STRINGS): string {
+export function whereMade(registry: Registry, itemIds: readonly string[], strings: Strings): string {
   return workshopList(Array.from(new Set(itemIds.flatMap((id) => producersOf(registry, id)))), strings);
 }
 
@@ -603,7 +605,7 @@ export function blockedText(env: MessageEnv, typeId: string, ghost: { reason: st
 }
 
 /** The item filter of a job input as words, with its count: "1 door", "2 blocks or logs". */
-export function filterText(registry: Registry, filter: Readonly<Record<string, unknown>>, n: number, strings: Strings = DEFAULT_STRINGS): string {
+export function filterText(registry: Registry, filter: Readonly<Record<string, unknown>>, n: number, strings: Strings): string {
   const items = registry.table<NamedRow>('items');
   const nameOf = (index: number): string => {
     const row = items.byIndex(index);
@@ -619,10 +621,10 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
   }
   else if (typeof filter['emptyContainer'] === 'string') name = strings.get('ui.item.empty_container', { item: itemName(registry, filter['emptyContainer'], n) });
   else if (typeof filter['category'] === 'string') name = (filter['category'].split('/').pop() ?? '').replace(/_/g, ' ');
-  else if (filter['edible'] === true) name = 'food';
-  else if (filter['drinkable'] === true) name = 'drink';
+  else if (filter['edible'] === true) name = strings.get('ui.item.food');
+  else if (filter['drinkable'] === true) name = strings.get('ui.item.drink');
   else if (typeof filter['tag'] === 'string') name = filter['tag'].replace(/_/g, ' ');
-  if (name === '') name = n === 1 ? 'item' : 'items';
+  if (name === '') name = strings.get(n === 1 ? 'ui.item.unnamed' : 'ui.item.unnamed_plural');
   const material = filter['materialId'];
   if (typeof material === 'number') {
     const m = registry.table<NamedRow>('materials').byIndex(material)?.name;
@@ -714,7 +716,7 @@ export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string;
  * The input a `waiting for <match>` reason names and how many of it can be used now, or null for
  * any other reason (the order list's "waiting for stone (0)", D-U5).
  */
-export function waitingFor(env: Omit<MessageEnv, 'strings'> & { readonly strings?: Strings }, reason: string | null): { match: string; item: string; n: number } | null {
+export function waitingFor(env: MessageEnv, reason: string | null): { match: string; item: string; n: number } | null {
   const waiting = reason === null ? null : /^waiting for (.+)$/.exec(reason);
   if (waiting === null) return null;
   const match = waiting[1] as string;
@@ -731,7 +733,7 @@ export function waitingFor(env: Omit<MessageEnv, 'strings'> & { readonly strings
  * but none within reach of the workshop's worker is skipped for a while): "charcoal", "charcoal or
  * coal"; null for any other reason.
  */
-export function outOfReach(env: Omit<MessageEnv, 'strings'> & { readonly strings?: Strings }, reason: string | null): { match: string; item: string } | null {
+export function outOfReach(env: MessageEnv, reason: string | null): { match: string; item: string } | null {
   const far = reason === null ? null : /^out of reach (.+)$/.exec(reason);
   if (far === null) return null;
   const match = far[1] as string;

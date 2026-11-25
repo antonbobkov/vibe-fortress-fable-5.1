@@ -102,10 +102,10 @@ describe('T-626 the build tool and a waiting building name every alternative', (
     const w = world('t626-pallet');
     const ctx = ctxOf(w);
     const row = w.game.registry.table<BuildingRow>('buildings').byId('straw_pallet') as BuildingRow;
-    expect(inputText(row, w.game.registry)).toBe('3 fiber, straw or reed');
+    expect(inputText(row, w.game.registry, strings)).toBe('3 fiber, straw or reed');
     // A single input keeps its plural; the candle stand's block or bar is named whole.
-    expect(inputText(w.game.registry.table<BuildingRow>('buildings').byId('candle_stand') as BuildingRow, w.game.registry)).toBe('1 block or bar');
-    expect(inputText(w.game.registry.table<BuildingRow>('buildings').byId('carpenter') as BuildingRow, w.game.registry)).toBe('2 logs');
+    expect(inputText(w.game.registry.table<BuildingRow>('buildings').byId('candle_stand') as BuildingRow, w.game.registry, strings)).toBe('1 block or bar');
+    expect(inputText(w.game.registry.table<BuildingRow>('buildings').byId('carpenter') as BuildingRow, w.game.registry, strings)).toBe('2 logs');
     w.spawnItem('straw', 'barley', w.index(30, 30, 32), 5);
     w.spawnItem('reed', 'reed_bed', w.index(31, 30, 32), 4);
     expect(new BuildTool().available(ctx, row)).toBe(9);
@@ -129,8 +129,8 @@ describe('T-626 the build tool and a waiting building name every alternative', (
     const w = world('t626-waiting');
     const items = w.game.registry.table('items');
     const types = ['fiber', 'straw', 'reed'].map((id) => items.index(id));
-    expect(filterText(w.game.registry, { types }, 3)).toBe('3 fiber, straw or reed');
-    expect(filterText(w.game.registry, { types: [items.index('door')] }, 2)).toBe('2 doors');
+    expect(filterText(w.game.registry, { types }, 3, strings)).toBe('3 fiber, straw or reed');
+    expect(filterText(w.game.registry, { types: [items.index('door')] }, 2, strings)).toBe('2 doors');
   });
 });
 

@@ -12,6 +12,7 @@ import type { EntityId } from '@core/types';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import { enchantedName, materialItemName, whereMade } from '../messages';
+import type { Strings } from '../strings';
 
 export interface WeaponRow {
   readonly id: string;
@@ -153,8 +154,8 @@ export function armorStock(readers: ReaderSet, registry: Registry, preference: s
 }
 
 /** Where a weapon of the class is made, training weapons aside: "a forge", "a bowyer's workshop or a forge"; '' for more than three places or none. */
-export function whereWeaponMade(registry: Registry, weaponClass: string): string {
-  return whereMade(registry, claimableRows(registry, weaponClass).filter((row) => row.training !== true).map((row) => row.id));
+export function whereWeaponMade(strings: Strings, registry: Registry, weaponClass: string): string {
+  return whereMade(registry, claimableRows(registry, weaponClass).filter((row) => row.training !== true).map((row) => row.id), strings);
 }
 
 /**

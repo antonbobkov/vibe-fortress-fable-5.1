@@ -108,7 +108,7 @@ export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly te
   let stockText: string | null = null;
   if (lacking && stock.free - stock.tools - stock.training <= 0) {
     // Any class is made in too many places to name them: the line then names none.
-    const where = wanted === 'any' ? '' : whereWeaponMade(registry, wanted);
+    const where = wanted === 'any' ? '' : whereWeaponMade(strings, registry, wanted);
     stockText = where === '' ? strings.get('ui.military.no_weapon_stock_any', { weapon: noun }) : strings.get('ui.military.no_weapon_stock', { weapon: noun, where });
   }
   return { text: parts.join(' · '), alert: lacking, stock: stockText };
@@ -161,7 +161,7 @@ export function squadOrdersText(ctx: PanelContext, squad: Pick<SquadWithId, 'ord
   const first = kills[0];
   if (first !== undefined) {
     const c = ctx.readers.entities.get(first, C.Creature);
-    const target = creatureWords(ctx.registry, c?.name, c?.species);
+    const target = creatureWords(ctx.strings, ctx.registry, c?.name, c?.species);
     parts.push(kills.length === 1 ? ctx.strings.get('ui.military.orders_kill', { target }) : ctx.strings.get('ui.military.orders_kill_more', { target, n: kills.length - 1 }));
   }
   const whom = follow[follow.length - 1];

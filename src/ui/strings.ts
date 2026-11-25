@@ -140,8 +140,19 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // Lists in a line: "a, b and c" (`ui.list.and`), "a, b or c" (`ui.list.or`).
   'ui.list.and': '{rest} and {last}',
   'ui.list.or': '{rest} or {last}',
+  // A noun with its indefinite article: `ui.article.an` before a vowel ("an ember newt"), else `ui.article.a`.
+  'ui.article.a': 'a {noun}',
+  'ui.article.an': 'an {noun}',
+  // A job input's filter named by its kind ("3 food"), or with no name at all.
+  'ui.item.food': 'food',
+  'ui.item.drink': 'drink',
+  'ui.item.unnamed': 'item',
+  'ui.item.unnamed_plural': 'items',
   'ui.item.empty_container': 'empty {item}',
   'ui.creature.the_species': 'the {species}',
+  // A creature whose species row is gone.
+  'ui.creature.unknown': 'creature',
+  'ui.creature.unknown_animal': 'animal',
   // Main menu (`ui-screens/menus-and-world.md` § Main menu).
   'ui.menu.title': 'D E E P H O L M',
   'ui.menu.subtitle': 'a hall beneath the world',
@@ -706,6 +717,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.build.stock.needs_workshop_item': 'build {workshop} to make {item}',
   'ui.build.stock.a_workshop': 'a workshop',
   'ui.build.count_none': 'no {item}',
+  // A building input counted by the tiles it covers ("n blocks").
+  'ui.build.input_tiles': 'n {item}',
   'ui.status.zone': '{tool} · drag a rectangle · [Esc] cancel',
   'ui.status.zone_drag': '{tool} {w}×{h} ({n} tiles, {ok} qualify)',
   'ui.build.category.construction': 'Constructions',
@@ -862,6 +875,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.zone.edit.link_source': 'Only another stockpile can be a source.',
   'ui.zone.edit.no_links': 'This stockpile has no source links.',
   'ui.zone.actions': '[x] remove zone  [e] resize',
+  'ui.zone.farm_none': 'none',
   'ui.zone.farm_no_seeds': '{name} (no seeds)',
   'ui.zone.farm_seeds': '({n})',
   'ui.zone.farm_seeds_tip': '{n|seed|seeds} of it in stock',

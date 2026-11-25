@@ -210,7 +210,7 @@ describe('T-279 item names never repeat a word', () => {
   });
 
   it('holds in the name of a filter too', () => {
-    expect(filterText(registry, { type: registry.table('items').index('cloth'), materialId: registry.table('materials').index('wool_cloth') }, 3)).toBe('3 wool cloth');
+    expect(filterText(registry, { type: registry.table('items').index('cloth'), materialId: registry.table('materials').index('wool_cloth') }, 3, strings)).toBe('3 wool cloth');
   });
 
   it('holds for every item type with every material of the tables', () => {
