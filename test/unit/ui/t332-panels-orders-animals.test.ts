@@ -192,8 +192,9 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[1]).toBe('Cap [-] 80 [+]');
     expect(rows[2]).toMatch(/^Hall spirit: Fine \(\d+\)$/);
     expect(rows[3]).toBe('Next evaluation: Summer');
-    // Why no wave comes wraps under itself rather than being cut (T-703).
-    expect(rows.slice(4, 6)).toEqual(['Eligible: no · hall spirit below', '  Content']);
+    // The evaluation to come is Year 1's guaranteed summer wave (T-754); the line wraps under itself
+    // rather than being cut (T-703).
+    expect(rows.slice(4, 6)).toEqual(['Eligible: yes · the cousins are', '  coming']);
     expect(rows[6]).toBe('Last wave: none');
     expect(rows[7]).toBe('Waves so far: 0');
   });
