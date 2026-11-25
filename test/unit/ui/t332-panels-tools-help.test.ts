@@ -208,7 +208,7 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     // The hint does not fit one line, so it takes two of the strip's lines and none of it is cut.
     expect(rows[45]).toMatch(/^ ☼ Designate a place to dig with \[d\]\. Dwarves dig into rock faces from the {2}/);
     expect(rows[46]?.trim()).toBe('side.');
-    expect(rows[47]).toMatch(new RegExp(`^ Day 1 of Spring, Year 1 ☼ clear -?\\d+°C ☺ ${dwarves} ♥ Fine z 32 ║ +\\[Esc\\] menu {2}\\[\\?\\] help *$`));
+    expect(rows[47]).toMatch(new RegExp(`^ Day 1 of Spring, Year 1 ☼ clear -?\\d+°C ☺ ${dwarves} ♥ Fine z 32 ║ paused +\\[Esc\\] {2}\\[\\?\\] help *$`));
     expect(rows[48]?.trim()).toBe('Dig · priority 5 · [Esc] cancel');
     // The hover line under it names the tile at the dig tool's cursor.
     expect(rows[49]?.trim()).toBe(game.fortress.hoverLine());

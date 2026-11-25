@@ -268,7 +268,7 @@ export class Game {
     this.loadouts = options.loadouts ?? new LoadoutStore(null);
     this.legends = options.legends ?? null;
     this.files = options.files ?? null;
-    this.host.afterTick = () => { this.takeAutosave(); this.checkHallEnd(); };
+    this.host.afterTick = () => { this.fortress.noteTick(); this.takeAutosave(); this.checkHallEnd(); };
     this.randomSeed = options.randomSeed ?? defaultRandomSeed;
     this.createCanvas = options.createCanvas;
     this.fortress = new FortressScreen(this.fortressHost(), this.keymap, this.strings);
@@ -286,7 +286,10 @@ export class Game {
       },
       registry: this.registry,
       ui: this.ui,
-      submit: (command) => this.host.submit(command),
+      submit: (command) => {
+        this.host.submit(command);
+        this.fortress.noteCommand(command, this.tutorial !== null);
+      },
       speed: () => this.host.speed(),
       get loadSheddingActive() { return host.loadSheddingActive; },
       setSpeed: (speed) => this.host.setSpeed(speed),

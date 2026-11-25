@@ -51,7 +51,7 @@ import { drawPastureChoice, PastureChoice, pastureFootText, pastureGrazer } from
 import type { ItemsReader } from '@systems/items';
 import { drawLogPanel, drawLogStrip, filterLines, LogView, matchLines, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
-import { statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
+import { speedText, statusFields, statusRight, statusRow1, statusFieldSpacing, statusPanelStrip, type Speed } from '../status';
 import { drawCalendarPanel, weatherColor, weatherGlyph, weatherOf } from '../panels/calendar';
 import { drawOverlaysPanel, OVERLAY_ROWS, OverlayMenu } from '../panels/overlays';
 import { drawHelpPanel, HelpPanel, type HelpTab } from '../panels/help';
@@ -90,6 +90,9 @@ function defaultHotkey(panel: PanelSpec): string {
 
 /** The speeds `+` and `-` step through ("speed up (1× → 2× → 4×)"). */
 const SPEEDS: readonly Speed[] = [1, 2, 4];
+
+/** The commands that give the dwarves work, after which a paused fortress shows `hint_paused` (24 § Hints). */
+const PAUSED_HINT_COMMANDS: ReadonlySet<string> = new Set(['Designate', 'DesignateStairwell', 'DesignateHarvest', 'CreateZone', 'PlaceBuilding', 'AddWorkOrder']);
 
 /** The panels a row of Look's tile list or a link opens, whose `Backspace` returns to Look (24 § Inspection). */
 const BACK_TO_LOOK_PANELS: readonly string[] = ['building', 'workshop', 'depot', 'zones'];
@@ -269,6 +272,8 @@ export class FortressScreen implements Screen {
   private selecting: TilePoint | null = null;
   private middle: { col: number; row: number } | null = null;
   private lastSpeed: Speed = 1;
+  /** Whether a tick has run since the fortress was entered (embarked or loaded); not saved. */
+  private ranSinceEntered = false;
   /** The cells of the speed glyph on row 1: a right click there steps the speed. */
   private speedRegion: Rect | null = null;
   private last: Surface | null = null;
@@ -314,6 +319,7 @@ export class FortressScreen implements Screen {
       shiftClick: () => this.clickShift,
       notice: (text, alert) => this.notice(text, alert),
       clearNotice: () => this.clearNotice(),
+      paused: () => host.speed() === 0,
       shiftLetters: this.keymap.shiftLetters(this.keyContexts()),
       ...(host.confirm === undefined ? {} : {
         confirm: (id: string, params: Readonly<Record<string, string | number>>, run: () => void): void => {
@@ -538,11 +544,25 @@ export class FortressScreen implements Screen {
   /** 24 § Interfaces: future systems and content can add a hint through the UI registry. */
   registerHint(hint: HintRow): void { this.hints.hint(hint); }
 
+  /** A tick ran: the fortress has run since it was entered. */
+  noteTick(): void { this.ranSinceEntered = true; }
+
+  /**
+   * A command the player made (24 § Hints): the first designation, zone, building or work order made
+   * while the fortress is paused and has not run since it was entered shows `hint_paused`, except
+   * while the tutorial runs, whose own step teaches time.
+   */
+  noteCommand(command: Command, tutorial: boolean): void {
+    if (tutorial || this.ranSinceEntered || this.host.speed() !== 0 || !PAUSED_HINT_COMMANDS.has(command.type)) return;
+    this.hints.show('hint_paused', this.host.readers.calendar.tick, this.settings.hintsEnabled);
+  }
+
   /**
    * A new or loaded fortress keeps nothing of the one before it: the log and the orders panel's
    * finished and recent rows belong to the fortress they were made in (24 § Announcements and the log).
    */
   resetSession(): void {
+    this.ranSinceEntered = false;
     this.log.lines.length = 0;
     // A danger line pinned in the fortress before is not a line of this one: it would show twice.
     this.pinned = null;
@@ -963,13 +983,16 @@ export class FortressScreen implements Screen {
     const row1 = statusRow1(readers, this.strings, this.ui.z, this.host.speed(), rect.cols, loadShedding, viewOnly);
     labelRow(surface, rect.col, rect.row, rect.cols, row1);
     // The date opens the calendar panel; the weather glyph takes its colour (T-M3-08).
-    const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed(), loadShedding, viewOnly);
+    const speed = this.host.speed();
+    const fields = statusFields(readers, this.strings, this.ui.z, speed, loadShedding, viewOnly, rect.cols);
     const speedField = viewOnly ? -1 : fields.length - 1;
     const fieldSpacing = statusFieldSpacing(fields, this.strings, rect.cols);
     let fieldCol = rect.col + 1;
-    for (const field of fields) {
+    for (const [k, field] of fields.entries()) {
       if (field.startsWith('+') || field.startsWith('!')) label(surface, fieldCol, rect.row, field, { fg: t.danger, width: rect.cols - (fieldCol - rect.col), keys: false });
       if (loadShedding && !viewOnly && field === fields[fields.length - 1]) label(surface, fieldCol, rect.row, field, { fg: surface.color('yellow'), width: rect.cols - (fieldCol - rect.col), keys: false });
+      // A paused fortress says so in words, in the key colour, when the row has room (`║ paused`).
+      if (k === speedField && speed === 0 && field !== speedText(0)) label(surface, fieldCol, rect.row, field, { fg: t.key, width: rect.cols - (fieldCol - rect.col), keys: false });
       fieldCol += Array.from(field).length + fieldSpacing;
     }
     const date = Array.from(fields[0] ?? '').length;
@@ -986,6 +1009,7 @@ export class FortressScreen implements Screen {
       else if (k === speedField) {
         this.speedRegion = cells;
         this.landmarks.set('speed', cells);
+        surface.tooltip(cells, speed === 0 ? this.strings.get('ui.status.speed_tip_paused') : this.strings.get('ui.status.speed_tip_running', { speed }));
         surface.hit(cells, () => this.togglePause());
       } else if (field.startsWith('☺')) surface.hit(cells, () => this.openPanel('units'));
       else if (field.startsWith('♥')) surface.hit(cells, () => this.openPanel('mood'));

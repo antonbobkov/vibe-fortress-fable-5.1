@@ -31,6 +31,8 @@ export interface PanelContext {
   shiftClick(): boolean;
   /** A message on the status row: why an action did nothing (D-U4), or what it did; `alert` draws it in the alert colour. Absent outside the fortress screen. */
   notice?(text: string, alert?: boolean): void;
+  /** Whether time stands still (speed 0). Absent outside the fortress screen. */
+  paused?(): boolean;
   /** An interactive pick prompt replaces an earlier status notice. */
   clearNotice?(): void;
   /** The letters the open panel's accelerators keep on `Shift` (`[S-d]` dump, D-253), by their default keys. None when absent. */

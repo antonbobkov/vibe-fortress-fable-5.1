@@ -141,6 +141,7 @@
   "hint.hint_no_path": "Jobs are blocked: no path. Check for doors, water and undug rock.",
   "hint.hint_pallet": "A pallet needs no workshop: build one from cloth or straw and nobody sleeps on the floor.",
   "hint.hint_panel_letters": "Inside a panel its own letters come first. Esc, then a letter, opens another panel.",
+  "hint.hint_paused": "Time is paused, so nothing happens yet. [Space] runs the fortress, [+] and [-] change the speed.",
   "hint.hint_predator": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is.",
   "hint.hint_predator_open": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert once your hall has a door: before that there is nowhere to shelter, and the dwarves work on in the open. [n] then [2] shows where it is.",
   "hint.hint_rack": "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain.",

@@ -64,12 +64,13 @@ const positive: Record<string, Partial<HintFacts>> = {
   hint_rot: { foodStale: true },
   hint_breach: { cavernBreached: true },
   hint_panel_letters: { panelLetterShadowed: true },
+  hint_paused: { pausedOrder: true },
 };
 
 describe('T-M4-16 year-one hints', () => {
   it('has an exact positive and negative predicate fixture for every authored hint', () => {
     const rows = contentRegistry().table('hints').ids();
-    expect(rows).toHaveLength(46);
+    expect(rows).toHaveLength(47);
     expect(rows.slice().sort()).toEqual(Object.keys(positive).sort());
     for (const id of rows) {
       expect(hintPredicate(id, base), `${id} baseline`).toBe(false);
@@ -85,7 +86,7 @@ describe('T-M4-16 year-one hints', () => {
     const ui = defaultUiState(32);
     const log = new AnnouncementLog(new Strings(registry), registry);
     const hints = new HintEngine(registry, ui, log);
-    expect(hints.registered).toHaveLength(46);
+    expect(hints.registered).toHaveLength(47);
     expect(hints.show('hint_dig', 1, false)).toBe(false);
     expect(ui.hintsShown).toEqual([]);
     expect(hints.show('hint_dig', 1)).toBe(true);
