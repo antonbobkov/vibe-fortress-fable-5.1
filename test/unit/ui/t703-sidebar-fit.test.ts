@@ -431,3 +431,36 @@ describe('T-719 the lines the second playtest found cut', () => {
     expect(rows.join('\n')).not.toMatch(/[…»]/);
   });
 });
+
+describe('T-742 the scan opens Stocks to its stacks', () => {
+  it('scans a type opened five levels down to a single stack, and greaves of two qualities opened to their stacks', () => {
+    const f = setup();
+    const { w } = f;
+    const type = (id: string): number => w.game.registry.table('items').index(id);
+    w.spawnItem('plant_food', 'barley', w.index(34, 31, z), 1);
+    w.spawnItem('plant_food', 'cabbage', w.index(35, 31, z), 12);
+    for (let k = 0; k < 2; k += 1) w.spawnItem('greaves', 'steel', w.index(36 + k, 31, z), 1, 0);
+    for (let k = 0; k < 3; k += 1) w.spawnItem('greaves', 'steel', w.index(36 + k, 32, z), 1, 1);
+    w.step(1);
+    f.screen.openPanel('stocks');
+    const stocks = f.screen.stocks;
+    for (const id of ['food', 'food/plant', 'food/plant/raw', `type:${type('plant_food')}`, 'armor', 'armor/legs', `type:${type('greaves')}`]) stocks.tree.expanded.add(id);
+    // Each row of like greaves opened to its stacks too.
+    type Node = { id: string; children: readonly Node[] };
+    const open = (nodes: readonly Node[]): void => {
+      for (const n of nodes) {
+        if (n.id.startsWith('stacks:')) stocks.tree.expanded.add(n.id);
+        if (stocks.opens(n.id)) open(n.children);
+      }
+    };
+    open(stocks.visibleForest(f.screen.ctx));
+    const rows = side(f).rows.join('\n');
+    expect(rows).toMatch(/\n {10}barley +1 /);
+    expect(rows).toMatch(/\n {6}. poor steel +2 /);
+    // What may end with `»`: a stack's material, a name, four levels down ("poor st»"), its tier whole before it.
+    expect(scan(f, 'stocks opened')).toEqual(['stocks opened: poor steel']);
+    const cut = side(f).rows.filter((row) => row.includes('»'));
+    expect(cut).toHaveLength(2);
+    for (const row of cut) expect(row.trim()).toMatch(/^poor st» +1 +\d+ ☼$/);
+  });
+});

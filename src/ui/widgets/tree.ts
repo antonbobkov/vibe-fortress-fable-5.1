@@ -28,6 +28,11 @@ export interface TreeNode {
    * Stocks type's stacks): the arrow is drawn without building them. Absent, the children say.
    */
   readonly openable?: boolean;
+  /**
+   * The name the row takes when `name` does not fit its cells: a Stocks stack row without its units,
+   * which its count column gives (24 § Panels: a redundant word may go before a fact is cut).
+   */
+  readonly short?: string;
 }
 
 /** Whether a node has rows under it to open. */
@@ -167,11 +172,12 @@ export function tree(
     if (item === undefined) continue;
     const n = item.node;
     const arrow = !openable(n) ? ' ' : state.expanded.has(n.id) ? '▾' : '▸';
-    const head = `${'  '.repeat(item.depth)}${arrow} ${n.name}`;
     // The right-hand text (a count, a value) is a fact: it takes the cells it needs, and the name gives them up.
     const right = extra === undefined ? '' : extra(n);
     const fixed = Math.max(4, Math.min(rect.cols - 6, 18));
     const nameWidth = Math.max(4, Math.min(fixed, rect.cols - (checked !== null ? 4 : 0) - Array.from(right).length));
+    const indent = `${'  '.repeat(item.depth)}${arrow} `;
+    const head = n.short !== undefined && Array.from(indent + n.name).length > nameWidth ? indent + n.short : indent + n.name;
     label(s, rect.col, row, head, { width: nameWidth, keys: false, ...(n.alert === true ? { fg: s.theme.alert } : {}) });
     let col = rect.col + nameWidth;
     if (checked !== null) {

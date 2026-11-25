@@ -19,7 +19,7 @@ import { buildTree, label, tree, type TreeNode, type TreeState } from '../widget
 import { buildings, confirmThen, items, marks, type PanelContext } from './context';
 import { ageNote, agedMaterial, enchantedName, rotText, wrapHang } from '../messages';
 import { TICKS_PER_DAY } from '@core/constants';
-import { ROT_ALERT_DAYS, STOCKS_USE_ROWS } from '../constants';
+import { ROT_ALERT_DAYS, STOCKS_PLAIN_QUALITY, STOCKS_USE_ROWS } from '../constants';
 
 interface NodeTotals {
   count: number;
@@ -79,6 +79,11 @@ const STACK_MARKS = ItemFlag.Forbidden | ItemFlag.Dump | ItemFlag.Melt;
  */
 function stackKey(rec: { material: number; quality: number; rotStage: number; flags: number }, label: string, alert: boolean): string {
   return `${rec.material}.${rec.quality}.${rec.rotStage}.${alert ? 1 : 0}.${rec.flags & STACK_MARKS}.${label}`;
+}
+
+/** A stack's quality as a Stocks row names it (12's tier, as Look words it); '' for the plain tier, which goes unnamed. */
+function qualityWord(ctx: PanelContext, quality: number): string {
+  return quality === STOCKS_PLAIN_QUALITY ? '' : ctx.strings.get(`ui.item.quality.${quality}`);
 }
 
 /** A type's row, whose stack rows are built the first time they are read and kept. */
@@ -216,19 +221,24 @@ export class StocksPanel {
     const it = items(ctx);
     if (it === null) return [];
     const groups = new Map<string, { name: string; alert: boolean; rows: TreeNode[]; ids: EntityId[] }>();
+    const quality = it.def(type)?.quality === true;
     for (const id of stacks) {
       const rec = it.get(id);
       const plain = rec === undefined ? '?' : ctx.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '?';
       // 13 § Aging in a cellar: an aged stack names its stage and its years ("aged bellwine ×20 (aged, 1 year in the cellar)").
       const material = agedMaterial(ctx.strings, plain, rec?.age);
       const note = rec === undefined ? '' : ageNote(ctx.strings, ctx.registry, rec, rec.containerId === 0 ? undefined : it.get(rec.containerId));
-      // An enchanted stack carries its suffix (25 § Setting stones): "keen iron ×1".
-      const name = enchantedName(ctx.readers, id, material);
+      // An enchanted stack carries its suffix (25 § Setting stones): "keen iron ×1"; a stack of a type
+      // with quality names its tier first, unless it is the plain one ("fine steel ×1", "steel ×1").
+      const enchanted = enchantedName(ctx.readers, id, material);
+      const tier = rec === undefined || !quality ? '' : qualityWord(ctx, rec.quality);
+      const name = tier === '' ? enchanted : ctx.strings.get('ui.stocks.quality_name', { quality: tier, name: enchanted });
       // 13 § Rot: a stale stack, or one that rots within `ROT_ALERT_DAYS`, is drawn in the alert colour.
       const outlook = rec === undefined ? null : it.rotOutlook(id);
       const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
-      const row = { id: `item:${id}`, name: `${name} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, children: [], ...(alert ? { alert } : {}) };
       const label = note === '' ? name : `${name} (${note})`;
+      // The units are in the count column too: a row too narrow for them drops them from its name.
+      const row = { id: `item:${id}`, name: `${name} ×${rec?.count ?? 1}${note === '' ? '' : ` (${note})`}`, short: label, children: [], ...(alert ? { alert } : {}) };
       const key = rec === undefined ? `${id}` : stackKey(rec, label, alert);
       const group = groups.get(key);
       if (group === undefined) groups.set(key, { name: label, alert, rows: [row], ids: [id] });
@@ -324,7 +334,8 @@ export class StocksPanel {
       const outlook = it.rotOutlook(id);
       const text = rotText(ctx.strings, outlook, it.def(rec.type)?.edible === true);
       const alert = outlook !== null && (outlook.stage >= 1 || (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY));
-      return text === '' ? { text: '', alert: false } : { text: `${this.selectedName(ctx)} · ${text}`, alert };
+      // A stack is named whole, with its quality and units, which its row may have had to leave out or cut.
+      return text === '' ? { text: this.selectedName(ctx), alert: false } : { text: `${this.selectedName(ctx)} · ${text}`, alert };
     }
     if (node.startsWith(STACKS_ROW)) {
       // A row of like stacks says how many stacks it holds, and, of perishable ones, the units that rot soon.
@@ -338,7 +349,11 @@ export class StocksPanel {
         perishable = true;
         if (outlook.toRot !== null && outlook.toRot <= ROT_ALERT_DAYS * TICKS_PER_DAY) soon += rec.count;
       }
-      const stacks = ctx.strings.get('ui.stocks.stacks', { n: ids.length });
+      // Of a type with quality, the stacks' tier, which a deep row's name may not hold: "fine · 2 stacks".
+      const first = it.get(ids[0] ?? 0);
+      const tier = first !== undefined && it.def(first.type)?.quality === true ? qualityWord(ctx, first.quality) : '';
+      const count = ctx.strings.get('ui.stocks.stacks', { n: ids.length });
+      const stacks = tier === '' ? count : ctx.strings.get('ui.stocks.stacks_quality', { stacks: count, quality: tier });
       if (!perishable) return { text: stacks, alert: false };
       return { text: ctx.strings.get('ui.stocks.stacks_rot', { stacks, rot: ctx.strings.get('ui.stocks.rot_soon', { n: soon, days: ROT_ALERT_DAYS }) }), alert: soon > 0 };
     }
@@ -483,9 +498,12 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   const strings = ctx.strings;
   const { totals } = panel.totals(ctx);
   drawPanelFilter(s, rect.col + 1, rect.row, rect.cols - 2, panel.filter, ctx);
-  // Under the tree: the rot line, the usable line (two rows), the wealth (wrapped) and two rows of actions.
+  // Under the tree: the line about the selected row (wrapped, the tree giving up its rows), the usable
+  // line (two rows), the wealth (wrapped) and two rows of actions.
   const wealth = wealthLines(ctx, rect.cols - 2);
-  const height = Math.max(1, rect.rows - 4 - wealth.length - STOCKS_USE_ROWS);
+  const rot = panel.rotLine(ctx);
+  const rotRows = rot.text === '' ? [''] : wrapHang(rot.text, rect.cols - 2, 2);
+  const height = Math.max(1, rect.rows - 3 - rotRows.length - wealth.length - STOCKS_USE_ROWS);
   const state = panel.filter.value === '' ? panel.tree : { ...panel.tree, expanded: new Set<string>() };
   if (panel.filter.value !== '') {
     // A filter opens the rows down to the rows of like stacks; one of those opens when the player opens it.
@@ -516,9 +534,10 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
   panel.tree.selected = state.selected;
   panel.tree.scroll = state.scroll;
   let row = rect.row + 1 + height;
-  const rot = panel.rotLine(ctx);
-  label(s, rect.col + 1, row, rot.text, { fg: rot.alert ? t.alert : t.dim, width: rect.cols - 2 });
-  row += 1;
+  for (const line of rotRows) {
+    label(s, rect.col + 1, row, line, { fg: rot.alert ? t.alert : t.dim, width: rect.cols - 2 });
+    row += 1;
+  }
   // 13's available count, beside the stock: what of the row a build or an order can have now, and why not the rest.
   const use = panel.useLine(ctx);
   const useRows = use.text === '' ? [] : wrapHang(use.text, rect.cols - 2, 2);

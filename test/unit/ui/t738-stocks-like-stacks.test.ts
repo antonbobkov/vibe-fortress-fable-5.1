@@ -77,7 +77,7 @@ describe('T-738 Stocks shows like stacks as one row', () => {
     panel.expand(ctx);
     const open = rows(panel, ctx);
     expect(open.filter((id) => id.startsWith('item:'))).toEqual(bags.map((id) => `item:${id}`));
-    expect(draw(panel, ctx).filter((line) => /barley x\d+/.test(line))).toHaveLength(18);
+    expect(draw(panel, ctx).filter((line) => /barley x\d+ +\d+ /.test(line))).toHaveLength(18);
   });
 
   it('a forbidden bag and a stale turnip keep rows of their own', () => {

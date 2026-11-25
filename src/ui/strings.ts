@@ -951,6 +951,13 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.units.whim_where': '{text} Made at {where}.',
   'ui.whim.in_stock': '{n} of {goal} in stock',
   'ui.whim.in_place': '{n} of {count} in place',
+  // 12's quality tiers, as an item's quality is worded where a panel names it.
+  'ui.item.quality.0': 'poor',
+  'ui.item.quality.1': 'common',
+  'ui.item.quality.2': 'fine',
+  'ui.item.quality.3': 'superior',
+  'ui.item.quality.4': 'exceptional',
+  'ui.item.quality.5': 'masterwork',
   'ui.item.aged': 'aged',
   'ui.item.vintage': 'vintage',
   'ui.item.age_note': '{stage}, {n} years in the cellar',
@@ -974,6 +981,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // The line under the tree for a row of like stacks: how many stacks it holds, and what of them rots soon.
   'ui.stocks.stacks': '{n|stack|stacks}',
   'ui.stocks.stacks_rot': '{stacks} · {rot}',
+  // Of a type with quality, the stacks' tier first, which a deep row's name may not hold: "fine · 2 stacks".
+  'ui.stocks.stacks_quality': '{quality} · {stacks}',
+  // A stack row of a type with quality: its tier before its material, as Look's item view words the tier ("fine steel ×1").
+  'ui.stocks.quality_name': '{quality} {name}',
   // The selected row's units that a build or an order cannot have now, and why.
   'ui.stocks.usable': 'Usable {usable} of {n}: {reasons}',
   'ui.stocks.why.depot': '{n} at the depot',
