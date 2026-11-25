@@ -8,7 +8,7 @@
  */
 
 import type { KeyPress } from '@platform/input';
-import { formatDate } from '@core/calendar';
+import { formatDate, yearOf } from '@core/calendar';
 import { base64ToBytes } from '@core/serialize';
 import { clickHit, type CellPointer, type Screen } from '../screen';
 import type { KeyContext, Keymap } from '../keymap';
@@ -27,6 +27,8 @@ export interface SaveListing {
   readonly thumbnail?: { readonly cols: number; readonly rows: number; readonly cells: string };
   /** A testing fortress (`02` § Testing mode): marked in its row. */
   readonly testing?: boolean;
+  /** A final save's end: how its fortress ended (the Finished row says so). */
+  readonly end?: 'fell' | 'retired' | 'abandoned';
   /** Set when the header could not be read; the save cannot be loaded. */
   readonly unreadable?: string;
 }
@@ -92,12 +94,16 @@ export class LoadScreen implements Screen {
     return found;
   }
 
-  /** "Emberhall · Day 12 of Summer, Year 2 · 23 dwarves · 18,450 ☼". */
+  /**
+   * "Emberhall · Day 12 of Summer, Year 2 · 23 dwarves · 18,450 ☼"; a final save says how its
+   * fortress ended and that it is a view-only record: "Coldvein Hold · fell in Year 4 (view only)".
+   */
   line(s: SaveListing): string {
     if (s.unreadable !== undefined) return this.strings.get('ui.load.unreadable', { id: s.id, reason: s.unreadable });
+    const testing = s.testing === true ? ` ${this.strings.get('ui.load.testing_mark')}` : '';
+    if (s.kind === 'final') return `${s.fortress}${testing} · ${this.strings.get(`ui.load.end.${s.end ?? (s.population === 0 ? 'fell' : 'retired')}`, { year: yearOf(s.tick) })}`;
     const date = s.kind === 'auto' ? formatDate(s.tick).replace(/^Day \d+ of /, '') : formatDate(s.tick);
     const auto = s.kind === 'auto' ? ` ${this.strings.get('ui.load.auto_mark')}` : '';
-    const testing = s.testing === true ? ` ${this.strings.get('ui.load.testing_mark')}` : '';
     return `${s.fortress}${testing} · ${date}${auto} · ${this.strings.get('ui.load.dwarves', { n: s.population })} · ${s.wealth.toLocaleString('en-US')} ☼`;
   }
 

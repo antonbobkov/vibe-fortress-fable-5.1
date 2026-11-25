@@ -185,6 +185,8 @@ export interface FortressHost {
   laborManager?(open: { readonly marked?: readonly EntityId[]; readonly focus?: EntityId | undefined }): void;
   /** The `text_input` dialog: a rename. The answer is the text, or null when cancelled (U-06). */
   prompt?(spec: { readonly title: string; readonly value: string; readonly maxLength: number }, answer: (text: string | null) => void): void;
+  /** While a final save is open (view only), the line that says how the fortress ended; null while it plays. */
+  viewOnlyLine?(): string | null;
 }
 
 export class FortressScreen implements Screen {
@@ -542,6 +544,8 @@ export class FortressScreen implements Screen {
    */
   resetSession(): void {
     this.log.lines.length = 0;
+    // A danger line pinned in the fortress before is not a line of this one: it would show twice.
+    this.pinned = null;
     this.orders.reset();
     this.ui.mark = null;
   }
@@ -954,15 +958,18 @@ export class FortressScreen implements Screen {
     const t = surface.theme;
     const readers = this.host.readers;
     const loadShedding = this.host.loadSheddingActive === true;
-    const row1 = statusRow1(readers, this.strings, this.ui.z, this.host.speed(), rect.cols, loadShedding);
+    // A view-only final save never runs: row 1 has no speed field, and row 2 says why (24 § The legend record).
+    const viewOnly = this.viewOnlyLine() !== null;
+    const row1 = statusRow1(readers, this.strings, this.ui.z, this.host.speed(), rect.cols, loadShedding, viewOnly);
     labelRow(surface, rect.col, rect.row, rect.cols, row1);
     // The date opens the calendar panel; the weather glyph takes its colour (T-M3-08).
-    const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed(), loadShedding);
+    const fields = statusFields(readers, this.strings, this.ui.z, this.host.speed(), loadShedding, viewOnly);
+    const speedField = viewOnly ? -1 : fields.length - 1;
     const fieldSpacing = statusFieldSpacing(fields, this.strings, rect.cols);
     let fieldCol = rect.col + 1;
     for (const field of fields) {
       if (field.startsWith('+') || field.startsWith('!')) label(surface, fieldCol, rect.row, field, { fg: t.danger, width: rect.cols - (fieldCol - rect.col), keys: false });
-      if (loadShedding && field === fields[fields.length - 1]) label(surface, fieldCol, rect.row, field, { fg: surface.color('yellow'), width: rect.cols - (fieldCol - rect.col), keys: false });
+      if (loadShedding && !viewOnly && field === fields[fields.length - 1]) label(surface, fieldCol, rect.row, field, { fg: surface.color('yellow'), width: rect.cols - (fieldCol - rect.col), keys: false });
       fieldCol += Array.from(field).length + fieldSpacing;
     }
     const date = Array.from(fields[0] ?? '').length;
@@ -974,9 +981,9 @@ export class FortressScreen implements Screen {
       const width = Array.from(field).length;
       const cells = { col: hitCol, row: rect.row, cols: width, rows: 1 };
       hitCol += width + fieldSpacing;
-      if (k === fields.length - 2) this.landmarks.set('z', cells);
+      if (k === (viewOnly ? fields.length - 1 : fields.length - 2)) this.landmarks.set('z', cells);
       if (k === 0 || (k === 1 && weather !== null)) surface.hit(cells, () => this.openPanel('calendar'));
-      else if (k === fields.length - 1) {
+      else if (k === speedField) {
         this.speedRegion = cells;
         this.landmarks.set('speed', cells);
         surface.hit(cells, () => this.togglePause());
@@ -1064,6 +1071,11 @@ export class FortressScreen implements Screen {
     }
   }
 
+  /** The view-only line of a final save open on the screen, or null while the fortress plays. */
+  private viewOnlyLine(): string | null {
+    return this.host.viewOnlyLine?.() ?? null;
+  }
+
   /** Pause, or resume at the last speed (the pause key and the speed glyph). */
   private togglePause(): void {
     const speed = this.host.speed();
@@ -1117,6 +1129,8 @@ export class FortressScreen implements Screen {
     }
     const notice = this.currentNotice;
     if (notice !== null) return notice;
+    const viewOnly = this.viewOnlyLine();
+    if (viewOnly !== null) return viewOnly;
     if (this.pointer !== null && this.last !== null) {
       const tip = this.last.tooltipAt(this.pointer.col, this.pointer.row);
       if (tip !== null) return tip.text;
@@ -2381,6 +2395,12 @@ export class FortressScreen implements Screen {
           this.cancel();
           return true;
         case 'pause': {
+          // A view-only fortress does not run: the pause key says why.
+          const viewOnly = this.viewOnlyLine();
+          if (viewOnly !== null) {
+            this.notice(viewOnly);
+            return true;
+          }
           const speed = this.host.speed();
           if (speed === 0) this.host.setSpeed(this.lastSpeed);
           else {

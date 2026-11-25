@@ -214,6 +214,12 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.load.import_failed': 'Import failed: {reason}',
   'ui.load.failed': 'Could not load that save: {reason}',
   'ui.load.unreadable_save': 'That save could not be read.',
+  'ui.load.end.fell': 'fell in Year {year} (view only)',
+  'ui.load.end.retired': 'retired in Year {year} (view only)',
+  'ui.load.end.abandoned': 'abandoned in Year {year} (view only)',
+  'ui.final_view.fell': '{fortress} fell on {date}. View only: [Esc] menu.',
+  'ui.final_view.retired': '{fortress} retired on {date}. View only: [Esc] menu.',
+  'ui.final_view.abandoned': '{fortress} was abandoned on {date}. View only: [Esc] menu.',
   'ui.confirm.yes': 'Yes',
   'ui.confirm.no': 'No',
   // World generation (§ World generation).

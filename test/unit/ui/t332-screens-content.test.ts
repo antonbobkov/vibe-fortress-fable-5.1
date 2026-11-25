@@ -135,7 +135,7 @@ describe('T-332 screens: what each outside screen says', () => {
     }
   });
 
-  it('Load groups the saves under Manual, Autosaves, Snapshots and Finished, each with its date, population and wealth, and the cursor on the first', () => {
+  it('Load groups the saves under Manual, Autosaves, Snapshots and Finished, each with its date, population and wealth (a finished one with its end), and the cursor on the first', () => {
     const r = rows('load');
     expect(r[1]).toBe('Load');
     expect(r[2]).toBe('Manual');
@@ -145,7 +145,7 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[6]).toBe('Snapshots');
     expect(r[7]).toBe('Emberhall · Day 9 of Spring, Year 1 · 14 dwarves · 8,900 ☼');
     expect(r[8]).toBe('Finished');
-    expect(r[9]).toBe('Coldvein Hold · Day 13 of Summer, Year 1 · 0 dwarves · 52,300 ☼');
+    expect(r[9]).toBe('Coldvein Hold · fell in Year 1 (view only)');
     expect(r[24]).toBe('[Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back');
   });
 

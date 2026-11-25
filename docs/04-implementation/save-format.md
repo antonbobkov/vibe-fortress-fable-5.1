@@ -35,11 +35,14 @@ Typed array section names carry the element type after a colon: `map.kind:u8`, `
   "population": 23, "wealth": 18450, "playTimeSeconds": 5400,
   "thumbnail": { "cols": 48, "rows": 27, "cells": "…base64 of glyph,fg,bg triples…" },
   "kind": "manual" | "auto" | "snapshot" | "final",
-  "testing": true
+  "testing": true,
+  "end": "fell" | "retired" | "abandoned"
 }
 ```
 
 `testing` is present, and `true`, only for a fortress started in the embark's testing mode (02 § Testing mode); the Load screen marks its row "(testing)".
+
+`end` is present only in a final save: how its fortress ended (the hall fell silent, it retired, or it was abandoned). The Load screen's Finished row says it ("fell in Year 4 (view only)") and the view-only status line names it; a final save without it reads "fell" when its population is 0 and "retired" otherwise.
 
 ## Sections (in order)
 

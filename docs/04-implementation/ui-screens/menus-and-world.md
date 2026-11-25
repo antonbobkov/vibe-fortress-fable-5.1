@@ -73,7 +73,7 @@ It plays at launch, before the main menu, when the Intro at launch setting is `a
 └────────────────────────────────────────────────────────────────┘
 ```
 
-`Continue` loads the newest save of any kind; hidden when none exists. `About` is hidden until the app has an About screen. `Tutorial` starts the tutorial (§ Tutorial). The first time `New world` is chosen, before any tutorial has been offered, it asks first with the `c_tutorial` confirmation ("Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?"): `Yes` starts the tutorial, `No` (the default) opens world generation. That it was offered is saved with the settings, as whether the intro has played is, and Reset to defaults keeps it. A test build makes no offer unless the page is opened with `?tutorial=offer`.
+`Continue` loads the newest save that is not a final one (an ended fortress's view-only record, § Load), and its line names that save's fortress and year; it is hidden when no such save exists, so a fortress that has just fallen is never reopened by `Continue`. `About` is hidden until the app has an About screen. `Tutorial` starts the tutorial (§ Tutorial). The first time `New world` is chosen, before any tutorial has been offered, it asks first with the `c_tutorial` confirmation ("Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?"): `Yes` starts the tutorial, `No` (the default) opens world generation. That it was offered is saved with the settings, as whether the intro has played is, and Reset to defaults keeps it. A test build makes no offer unless the page is opened with `?tutorial=offer`.
 
 ## Tutorial
 
@@ -270,6 +270,8 @@ Strings: `ui.settings.title`, `ui.settings.title_keybindings`, `ui.settings.row.
 │ [Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back        │
 └─────────────────────────────────────────────────────────────────────┘
 ```
+
+A Finished row is an ended fortress's final save. It says how the fortress ended and that it is a view-only record, not its date and counts: "{fortress} · fell in Year {n} (view only)" (`ui.load.end.fell`), "retired in Year {n}" and "abandoned in Year {n}" (`ui.load.end.retired`, `ui.load.end.abandoned`). The end is the save header's `end` (`save-format.md` § Header JSON); a final save written before the header kept it reads "fell" when no dwarf was living and "retired" otherwise.
 
 ## Legend
 

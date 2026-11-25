@@ -66,6 +66,9 @@ export interface SaveThumbnail {
 
 export type SaveKind = 'manual' | 'auto' | 'snapshot' | 'final';
 
+/** How a fortress ended, in its final save's header: the hall fell silent, it retired, or it was abandoned. */
+export type SaveEnd = 'fell' | 'retired' | 'abandoned';
+
 /** `save-format.md` § Header JSON. */
 export interface SaveHeader {
   readonly formatVersion: number;
@@ -82,6 +85,8 @@ export interface SaveHeader {
   readonly kind: SaveKind;
   /** A fortress started in the embark's testing mode (`02` § Testing mode); absent for a normal one. */
   readonly testing?: boolean;
+  /** A final save's end (`save-format.md` § Header JSON); absent in any other save, and in a final save written before it was kept. */
+  readonly end?: SaveEnd;
 }
 
 export class SaveFormatError extends Error {
