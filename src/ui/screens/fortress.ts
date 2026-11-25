@@ -550,6 +550,7 @@ export class FortressScreen implements Screen {
     this.ui.hintPending = [];
     this.ui.hintBareSince = [];
     this.ui.hintUnreachableSince = [];
+    this.ui.hintAlertTick = -1;
     this.ui.workshopIdleNotes = [];
     this.ui.wildlifeAlerted = false;
     this.ui.miasmaAdvised = false;

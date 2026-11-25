@@ -15,7 +15,8 @@ import { HAULER_WARNING_MIN_WORKERS, IDLE_HAULER_WARNING } from '@systems/jobs/c
 import type { WorkshopsReader } from '@systems/workshops';
 import type { UiState } from './ui-state';
 import type { AnnouncementLog } from './announcements';
-import { HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM } from './constants';
+import { HINT_ALERT_REPEAT_DAYS, HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM } from './constants';
+import { raidArrival } from './raid-lines';
 import { foodAtHand } from './food-at-hand';
 import { Strings } from './strings';
 
@@ -150,6 +151,7 @@ export class HintEngine {
     this.log.append('note', `☼ ${text ?? row.text}`, tick, undefined, 'hint');
     this.ui.hintsShown.push(id);
     this.ui.hintsShown.sort();
+    if (id === 'hint_alert') this.ui.hintAlertTick = tick;
     this.ui.hintPending = this.ui.hintPending.filter((pending) => pending !== id);
     return true;
   }
@@ -163,6 +165,8 @@ export class HintEngine {
     if (!enabled) return;
     for (const event of events) {
       this.mark(event, readers);
+      // 24 § Hints: a raid or an ambush at a Calm fortress shows the alert hint again, a season after it last showed.
+      if (raidArrival(event as Readonly<Record<string, unknown>>) && readers.has('16') && readers.of<CombatReader>('16').alert() === 'calm') this.showAgain('hint_alert', readers.calendar.tick);
       // The first `Starving` for hunger names the food at hand, after the day's starving line.
       if (event.type === 'Starving' && event['need'] === 'hunger' && !this.ui.hintsShown.includes('hint_starving')) {
         this.show('hint_starving', readers.calendar.tick, true, this.starvingText(readers));
@@ -175,6 +179,17 @@ export class HintEngine {
       }
       if (event.type === 'HourPassed' && readers.calendar.hour % HINT_CHECK_HOURS === 0) this.evaluate(readers);
     }
+  }
+
+  /**
+   * `hint_alert` again: shown now unless it showed within `HINT_ALERT_REPEAT_DAYS` (the first time
+   * too, when no warning came before the raid).
+   */
+  private showAgain(id: string, tick: number): void {
+    const last = this.ui.hintAlertTick;
+    if (this.ui.hintsShown.includes(id) && last >= 0 && tick - last < HINT_ALERT_REPEAT_DAYS * TICKS_PER_DAY) return;
+    this.ui.hintsShown = this.ui.hintsShown.filter((shown) => shown !== id);
+    this.show(id, tick);
   }
 
   /** `hint_starving`'s words: the food at hand now, or the advice for none. */

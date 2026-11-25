@@ -57,6 +57,9 @@ export const EMBARK_DEFAULT_PRESET = 'balanced';
 /** Hints are evaluated once per this many game hours. */
 export const HINT_CHECK_HOURS = 1;
 
+/** `hint_alert` shows again for a raid at a Calm fortress, but not within this many days of its last showing. */
+export const HINT_ALERT_REPEAT_DAYS = 28;
+
 /** The embark screen's hint line turns over after this many seconds of real time. */
 export const EMBARK_HINT_SECONDS = 5;
 
