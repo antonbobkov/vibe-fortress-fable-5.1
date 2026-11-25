@@ -1,6 +1,8 @@
 # T-756 — On a forest site the first workshop is refused almost everywhere: "needs the tree chopped first"
 
-**Source:** playtest 2026-11-25 (newcomer) ([report](../../reports/data/2026-11-25-playtest-5.md), finding 2) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in d4bb404e,fb0b2c93.
+
+**Source:** playtest 2026-11-25 (newcomer) ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 2) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 

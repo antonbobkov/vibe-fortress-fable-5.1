@@ -122,8 +122,9 @@ export function placeNear(w: TestWorld, type: string, x: number, y: number, avoi
   const occupied = creatureTiles(w);
   for (const origin of sites) {
     const ghost = b.ghost(type, origin, 0);
-    // Open ground first, as a player picks a site; a sapling or shrub is cleared only where the script asks.
-    if (ghost.reason !== null || (ghost.clears.length > 0 && !clearsPlants)) continue;
+    // Open ground first, as a player picks a site; a sapling or shrub is cleared only where the script
+    // asks, and a site with trees to fell first (14 § Placement) is passed by.
+    if (ghost.reason !== null || ghost.fells.length > 0 || (ghost.clears.length > 0 && !clearsPlants)) continue;
     if (!ghost.tiles.every((t) => b.zoneAt(t) === 0 && !avoid.has(t) && !occupied.has(t))) continue;
     cmd(w, { type: 'PlaceBuilding', buildingType: type, origin, orientation: 0, materialChoice: 0 });
     const id = (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding;

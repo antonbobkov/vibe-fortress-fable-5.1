@@ -757,7 +757,8 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
     Math.max(Math.abs(w.map.xOf(o) - w.map.xOf(tile)), Math.abs(w.map.yOf(o) - w.map.yOf(tile))) <= DEPOT_CLEARANCE);
   const fits = (t: number): boolean => {
     const ghost = buildings.ghost(type, t, 0);
-    return ghost.reason === null && ghost.tiles.every((tile) => buildings.zoneAt(tile) === 0 && !nearDepot(tile) && !crowdsDepot(tile) && !keptClear(w, state, tile) &&
+    // Open ground: a site with trees to fell first (14 § Placement) is passed by.
+    return ghost.reason === null && ghost.fells.length === 0 && ghost.tiles.every((tile) => buildings.zoneAt(tile) === 0 && !nearDepot(tile) && !crowdsDepot(tile) && !keptClear(w, state, tile) &&
       !w.game.world.entities.with(C.Creature).some((id) => {
         const p = w.game.world.entities.get(id, C.Position);
         return p && w.index(p.x, p.y, p.z) === tile;

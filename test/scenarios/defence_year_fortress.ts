@@ -84,7 +84,9 @@ function note(state: DefenceYearState, w: TestWorld, text: string): void {
 
 function place(w: TestWorld, buildingType: string, origin: number, extra: Record<string, unknown> = {}): number {
   const buildings = w.readers.of<BuildingsReader>('14');
-  if (buildings.at(origin) !== 0 || buildings.ghost(buildingType, origin, 0).reason !== null) return 0;
+  // A tile with a tree to fell first (14 § Placement) waits until the script's own felling clears it.
+  const ghost = buildings.ghost(buildingType, origin, 0);
+  if (buildings.at(origin) !== 0 || ghost.reason !== null || ghost.fells.length > 0) return 0;
   const r = command(w, { type: 'PlaceBuilding', buildingType, origin, orientation: 0, materialChoice: 0, priority: DEFENCE, ...extra } as Command);
   return r.ok ? (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding : 0;
 }
@@ -93,7 +95,7 @@ function place(w: TestWorld, buildingType: string, origin: number, extra: Record
 function placeBridge(w: TestWorld, origin: number, orientation: number): number {
   const buildings = w.readers.of<BuildingsReader>('14');
   const ghost = buildings.ghost('drawbridge', origin, orientation, 1, 2);
-  if (buildings.at(origin) !== 0 || ghost.reason !== null) return 0;
+  if (buildings.at(origin) !== 0 || ghost.reason !== null || ghost.fells.length > 0) return 0;
   const r = command(w, { type: 'PlaceBuilding', buildingType: 'drawbridge', origin, orientation, materialChoice: 0, priority: DEFENCE, width: 1, height: 2 } as Command);
   return r.ok ? (w.game.world.scheduler.byId('14') as BuildingsSystem).lastPlacedBuilding : 0;
 }

@@ -515,12 +515,18 @@ export class FortressScreen implements Screen {
     this.noticeGhost = null;
   }
 
-  /** What the builder will clear from a footprint, in the status bar's words; '' for nothing. */
-  private clearsText(tiles: readonly TileIndex[]): string {
+  /**
+   * What the builder will clear from a footprint, and the trees felled before it (14 § Placement),
+   * in the status bar's words; '' for nothing.
+   */
+  private clearsText(tiles: readonly TileIndex[], fells = 0): string {
     const first = tiles[0];
-    if (first === undefined) return '';
-    if (tiles.length > 1) return this.strings.get('ui.build.clears.many', { n: tiles.length });
-    return this.strings.get(this.host.readers.map.kindAt(first) === TileKind.Sapling ? 'ui.build.clears.sapling' : 'ui.build.clears.shrub');
+    const clears = first === undefined ? ''
+      : tiles.length > 1 ? this.strings.get('ui.build.clears.many', { n: tiles.length })
+        : this.strings.get(this.host.readers.map.kindAt(first) === TileKind.Sapling ? 'ui.build.clears.sapling' : 'ui.build.clears.shrub');
+    if (fells === 0) return clears;
+    const plural = fells === 1 ? 'one' : 'many';
+    return clears === '' ? this.strings.get(`ui.build.fells.${plural}`, { n: fells }) : this.strings.get(`ui.build.clears_fells.${plural}`, { clears, n: fells });
   }
 
   private ghostKey(): string {
@@ -870,6 +876,7 @@ export class FortressScreen implements Screen {
     const t = surface.theme;
     const okGlyph = surface.glyphs.index('▒');
     const badGlyph = surface.glyphs.index('x');
+    const fellGlyph = surface.glyphs.index('♣');
     const m = this.host.readers.map;
     const from = this.build.anchor;
     if (from !== null) {
@@ -895,7 +902,9 @@ export class FortressScreen implements Screen {
       const r = (Math.floor(i / m.w) % m.h) - this.ui.camY;
       if (col < 0 || r < 0 || col >= map.cols || r >= map.rows) continue;
       const bad = ghost.reason !== null && (ghost.bad.includes(i) || ghost.bad.length === 0);
-      surface.put(map.col + col, map.row + r, bad ? badGlyph : okGlyph, t.black, bad ? t.ghostBad : t.ghostOk);
+      // 14 § Placement: a tree the placement fells first shows as a tree on the ghost.
+      const glyph = bad ? badGlyph : ghost.fells.includes(i) ? fellGlyph : okGlyph;
+      surface.put(map.col + col, map.row + r, glyph, t.black, bad ? t.ghostBad : t.ghostOk);
     }
   }
 
@@ -1183,7 +1192,9 @@ export class FortressScreen implements Screen {
         const count = plan.blocked === 0 ? s.get('ui.status.build_drag', { tool: name, n: plan.ok.length })
           : s.get(plan.blocked === 1 ? 'ui.status.build_drag_blocked_one' : 'ui.status.build_drag_blocked', { tool: name, n: plan.ok.length, blocked: plan.blocked });
         const stock = this.stockText(plan.ok.length);
-        const clears = this.clearsText(plan.ok.filter((i) => { const kind = this.host.readers.map.kindAt(i); return kind === TileKind.Sapling || kind === TileKind.Shrub; }));
+        const kindOf = (i: TileIndex): TileKind => this.host.readers.map.kindAt(i);
+        const clears = this.clearsText(plan.ok.filter((i) => kindOf(i) === TileKind.Sapling || kindOf(i) === TileKind.Shrub),
+          row?.category === 'construction' ? 0 : plan.ok.filter((i) => kindOf(i) === TileKind.Tree).length);
         const counted = clears === '' ? count : `${count} · ${clears}`;
         return stock === '' ? counted : `${counted} · ${stock}`;
       }
@@ -1192,7 +1203,7 @@ export class FortressScreen implements Screen {
       const stock = this.stockText(0);
       if (blocked !== null) return stock === '' ? s.get('ui.status.build_blocked', { tool: name, reason: blocked }) : s.get('ui.status.build_blocked_stock', { tool: name, reason: blocked, stock });
       // 14 § Placement: the placement shows what the builder will clear.
-      const clears = ghost === null ? '' : this.clearsText(ghost.clears);
+      const clears = ghost === null ? '' : this.clearsText(ghost.clears, ghost.fells.length);
       const tool = clears === '' ? name : `${name} · ${clears}`;
       if (stock !== '') return s.get('ui.status.build_stock', { tool, stock });
       return s.get(this.build.multi(this.ctx) ? 'ui.status.build_many' : 'ui.status.build', { tool });

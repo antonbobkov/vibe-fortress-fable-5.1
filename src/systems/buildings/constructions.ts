@@ -83,7 +83,16 @@ export function isClearablePlant(kind: TileKind): boolean {
   return kind === TileKind.Sapling || kind === TileKind.Shrub;
 }
 
-/** Whether a grown tree is what keeps this rule from a tile: 14 § Placement refuses and says to chop it. */
+/**
+ * 14 § Placement: a building with a footprint (anything but a construction) may stand over a grown
+ * tree, which counts as the floor it stands on; the placement marks it for felling and the build
+ * waits until it falls. A construction still refuses a tree.
+ */
+export function fellsTrees(category: string): boolean {
+  return category !== 'construction';
+}
+
+/** Whether a grown tree is what keeps this rule from a tile: 14 § Placement refuses a construction and says to chop it. */
 export function treeRefuses(map: Map3D, rule: OnRule, i: TileIndex): boolean {
   return map.kindAt(i) === TileKind.Tree && rule !== 'stairs_down_or_ramp_top' && rule !== 'open_water_below' && rule !== 'never';
 }
@@ -92,11 +101,12 @@ export function treeRefuses(map: Map3D, rule: OnRule, i: TileIndex): boolean {
  * Whether a tile satisfies a placement rule. `soil` says whether a material index is of class
  * `soil` (the rule `outdoor_soil_floor` asks it; with none given that rule never holds). `planned`
  * says whether a tile holds a planned floor (the rule `floor_or_open_spanned` asks it of the four
- * tiles beside an open one; with none given only the terrain holds a floor).
+ * tiles beside an open one; with none given only the terrain holds a floor). `trees` counts a grown
+ * tree as the floor it stands on ({@link fellsTrees}).
  */
-export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex, soil?: (material: number) => boolean, planned?: (tile: TileIndex) => boolean): boolean {
+export function onRuleHolds(map: Map3D, rule: OnRule, i: TileIndex, soil?: (material: number) => boolean, planned?: (tile: TileIndex) => boolean, trees = false): boolean {
   const raw = map.kindAt(i);
-  const kind = isClearablePlant(raw) ? TileKind.Floor : raw;
+  const kind = isClearablePlant(raw) || (trees && raw === TileKind.Tree) ? TileKind.Floor : raw;
   switch (rule) {
     case 'floor':
       return kind === TileKind.Floor;

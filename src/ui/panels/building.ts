@@ -10,6 +10,7 @@
  */
 
 import { C } from '@core/components';
+import { TileKind } from '@core/map3d';
 import type { Command } from '@core/commands';
 import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
@@ -512,8 +513,16 @@ export class BuildingPanel {
     return cmd;
   }
 
-  /** Why a planned building waits ("waiting: 1 door — order at a carpenter's workshop"), or ''. */
+  /**
+   * Why a planned building waits ("waiting: 1 door — order at a carpenter's workshop"), or ''. Its
+   * build is not offered while trees stand on its site (14 § Placement): it says how many.
+   */
   waiting(ctx: PanelContext): string {
+    const view = this.view(ctx);
+    if (view !== undefined && view.state !== 'built' && view.state !== 'ruined') {
+      const trees = view.footprint.filter((t) => ctx.readers.map.kindAt(t) === TileKind.Tree).length;
+      if (trees > 0) return ctx.strings.get(trees === 1 ? 'ui.building.waits_trees.one' : 'ui.building.waits_trees.many', { n: trees });
+    }
     if (!ctx.readers.has('11')) return '';
     const job = ctx.readers.of<JobsReader>('11').byKey(`build:${this.id}`);
     if (job === undefined || job.state !== 'blocked' || job.blockedReason === null) return '';
