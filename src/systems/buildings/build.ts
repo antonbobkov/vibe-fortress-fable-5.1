@@ -980,7 +980,7 @@ export class BuildingStore {
 
   /**
    * Build completion: consume the inputs (one unit of each delivered stack, or units from `take`;
-   * D-073, Decision F-01c, D-154), `built`, the tile change of a construction,
+   * D-073, Decision F-01c, D-154; a trap's load is installed, not consumed), `built`, the tile change of a construction,
    * `BuildingCompleted { id, buildingType, value }`. A piece of furniture *links* its item instead
    * (`Building.itemId`, 14 § Placement): the item leaves the map as `Installed` and gives the
    * building its material (D-074). With no delivered inputs (`TestWorld.build`), `linked` names the
@@ -1011,9 +1011,9 @@ export class BuildingStore {
       if (units <= 0) continue;
       if (trap && index > 0) {
         const payload = rec.count > units ? (items?.split(it, units) ?? it) : it;
+        // 14 § Placement: a trap's load is installed, not consumed; 19 returns it on `BuildingRemoved`.
         items?.install?.(payload);
         trapLoaded.push(payload);
-        used.push({ type: this.itemTypes[rec.type]?.id ?? '', material: rec.material });
         continue;
       }
       for (let u = 0; u < units; u += 1) {
@@ -1029,14 +1029,15 @@ export class BuildingStore {
           itemId = linked !== 0 ? linked : t === undefined ? 0 : this.host.services.spawn.item(t, material, this.anchorOf(b), 1);
           return;
         }
-        for (let j = 0; j < n && t !== undefined; j += 1) used.push({ type: this.itemTypes[t]?.id ?? '', material });
         if (trap && k > 0 && t !== undefined) {
           for (let j = 0; j < n; j += 1) {
             const payload = this.host.services.spawn.item(t, material, this.anchorOf(b), 1);
             items?.install?.(payload);
             trapLoaded.push(payload);
           }
+          return;
         }
+        for (let j = 0; j < n && t !== undefined; j += 1) used.push({ type: this.itemTypes[t]?.id ?? '', material });
       });
     }
     for (const [item, destination] of moves) items?.dropAt(item, destination);
@@ -1111,7 +1112,10 @@ export class BuildingStore {
   private dismantle(id: EntityId): void {
     const b = this.get(id) as Building;
     const at = this.anchorOf(b);
-    const inputs = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
+    const all = (b.settings['inputs'] as { type: string; material: number }[] | undefined) ?? [];
+    // 14 § Placement: a trap consumed only its mechanism, its first unit; its load returns through
+    // 19's `BuildingRemoved`. A trap built in an older save kept its load here too: not returned twice.
+    const inputs = this.row(b.type).tags.some((tag) => tag.startsWith('trap:')) ? all.slice(0, 1) : all;
     const spawn = this.host.services.spawn;
     for (const u of inputs) {
       const t = this.itemIndex.get(u.type);
