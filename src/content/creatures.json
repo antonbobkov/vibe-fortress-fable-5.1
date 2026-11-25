@@ -128,6 +128,7 @@
   {
     "id": "blind_fish",
     "name": "blind fish",
+    "plural": "blind fish",
     "plan": "fish",
     "size": 3,
     "speed": 150,
@@ -493,6 +494,7 @@
   {
     "id": "cave_ox",
     "name": "cave ox",
+    "plural": "cave oxen",
     "plan": "quadruped",
     "size": 100,
     "speed": 120,
@@ -743,6 +745,7 @@
   {
     "id": "deer",
     "name": "deer",
+    "plural": "deer",
     "plan": "quadruped",
     "size": 40,
     "speed": 240,
@@ -924,6 +927,7 @@
   {
     "id": "elk",
     "name": "elk",
+    "plural": "elk",
     "plan": "quadruped",
     "size": 110,
     "speed": 210,
@@ -2170,6 +2174,7 @@
   {
     "id": "reindeer",
     "name": "reindeer",
+    "plural": "reindeer",
     "plan": "quadruped",
     "size": 70,
     "speed": 195,
@@ -2250,6 +2255,7 @@
   {
     "id": "restless_dead",
     "name": "restless dead",
+    "plural": "restless dead",
     "plan": "humanoid",
     "size": 60,
     "speed": 90,
@@ -2286,6 +2292,7 @@
   {
     "id": "sheep",
     "name": "sheep",
+    "plural": "sheep",
     "plan": "quadruped",
     "size": 40,
     "speed": 135,
@@ -2485,6 +2492,7 @@
   {
     "id": "trollkin",
     "name": "trollkin",
+    "plural": "trollkin",
     "plan": "humanoid",
     "size": 150,
     "speed": 135,

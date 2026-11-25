@@ -13,12 +13,12 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-694 | [The three-year cistern under the hearth hall](work/T-694-cistern-under-the-hall.md) | [T-688](archive/tasks/T-688-pressure-through-a-level-tunnel.md) | — | open |
 | T-698 | [A hospital never stocks honey, and raising a supply does not call goods already lying loose](work/T-698-hospital-honey-and-raised-supplies.md) | [T-696](archive/tasks/T-696-bandages-unused-by-medics.md) | — | open |
-| T-700 | [A pasture too small for its grazers starves them, and nothing says so](work/T-700-pasture-too-small-starves-grazers.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-701 | [Snow falls at 11 °C and rain at −2 °C](work/T-701-precipitation-follows-temperature.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-702 | [A new embark on the same world brings back the same seven dwarves under the same name](work/T-702-new-embark-new-names.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-703 | [The sidebar cuts off the number or word a line is there to give](work/T-703-sidebar-cut-off-facts.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-704 | [One Esc too many, then a panel letter, asks to abandon the fortress](work/T-704-game-menu-panel-letters.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-705 | [The wagon's goods cannot be opened, and its "see the items" help promises a tab that is gone](work/T-705-building-goods-open-from-tile-list.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-706 | [A wolf has arms: the creature view names every body by the dwarf's parts](work/T-706-animal-body-part-names.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
+| T-707 | [A tame animal's view has no "Pasture" action, which 08 promises](work/T-707-creature-view-pasture-action.md) | [T-700](archive/tasks/T-700-pasture-too-small-starves-grazers.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

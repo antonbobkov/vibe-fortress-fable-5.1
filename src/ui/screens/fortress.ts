@@ -58,7 +58,7 @@ import type { Strings } from '../strings';
 import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
 import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
-import { blockedText, buildingName, commandFocus, pluralName, rejectionText, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
+import { blockedText, buildingName, commandFocus, pluralName, rejectionText, speciesPlural, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
 export const UI_PANELS: readonly PanelSpec[] = [
@@ -232,7 +232,7 @@ export class FortressScreen implements Screen {
   /** A danger line shown until any key dismisses it. */
   pinned: LogLine | null = null;
   private flashUntil = 0;
-  private message: { text: string; until: number } | null = null;
+  private message: { text: string; until: number; alert: boolean } | null = null;
   /** A refused station or patrol tile put its notice up; the pointer moving takes it down so the prompt returns. */
   private pickRefused = false;
   /** The scrollbar a held button is dragging, or null. */
@@ -290,7 +290,7 @@ export class FortressScreen implements Screen {
       openPanel: (id) => this.openPanel(id),
       inspect: (id) => this.inspectCreature(id),
       shiftClick: () => this.clickShift,
-      notice: (text) => this.notice(text),
+      notice: (text, alert) => this.notice(text, alert),
       clearNotice: () => this.clearNotice(),
       shiftLetters: this.keymap.shiftLetters(this.keyContexts()),
       ...(host.confirm === undefined ? {} : {
@@ -392,7 +392,7 @@ export class FortressScreen implements Screen {
   onEvents(events: readonly GameEvent[]): void {
     this.ensureRegistered();
     const readers = this.host.readers;
-    const arrivals = new Map<string, { line: LogLine; count: number; name: string }>();
+    const arrivals = new Map<string, { line: LogLine; count: number; plural: string }>();
     const merges = new Map<EntityId, EntityId>();
     for (const event of events) {
       this.orders.onEvent(event);
@@ -420,7 +420,7 @@ export class FortressScreen implements Screen {
       const group = species === '' ? undefined : arrivals.get(species);
       if (group !== undefined) {
         group.count += 1;
-        group.line.text = this.strings.get('announce.dangerous_arrived_many', { count: group.count, species: pluralName(group.name) });
+        group.line.text = this.strings.get('announce.dangerous_arrived_many', { count: group.count, species: group.plural });
         continue;
       }
       if (event.type === 'ZoneChanged' && event['change'] === 'created' && this.pendingZone !== null && event['zoneType'] === this.pendingZone.type &&
@@ -445,7 +445,8 @@ export class FortressScreen implements Screen {
         this.markTile(event['tile']);
       }
       if (event.type === 'AnimalSpawned' && done.severity === 'alert') {
-        arrivals.set(species, { line: done.line, count: 1, name: String(this.host.registry.table<{ id: string; name: string }>('creatures').byId(species)?.name ?? species).toLowerCase() });
+        const row = this.host.registry.table<{ id: string; name: string; plural?: string }>('creatures').byId(species);
+        arrivals.set(species, { line: done.line, count: 1, plural: row === undefined ? pluralName(species.replace(/_/g, ' ')) : speciesPlural(row) });
         // The first sighting pauses once per fortress, as a first raid does; later ones never do.
         if (!this.ui.wildlifeAlerted) {
           this.ui.wildlifeAlerted = true;
@@ -472,9 +473,9 @@ export class FortressScreen implements Screen {
    * (D-U4: "UI-layer no-ops get a status message"). Replaced at once by starting a drag, a new
    * ghost state or a new notice (T-243).
    */
-  notice(text: string): void {
+  notice(text: string, alert = false): void {
     this.build.clearPlacementNotice();
-    this.message = { text, until: this.host.now() + STATUS_HINT_SECONDS * 1000 };
+    this.message = { text, until: this.host.now() + STATUS_HINT_SECONDS * 1000, alert };
     this.noticeGhost = this.build.active ? this.ghostKey() : null;
   }
 
@@ -981,12 +982,15 @@ export class FortressScreen implements Screen {
       const text2 = this.statusRow2(rect.cols - 1);
       const full = ` ${text2}`;
       const chars = Array.from(full);
+      // A notice that warns (a pasture that cannot feed its grazers) is drawn in the alert colour.
+      const notice = this.currentNotice;
+      const fg = this.message?.alert === true && notice !== null && text2 === this.keymap.relabel(notice, this.labelContexts()) ? t.alert : t.text;
       if (chars.length > rect.cols && rect.cols > 0) {
         surface.tooltip({ col: rect.col, row: rect.row + 1, cols: rect.cols, rows: 1 }, text2);
         const visible = `${chars.slice(0, rect.cols - 1).join('')}…`;
-        labelRow(surface, rect.col, rect.row + 1, rect.cols, visible, { fg: t.text, relabel: false });
+        labelRow(surface, rect.col, rect.row + 1, rect.cols, visible, { fg, relabel: false });
       } else {
-        labelRow(surface, rect.col, rect.row + 1, rect.cols, full, { fg: t.text, relabel: false });
+        labelRow(surface, rect.col, rect.row + 1, rect.cols, full, { fg, relabel: false });
       }
       this.hitStrip(surface, rect, chars.length > rect.cols ? `${chars.slice(0, rect.cols - 1).join('')}…` : full);
     }

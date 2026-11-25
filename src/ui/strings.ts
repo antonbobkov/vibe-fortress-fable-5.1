@@ -632,6 +632,12 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.zone.farm_fertilize_on': 'Fertilize: on ({n} in stock)',
   'ui.zone.farm_fertilize_off': 'Fertilize: off ({n} in stock)',
   'ui.zone.compost_turning': 'Turning: {n|item|items}',
+  // 08 § Pastures and feeding: the verdict, then what it rests on, then how to put animals there.
+  'ui.zone.pasture.feeds': 'Feeds {fed} of {n|grazer|grazers}',
+  'ui.zone.pasture.feeds_none': 'Feeds {n|grazer|grazers}',
+  'ui.zone.pasture.grass': '{grass} grass; {per} a grazer',
+  'ui.zone.pasture.grass_shrubs': '{grass} grass, {shrubs} grazing shrubs; {per} a grazer',
+  'ui.zone.pasture.put_here': 'Add animals: Animals [n], [p].',
   'ui.stockpile.preset': 'Preset [{preset} ▾]',
   'ui.stockpile.custom': 'Custom',
   'ui.stockpile.nothing': 'Nothing',
@@ -1068,6 +1074,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.animals.detail.trained_war': 'trained for war',
   'ui.animals.detail.trained_hunting': 'trained for hunting',
   'ui.animals.detail.with': 'with {name}',
+  // `[p] pasture` says what it did, and when the pasture cannot feed its grazers.
+  'ui.animals.pastured': '{animals} to {pasture}.',
+  'ui.animals.pastured_over': '{animals} to {pasture}: it feeds {fed} of {n|grazer|grazers}.',
+  'ui.animals.unpastured': '{animals} off the pasture.',
   'ui.animals.detail.slaughter': 'marked for slaughter',
   'ui.help.animals.train': 'Training: choose War or Hunting with arrows, Enter or click; Esc cancels.',
   'ui.help.game_menu.rename': 'The name is typed in a field: Enter accepts it, Esc cancels.',
@@ -1909,7 +1919,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.reputation_changed.reason.other': 'of what happened',
   'ui.workshop.input_unspecified': 'input',
   // 08 § Player-facing behavior ("The cow is starving", "The cat has adopted Ketil Ironvein").
-  'announce.animal_starving': 'An animal is starving.',
+  'announce.animal_starving': '{animal} is starving.',
+  'announce.animal_starving.pasture': '{animal} is starving: {pasture} feeds {fed} of {n|grazer|grazers}.',
   'announce.animal_spawned': 'A {species} has arrived.',
   'announce.pet_adopted': 'A pet has adopted a dwarf.',
   // 12 § Registrations: a created masterwork names its maker and item; missing magma is an alert.

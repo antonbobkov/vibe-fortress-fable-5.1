@@ -222,11 +222,19 @@ function exportHerds(tables) {
   return bySpecies;
 }
 
+/** creatures.md § Plurals: the species that name their own plural -> { species: plural }. */
+function exportPlurals(tables) {
+  const bySpecies = new Map();
+  for (const row of asObjects(findTable(tables, 'Plurals', 'plural'))) bySpecies.set(id(row.id), plain(row.plural));
+  return bySpecies;
+}
+
 export function exportCreatures() {
   const tables = readTables(join(CONTENT_DIR, 'creatures.md'));
   const remains = exportRemains(tables);
   const butcherParts = exportButcherParts(tables);
   const herds = exportHerds(tables);
+  const plurals = exportPlurals(tables);
   const out = [];
   for (const section of SECTIONS) {
     const table = findTable(tables, section, 'plan');
@@ -244,6 +252,7 @@ export function exportCreatures() {
         compact({
           id: sid,
           name: plain(row.name),
+          plural: plurals.get(sid),
           plan: id(row.plan),
           size: int(row.size),
           speed: fixed(row.speed),
@@ -278,6 +287,9 @@ export function exportCreatures() {
         }),
       );
     }
+  }
+  for (const sid of plurals.keys()) {
+    if (!out.some((c) => c.id === sid)) throw new Error(`creatures.md § Plurals: unknown species ${sid}`);
   }
   return byId(out);
 }
