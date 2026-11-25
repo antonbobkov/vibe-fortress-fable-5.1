@@ -9,7 +9,7 @@ Every plan maps its parts onto the six slots `head, torso, left_arm, right_arm, 
 | id | head | torso | left_arm | right_arm | left_leg | right_leg | notes |
 |---|---|---|---|---|---|---|---|
 | `humanoid` | hit 10, hp 0.5, see | hit 35, hp 1.0 | hit 12, hp 0.6, wield | hit 12, hp 0.6, wield | hit 15, hp 0.6, walk | hit 16, hp 0.6, walk | dwarves, humans, elves, goblins, trollkin, trolls, restless dead |
-| `quadruped` | hit 12, hp 0.5, see | hit 40, hp 1.0 | "left foreleg" hit 12, hp 0.5, walk | "right foreleg" hit 12, hp 0.5, walk | hit 12, hp 0.5, walk | hit 12, hp 0.5, walk | most animals; a lost leg halves speed, two lost legs immobilize |
+| `quadruped` | hit 12, hp 0.5, see | hit 40, hp 1.0 | "left foreleg" hit 12, hp 0.5, walk | "right foreleg" hit 12, hp 0.5, walk | "left hindleg" hit 12, hp 0.5, walk | "right hindleg" hit 12, hp 0.5, walk | most animals; a lost leg halves speed, two lost legs immobilize |
 | `crawler` | hit 15, hp 0.5, see | hit 45, hp 1.0 | "front legs" hit 10, hp 0.4, walk | "front legs" hit 10, hp 0.4, walk | "back legs" hit 10, hp 0.4, walk | "back legs" hit 10, hp 0.4, walk | insects, crabs, spiders, crawlers |
 | `bird` | hit 12, hp 0.4, see | hit 40, hp 1.0 | "left wing" hit 12, hp 0.4 | "right wing" hit 12, hp 0.4 | hit 12, hp 0.4, walk | hit 12, hp 0.4, walk | chickens; wings do nothing in version 1 |
 | `serpent` | hit 20, hp 0.6, see | hit 50, hp 1.0 | "left foreclaw" hit 10, hp 0.5, walk | "right foreclaw" hit 10, hp 0.5, walk | "tail" hit 5, hp 0.5 | "tail" hit 5, hp 0.5 | wyrms and lizards |

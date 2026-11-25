@@ -4,6 +4,7 @@
 
 import { C, type Body, type Wound } from '@core/components';
 import type { EntityStore } from '@core/entities';
+import type { EntityReader } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId } from '@core/types';
 import { BODY_SLOTS } from '@core/types';
@@ -23,16 +24,54 @@ export interface HealthReader {
   canWield(id: EntityId, hands: 1 | 2): boolean;
   canWork(id: EntityId): boolean;
   summaryText(id: EntityId): string;
+  /**
+   * The name of each of the six body slots, in `Body.parts` order, as the creature's body plan
+   * names it ("left foreleg", "left wing", "tail"); `null` for a slot the plan gives no part (hit
+   * weight 0: a fish's arms, the maw's limbs).
+   */
+  partNames(id: EntityId): readonly (string | null)[];
 }
 
-const PART_NAMES: readonly string[] = [
-  'head',
-  'torso',
-  'left arm',
-  'right arm',
-  'left leg',
-  'right leg',
-];
+interface PlanPartRow {
+  readonly name?: string;
+  readonly hit: number;
+}
+
+interface BodyPlanRow {
+  readonly id: string;
+  readonly parts: Readonly<Record<string, PlanPartRow>>;
+}
+
+/** The slot's own name, spaced: the name of a part whose plan does not name it. */
+function slotName(slot: string): string {
+  return slot.replace(/_/g, ' ');
+}
+
+/**
+ * `creatures.md` § Body plans: the names of a creature's six parts from its plan (`Creature.bodyPlan`),
+ * `null` for a slot of hit weight 0. A body with no creature or plan has the slots' own names.
+ */
+export function bodyPartNames(entities: Pick<EntityReader, 'get'>, registry: Registry, id: EntityId): readonly (string | null)[] {
+  const creature = entities.get(id, C.Creature);
+  const plan = creature === undefined ? undefined : registry.table<BodyPlanRow>('bodyPlans').byIndex(creature.bodyPlan);
+  return BODY_SLOTS.map((slot) => {
+    const part = plan?.parts[slot];
+    if (part === undefined) return slotName(slot);
+    if (part.hit <= 0) return null;
+    return part.name !== undefined && part.name !== '' ? part.name : slotName(slot);
+  });
+}
+
+/** A permanent mark (`lost_left_arm`, `badly_healed_right_leg`) in words, its slot named by the creature's plan. */
+export function permanentText(mark: string, names: readonly (string | null)[]): string {
+  for (let i = 0; i < BODY_SLOTS.length; i += 1) {
+    const slot = BODY_SLOTS[i] ?? '';
+    if (!mark.endsWith(`_${slot}`)) continue;
+    const what = mark.slice(0, -slot.length - 1);
+    return `${slotName(what)} ${names[i] ?? slotName(slot)}`;
+  }
+  return slotName(mark);
+}
 
 export function hasCrutchItem(entities: EntityStore, registry: Registry, id: EntityId): boolean {
   const isCrutch = (itemId: EntityId): boolean => {
@@ -181,13 +220,14 @@ export function makeHealthReader(
       return bleeding ? 'Wounded, bleeding' : 'Wounded';
     }
     const partsDescs: string[] = [];
+    const names = bodyPartNames(entities, registry, id);
 
     if (!b.conscious) partsDescs.push('unconscious');
 
     for (let i = 0; i < b.parts.length; i += 1) {
       const part = b.parts[i];
       if (!part) continue;
-      const partName = PART_NAMES[i] ?? BODY_SLOTS[i] ?? 'body';
+      const partName = names[i] ?? slotName(BODY_SLOTS[i] ?? 'body');
       if (part.destroyed) {
         partsDescs.push(`lost ${partName}`);
         continue;
@@ -228,5 +268,6 @@ export function makeHealthReader(
     canWield,
     canWork,
     summaryText,
+    partNames: (id) => bodyPartNames(entities, registry, id),
   };
 }

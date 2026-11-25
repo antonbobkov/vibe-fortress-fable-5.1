@@ -278,7 +278,7 @@
         ]
       },
       "left_leg": {
-        "name": "left leg",
+        "name": "left hindleg",
         "hit": 12,
         "hpFactor": 500,
         "functions": [
@@ -286,7 +286,7 @@
         ]
       },
       "right_leg": {
-        "name": "right leg",
+        "name": "right hindleg",
         "hit": 12,
         "hpFactor": 500,
         "functions": [
