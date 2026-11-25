@@ -23,6 +23,7 @@ import type { DefenseReader } from '@systems/defense';
 import { CATEGORY_TREE } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
 import { LINKABLE_TAGS, PLATE_LEVEL_MAX, PLATE_SIZE_MAX, PLATE_SIZE_STEP } from '../constants';
+import { hasOwnName } from '../creature-name';
 import { goodsWaiting, goodsWaitText, type GoodsWaitReason } from '../goods-wait';
 import { acceleratorLabel } from '../keymap';
 import { buildingName, capitalize, jobBlockText, matchName, materialItemName, whereMade, wrapText, zoneName } from '../messages';
@@ -310,7 +311,7 @@ export class BuildingPanel {
     if (creature === undefined) return '';
     // An animal is named after its species until the player names it: "a wolf".
     const species = ctx.registry.table<{ id: string; name: string }>('creatures').byIndex(creature.species);
-    if (creature.name !== '' && creature.name !== species?.name) return creature.name;
+    if (hasOwnName(ctx.registry, creature)) return creature.name;
     return species === undefined ? '' : `a ${species.name}`;
   }
 
