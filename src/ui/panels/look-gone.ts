@@ -71,16 +71,21 @@ export interface LookFoot {
   here(): void;
   back(): void;
   link(): void;
+  /** A row of the view's own under the keys (a tame grazer's `[p] pasture: Pasture #1`), its key a button. */
+  readonly action?: { readonly text: string; run(): void };
 }
 
 /**
- * The foot of a creature's or an item's view in its last `rows` rows (3 when there is room, else 0):
- * a rule, then `[c] center  [f] follow off` and `[h] here  [Bksp] back  [Tab] link`, every key a
- * button. A gone view offers `[c] center  [h] that tile` and `[Bksp] back  [Tab] link`.
+ * The foot of a creature's or an item's view in its last `rows` rows (3 when there is room, else 0;
+ * 4 with an action row): a rule, then `[c] center  [f] follow off` and `[h] here  [Bksp] back  [Tab]
+ * link`, then the action row, every key a button. A gone view offers `[c] center  [h] that tile` and
+ * `[Bksp] back  [Tab] link`, and no action.
  */
 export function drawLookFoot(s: Surface, rect: Rect, strings: Strings, foot: LookFoot | undefined, gone: boolean): void {
   const width = rect.cols - 2;
-  const row = rect.row + rect.rows - 3;
+  const action = gone ? undefined : foot?.action;
+  const row = rect.row + rect.rows - 3 - (action === undefined ? 0 : 1);
+  if (action !== undefined) captionButtons(s, rect.col + 1, row + 3, action.text, [() => action.run()], { width });
   separator(s, rect.col + 1, row, width);
   const nothing = (): void => {};
   const f: LookFoot = foot ?? { following: false, centre: nothing, follow: nothing, here: nothing, back: nothing, link: nothing };
@@ -93,9 +98,9 @@ export function drawLookFoot(s: Surface, rect: Rect, strings: Strings, foot: Loo
   captionButtons(s, rect.col + 1, row + 2, strings.get(gone ? 'ui.look.gone_keys2' : 'ui.look.view_keys2'), gone ? [() => f.back(), () => f.link()] : [() => f.here(), () => f.back(), () => f.link()], { width });
 }
 
-/** The rows a view's foot takes in `rows` rows of body: 3 with room for at least four more, else none. */
-export function footRows(rows: number): number {
-  return rows >= 7 ? 3 : 0;
+/** The rows a view's foot takes in `rows` rows of body: 3 (and `extra` action rows) with room for at least four more, else none. */
+export function footRows(rows: number, extra = 0): number {
+  return rows >= 7 + extra ? 3 + extra : 0;
 }
 
 /** A dead creature's cause, as its log line says it: "Roald Deephelm has been killed by a hillfolk bandit." */

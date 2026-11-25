@@ -54,6 +54,7 @@ const REMAINING: Readonly<Record<string, readonly { readonly id: string; readonl
     { id: 'ui.help.animals.train', why: 'the War or Hunting choice that training opens' },
     { id: 'ui.help.animals.cap', why: 'the number field of the breeding cap: digits, steps, range, buttons' },
   ],
+  look_panel: [{ id: 'ui.help.look.pasture', why: 'the keys inside the pasture picker a tame grazer\'s [p] opens, and the click' }],
   game_menu: [
     { id: 'ui.help.game_menu.letters', why: 'that a bare panel letter leaves the menu for its panel, which no row of the menu says' },
     { id: 'ui.help.game_menu.rename', why: 'the name field that renaming opens' },

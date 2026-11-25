@@ -1076,6 +1076,11 @@
   },
   {
     "context": "look_panel",
+    "key": "[p]",
+    "action": "a tame grazer's view: choose its pasture"
+  },
+  {
+    "context": "look_panel",
     "key": "Backspace",
     "action": "back to the view before"
   },
