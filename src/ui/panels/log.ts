@@ -312,11 +312,16 @@ export function drawLogStrip(s: Surface, rect: Rect, lines: readonly LogLine[], 
   // lines as are left, so an older line is the one cut; every other line is one line, cut with `»`.
   const width = rect.cols - 2;
   const rows: { text: string; color: Rgb }[] = [];
+  // A line newer than the pinned danger line leaves it a row: a hint that follows it (the alert hint
+  // after a raid's line) wraps under it over the rows left, never over it.
+  const pin = pinned === null ? -1 : shown.indexOf(pinned);
   for (let k = shown.length - 1; k >= 0 && rows.length < rect.rows; k -= 1) {
     const line = shown[k] as LogLine;
+    const left = rect.rows - rows.length - (pin >= 0 && k > pin ? 1 : 0);
+    if (left <= 0) continue;
     const hint = line.category === 'hint';
     const color = hint ? s.theme.value : colorOf(s.theme, line.severity);
-    const parts = hint && rect.rows - rows.length >= 2 ? wrapText(shownText(s, line), width, rect.rows - rows.length) : [shownText(s, line)];
+    const parts = hint && left >= 2 ? wrapText(shownText(s, line), width, left) : [shownText(s, line)];
     for (let p = parts.length - 1; p >= 0; p -= 1) rows.unshift({ text: parts[p] as string, color });
   }
   const offset = rect.rows - rows.length;

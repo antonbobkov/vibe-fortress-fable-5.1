@@ -98,6 +98,9 @@ describe('T-635 a raid says where it comes from, once', () => {
 
   it('a raid, a siege and bandits name their edge; a thief comes unannounced', () => {
     const { w } = setup('t635-arrival');
+    // Under Hearth: a Calm fortress's line adds what the alert does (T-734).
+    w.submit({ type: 'SetAlert', level: 'hearth' });
+    w.step(1);
     const log = announcer(w);
     const arrived = (kind: string, edge: string, tick: number) =>
       log.announce({ type: 'RaidArrived', partyId: tick, kind, size: 9, tile: 0, edge } as unknown as GameEvent, w.readers, tick);

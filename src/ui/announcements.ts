@@ -29,7 +29,7 @@ import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText } from './messages';
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
-import { raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
+import { calmTail, raidArrival, raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
 import type { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
@@ -520,7 +520,10 @@ export class AnnouncementLog {
     if (killTold) this.killsTold.add(creatureId);
     if (event.type === 'ImmigrantsArrived') key = this.immigrantsLine(fields, readers, params) ?? key;
     if (event.type === 'AnimalStarving') key = this.animalStarvingKey(creatureId, readers, params);
-    const text = this.strings.get(key, params);
+    const said = this.strings.get(key, params);
+    // 18 § Registrations: under a Calm alert a raid's danger line says what the alert does and its keys, as true then.
+    const tail = raidArrival(fields) ? calmTail(this.strings, readers) : null;
+    const text = tail === null ? said : `${said} ${tail}`;
     const focus = focusOf(event, readers) ?? (event.type === 'StockpileFull' ? zoneFocus(readers, fields['id']) : undefined);
     const category = killTold ? 'combat' : spec.category;
     let severity = spec.severity;

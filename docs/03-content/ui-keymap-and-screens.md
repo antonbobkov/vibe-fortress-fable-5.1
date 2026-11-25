@@ -698,7 +698,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Hints
 
-Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed and `hint_starving` on its `Starving` event). Ids and triggers:
+Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed, `hint_starving` on its `Starving` event and `hint_alert`'s repeat on the raid's event). `hint_alert` alone shows again (24 § Hints). Ids and triggers:
 
 | id | Trigger | Text |
 |---|---|---|
@@ -714,7 +714,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_farm` | a farm plot placement is refused | "Farms need soil, mud left by water, or cave loam." |
 | `hint_seeds` | first harvest | "Harvest returns one seed. Brewing and cooking do not." |
 | `hint_room` | a bedroom zone with tier bare exists for 3 days | "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in." |
-| `hint_alert` | first `ThreatWarning`, or the first fortress dwarf wounded by an animal | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded." |
+| `hint_alert` | first `ThreatWarning`, or the first fortress dwarf wounded by an animal; again at a raid's arrival (`RaidArrived` of a raid, a siege or bandits) or an ambush sprung while the alert is Calm, unless it showed within `HINT_ALERT_REPEAT_DAYS` | "Click a door and choose Lock on alert. Then [m] and [3] raise the Hearth alert: civilians go to the hearth and those doors lock, but a dwarf in dire need still goes out to eat, drink or sleep, and the medics still tend the wounded." |
 | `hint_depot` | day 14 of summer, year 1, no depot | "Build a trade depot [b > Special] before the caravan arrives." |
 | `hint_hospital` | first serious wound to a dwarf of the fortress with no hospital | "A hospital zone needs a bed, a chest, cloth and thread. Brightleaf treats infection." |
 | `hint_immigration` | first `ImmigrationSkipped` | "Immigrants come at the turn of the season when hall spirit is Content. Good rooms, meals and drink raise it." |
