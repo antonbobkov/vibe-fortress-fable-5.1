@@ -10,6 +10,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { CombatReader } from '@systems/combat';
 import type { ComingParty, ThreatsReader } from '@systems/threats';
+import type { Said } from './announcements';
 import { capitalize, materialItemName } from './messages';
 import type { Strings } from './strings';
 
@@ -114,14 +115,15 @@ function goodsWords(strings: Strings, n: number): string {
  * "The Gloam siege was destroyed: all 22 fell.", "The bandit raid has withdrawn: 5 raiders left
  * empty-handed." A thief's end says only that it went with nothing (its theft has its own line);
  * the restless dead go back to their rest. Null when the party is gone from the readers, which
- * keeps the plain line.
+ * keeps the plain line. The words come with their string key (T-725).
  */
-export function raidEndedText(strings: Strings, registry: Registry, readers: ReaderSet, partyId: number, outcome: string): string | null {
+export function raidEndedText(strings: Strings, registry: Registry, readers: ReaderSet, partyId: number, outcome: string): Said | null {
   if (!readers.has('18')) return null;
   const party = readers.of<ThreatsReader>('18').party(partyId);
   if (party === undefined) return null;
-  if (party.purpose === 'thief') return outcome === 'looted' ? null : strings.get('announce.raid_ended.thief');
-  if (party.purpose === 'restless') return strings.get('announce.raid_ended.restless');
+  const said = (key: string, params: Readonly<Record<string, string | number>> = {}): Said => ({ key, text: strings.get(key, params) });
+  if (party.purpose === 'thief') return outcome === 'looted' ? null : said('announce.raid_ended.thief');
+  if (party.purpose === 'restless') return said('announce.raid_ended.restless');
   const total = party.members.length;
   const fled = Math.min(total, party.despawnedCount ?? 0);
   // A member still on the map when its party ended is in a cage (18 § Party AI): caught, not fled or fallen.
@@ -142,7 +144,7 @@ export function raidEndedText(strings: Strings, registry: Registry, readers: Rea
   if (caught > 0) parts.push(strings.get(parts.length === 0 ? 'announce.raid_ended.caught_first' : 'announce.raid_ended.caught', { n: caught, who: raiders(caught) }));
   const key = `announce.raid_ended.${outcome}`;
   if (parts.length === 0 || !strings.has(key)) return null;
-  return strings.get(key, { party: partyWords(strings, registry, party), counts: parts.join(', ') });
+  return said(key, { party: partyWords(strings, registry, party), counts: parts.join(', ') });
 }
 
 /**

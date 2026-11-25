@@ -58,7 +58,7 @@ export interface SavedUiState {
   readonly deepFound?: boolean;
   readonly miasmaAdvised?: boolean;
   readonly breaches?: readonly [number, number][];
-  readonly logTail: readonly { tick: number; severity: string; text: string; count?: number; focus?: number; category?: string; subject?: number }[];
+  readonly logTail: readonly { tick: number; severity: string; text: string; count?: number; focus?: number; category?: string; subject?: number; key?: string }[];
 }
 
 export function defaultUiState(z: number): UiState {
@@ -89,7 +89,8 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
       ...(l.count > 1 ? { count: l.count } : {}),
       ...(l.focus === undefined ? {} : { focus: l.focus }),
       ...(l.category === undefined ? {} : { category: l.category }),
-      ...(l.subject === undefined ? {} : { subject: l.subject }) })),
+      ...(l.subject === undefined ? {} : { subject: l.subject }),
+      ...(l.key === undefined ? {} : { key: l.key }) })),
   };
 }
 
@@ -121,6 +122,8 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
     ...(l.focus === undefined ? {} : { focus: l.focus }),
     ...(l.category === undefined ? {} : { category: l.category }),
     ...(typeof l.subject === 'number' ? { subject: l.subject } : {}),
+    // T-725: an older save's lines have no key; the legend reads theirs back from the text.
+    ...(typeof l.key === 'string' && l.key !== '' ? { key: l.key } : {}),
   }));
 }
 

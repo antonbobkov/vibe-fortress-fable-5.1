@@ -94,44 +94,96 @@ interface LineKind { readonly key: string; readonly re: RegExp; readonly fields:
 /**
  * The announcement templates a line's text can be read back from, the most literal first: a whole
  * sentence with at least four letters of its own, so a fragment ("{n} raiders") or a bare
- * placeholder never claims a line.
+ * placeholder never claims a line. Only a line with no key of its own (an older save's) is read so.
  */
 function lineKinds(strings: Strings): LineKind[] {
   const kinds: LineKind[] = [];
   for (const [key, template] of strings.templates('announce.')) {
     const literal = template.replace(PLACEHOLDER, '').replace(/\s/g, '').length;
     if (literal < 4 || !/[.!?"]$/.test(template)) continue;
-    const fields: string[] = [];
-    let source = '';
-    let at = 0;
-    for (const match of template.matchAll(PLACEHOLDER)) {
-      source += `${escapeRegExp(template.slice(at, match.index))}(.+?)`;
-      fields.push(match[1] as string);
-      at = match.index + match[0].length;
-    }
-    source += escapeRegExp(template.slice(at));
-    kinds.push({ key, re: new RegExp(`^${source}$`, 's'), fields, literal });
+    kinds.push(lineKind(key, template, literal));
   }
   return kinds.sort((a, b) => b.literal - a.literal || a.key.localeCompare(b.key));
+}
+
+/** A template as a pattern that reads its placeholders back from a line's text. */
+function lineKind(key: string, template: string, literal = 0, flags = 's'): LineKind {
+  const fields: string[] = [];
+  let source = '';
+  let at = 0;
+  for (const match of template.matchAll(PLACEHOLDER)) {
+    source += `${escapeRegExp(template.slice(at, match.index))}(.+?)`;
+    fields.push(match[1] as string);
+    at = match.index + match[0].length;
+  }
+  source += escapeRegExp(template.slice(at));
+  return { key, re: new RegExp(`^${source}$`, flags), fields, literal };
 }
 
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
-/**
- * What a line folds by (T-720): its string key and, for a line about one creature, that creature;
- * a line no template reads back folds only with its own text. Null for a death, never folded.
- */
-function foldKey(text: string, kinds: readonly LineKind[], deaths: readonly LineKind[]): string | null {
-  if (deaths.some((kind) => kind.re.test(text))) return null;
-  for (const kind of kinds) {
-    const match = kind.re.exec(text);
-    if (match === null) continue;
-    const who = kind.fields.map((field, i) => SUBJECT_FIELDS.has(field) ? match[i + 1] : '').join('|');
-    return `${kind.key}|${who}`;
+/** How the last words tell a line's kind: by its own key (T-725), else by reading its text back (T-720). */
+class LineKinds {
+  private readonly kinds: readonly LineKind[];
+  private readonly deaths: readonly LineKind[];
+  private readonly byKey = new Map<string, LineKind>();
+
+  constructor(private readonly strings: Strings) {
+    const all = lineKinds(strings);
+    this.deaths = all.filter((kind) => DEATH_KEY.test(kind.key));
+    this.kinds = all.filter((kind) => !DEATH_KEY.test(kind.key));
   }
-  return `text|${text}`;
+
+  /** A death (`CreatureDied`): never folded, and kept first when the last words are full. */
+  isDeath(line: LogLine): boolean {
+    if (line.key !== undefined) return DEATH_KEY.test(line.key);
+    return this.deaths.some((kind) => kind.re.test(line.text));
+  }
+
+  /**
+   * What a line folds by: its string key and, for a line about one creature (its template names a
+   * `{dwarf}`, `{name}` or `{animal}`), that creature. A line with a key of its own folds by it
+   * (T-725), the creature read from its text by that key's template (the line's subject when the
+   * text is not the template's: its subject may be an item the event names first, so the name is
+   * read first). One without a key (an older save's) folds by the template its text reads back as,
+   * the most literal first, and a line no template reads folds only with lines of its own text
+   * (T-720). Null for a death, never folded.
+   */
+  foldKey(line: LogLine): string | null {
+    if (this.isDeath(line)) return null;
+    if (line.key !== undefined) {
+      const kind = this.kindOf(line.key);
+      if (!kind.fields.some((field) => SUBJECT_FIELDS.has(field))) return `${kind.key}|`;
+      const named = who(kind, kind.re.exec(line.text)) ?? (line.subject === undefined ? `text|${line.text}` : `#${line.subject}`);
+      return `${kind.key}|${named}`;
+    }
+    for (const kind of this.kinds) {
+      const named = who(kind, kind.re.exec(line.text));
+      if (named !== null) return `${kind.key}|${named}`;
+    }
+    return `text|${line.text}`;
+  }
+
+  /**
+   * A key's template as a pattern, made once; `get` with no params gives the template as written.
+   * It ignores case, as the log capitalizes a line's first letter.
+   */
+  private kindOf(key: string): LineKind {
+    let kind = this.byKey.get(key);
+    if (kind === undefined) {
+      kind = lineKind(key, this.strings.get(key), 0, 'si');
+      this.byKey.set(key, kind);
+    }
+    return kind;
+  }
+}
+
+/** The creature a line read back by its template names, '' for a template that names none; null when the text is not the template's. */
+function who(kind: LineKind, match: RegExpExecArray | null): string | null {
+  if (match === null) return null;
+  return kind.fields.map((field, i) => SUBJECT_FIELDS.has(field) ? match[i + 1] : '').join('|');
 }
 
 /**
@@ -142,14 +194,12 @@ function foldKey(text: string, kinds: readonly LineKind[], deaths: readonly Line
  * kept before the other alerts.
  */
 export function lastWords(log: readonly LogLine[], strings: Strings = new Strings()): string[] {
-  const all = lineKinds(strings);
-  const deaths = all.filter((kind) => DEATH_KEY.test(kind.key));
-  const kinds = all.filter((kind) => !DEATH_KEY.test(kind.key));
+  const kinds = new LineKinds(strings);
   const groups = new Map<string, { lines: LogLine[]; order: number }>();
   const entries: { lines: LogLine[]; order: number }[] = [];
   log.forEach((line, order) => {
     if (line.severity !== 'alert' && line.severity !== 'danger') return;
-    const key = foldKey(line.text, kinds, deaths);
+    const key = kinds.foldKey(line);
     const open = key === null ? undefined : groups.get(key);
     if (open !== undefined) { open.lines.push(line); open.order = order; return; }
     const entry = { lines: [line], order };
@@ -157,7 +207,7 @@ export function lastWords(log: readonly LogLine[], strings: Strings = new String
     entries.push(entry);
   });
   const newest = entries.sort((a, b) => b.order - a.order);
-  const kept = new Set(newest.filter((entry) => isKeptFirst(entry.lines[0] as LogLine, deaths)).slice(0, LEGEND_LOG_LINES));
+  const kept = new Set(newest.filter((entry) => isKeptFirst(entry.lines[0] as LogLine, kinds)).slice(0, LEGEND_LOG_LINES));
   for (const entry of newest) if (kept.size < LEGEND_LOG_LINES) kept.add(entry);
   return newest.filter((entry) => kept.has(entry)).map((entry) => {
     const last = entry.lines[entry.lines.length - 1] as LogLine;
@@ -168,8 +218,8 @@ export function lastWords(log: readonly LogLine[], strings: Strings = new String
 }
 
 /** A death or a danger line: kept before the other alerts when the last words are full. */
-function isKeptFirst(line: LogLine, deaths: readonly LineKind[]): boolean {
-  return line.severity === 'danger' || deaths.some((kind) => kind.re.test(line.text));
+function isKeptFirst(line: LogLine, kinds: LineKinds): boolean {
+  return line.severity === 'danger' || kinds.isDeath(line);
 }
 
 function biomeName(registry: Registry, id: string | undefined): string {

@@ -441,6 +441,7 @@ export class FortressScreen implements Screen {
       if (group !== undefined) {
         group.count += 1;
         group.line.text = this.strings.get('announce.dangerous_arrived_many', { count: group.count, species: group.plural });
+        group.line.key = 'announce.dangerous_arrived_many';
         continue;
       }
       if (event.type === 'ZoneChanged' && event['change'] === 'created' && this.pendingZone !== null && event['zoneType'] === this.pendingZone.type &&
