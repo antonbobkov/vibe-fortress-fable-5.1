@@ -29,8 +29,8 @@ function burned(seed: string, amount: number, parts: readonly string[] = PARTS, 
 }
 
 describe('T-691 a light burn takes no infection', () => {
-  it('a light burn asks for dressing and no cleaning; a serious burn for both', () => {
-    expect(woundTreatmentNeeds([createWound('burn', 'light', 5, 0)])).toEqual(['dress_burn']);
+  it('light burns ask for dressing (T-693: four of them, that hurt enough) and no cleaning; a serious burn for both', () => {
+    expect(woundTreatmentNeeds([1, 2, 3, 4].map(() => createWound('burn', 'light', 5, 0)))).toEqual(['dress_burn']);
     expect(woundTreatmentNeeds([createWound('burn', 'serious', 13, 0)])).toEqual(expect.arrayContaining(['clean_wound', 'dress_burn']));
   });
 

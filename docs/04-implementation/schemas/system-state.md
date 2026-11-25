@@ -10,7 +10,8 @@ interface WorldMap { size: number; seed: string; regions: RegionRecord[]; civHom
 // 02 § Ruins (T-686): what an ended fortress left on its site; `tiles` is the packed tile list, base64.
 interface RuinRecord { fortress: string; regionId: number; endedTick: number; tileCount: number; materials: string[]; tiles: string; items: { tile: number; type: string; material: string; count: number; quality: number }[];
   buildings?: { tile: number; type: string; orientation: number; item: string; material: string; quality: number }[] /* the furniture still standing (T-690); absent in a ruin told before it: none */;
-  wrecks?: { tile: number; type: string; orientation: number; material: string; inputs: { type: string; material: string; count: number }[] }[] /* the workshops, hearths, depots and wells left as wrecks, with the units they hold; absent in a ruin told before it: none */ }
+  wrecks?: { tile: number; type: string; orientation: number; material: string; inputs: { type: string; material: string; count: number }[]; width?: number; height?: number /* a drawbridge's size, unturned */;
+    loaded?: { type: string; material: string; quality: number }[] /* a trap still armed: its loaded items, weathered; absent: a wreck */ }[] /* the workshops, hearths, depots and wells, then the mechanisms and traps, left as wrecks with the units they hold, or armed; absent in a ruin told before it: none */ }
 interface RegionRecord { id: number; elevation: number; tempC: number; rain: number; biome: Id<BiomeDef>; geology: string; volcano: boolean;
   river: { inflow: Edge[]; outflow: Edge | null; class: 'brook'|'river'|'major' } | null; lake: boolean; deepness: number;
   wealth: number; peril: number; temper: number; traits: Id<RegionTraitDef>[]; civDistance: Record<Civ, number>; nearestEdgeTo: Record<Civ, Edge>; name: string }
@@ -101,7 +102,7 @@ interface HealthState { stateVersion: 1; wounded: EntityId[]; hospitals: EntityI
 interface ThreatsState { stateVersion: 1; schedule: [string, { nextTick: Tick; earliestTick: Tick; pendingSpawnTick: Tick }][]; renown: Fixed;
   deepsilverTiles: TileIndex[]; cavernSpawnCounts: [Idx<SpeciesDef>, number][]; webs: [TileIndex, EntityId][]; namedCaptains: [string, EntityId][]; rng: RngState }
 
-interface DefenseState { stateVersion: 1; traps: [EntityId, { kind: string; mode: 'enemies'|'all'; state: 'armed'|'spent'|'jammed'; loaded: EntityId[] }][];
+interface DefenseState { stateVersion: 1; traps: [EntityId, { kind: string; mode: 'enemies'|'all'|'anyone' /* anyone: a ruin's old trap, no one's (19 § Trap targeting) */; state: 'armed'|'spent'|'jammed'; loaded: EntityId[] }][];
   trapTiles: [TileIndex, EntityId][]; plates: [EntityId, { lastState: boolean; lastEdgeTick: Tick }][]; chains: [EntityId, EntityId][]; retreats?: [EntityId, TileIndex][] /* fixed retreat tiles under a hearth alert; absent when none and in older saves */; rng: RngState }
 
 interface TradeState { stateVersion: 1; schedule: Record<Civ, { nextArrivalTick: Tick; banUntilYear: number }>; activeCaravan: EntityId;

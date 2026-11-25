@@ -23,9 +23,29 @@ import {
   TREAT_FAIL_PERMILLE,
   TREAT_TICKS,
   BANDAGE_TICKS,
+  HOSPITAL_DEFAULT_SUPPLIES,
+  PAIN_UNCONSCIOUS,
 } from './constants';
 import { updatePatient } from './tick';
-import { awaitsBandage, needsCleaning, woundTreatmentNeeds } from './wounds';
+import { awaitsBandage, needsCleaning, onlyLightBurnsUndressed, woundTreatmentNeeds } from './wounds';
+
+/** The cloth `stop_bleeding` and `dress_burn` take. */
+const CLOTH_FILTER = { category: 'textile/cloth' } as const;
+
+/**
+ * 17 § Patients and hospitals: the cloth the fortress's hospitals keep for bandages, the sum of their
+ * `cloth` supply settings (as 13's hospital chests read them); none without a hospital.
+ */
+function hospitalCloth(buildings: BuildingsReader | null): number {
+  if (buildings === null) return 0;
+  let kept = 0;
+  for (const zoneId of buildings.zonesOfType('hospital')) {
+    const wants = (buildings.zoneSetting(zoneId, 'desired supplies') ?? buildings.zoneSetting(zoneId, 'wants') ??
+      HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
+    kept += wants['cloth'] ?? 0;
+  }
+  return kept;
+}
 
 /** 17 § Patients and hospitals: the honey a medic takes in place of a bucket or a cloth, when they are not to be had. */
 const HONEY_FILTER = { category: 'food/honey' } as const;
@@ -140,7 +160,7 @@ export class HealthProducer implements JobProducer {
     // undressed light burn is not admitted, but the treatments its wounds need are made for it.
     const burned = new Set(ctx.tick % HEALTH_CADENCE !== 0 ? [] : entities.with(C.Attributes, C.Body).filter(id =>
       !entities.has(id, C.Patient) && entities.alive(id) &&
-      entities.get(id, C.Body)?.parts.some(p => p.wounds.some(w => w.type === 'burn' && !w.dressed)) === true));
+      woundTreatmentNeeds(entities.get(id, C.Body)?.parts.flatMap(p => p.wounds) ?? []).includes('dress_burn')));
     const targets = new Set([...entities.with(C.Patient), ...this.host.pendingTreatments.keys(), ...burned]);
     // 17 § Patients and hospitals: honey stands in for the bucket and the cloth only when they are not to be had.
     const items = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13') : null;
@@ -182,6 +202,14 @@ export class HealthProducer implements JobProducer {
         regularOut.set(need, out);
       }
       return out;
+    };
+    // 17 § Patients and hospitals: a light burn's dressing takes only cloth beyond what the hospitals
+    // keep for bandages. Counted once a pass; each light dressing waiting for its cloth takes one.
+    let clothSpare: number | undefined;
+    const spareCloth = (): number => {
+      clothSpare ??= items === null ? 0 : items.countAvailable(CLOTH_FILTER) -
+        hospitalCloth(ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null);
+      return clothSpare;
     };
     for (const patientId of Array.from(targets).sort((a, b) => a - b)) {
       if (!entities.alive(patientId)) {
@@ -288,15 +316,26 @@ export class HealthProducer implements JobProducer {
 
       }
 
+      // A light burn's dressing (every undressed burn light, the dwarf not knocked out) is made at low
+      // priority and only from spare cloth; a serious burn's, or a knocked-out dwarf's, as before.
+      const lightDressing = onlyLightBurnsUndressed(b.parts.flatMap(part => part.wounds)) && b.pain < PAIN_UNCONSCIOUS;
+
       // Needs list
       for (const need of treatmentNeeds) {
         const key = `${need}:${patientId}`;
         const existing = sink.byKey(key);
         if (existing && need === 'clean_wound' && !this.canComplete(existing)) {
           sink.cancelKey(key, 'infection_requires_brightleaf');
+        } else if (existing && need === 'dress_burn' && existing.workerId === 0 && (existing.data['light'] === true) !== lightDressing) {
+          // A serious burn, or a knocked-out dwarf, is no longer a light dressing's to wait; or the reverse.
+          sink.cancelKey(key, 'need_changed');
         } else if (existing && existing.workerId === 0 && existing.data['honey'] !== true && byHoney(need)) {
           // A waiting treatment with no bucket or cloth to be had takes honey instead.
           sink.cancelKey(key, 'honey_in_place');
+        } else if (existing && need === 'dress_burn' && existing.workerId === 0 && lightDressing && existing.data['honey'] !== true) {
+          // A light dressing still waiting for its cloth gives way once the cloth left is the hospitals' to keep.
+          clothSpare = spareCloth() - 1;
+          if (clothSpare < 0) sink.cancelKey(key, 'cloth_kept');
         }
         if (sink.exists(key)) continue;
 
@@ -382,14 +421,20 @@ export class HealthProducer implements JobProducer {
             break;
           }
           case 'dress_burn': {
-            // Cloth first; honey when no cloth is to be had, and a honeyed burn is cleaned as well.
-            const honey = byHoney(need);
+            // Cloth first; honey when no cloth is to be had, and a honeyed burn is cleaned as well. A
+            // light dressing takes no cloth the hospitals keep: honey then, or it waits for a later pass.
+            let honey = byHoney(need);
+            if (lightDressing && !honey) {
+              if (spareCloth() >= 1) clothSpare = spareCloth() - 1;
+              else if (honeyLeft > 0) honey = true;
+              else break;
+            }
             if (honey) honeyLeft -= 1;
             sink.create(key, {
               type: 'dress_burn',
               target: { kind: 'entity', ref: patientId },
               workTile: 'adjacent',
-              priority: 3,
+              priority: lightDressing ? 4 : 3,
               inputs: [
                 {
                   filter: honey ? { ...HONEY_FILTER } : {
@@ -398,7 +443,10 @@ export class HealthProducer implements JobProducer {
                   count: 1,
                 },
               ],
-              data: { patient: patientId, inputUnits: true, excludeWorker: patientId, ...(honey ? { honey: true } : {}) },
+              data: {
+                patient: patientId, inputUnits: true, excludeWorker: patientId,
+                ...(honey ? { honey: true } : {}), ...(lightDressing ? { light: true } : {}),
+              },
             });
             break;
           }
@@ -665,15 +713,14 @@ export class HealthProducer implements JobProducer {
         this.consumeDelivered(job, ctx);
         const b = ctx.world.entities.get(patientId, C.Body);
         if (b) {
-          for (const p of b.parts) {
-            const w = p.wounds.find((wnd) => wnd.type === 'burn' && !wnd.dressed);
-            if (w) {
-              w.dressed = true;
-              w.pain = Math.floor(w.pain / 2);
-              // 17 § Patients and hospitals: a burn dressed with honey is cleaned too, never rolled for infection.
-              if (job.data['honey'] === true) w.cleaned = true;
-              break;
-            }
+          // A serious or grievous burn is dressed before a light one.
+          const burns = b.parts.flatMap((p) => p.wounds).filter((wnd) => wnd.type === 'burn' && !wnd.dressed);
+          const w = burns.find((wnd) => wnd.severity !== 'light') ?? burns[0];
+          if (w) {
+            w.dressed = true;
+            w.pain = Math.floor(w.pain / 2);
+            // 17 § Patients and hospitals: a burn dressed with honey is cleaned too, never rolled for infection.
+            if (job.data['honey'] === true) w.cleaned = true;
           }
         }
         ctx.emit({ type: 'TreatmentDone', patientId, medicId: job.workerId, kind: 'dress_burn' });

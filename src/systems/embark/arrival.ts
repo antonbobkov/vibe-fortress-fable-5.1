@@ -206,6 +206,11 @@ export interface RuinWreckPiece {
   readonly material: number;
   /** One entry for each unit it holds, in the record's order. */
   readonly inputs: readonly { readonly type: string; readonly material: number }[];
+  /** A drawbridge's size (T-695); absent: the type's own. */
+  readonly width?: number;
+  readonly height?: number;
+  /** A trap still armed (T-695): the items it is loaded with, weathered; absent: a wreck. */
+  readonly loaded?: readonly { readonly type: string; readonly material: number; readonly quality: number }[];
 }
 
 /** `02` § Ruins (T-692): each wreck of a ruin, in the record's order, by 14's placement; the ids placed. */
@@ -221,7 +226,14 @@ export function placeRuinWrecks(world: World, wrecks: readonly RuinWreck[], plac
       if (!items.has(line.type) || !materials.has(line.material)) continue;
       for (let k = 0; k < line.count; k += 1) inputs.push({ type: line.type, material: materials.index(line.material) });
     }
-    const id = place({ type: wreck.type, tile: wreck.tile, orientation: wreck.orientation, material: materials.index(wreck.material), inputs });
+    // T-695: a drawbridge's size, and an armed trap's loaded items.
+    const loaded = (wreck.loaded ?? []).filter((u) => items.has(u.type) && materials.has(u.material))
+      .map((u) => ({ type: u.type, material: materials.index(u.material), quality: u.quality }));
+    const id = place({
+      type: wreck.type, tile: wreck.tile, orientation: wreck.orientation, material: materials.index(wreck.material), inputs,
+      ...(wreck.width === undefined ? {} : { width: wreck.width }), ...(wreck.height === undefined ? {} : { height: wreck.height }),
+      ...(loaded.length === 0 ? {} : { loaded }),
+    });
     if (id !== 0) placed.push(id);
   }
   return placed;

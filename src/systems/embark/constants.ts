@@ -35,3 +35,7 @@ export const RUIN_FURNITURE_STAND_PERMILLE = 500;
 export const RUIN_FURNITURE_MAX = 40;
 /** `02` § Ruins (T-692): the most wrecks (workshops, the hearth, depots, wells) one ruin keeps (*unmeasured*). */
 export const RUIN_WRECKS_MAX = 20;
+/** `02` § Ruins (T-695): the chance an armed weapon, cage or stone-fall trap is still armed (*unmeasured*). */
+export const RUIN_TRAP_ARMED_PERMILLE = 250;
+/** `02` § Ruins (T-695): the most mechanisms and traps (wrecked or armed) one ruin keeps (*unmeasured*). */
+export const RUIN_MECHANISMS_MAX = 20;

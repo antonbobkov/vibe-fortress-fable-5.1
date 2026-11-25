@@ -104,8 +104,8 @@ export function decodeRuinTiles(ruin: Pick<RuinRecord, 'tileCount' | 'materials'
 /**
  * Stage 10b: lay a site's ruins over its generated map, in the order the fortresses ended, and
  * record the last one's items in the spawn list where they still have a floor to lie on, and its
- * standing furniture in `standing` and its wrecks in `wrecks` for 14 to place at arrival (T-690,
- * T-692). A ruin
+ * standing furniture in `standing` and its wrecks and armed traps in `wrecks` for 14 to place at
+ * arrival (T-690, T-692, T-695). A ruin
  * tile sets the tile's kind and material and its constructed and smoothed flags, clears its
  * engraving, grass and snow, and its fluid when it is a wall; nothing is drawn, so a site with the
  * same ruins is the same map each time.
@@ -141,10 +141,16 @@ export function stageRuins(map: Map3D, ruins: readonly RuinRecord[], registry: R
     standing.push(piece);
   }
   // T-692: the last ruin's wrecks whose type and material the content still has, each with the
-  // inputs whose item type and material it still has.
+  // inputs whose item type and material it still has. T-695: an armed trap keeps the loaded items
+  // the content still has; one left with none is a wreck.
   for (const wreck of last.wrecks ?? []) {
     if (wreck.tile < 0 || wreck.tile >= size || !buildings.has(wreck.type) || !materials.has(wreck.material)) continue;
     const inputs = wreck.inputs.filter((input) => items.has(input.type) && materials.has(input.material) && input.count > 0);
-    wrecks.push(inputs.length === wreck.inputs.length ? wreck : { ...wreck, inputs });
+    const kept = inputs.length === wreck.inputs.length ? wreck : { ...wreck, inputs };
+    if (wreck.loaded === undefined) { wrecks.push(kept); continue; }
+    const loaded = wreck.loaded.filter((unit) => items.has(unit.type) && materials.has(unit.material));
+    if (loaded.length === wreck.loaded.length) { wrecks.push(kept); continue; }
+    const { loaded: _gone, ...wrecked } = kept;
+    wrecks.push(loaded.length === 0 ? wrecked : { ...kept, loaded });
   }
 }

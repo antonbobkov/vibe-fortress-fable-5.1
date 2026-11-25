@@ -11,7 +11,10 @@ import { TestWorld } from '../../scenarios/test-world';
 
 const NEEDS = ['hunger', 'thirst', 'rest', 'social', 'comfort', 'purpose', 'joy'] as const;
 
-/** Two dwarves, both with the medicine labor, each with two light burns; cloth and a bucket at hand. */
+/**
+ * Two dwarves, both with the medicine labor, each with four light burns (enough pain to want a
+ * dressing, T-693); cloth and a bucket at hand.
+ */
 function fire(seed: string, severityAmount = 5) {
   const w = new TestWorld({ seed, world: 'flat-test', embark: 'none', surfaceWildlife: 'none' });
   const world = w.game.world;
@@ -22,7 +25,7 @@ function fire(seed: string, severityAmount = 5) {
     for (const need of NEEDS) w.setNeed(id, need, 0);
   }
   w.spawnItem('cloth', 'flax_cloth', w.index(11, 11, Z), 10);
-  for (const id of medics) for (const part of ['left_arm', 'right_leg'])
+  for (const id of medics) for (const part of ['left_arm', 'right_leg', 'right_arm', 'left_leg'])
     world.emit({ type: 'DamageDealt', defenderId: id, attackerId: 0, part, damageType: 'burn', amount: severityAmount });
   w.step(3);
   const burns = (id: number) => world.entities.get(id, C.Body)!.parts.flatMap((p) => p.wounds).filter((x) => x.type === 'burn');
@@ -36,7 +39,8 @@ describe('T-419 a light burn admits no one', () => {
       expect(a.burns(id).every((b) => b.severity === 'light')).toBe(true);
       expect(a.world.entities.has(id, C.Patient)).toBe(false);
     }
-    a.w.until(() => a.medics.every((id) => a.burns(id).every((b) => b.dressed)), TICKS_PER_DAY);
+    // T-693: one dressing each brings four light burns' pain (32) below PAIN_DISCHARGE (28).
+    a.w.until(() => a.medics.every((id) => a.burns(id).some((b) => b.dressed)), TICKS_PER_DAY);
     expect(a.w.events('PatientAdmitted')).toHaveLength(0);
   });
 

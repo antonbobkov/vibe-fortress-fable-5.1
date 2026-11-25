@@ -29,6 +29,7 @@ export type {
   RiverRecord,
   RuinBuilding,
   RuinItem,
+  RuinLoaded,
   RuinRecord,
   RuinWreck,
   WorldMap,
