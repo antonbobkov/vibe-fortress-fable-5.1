@@ -22,5 +22,5 @@ T-709 moved the fortress panels' texts into `UI_STRINGS` and taught `strings:che
 
 ## Done
 
-- [ ] `strings:check` scans `src/ui` whole; its skip list is empty and its allow-list gives a reason for each entry.
-- [ ] The screens' and panels' existing tests pass unchanged. UI only: no world hash moves.
+- [x] `strings:check` scans `src/ui` whole; its skip list is empty and its allow-list gives a reason for each entry.
+- [x] The screens' and panels' existing tests pass unchanged. UI only: no world hash moves.
