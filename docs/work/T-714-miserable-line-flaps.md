@@ -24,6 +24,9 @@ Spec: 15 § Tiers and effects (the margin), § Registrations (the line, once a d
 
 ## Done
 
-- [ ] Tests: a dwarf whose mood moves 19, 21, 19, 22 stays Miserable and is announced once; one that rises to 25 leaves it; the line names its three strongest negatives; a second fall the same day is not announced.
-- [ ] A run of the reproduction above: at most one miserable line per dwarf per day in the log.
-- [ ] World hashes: the tier now holds longer, so productivity and sulks move; the commit says which scenario hashes moved and why.
+- [x] Tests: a dwarf whose mood moves 19, 21, 19, 22 stays Miserable and is announced once; one that rises to 25 leaves it; the line names its three strongest negatives; a second fall the same day is not announced.
+- [x] A run of the reproduction above: at most one miserable line per dwarf per day in the log. (A headless probe: `deep-2346-1` region (11,30), Warband, no orders, 40 days: 27 falls to Miserable, at most one per dwarf a day, 16 miserable lines, one a day at most; the plain bands gave 59 falls, up to 3 a dwarf a day.)
+- [x] World hashes: the tier now holds longer, so productivity and sulks move; the commit says which scenario hashes moved and why. (None moved: the golden flat-test runs never hover about a bound; the sweep and the instrument judge the change.)
+- [x] Added by the orchestrator: the restless dead's dawn line says they fall to dust ("A restless dead has fallen to dust."), logged as kept in `docs/fun-features.md`.
+
+Choices made while working (now in the spec): the reasons are the thoughts' own texts quoted ('… is miserable: "I am hungry. Slept on the floor. …"'), since lower-cased texts read "i am hungry" and the thought rows have no short name; a dwarf with no need pressing leaves Miserable at 20, so the needs-met floor still keeps it out of Miserable; a day's miserable lines are one line naming each dwarf once, as the starving line is, so many miserable dwarves cannot bury a death or a departure.
