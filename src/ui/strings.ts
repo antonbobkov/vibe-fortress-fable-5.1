@@ -2359,6 +2359,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.sulk.weep': '{dwarf} is weeping at the hearth.',
   'announce.sulk_break': '{dwarf} has broken a piece of furniture in a temper.',
   'announce.thought': '{dwarf}: "{thought}"',
+  'announce.thought_pair': '{dwarf} and {other}: "{thought}"',
+  'announce.thought_many': '{n} dwarves: "{thought}"',
   'announce.fish_pool_depleted': 'A fishing spot has been fished out.',
   'announce.hunt_kill': '{hunter} has brought down {prey}.',
   'announce.hunt_no_ammo': '{hunter} has no ammunition for the hunt.',
