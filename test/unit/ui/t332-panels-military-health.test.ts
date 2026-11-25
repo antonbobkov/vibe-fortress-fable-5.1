@@ -110,33 +110,36 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     const rows = render('military');
     expect(rows[0]).toBe('Alert: Calm');
     expect(rows[1]).toBe('[1] Calm  [2] Watch  [3] Hearth');
-    expect(rows[2]).toBe('Calm: everyone works.');
-    expect(rows[4]).toMatch(/^Squad +Size +Mode$/);
-    expect(rows[5]).toMatch(/^The Hearthguard +1\/6 +train$/);
-    expect(rows[6]).toBe('[+] new squad  [x] disband');
-    expect(rows[7]).toMatch(/^─+ The Hearthguard ─+$/);
-    expect(rows[8]).toBe('Leader  none');
-    expect(rows[9]?.trim()).toBe('[l] pick  [n] rename');
-    expect(rows[10]).toBe('Mode: train');
-    expect(rows[11]).toBe('[o] Off [t] Train [v] Active');
-    expect(rows[12]).toMatch(/^Members \S+ \S+\.$/);
-    expect(rows[13]?.trim()).toBe('[a] add  [r] remove');
+    // The squad on Train works no job, so the Calm line names it (T-718).
+    expect(rows.slice(2, 4)).toEqual(['Calm: everyone works but 1 in The', 'Hearthguard (Train).']);
+    expect(rows[5]).toMatch(/^Squad +Size +Mode$/);
+    expect(rows[6]).toMatch(/^The Hearthguard +1\/6 +train$/);
+    expect(rows[7]).toBe('[+] new squad  [x] disband');
+    expect(rows[8]).toMatch(/^─+ The Hearthguard ─+$/);
+    expect(rows[9]).toBe('Leader  none');
+    expect(rows[10]?.trim()).toBe('[l] pick  [n] rename');
+    expect(rows[11]).toBe('Mode: train');
+    expect(rows[12]).toBe('[o] Off [t] Train [v] Active');
+    // What Train costs, with no barracks to drill at (T-718).
+    expect(rows.slice(13, 16)).toEqual(['1 dwarf off work, and with no', '  barracks they cannot drill: [z]', '  Barracks, then [b], or [o] Off.']);
+    expect(rows[16]).toMatch(/^Members \S+ \S+\.$/);
+    expect(rows[17]?.trim()).toBe('[a] add  [r] remove');
     // The member holds nothing, and the stock has no weapon but the tools the workers need.
-    expect(rows[14]).toMatch(/^Armed 0 of 1 · unarmed: \S+ \S+\.$/);
-    expect(rows[15]).toBe('No weapon in stock: order one [o]');
-    expect(rows[16]).toBe('  or buy one.');
-    expect(rows[17]).toBe('Gear [w] weapon [any ▼]');
-    expect(rows[18]?.trim()).toBe('[g] armor [any ▼]');
-    expect(rows[19]?.trim()).toBe('[j] ranged');
-    expect(rows[20]?.trim()).toBe('[S-d] draughts: none');
-    expect(rows[21]).toBe('Station none');
-    expect(rows[22]?.trim()).toBe('[s] set  [c] clear');
-    expect(rows[23]).toBe('Patrol none [p] add [y] clear');
-    expect(rows[24]).toBe('Orders [S-k] kill [f] follow');
-    expect(rows[25]?.trim()).toBe('[q] cancel orders');
+    expect(rows[18]).toMatch(/^Armed 0 of 1 · unarmed: \S+ \S+\.$/);
+    expect(rows[19]).toBe('No weapon in stock: order one [o]');
+    expect(rows[20]).toBe('  or buy one.');
+    expect(rows[21]).toBe('Gear [w] weapon [any ▼]');
+    expect(rows[22]?.trim()).toBe('[g] armor [any ▼]');
+    expect(rows[23]?.trim()).toBe('[j] ranged');
+    expect(rows[24]?.trim()).toBe('[S-d] draughts: none');
+    expect(rows[25]).toBe('Station none');
+    expect(rows[26]?.trim()).toBe('[s] set  [c] clear');
+    expect(rows[27]).toBe('Patrol none [p] add [y] clear');
+    expect(rows[28]).toBe('Orders [S-k] kill [f] follow');
+    expect(rows[29]?.trim()).toBe('[q] cancel orders');
     // On Train with no barracks the row says the squad cannot train (T-624).
-    expect(rows[26]).toBe('No barracks: the squad cannot');
-    expect(rows[27]?.trim()).toBe('train. [z] Barracks, then [b].');
+    expect(rows[30]).toBe('No barracks: the squad cannot');
+    expect(rows[31]?.trim()).toBe('train. [z] Barracks, then [b].');
   });
 
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {
