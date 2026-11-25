@@ -1079,6 +1079,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.jobs.reason.unreachable': 'no path',
   'ui.jobs.reason.missing_input': 'waiting: {what}',
   'ui.jobs.reason.to_be_brought': 'waiting: {what} to be brought',
+  'ui.jobs.reason.input_out_of_reach': 'waiting: {what}, out of reach',
+  'ui.jobs.reason_long.input_out_of_reach': '{text} — none in stock can be reached: open a door, unforbid a way, or move one within reach',
   'ui.jobs.reason.no_tool': 'waiting: {tool}',
   'ui.jobs.reason.no_worker': 'no worker',
   'ui.jobs.reason.workshop_suspended': 'suspended',
