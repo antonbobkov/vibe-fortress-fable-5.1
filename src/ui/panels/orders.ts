@@ -8,6 +8,7 @@
  * its status. The recent recipes and the finished orders are presentation state: never saved.
  */
 import { C, type WorkOrder, type Workshop } from '@core/components';
+import { TileKind } from '@core/map3d';
 import type { Command } from '@core/commands';
 import { PRIORITY_DEFAULT, PRIORITY_MAX, PRIORITY_MIN, TICKS_PER_DAY } from '@core/constants';
 import type { GameEvent } from '@core/events';
@@ -371,11 +372,20 @@ export class OrdersPanel {
    * A placed workshop that is not built: "· kiln not built yet", or, when its build job has waited
    * more than a day unclaimed, how long and why ("· kiln not built: waiting 41 days for a builder"),
    * from {@link jobWait} for an open job and the block's reason for a blocked one. Of several placed,
-   * the one waiting longest.
+   * the one waiting longest. One whose build waits for grown trees on its site to fall (14 § Placement)
+   * has no job yet: when every placed one waits so, the note counts the trees of the nearest to being
+   * built ("· carpenter's workshop not built: 2 trees to fell first"), as its panel does.
    */
-  private buildWait(ctx: PanelContext, placed: readonly EntityId[], workshop: string): string {
+  private buildWait(ctx: PanelContext, all: readonly EntityId[], workshop: string): string {
     const s = ctx.strings;
     const plain = s.get('ui.orders.pick.not_built', { workshop });
+    const trees = (id: EntityId): number => (this.buildings(ctx)?.get(id)?.footprint ?? []).filter((t) => ctx.readers.map.kindAt(t) === TileKind.Tree).length;
+    const counts = all.map(trees);
+    if (counts.every((n) => n > 0)) {
+      const n = Math.min(...counts);
+      return s.get(n === 1 ? 'ui.orders.pick.build_wait.trees.one' : 'ui.orders.pick.build_wait.trees.many', { workshop, n });
+    }
+    const placed = all.filter((_, i) => counts[i] === 0);
     if (!ctx.readers.has('11')) return plain;
     const jobs = ctx.readers.of<JobsReader>('11');
     const waiting = placed.map((id) => jobs.byKey(`build:${id}`))
