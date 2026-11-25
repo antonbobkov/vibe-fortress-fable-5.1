@@ -742,8 +742,13 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       this.repairTradeJob(ctx);
     } else if (event.type === 'CreatureDied') {
       this.repairTradeJob(ctx);
-      const fallen = ctx.world.entities.get(event['id'] as EntityId, C.Creature);
-      if (fallen && ctx.registry.table('creatures').idOf(fallen.species) === 'hillfolk_bandit') this.reputation(ctx, 'hillfolk', REP_BANDIT_KILLED, 'bandit_killed');
+      // The dead creature is already a corpse when this system hears of it (items, 13, runs
+      // first), so its species comes from the event, as every other death handler reads it.
+      const species = event['species'] ?? ctx.world.entities.get(event['id'] as EntityId, C.Creature)?.species;
+      // § Reputation events: a bandit's death costs the fortress only when it caused it, by the
+      // caravan member's blame rule (another bandit, a raider, a wild animal or a fall cost nothing).
+      if (typeof species === 'number' && ctx.registry.table('creatures').idOf(species) === 'hillfolk_bandit'
+        && fortressKilled(ctx, event['killerId'] as EntityId)) this.reputation(ctx, 'hillfolk', REP_BANDIT_KILLED, 'bandit_killed');
       const a = this.active;
       const id = event['id'] as EntityId;
       if (!a || !ctx.world.entities.get(a.partyId, C.Party)?.members.includes(id)) return;
@@ -789,8 +794,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
 }
 
 /**
- * 20 § Movement step 5, blame: a caravan member's death is the fortress's doing when its killer is
- * a fortress creature (a dwarf, a tame or war animal, a called summon) or a building (a trap). A
+ * 20 § Movement step 5, blame: a caravan member's death (and a Hillfolk bandit's, § Reputation
+ * events) is the fortress's doing when its killer is a fortress creature (a dwarf, a tame or war animal, a called summon) or a building (a trap). A
  * killer already gone, a caravan member, a raider, a wild or deep creature, or no killer at all
  * (a fall, a drowning) is not the fortress.
  */

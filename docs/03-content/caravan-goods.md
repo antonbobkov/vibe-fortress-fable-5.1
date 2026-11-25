@@ -169,11 +169,11 @@ Never in any list or request: star steel, aged and vintage goods, silk cloth, gi
 | Caravan member killed by the fortress (a fortress creature or a trap) | −50, ban 2 years | that civ |
 | Caravan left without a depot | −2 | that civ |
 | Caravan lost (a merchant killed by the fortress) | −10 | that civ |
-| Hillfolk bandit killed | −1 | Hillfolk |
+| Hillfolk bandit killed by the fortress (a fortress creature or a trap) | −1 | Hillfolk |
 | Hillfolk bandit caged (alive when the caravan next arrives; the caravan takes them) | +3 | Hillfolk |
 | Yearly drift | ±5 toward 0 | all |
 
-A caravan member's death the fortress did not cause (a comrade's stray arrow, a raider, a wild or deep creature, no killer) changes no reputation, and a caravan lost to it costs nothing (20 § Movement step 5, Blame).
+A caravan member's death the fortress did not cause (a comrade's stray arrow, a raider, a wild or deep creature, no killer) changes no reputation, and a caravan lost to it costs nothing (20 § Movement step 5, Blame). A Hillfolk bandit's death is blamed by the same rule: one killed by another bandit, a raider, a wild or deep creature, or with no killer costs nothing.
 
 ## Immigration bonus
 

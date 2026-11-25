@@ -1,5 +1,7 @@
 # T-743 — The Hillfolk blame the fortress for every bandit's death, whoever killed it
 
+**Closed:** 2026-11-25, in fd7a089a,8e7af133.
+
 **Source:** T-740 (the blame rule of 20 § Movement step 5, master 3ebc7d90) · **Size:** S · **Needs:** T-740 · **Status:** open
 
 ## Why
@@ -16,5 +18,5 @@ Spec: 20 § Movement step 5 or § Reputation effects (name the bandit with the b
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a bandit killed by a dwarf costs 1; one killed by a wild animal, or with no killer, costs nothing.
-- [ ] The sweep on GitHub (reputation drives caravans), pooled row and verdict in the commit.
+- [x] Tests (`describe` with the task id): a bandit killed by a dwarf costs 1; one killed by a wild animal, or with no killer, costs nothing. (`test/unit/trade/t743-bandit-blame.test.ts`, also another bandit.) Found on the way: the charge never fired in play, since the bandit is a corpse before trade hears `CreatureDied`; the species is now read from the event.
+- [x] The sweep on GitHub (reputation drives caravans), pooled row and verdict in the commit. Run 45643565424 on 8e7af133: pooled alive 20, grown 7, need-death fortresses 0, living 1168.75, deaths 110.75, extinct 0; verdict pass, no seed worth tracing.
