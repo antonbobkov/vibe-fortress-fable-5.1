@@ -8,6 +8,7 @@ import { eligibleGoodsEntries, neverSold, REQUEST_MAX, type TradeReader, type Tr
 import type { Registry } from '@core/registry';
 import { itemName, tradeWait, wrapHang } from '../messages';
 import { DEPOT_WARNING_ROWS } from '../constants';
+import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { captionButtons, label } from '../widgets';
 import { accel, buildings, type PanelContext } from './context';
@@ -58,12 +59,12 @@ function civName(ctx: PanelContext, civ: Civ): string {
  * with its count when it came more than once ("leather ×4, goat, dung ×3"); an id is an item type
  * or, for an animal, a creature.
  */
-export function lastBroughtText(registry: Registry, ids: readonly string[]): string {
+export function lastBroughtText(registry: Registry, strings: Strings, ids: readonly string[]): string {
   const counts = new Map<string, number>();
   for (const id of ids) counts.set(id, (counts.get(id) ?? 0) + 1);
   const creatures = registry.hasTable('creatures') ? registry.table<{ id: string; name: string }>('creatures') : null;
   return Array.from(counts, ([id, n]) => {
-    const name = registry.table('items').has(id) ? itemName(registry, id) : creatures?.byId(id)?.name ?? id.replace(/_/g, ' ');
+    const name = registry.table('items').has(id) ? itemName(registry, strings, id) : creatures?.byId(id)?.name ?? id.replace(/_/g, ' ');
     return n > 1 ? `${name} ×${n}` : name;
   }).join(', ');
 }
@@ -72,9 +73,9 @@ export function lastBroughtText(registry: Registry, ids: readonly string[]): str
  * A request as the panel names it: the item, then its material or species when it has one
  * ("seed: dimcap", "bar: iron"); an animal by its species ("cow").
  */
-export function requestText(registry: Registry, entry: Pick<TradeRequest, 'itemType' | 'material'>): string {
+export function requestText(registry: Registry, strings: Strings, entry: Pick<TradeRequest, 'itemType' | 'material'>): string {
   const creatures = registry.hasTable('creatures') ? registry.table<{ id: string; name: string }>('creatures') : null;
-  const item = registry.table('items').has(entry.itemType) ? itemName(registry, entry.itemType) : creatures?.byId(entry.itemType)?.name ?? entry.itemType.replace(/_/g, ' ');
+  const item = registry.table('items').has(entry.itemType) ? itemName(registry, strings, entry.itemType) : creatures?.byId(entry.itemType)?.name ?? entry.itemType.replace(/_/g, ' ');
   if (entry.material === undefined) return item;
   const material = registry.table<{ id: string; name: string }>('materials').byId(entry.material)?.name ?? entry.material.replace(/_/g, ' ');
   // A material that already says the item ("wool cloth", "coal") is the whole name.
@@ -155,7 +156,7 @@ export class CivilizationsPanel {
   candidates(ctx: PanelContext): readonly string[] {
     const needle = this.filter.value.toLowerCase();
     const all = this.allCandidates(ctx);
-    return needle === '' ? all : all.filter((id) => requestText(ctx.registry, { itemType: id }).toLowerCase().includes(needle));
+    return needle === '' ? all : all.filter((id) => requestText(ctx.registry, ctx.strings, { itemType: id }).toLowerCase().includes(needle));
   }
 
   /** Opens the requests editor on the first good, with an empty filter. */
@@ -275,7 +276,7 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
     if (lines.length > shown.length) s.tooltip({ col, row, cols: width, rows: shown.length }, wait);
     row += shown.length;
   }
-  label(s, col, row++, ctx.strings.get('ui.civ.last_brought', { goods: lastBroughtText(ctx.registry, trade.lastBrought(civ)) || ctx.strings.get('ui.civ.nothing') }), { width });
+  label(s, col, row++, ctx.strings.get('ui.civ.last_brought', { goods: lastBroughtText(ctx.registry, ctx.strings, trade.lastBrought(civ)) || ctx.strings.get('ui.civ.nothing') }), { width });
   const requestsWidth = label(s, col, row++, ctx.strings.get('ui.civ.requests'), { fg: s.theme.key, width });
   s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => panel.openEditor());
   // One row per item and material, its priority as a word at the right ("seed: dimcap      high").
@@ -283,7 +284,7 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   for (const [index, entry] of entries.entries()) {
     if (row >= rect.row + rect.rows - 5) break;
     const priority = ctx.strings.get(`ui.civ.priority.${entry.priority}`);
-    const name = `${index === panel.requestSelected ? '▶' : ' '} ${requestText(ctx.registry, entry)}`;
+    const name = `${index === panel.requestSelected ? '▶' : ' '} ${requestText(ctx.registry, ctx.strings, entry)}`;
     const room = Math.max(1, width - priority.length - 1);
     const shown = Array.from(name).length > room ? `${Array.from(name).slice(0, room - 1).join('')}»` : name.padEnd(room);
     label(s, col, row, `${shown} ${priority}`, { width, keys: false });
@@ -294,7 +295,7 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   if (panel.choosingRequest && row < rect.row + rect.rows - 5) {
     const request = panel.candidateRequest(ctx);
     const any = request !== null && request.material === undefined && panel.candidateMaterials(ctx).length > 1;
-    const what = request === null ? ctx.strings.get('ui.civ.request_none') : any ? ctx.strings.get('ui.civ.request_any', { item: requestText(ctx.registry, request) }) : requestText(ctx.registry, request);
+    const what = request === null ? ctx.strings.get('ui.civ.request_none') : any ? ctx.strings.get('ui.civ.request_any', { item: requestText(ctx.registry, ctx.strings, request) }) : requestText(ctx.registry, ctx.strings, request);
     label(s, col, row++, ctx.strings.get('ui.civ.request_add', { what }), { fg: s.theme.key, width });
     drawPanelFilter(s, col, row++, width, panel.filter, ctx);
     label(s, col, row++, ctx.strings.get('ui.civ.request_keys1'), { fg: s.theme.dim, width });

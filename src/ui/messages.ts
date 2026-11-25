@@ -243,10 +243,13 @@ export function unreachableFrom(env: MessageEnv, tiles: readonly TileIndex[]): s
   })).join('; ');
 }
 
-/** An item type's name, singular or plural ("door", "doors"); a raw match word reads as words. */
-export function itemName(registry: Registry, id: string, n = 1): string {
+/**
+ * An item type's name, singular or plural ("door", "doors"). A match word that names no item type
+ * (a recipe's tag match, `fuel`) is the tag's word ({@link tagWord}).
+ */
+export function itemName(registry: Registry, strings: Strings, id: string, n = 1): string {
   const row = registry.table<NamedRow>('items').byId(id);
-  if (row === undefined) return id.replace(/_/g, ' ');
+  if (row === undefined) return tagWord(strings, id);
   return n === 1 ? row.name : row.plural ?? (row.name.endsWith('s') ? row.name : `${row.name}s`);
 }
 
@@ -290,17 +293,20 @@ export function materialItemName(material: string, type: { readonly name: string
   return `${material} ${typeName}`;
 }
 
-/**
- * 13 § Aging in a cellar: the stage word an aged item puts before its material ("aged bellwine"), or ''.
- * A caller with no strings table (the look panel's one-line names) gets the table's English words.
- */
-export function ageWord(strings: Strings | null, age: number | undefined): string {
-  if (age === 2) return strings?.get('ui.item.vintage') ?? 'vintage';
-  return age === 1 ? strings?.get('ui.item.aged') ?? 'aged' : '';
+/** 13 § Aging in a cellar: the stage word an aged item puts before its material ("aged bellwine"), or ''. */
+export function ageWord(strings: Strings, age: number | undefined): string {
+  if (age === 2) return strings.get('ui.item.vintage');
+  return age === 1 ? strings.get('ui.item.aged') : '';
+}
+
+/** An item's quality word, `ui.item.quality.<n>` ("fine"); '' for a quality with no row. */
+export function qualityWord(strings: Strings, quality: number): string {
+  const key = `ui.item.quality.${quality}`;
+  return strings.has(key) ? strings.get(key) : '';
 }
 
 /** A material name with the item's stage before it: "aged bellwine", "vintage cheese"; a young item's is unchanged. */
-export function agedMaterial(strings: Strings | null, material: string, age: number | undefined): string {
+export function agedMaterial(strings: Strings, material: string, age: number | undefined): string {
   const word = ageWord(strings, age);
   return word === '' ? material : `${word} ${material}`;
 }
@@ -332,7 +338,7 @@ export function enchantedName(readers: ReaderSet, itemId: EntityId, name: string
 
 /** A building input or recipe match ("block|log") as words: "block or log". */
 export function matchName(registry: Registry, match: string, n: number, strings: Strings): string {
-  return chainText(strings, match.split('|').map((part) => itemName(registry, part, n)), 'or');
+  return chainText(strings, match.split('|').map((part) => itemName(registry, strings, part, n)), 'or');
 }
 
 /**
@@ -342,8 +348,8 @@ export function matchName(registry: Registry, match: string, n: number, strings:
  */
 export function alternativesName(registry: Registry, match: string, n: number, strings: Strings): string {
   const parts = match.split('|');
-  if (parts.length === 1) return itemName(registry, parts[0] as string, n);
-  return listText(strings, parts.map((part) => itemName(registry, part, 1)), 'or');
+  if (parts.length === 1) return itemName(registry, strings, parts[0] as string, n);
+  return listText(strings, parts.map((part) => itemName(registry, strings, part, 1)), 'or');
 }
 
 /** A row of the `whims` table as the UI names it (`personality-and-thoughts.md` § Whims). */
@@ -620,6 +626,12 @@ export function tagWord(strings: Strings, tag: string): string {
   return strings.has(key) ? strings.get(key) : tag.replace(/_/g, ' ');
 }
 
+/** A material class filter's word, `ui.item.material_class.<class>` ("metal"); a class with no row reads as its id, `_` as spaces. */
+export function materialClassWord(strings: Strings, materialClass: string): string {
+  const key = `ui.item.material_class.${materialClass}`;
+  return strings.has(key) ? strings.get(key) : materialClass.replace(/_/g, ' ');
+}
+
 export function filterText(registry: Registry, filter: Readonly<Record<string, unknown>>, n: number, strings: Strings): string {
   const items = registry.table<NamedRow>('items');
   const nameOf = (index: number): string => {
@@ -634,7 +646,7 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
     const names = types.map((t) => (types.length === 1 ? nameOf(t) : items.byIndex(t)?.name ?? '')).filter((x) => x !== '');
     name = listText(strings, names, 'or');
   }
-  else if (typeof filter['emptyContainer'] === 'string') name = strings.get('ui.item.empty_container', { item: itemName(registry, filter['emptyContainer'], n) });
+  else if (typeof filter['emptyContainer'] === 'string') name = strings.get('ui.item.empty_container', { item: itemName(registry, strings, filter['emptyContainer'], n) });
   else if (typeof filter['category'] === 'string') name = categoryWord(strings, filter['category']);
   else if (filter['edible'] === true) name = strings.get('ui.item.food');
   else if (filter['drinkable'] === true) name = strings.get('ui.item.drink');
@@ -645,7 +657,7 @@ export function filterText(registry: Registry, filter: Readonly<Record<string, u
     const m = registry.table<NamedRow>('materials').byIndex(material)?.name;
     const type = typeof filter['type'] === 'number' ? items.byIndex(filter['type']) : undefined;
     if (m !== undefined) name = type === undefined ? `${m} ${name}` : materialItemName(m, type, n);
-  } else if (typeof filter['materialClass'] === 'string') name = `${filter['materialClass']} ${name}`;
+  } else if (typeof filter['materialClass'] === 'string') name = `${materialClassWord(strings, filter['materialClass'])} ${name}`;
   return `${n} ${name}`;
 }
 

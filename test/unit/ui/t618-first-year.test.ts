@@ -75,8 +75,8 @@ describe('T-618 announcements name things, not content ids', () => {
 describe('T-618 names in panels', () => {
   it('Last brought names each kind once, with its count, and an animal by its species', () => {
     const registry = contentRegistry();
-    expect(lastBroughtText(registry, ['leather_piece', 'goat', 'dung', 'leather_piece', 'boots'])).toBe(`${itemName(registry, 'leather_piece')} ×2, goat, dung, boots`);
-    expect(lastBroughtText(registry, [])).toBe('');
+    expect(lastBroughtText(registry, strings, ['leather_piece', 'goat', 'dung', 'leather_piece', 'boots'])).toBe(`${itemName(registry, strings, 'leather_piece')} ×2, goat, dung, boots`);
+    expect(lastBroughtText(registry, strings, [])).toBe('');
   });
 
   it('a name that ends in s is its own plural', () => {

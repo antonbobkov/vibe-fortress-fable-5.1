@@ -20,5 +20,6 @@ T-744 made every text of `src` that was drawn through a default-only `new String
 
 ## Done
 
-- [ ] A `strings.json` row reaches each of those words; a test shows one per file.
-- [ ] The panels' and screens' existing tests pass unchanged. UI only: no world hash moves.
+- [x] A `strings.json` row reaches each of those words; a test shows one per file (`test/unit/ui/t752-ui-words-in-code.test.ts`: the Look panel's quality, aged and flag words, the gear name's quality, a tag match and a material class, the legend's cause and kill lines). `qualityWord` and `materialClassWord` of `messages.ts` read `ui.item.quality.<n>` and `ui.item.material_class.<class>`; `itemName` takes the strings and words a non-item match by `tagWord`; `ageWord` and `agedMaterial` take the strings, required. The Look panel's item flags (`forbidden`, `dump`, …), an array of drawn words like the quality words, read `ui.look.item.flag.*` too, and the legend's fallback region and biome names (`ui.legend.region_unnamed`, `ui.legend.biome_unknown`).
+- [x] The panels' and screens' existing tests pass unchanged (four call forms gained the strings argument: `itemName`, `lastBroughtText`, `requestText` in t618, t623, t640, t644). UI only: no world hash moves.
+- [x] `src/app` is not scanned yet: the scan finds 51 literals there, most of them save-format errors and fold keys that are not drawn, some drawn (the Continue sub-label, the load errors). Sorting them is its own task (`T-NEW-app-words-scan.md`), with the Look item summary's category word.

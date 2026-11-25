@@ -584,7 +584,7 @@ export class BuildTool {
     if (offer.advice !== undefined && offer.advice !== '') return { stock, action: offer.advice };
     if (offer.itemId === null || offer.workshops === '') return { stock, action: '' };
     // An input with alternatives says which of them the workshop would make: "build a farmer's workshop to make fiber".
-    if (offer.match.includes('|')) return { stock, action: s.get('ui.build.stock.needs_workshop_item', { workshop: offer.workshops, item: itemName(ctx.registry, offer.itemId) }) };
+    if (offer.match.includes('|')) return { stock, action: s.get('ui.build.stock.needs_workshop_item', { workshop: offer.workshops, item: itemName(ctx.registry, s, offer.itemId) }) };
     return { stock, action: s.get('ui.build.stock.needs_workshop', { workshop: offer.workshops }) };
   }
 

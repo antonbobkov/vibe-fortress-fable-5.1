@@ -73,7 +73,7 @@ describe('T-644 the requests editor finds a good without stepping through every 
     expect(f.civilizations.filter.value).toBe('bar');
     const shown = f.civilizations.candidates(f.ctx);
     expect(shown[0]).toBe('bar');
-    for (const id of shown) expect(requestText(w.game.registry, { itemType: id }).toLowerCase()).toContain('bar');
+    for (const id of shown) expect(requestText(w.game.registry, strings, { itemType: id }).toLowerCase()).toContain('bar');
     expect(shown.length).toBeLessThan(f.civilizations.allCandidates(f.ctx).length / 10);
     expect(draw(f)).toContain('/filter: [ bar');
     // The title shows the filter, as Jobs' and Log's do.

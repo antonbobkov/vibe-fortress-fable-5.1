@@ -25,13 +25,14 @@ export type EndReason = { readonly kind: 'retired' } | { readonly kind: 'abandon
  * line of its own "has died.".
  */
 export function endText(tick: number, population: number, reason: EndReason, strings: Strings): string {
-  if (reason.kind === 'retired') return `Retired in Year ${Math.floor(tick / TICKS_PER_YEAR) + 1} with ${population} dwarves.`;
-  if (reason.kind === 'abandoned') return `Abandoned in Year ${Math.floor(tick / TICKS_PER_YEAR) + 1} by ${population} dwarves.`;
-  const who = `The last dwarf, ${reason.lastName},`;
+  const year = Math.floor(tick / TICKS_PER_YEAR) + 1;
+  if (reason.kind === 'retired') return strings.get('ui.legend.cause.retired', { year, n: population });
+  if (reason.kind === 'abandoned') return strings.get('ui.legend.cause.abandoned', { year, n: population });
+  const who = strings.get('ui.legend.cause.last_dwarf', { name: reason.lastName });
   const killer = reason.lastKiller ?? '';
   const key = deathLineKey(strings, reason.lastCause, killer);
   const how = key === null ? strings.get('announce.dwarf_died', { dwarf: who }) : strings.get(key, { name: who, killer });
-  return `The hall fell silent on ${formatDate(tick)}. ${how}`;
+  return strings.get('ui.legend.cause.fell', { date: formatDate(tick), how });
 }
 
 export function composeLegend(
@@ -52,14 +53,15 @@ export function composeLegend(
   // The living dwarves, counted now: the cached population is 0 before the first tick (T-686).
   const readers = game.world.readers;
   const population = readers.has('10') ? readers.of<DwarvesReader>('10').population() : fortress.populationCached;
+  const strings = new Strings(registry);
   return {
     id: finalSaveId(fortress.name),
     name: fortress.name,
     seed: game.world.seed,
-    region: region?.name ?? `Region ${fortress.regionId}`,
+    region: region?.name ?? strings.get('ui.legend.region_unnamed', { id: fortress.regionId }),
     regionId: fortress.regionId,
     // The biome by its name ("forest"), never its content id.
-    biome: biomeName(registry, region?.biome ?? spec?.biome),
+    biome: biomeName(registry, strings, region?.biome ?? spec?.biome),
     wealthRating: region?.wealth ?? spec?.wealth ?? 0,
     perilRating: region?.peril ?? spec?.peril ?? 0,
     foundedTick: fortress.embarkTick,
@@ -75,9 +77,9 @@ export function composeLegend(
       text: milestoneTable.byId(entry.id)?.text ?? entry.id,
     })),
     killsOfNote: journal.kills().filter((entry) => entry.count > 0)
-      .slice(0, LEGEND_NOTABLE_KILLS).map((entry) => `${entry.name} slew ${entry.count} ${entry.count === 1 ? 'enemy' : 'enemies'}.`),
-    lastWords: lastWords(log, new Strings(registry)),
-    cause: endText(tick, population, reason, new Strings(registry)),
+      .slice(0, LEGEND_NOTABLE_KILLS).map((entry) => strings.get('ui.legend.kill', { name: entry.name, n: entry.count })),
+    lastWords: lastWords(log, strings),
+    cause: endText(tick, population, reason, strings),
     ...(fortress.testing === true ? { testing: true } : {}),
   };
 }
@@ -225,8 +227,8 @@ function isKeptFirst(line: LogLine, kinds: LineKinds): boolean {
   return line.severity === 'danger' || kinds.isDeath(line);
 }
 
-function biomeName(registry: Registry, id: string | undefined): string {
-  if (id === undefined) return 'unknown';
+function biomeName(registry: Registry, strings: Strings, id: string | undefined): string {
+  if (id === undefined) return strings.get('ui.legend.biome_unknown');
   return registry.hasTable('biomes') ? registry.table<{ id: string; name: string }>('biomes').byId(id)?.name ?? id : id;
 }
 

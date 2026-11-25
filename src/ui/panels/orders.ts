@@ -135,7 +135,7 @@ function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null):
   }).map((input) => {
     const one = input.match.split('|');
     const from = one.length === 1 ? source(one[0] as string) : null;
-    const item = one.length === 1 ? itemName(ctx.registry, one[0] as string) : matchName(ctx.registry, input.match, 1, ctx.strings);
+    const item = one.length === 1 ? itemName(ctx.registry, ctx.strings, one[0] as string) : matchName(ctx.registry, input.match, 1, ctx.strings);
     return from === null ? item : s.get('ui.orders.pick.from', { item, source: from });
   });
   return needs.length === 0
