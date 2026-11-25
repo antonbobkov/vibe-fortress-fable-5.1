@@ -1,5 +1,7 @@
 # T-708 — An animal's row in the tile list and the status bar says what it is doing
 
+**Closed:** 2026-11-24, in 8a5923e6,246819c4.
+
 **Source:** T-706 (the creature view's activity line) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
@@ -17,5 +19,5 @@ Spec: `ui-screens/fortress-screen.md` § Inspection panel (the tile list) and 24
 
 ## Done
 
-- [ ] Tests: a tile with a sleeping wolf lists it with "Asleep"; the status bar's summary of a grazing deer is "deer, Grazing"; a dwarf's row is unchanged.
-- [ ] UI and text only: no world hash moves.
+- [x] Tests: a tile with a sleeping wolf lists it with "Asleep"; the status bar's summary of a grazing deer is "deer, Grazing"; a dwarf's row is unchanged.
+- [x] UI and text only: no world hash moves.

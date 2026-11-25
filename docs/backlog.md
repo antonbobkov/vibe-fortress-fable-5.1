@@ -12,9 +12,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-701 | [Snow falls at 11 °C and rain at −2 °C](work/T-701-precipitation-follows-temperature.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
-| T-705 | [The wagon's goods cannot be opened, and its "see the items" help promises a tab that is gone](work/T-705-building-goods-open-from-tile-list.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-707 | [A tame animal's view has no "Pasture" action, which 08 promises](work/T-707-creature-view-pasture-action.md) | [T-700](archive/tasks/T-700-pasture-too-small-starves-grazers.md) | — | open |
-| T-708 | [An animal's row in the tile list and the status bar says what it is doing](work/T-708-animal-activity-in-tile-list.md) | [T-706](archive/tasks/T-706-animal-body-part-names.md) | — | open |
 | T-709 | [Panels draw player-facing text that is not in the strings table](work/T-709-panel-texts-in-strings.md) | [T-703](archive/tasks/T-703-sidebar-cut-off-facts.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

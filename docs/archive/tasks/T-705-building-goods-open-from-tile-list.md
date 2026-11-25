@@ -1,6 +1,8 @@
 # T-705 — The wagon's goods cannot be opened, and its "see the items" help promises a tab that is gone
 
-**Source:** playtest 2026-11-24 ([report](../../reports/data/2026-11-24-playtest.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in 8a5923e6,246819c4.
+
+**Source:** playtest 2026-11-24 ([report](../../../reports/data/2026-11-24-playtest.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -20,5 +22,5 @@ Spec: `ui-screens/fortress-screen.md` § Inspection panel (the tile list's rows;
 
 ## Done
 
-- [ ] Tests: the wagon's tile list numbers its stacks and the digit of one opens its item view ("In Wagon #1"); `Backspace` from that item view and from the wagon's Building panel opened with its digit returns to the tile list; the `[v]` help text.
-- [ ] UI only: no world hash moves.
+- [x] Tests: the wagon's tile list numbers its stacks and the digit of one opens its item view ("In Wagon #1"); `Backspace` from that item view and from the wagon's Building panel opened with its digit returns to the tile list; the `[v]` help text.
+- [x] UI only: no world hash moves.

@@ -57,7 +57,7 @@ import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
 import type { Strings } from '../strings';
 import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
-import { drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
+import { captionButtons, drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
 import { blockedText, buildingName, commandFocus, pluralName, rejectionText, speciesPlural, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
 
 /** The panels the UI draws itself (24 § Panels: `designate` (03), `log`, `look`). */
@@ -83,6 +83,9 @@ function defaultHotkey(panel: PanelSpec): string {
 
 /** The speeds `+` and `-` step through ("speed up (1× → 2× → 4×)"). */
 const SPEEDS: readonly Speed[] = [1, 2, 4];
+
+/** The panels a row of Look's tile list or a link opens, whose `Backspace` returns to Look (24 § Inspection). */
+const BACK_TO_LOOK_PANELS: readonly string[] = ['building', 'workshop', 'depot', 'zones'];
 
 /** Milliseconds an alert flashes the strip ("the log strip flashes for one second"). */
 export const ALERT_FLASH_MS = 1000;
@@ -216,6 +219,11 @@ export class FortressScreen implements Screen {
    * its filter for the way back (`a`, or `Backspace` with no view before), until another panel opens.
    */
   private lookFromLog = false;
+  /**
+   * Look's views kept by a building's or a zone's panel opened from Look (a row of the tile list, a
+   * link), the one it came from last: `Backspace` there returns to it. Opening any panel ends it.
+   */
+  private panelBack: LookSelection[] | null = null;
   /** The overlays panel (T-M3-08). */
   readonly overlayMenu = new OverlayMenu();
   /** The help and debug panels (T-M7-08). */
@@ -869,7 +877,12 @@ export class FortressScreen implements Screen {
     const closeCells = { col: closeAt, row: inner.row, cols: key.length, rows: 1 };
     surface.tooltip(closeCells, this.strings.get('ui.panel.close_tip'));
     surface.hit(closeCells, () => this.openPanel(null));
-    const body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
+    let body = { col: inner.col, row: inner.row + 1, cols: inner.cols, rows: inner.rows - 1 };
+    // A building's or a zone's panel opened from Look ends with `[Bksp] back`, a button (24 § Inspection).
+    if (this.backToLook() && body.rows > 2) {
+      body = { ...body, rows: body.rows - 1 };
+      captionButtons(surface, body.col + 1, body.row + body.rows, this.strings.get('ui.look.panel_back'), [() => void this.returnToLook()], { width: body.cols - 2 });
+    }
     const readers = this.host.readers;
     const ctx = this.ctx;
     if (panel.id === 'designate') drawDesignatePanel(surface, body, this.tool, this.strings, () => this.reprioritize(), () => this.undoDesignation(), () => this.clearSelected());
@@ -1388,6 +1401,7 @@ export class FortressScreen implements Screen {
     // Zones opens on its menu (T-680): a zone's settings come from a click on it or from the menu's list.
     if (id === 'zones' && (this.ui.panel !== 'zones' || !this.ui.sidebar)) this.zones.menu();
     if (id !== 'building') this.building.cancel();
+    this.panelBack = null;
     // Look opened from the log keeps the log as it was, to go back to (T-679).
     const backToLog = id === 'log' && this.lookFromLog && this.ui.panel === 'look';
     if (id !== this.ui.panel) this.clearFilters();
@@ -1576,12 +1590,31 @@ export class FortressScreen implements Screen {
         this.showItem(target.id, 'push');
         return;
       case 'building':
-        this.openBuilding(target.id);
+      case 'zone': {
+        // The panel keeps Look's views for `Backspace`, the one it is opened from last.
+        this.pushLook();
+        const back = [...this.lookBack];
+        if (target.kind === 'building') this.openBuilding(target.id);
+        else this.openZone(target.id);
+        if (this.ui.panel === 'look') this.lookBack.pop();
+        else if (back.length > 0) this.panelBack = back;
         return;
-      case 'zone':
-        this.openZone(target.id);
-        return;
+      }
     }
+  }
+
+  /** Whether the open panel was opened from Look and `Backspace` returns there. */
+  private backToLook(): boolean {
+    return this.panelBack !== null && this.ui.sidebar && this.ui.panel !== null && BACK_TO_LOOK_PANELS.includes(this.ui.panel);
+  }
+
+  /** `Backspace` in a building's or a zone's panel opened from Look: Look's view it was opened from. */
+  private returnToLook(): boolean {
+    const back = this.panelBack;
+    if (back === null || !this.backToLook()) return false;
+    this.openPanel('look');
+    this.lookBack.push(...back);
+    return this.lookBackStep();
   }
 
   /** The things the tile list numbers now, in digit order: those the last draw numbered, or the list's first nine. */
@@ -2473,6 +2506,8 @@ export class FortressScreen implements Screen {
   /** The open panel's own keys, read as their defaults (`own`), after the panel letters and before the map's. */
   private ownPanelKey(panel: string | null, own: KeyPress): boolean {
     if (this.ui.sidebar && panel !== null && this.panelKey(panel, own)) return true;
+    // A building's or a zone's panel opened from Look: `Backspace` returns to Look's view.
+    if (own.key === 'Backspace' && !own.ctrl && !own.alt && !own.meta && this.returnToLook()) return true;
     if (panel === 'designate' && this.ui.sidebar) {
       const letter = acceleratorOf(own, this.keymap.shiftLetters(['designate_panel']));
       if (letter === 'p') {
