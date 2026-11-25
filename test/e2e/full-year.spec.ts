@@ -399,7 +399,7 @@ async function tradeThroughUi(page: Page, clock: ReturnType<typeof playClock>): 
   // the stacks under it, `Shift+T` sends them to the depot. Soil loads dug from the hill are a row of their own after
   // stone (T-717), so the rows above bar are counted from those shown.
   const tree = await textOf(page);
-  const above = ['food', 'drink', 'seed', 'stone', 'soil', 'wood'].filter((name) => new RegExp(`[▸▾] ${name}(?![\\w/])`).test(tree)).length;
+  const above = ['food', 'drink', 'seed', 'stone', 'soil', 'wood'].filter((name) => new RegExp(`[►▼] ${name}(?![\\w/])`).test(tree)).length;
   expect(above, 'the stocks rows above bar').toBeGreaterThanOrEqual(5);
   for (let row = 0; row < above; row += 1) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Space');
