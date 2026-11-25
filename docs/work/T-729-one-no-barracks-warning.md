@@ -17,5 +17,5 @@ Spec: `ui-screens/panels.md` § Military (the barracks bullet).
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a squad on Train with no barracks has one warning line; `[z] Barracks` is never split by the wrap.
-- [ ] UI only: world hashes unchanged.
+- [x] Tests (`describe` with the task id): a squad on Train with no barracks has one warning line; `[z] Barracks` is never split by the wrap (`test/unit/ui/t729-one-no-barracks-warning.test.ts`, with the row alert-coloured on Train and dim when Off). The key stays with its word by no-break spaces in the string, as the farm line keeps a count with its word: a general rule in `wrapHang` would also glue a key to the word after it where the key belongs to the word before (`order one [o] or buy one`).
+- [x] UI only: world hashes unchanged (only `src/ui` changed).

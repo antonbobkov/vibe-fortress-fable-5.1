@@ -125,8 +125,9 @@ describe('T-624 training needs a barracks', () => {
     expect(f.screen.currentNotice).toBe('No barracks: the squad cannot train. [z] Barracks, then [b].');
     f.w.step(1);
     let s = f.draw();
-    expect(panel(s)).toContain('No barracks: the squad cannot train. [z] Barracks, then [b].');
-    expect(fgOfText(s, rowOf(s, 'No barracks:'), 'No barracks:')).toBe(hexOf(theme.alert));
+    // The barracks row says so in the alert colour; the warning in words is the mode line's (T-729).
+    expect(panel(s)).toContain('No barracks [b] assign');
+    expect(fgOfText(s, rowOf(s, 'No barracks  [b]'), 'No barracks')).toBe(hexOf(theme.alert));
     // A barracks made now (as while paused, before any tick) is the squad's default at once.
     const ticks = f.w.readers.calendar.tick;
     f.w.zone('barracks', [f.w.index(20, 20, z), f.w.index(21, 20, z)]);
