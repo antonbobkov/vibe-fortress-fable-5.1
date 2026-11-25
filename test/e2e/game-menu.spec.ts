@@ -1,7 +1,8 @@
 /**
  * E2E `game-menu` of `archive/build-plan/M7-outside-world.md` T-M7-09: "Esc opens the menu, Resume returns",
  * over 24 § Game menu (`Resume`, `Save`, `Load`, `Settings`, `Retire fortress`, `Main menu`
- * "(confirm if unsaved changes since the last save)") and the Esc chain of § Input model.
+ * "(confirm if unsaved changes since the last save)") and the Esc chain of § Input model. T-704: every
+ * row but Resume takes its letter with Shift, and a bare panel letter leaves the menu for its panel.
  */
 
 import { expect, test } from '@playwright/test';
@@ -39,7 +40,7 @@ test('game-menu', async ({ page }) => {
   await page.keyboard.press('Escape');
   await expect.poll(() => screenOf(page)).toBe('game_menu');
   const menu = await textOf(page);
-  for (const entry of ['[r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[x] Retire fortress', '[m] Main menu']) {
+  for (const entry of ['[r] Resume', '[S-s] Save', '[S-l] Load', '[S-o] Settings', '[S-x] Retire fortress', '[S-m] Main menu']) {
     expect(menu).toContain(entry);
   }
   // The menu pauses the simulation while it is open.
@@ -51,18 +52,29 @@ test('game-menu', async ({ page }) => {
   await page.keyboard.press('r');
   await expect.poll(() => screenOf(page)).toBe('fortress');
 
-  // `Main menu` asks first, because ticks have run since the last save.
+  // One `Esc` too many, then a panel letter: `a` opens the Log, `m` Military; neither abandons nor leaves.
   await page.evaluate(() => (window as unknown as { __deepholm: MenuHook }).__deepholm.step(30));
+  for (const [letter, name] of [['a', 'log'], ['m', 'military'], ['s', 'stocks'], ['l', 'labors']] as const) {
+    await page.keyboard.press('Escape');
+    await expect.poll(() => screenOf(page)).toBe('game_menu');
+    await page.keyboard.press(letter);
+    await expect.poll(() => screenOf(page)).toBe('fortress');
+    await expect.poll(panel).toBe(name);
+    await page.keyboard.press('Escape');
+    await expect.poll(panel).toBeNull();
+  }
+
+  // `Main menu` asks first, because ticks have run since the last save.
   await page.keyboard.press('Escape');
   await expect.poll(() => screenOf(page)).toBe('game_menu');
-  await page.keyboard.press('m');
+  await page.keyboard.press('Shift+M');
   await expect.poll(() => screenOf(page)).toBe('confirm');
   expect(await textOf(page)).toContain('Return to the main menu?');
   await page.keyboard.press('n');
   await expect.poll(() => screenOf(page)).toBe('game_menu');
 
   // Settings opens from the menu and `Esc` comes back to it.
-  await page.keyboard.press('o');
+  await page.keyboard.press('Shift+O');
   await expect.poll(() => screenOf(page)).toBe('settings');
   await page.keyboard.press('Escape');
   await expect.poll(() => screenOf(page)).toBe('game_menu');
