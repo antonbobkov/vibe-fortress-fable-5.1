@@ -205,7 +205,7 @@ describe('T-M0-13 compositor: the viewport', () => {
     expect(compositor.layout.sidebar?.cols).toBe(SIDEBAR_COLS);
   });
 
-  it('draws the look cursor as an inverted cell', () => {
+  it('draws the map cursor as its glyph in black on world_cursor (T-761)', () => {
     const fixture = buildTerrainFixture();
     const palette = new Palette(fixture.registry);
     const compositor = new Compositor({ registry: fixture.registry, palette });
@@ -217,7 +217,7 @@ describe('T-M0-13 compositor: the viewport', () => {
         ROWS,
       )
       .get(1, 0);
-    const inverted = compositor
+    const cursor = compositor
       .compose(
         fixture.world.readers,
         { camX: 0, camY: 0, z: FIXTURE_Z, sidebarOpen: false, cursor: { x: 1, y: 0 } },
@@ -225,7 +225,8 @@ describe('T-M0-13 compositor: the viewport', () => {
         ROWS,
       )
       .get(1, 0);
-    expect(inverted).toEqual({ glyph: plain.glyph, fg: plain.bg, bg: plain.fg });
+    expect(cursor).toEqual({ glyph: plain.glyph, fg: palette.color('black'), bg: palette.color('world_cursor') });
+    expect(compositor.cursorAt).toEqual({ col: 1, row: 0 });
 
     // A cursor outside the viewport changes nothing.
     const off = compositor

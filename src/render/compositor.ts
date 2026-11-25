@@ -64,6 +64,7 @@ import { blend, brighten } from './palette';
 import { DESIGNATION_PULSE_FACTOR, ZONE_TINT_ALPHA } from './constants';
 import type { TerrainReader } from '@systems/terrain';
 import { wearsLight } from '@systems/magic/enchant';
+import { WORLD_CURSOR_COLOR } from './world-map';
 
 interface PlantGlyphRow {
   readonly id: string;
@@ -78,7 +79,7 @@ export interface ViewState {
   readonly z: number;
   /** The sidebar is open when a panel is open (24 § Fortress screen layout). */
   readonly sidebarOpen: boolean;
-  /** The look cursor, drawn inverted (23 § Compositor step 10). */
+  /** The map cursor, the tile's glyph in `black` on `world_cursor`, blinking (23 § Compositor step 10). */
   readonly cursor?: { readonly x: number; readonly y: number } | null;
   /**
    * The overlays switched on (`ui-keymap-and-screens.md` § Overlays: `designations` and `zones`
@@ -165,6 +166,10 @@ export class Compositor {
   private readonly noMaterial: Rgb;
   private readonly undiscovered: Rgb;
   private readonly black: Rgb;
+  /** The map cursor's background, the world map's cursor colour (23 § Compositor step 10). */
+  private readonly cursorBg: Rgb;
+  /** Where the last frame drew the map cursor, in cells; null when it drew none. */
+  private cursorCell: { readonly col: number; readonly row: number } | null = null;
   private readonly skyDay: Rgb;
   private readonly skyNight: Rgb;
   private readonly abyss: Rgb;
@@ -242,6 +247,7 @@ export class Compositor {
     this.materialColors[0] = this.noMaterial;
     this.undiscovered = palette.color('undiscovered');
     this.black = palette.color('black');
+    this.cursorBg = palette.color(WORLD_CURSOR_COLOR);
     this.skyDay = palette.color('sky_day');
     this.skyNight = palette.color('sky_night');
     this.abyss = palette.color('abyss');
@@ -315,6 +321,14 @@ export class Compositor {
     this.surface.setBiome(spec?.biome ?? null);
   }
 
+  /**
+   * The cell the last {@link compose} drew the map cursor on, or null (no cursor, out of view, or
+   * the blink's hidden phase). A box drawn over the map leaves this cell to the cursor.
+   */
+  get cursorAt(): { readonly col: number; readonly row: number } | null {
+    return this.cursorCell;
+  }
+
   /** The layout of the last {@link compose}; the app maps mouse cells through it. */
   get layout(): Layout {
     return this.lastLayout;
@@ -324,6 +338,7 @@ export class Compositor {
   compose(readers: ReaderSet, ui: ViewState, cols: number, rows: number): CellBuffer {
     const layout = computeLayout(cols, rows, ui.sidebarOpen);
     this.lastLayout = layout;
+    this.cursorCell = null;
     if (this.buffer.cols !== cols || this.buffer.rows !== rows) {
       this.buffer = new CellBuffer(cols, rows);
     }
@@ -614,15 +629,20 @@ export class Compositor {
     };
   }
 
-  /** Step 10: "the look cursor is drawn as an inverted cell (`fg`/`bg` swapped)". */
+  /**
+   * Step 10: the map cursor is the tile's glyph in `black` on `world_cursor`, whatever the tile, as
+   * the world map's is; it blinks with the designation blink (phase 0 of the fast clock draws it,
+   * phase 1 the tile's own cell) and is steady with reduced motion (23 § Animation).
+   */
   private drawCursor(cells: CellBuffer, ui: ViewState, cols: number, rows: number): void {
     const cursor = ui.cursor;
     if (cursor === undefined || cursor === null) return;
     const col = cursor.x - ui.camX;
     const row = cursor.y - ui.camY;
     if (col < 0 || row < 0 || col >= cols || row >= rows) return;
-    const cell = cells.get(col, row);
-    cells.set(col, row, cell.glyph, cell.bg, cell.fg);
+    if (!this.reducedMotion && (this.animFrame & 1) === 1) return;
+    cells.set(col, row, cells.get(col, row).glyph, this.black, this.cursorBg);
+    this.cursorCell = { col, row };
   }
 
   // ---------- the layers of systems that are not built yet ----------

@@ -46,8 +46,15 @@ export async function generateWorld(page: Page, seed: string): Promise<void> {
   await expect.poll(() => screenOf(page)).toBe('world_map');
 }
 
-/** Walk the world-map cursor until the region panel shows a region that can be embarked on. */
+/**
+ * Walk the world-map cursor from the map centre, right and down, until the region panel shows a
+ * region that can be embarked on. The cursor starts on a site already; going back to the centre
+ * first keeps each spec on the region it has always embarked on.
+ */
 export async function findEmbarkableRegion(page: Page): Promise<void> {
+  const { size } = await cursorStart(page);
+  const mid = Math.floor(size / 2);
+  await moveCursorTo(page, mid * size + mid);
   if ((await textOf(page)).includes('Wealth')) return;
   for (let step = 0; step < 32; step += 1) {
     await page.keyboard.press('ArrowRight');
@@ -92,10 +99,35 @@ export async function hilliestRegion(page: Page): Promise<number> {
   });
 }
 
-/** Move the world-map cursor (which starts at the map centre) onto a region. */
+/**
+ * Where the world-map cursor starts (`menus-and-world.md` § World map): the region nearest the
+ * centre where a fortress can embark, by Chebyshev distance, ties to the lowest id.
+ */
+export async function cursorStart(page: Page): Promise<{ size: number; x: number; y: number }> {
+  return page.evaluate(() => {
+    const world = (window as unknown as { __deepholm: WorldHook }).__deepholm.readers.world;
+    if (world === null) throw new Error('no world');
+    const size = world.size();
+    const mid = Math.floor(size / 2);
+    let best = { x: mid, y: mid };
+    let bestDistance = Infinity;
+    for (const r of world.regions()) {
+      if (r.biome === 'ocean' || r.biome === 'glacier') continue;
+      const x = r.id % size;
+      const y = Math.floor(r.id / size);
+      const d = Math.max(Math.abs(x - mid), Math.abs(y - mid));
+      if (d < bestDistance) {
+        best = { x, y };
+        bestDistance = d;
+      }
+    }
+    return { size, ...best };
+  });
+}
+
+/** Move the world-map cursor (which starts on the site nearest the map centre) onto a region. */
 export async function moveCursorTo(page: Page, regionId: number): Promise<void> {
-  const size = await page.evaluate(() => (window as unknown as { __deepholm: WorldHook }).__deepholm.readers.world?.size() ?? 0);
-  const start = Math.floor(size / 2);
+  const { size, x, y } = await cursorStart(page);
   const walk = async (delta: number, plus: string, minus: string): Promise<void> => {
     const keyName = delta > 0 ? plus : minus;
     let left = Math.abs(delta);
@@ -105,8 +137,8 @@ export async function moveCursorTo(page: Page, regionId: number): Promise<void> 
     }
     for (; left > 0; left -= 1) await page.keyboard.press(keyName);
   };
-  await walk((regionId % size) - start, 'ArrowRight', 'ArrowLeft');
-  await walk(Math.floor(regionId / size) - start, 'ArrowDown', 'ArrowUp');
+  await walk((regionId % size) - x, 'ArrowRight', 'ArrowLeft');
+  await walk(Math.floor(regionId / size) - y, 'ArrowDown', 'ArrowUp');
 }
 
 interface HookWithUi extends Hook {

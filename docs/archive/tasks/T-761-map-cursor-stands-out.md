@@ -1,6 +1,8 @@
 # T-761 — The keyboard's map cursor is an inverted cell, and on grass it cannot be found
 
-**Source:** playtest 2026-11-25 (newcomer) ([report](../../reports/data/2026-11-25-playtest-5.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 7b9c5b9b,f21510e9.
+
+**Source:** playtest 2026-11-25 (newcomer) ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

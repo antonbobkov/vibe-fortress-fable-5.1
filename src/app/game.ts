@@ -1572,6 +1572,7 @@ export class Game {
       cells = this.compositor.compose(this.host.readers, { ...view, camX: this.ui.camX, camY: this.ui.camY }, this.cols, this.rows);
     }
     const surface = new Surface(cells, this.glyphs, this.theme, this.palette);
+    surface.mapCursor = this.compositor.cursorAt;
     this.fortress.draw(surface);
     this.checkTutorial();
     this.tutorial?.draw(surface, this.compositor.layout.map, (name) => this.fortress.landmarks.get(name) ?? null);

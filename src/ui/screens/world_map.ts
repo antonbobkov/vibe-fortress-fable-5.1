@@ -152,8 +152,34 @@ export class WorldMapScreen implements Screen {
     this.creatureNames = names('creatures');
     const civs = registry.table<NamedRow>('civilizations');
     this.civNames = new Map(civs.ids().map((id) => [id, (civs.byId(id) as NamedRow).name.replace(/^the /, '')]));
-    const mid = Math.floor(world.size / 2);
-    this.cursor = { x: mid, y: mid };
+    this.cursor = this.startCursor();
+  }
+
+  /**
+   * Where the cursor starts: the region nearest the centre where a fortress can embark (and that the
+   * filter keeps, when one is set), by Chebyshev distance, ties to the lowest id; the centre on a
+   * world with none.
+   */
+  private startCursor(): { x: number; y: number } {
+    const size = this.world.size;
+    const mid = Math.floor(size / 2);
+    const matches = this.matches();
+    const nearest = (keep: (r: RegionRecord) => boolean): RegionRecord | null => {
+      let best: RegionRecord | null = null;
+      let bestDistance = Infinity;
+      for (const r of this.world.regions) {
+        if (!keep(r)) continue;
+        const d = Math.max(Math.abs((r.id % size) - mid), Math.abs(Math.floor(r.id / size) - mid));
+        // Regions come in id order, so the first at a distance is the lowest id.
+        if (d < bestDistance) {
+          best = r;
+          bestDistance = d;
+        }
+      }
+      return best;
+    };
+    const site = (matches === undefined ? null : nearest((r) => this.embarkable(r) && matches(r.id))) ?? nearest((r) => this.embarkable(r));
+    return site === null ? { x: mid, y: mid } : { x: site.id % size, y: Math.floor(site.id / size) };
   }
 
   /** Put the cursor on a region: a new embark after an abandoned fortress starts on its site. */
@@ -386,16 +412,30 @@ export class WorldMapScreen implements Screen {
     return this.panelLines(width).map((l) => ('rating' in l ? `${this.strings.get(l.rating)} ${l.value}` : l.text));
   }
 
-  /** The rows the region panel's text may use above its two button rows and the gap before them. */
-  private regionHeight(panel: { rows: number }): number {
-    return Math.max(1, panel.rows - 3);
+  /**
+   * The key rows at the foot of the region panel: the move row, then filter and legend, then
+   * Embark. The move row gives way, before the text above scrolls, when the text and the three
+   * rows (and the gap before them) do not fit.
+   */
+  private keyRows(panel: { rows: number }, total: number): number {
+    return total <= panel.rows - 4 ? 3 : 2;
+  }
+
+  /** The rows the region panel's text may use above its key rows and the gap before them. */
+  private regionHeight(panel: { rows: number }, total: number): number {
+    return Math.max(1, panel.rows - 1 - this.keyRows(panel, total));
+  }
+
+  /** The region panel's size as last drawn. */
+  private panelSize(): { rows: number; cols: number } {
+    return this.last === null ? { rows: 0, cols: SIDEBAR_COLS } : { rows: this.last.rows, cols: this.panelCols };
   }
 
   /** Scroll the region panel by `delta` rows, inside its text. */
   scrollRegion(delta: number): void {
-    const panel = this.last === null ? { rows: 0, cols: SIDEBAR_COLS } : { rows: this.last.rows, cols: this.panelCols };
+    const panel = this.panelSize();
     const total = this.panelLines(Math.max(1, panel.cols - 2)).length;
-    const max = Math.max(0, total - this.regionHeight(panel));
+    const max = Math.max(0, total - this.regionHeight(panel, total));
     this.regionScroll = Math.max(0, Math.min(max, this.regionScroll + delta));
   }
 
@@ -404,7 +444,7 @@ export class WorldMapScreen implements Screen {
     const t = surface.theme;
     const tone: Record<PanelTone, typeof t.text> = { key: t.key, text: t.text, dim: t.dim, alert: t.alert };
     const lines = this.panelLines(Math.max(1, panel.cols - 2));
-    const height = this.regionHeight(panel);
+    const height = this.regionHeight(panel, lines.length);
     this.regionScroll = Math.max(0, Math.min(Math.max(0, lines.length - height), this.regionScroll));
     const shown = lines.slice(this.regionScroll, this.regionScroll + height);
     shown.forEach((l, k) => {
@@ -421,13 +461,18 @@ export class WorldMapScreen implements Screen {
     const edge = panel.col + panel.cols - 1;
     if (this.regionScroll > 0) label(surface, edge, panel.row, '▲', { fg: t.dim });
     if (this.regionScroll + height < lines.length) label(surface, edge, panel.row + height - 1, '▼', { fg: t.dim });
-    if (this.site() === null) return;
-    let row = panel.row + panel.rows - 2;
+    // The key rows show on every region; off land the last says so in place of Embark.
+    let row = panel.row + panel.rows - this.keyRows(panel, lines.length);
+    if (this.keyRows(panel, lines.length) === 3) {
+      label(surface, panel.col + 1, row, s.get('ui.worldmap.move'), { width: panel.cols - 2 });
+      row += 1;
+    }
     let c = panel.col + 1;
     c += button(surface, c, row, 'f', s.get('ui.worldmap.filter'), () => this.toggle('filter')) + 2;
     button(surface, c, row, '?', s.get('ui.worldmap.legend'), () => this.toggle('legend'));
     row += 1;
-    button(surface, panel.col + 1, row, 'Enter', s.get('ui.worldmap.embark'), () => this.embark());
+    if (this.site() === null) label(surface, panel.col + 1, row, s.get('ui.worldmap.no_embark_move'), { fg: t.dim, width: panel.cols - 2 });
+    else button(surface, panel.col + 1, row, 'Enter', s.get('ui.worldmap.embark'), () => this.embark());
   }
 
   /** The filter panel's rows: biome toggles, rating bounds, river and volcano, traits. */
@@ -564,7 +609,8 @@ export class WorldMapScreen implements Screen {
       // `panel` › PageUp / PageDown: scroll the region panel's text by a page.
       const p = this.mode === 'region' ? this.keymap.resolve('panel', press) : null;
       if (p?.id !== 'scroll') return false;
-      const page = Math.max(1, this.regionHeight({ rows: this.last?.rows ?? 0 }) - 1);
+      const panel = this.panelSize();
+      const page = Math.max(1, this.regionHeight(panel, this.panelLines(Math.max(1, panel.cols - 2)).length) - 1);
       this.scrollRegion(Number(p.arg) * page);
       return true;
     }
