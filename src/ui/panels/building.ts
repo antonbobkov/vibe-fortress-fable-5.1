@@ -59,6 +59,8 @@ export interface BuildingLine {
   run?(): void;
   /** Cells of the line that act on their own (the priority digits). */
   readonly cells?: readonly { readonly from: number; readonly cols: number; run(): void }[];
+  /** A list of `, `-separated entries (`splint ×4`): when it wraps, it breaks between entries, never inside one. */
+  readonly entries?: boolean;
 }
 
 /** Shared bedroom/coffin owner picker: the same names, marks and strings in Zones. */
@@ -708,7 +710,7 @@ export class BuildingPanel {
       const n = types.reduce((sum, [, count]) => sum + count, 0);
       const only = types.length === 1 && it.def(types[0]?.[0] ?? -1)?.name === top;
       const list = types.map(([type, count]) => s.get('ui.building.contents_type', { name: it.def(type)?.name ?? '', n: count })).join(', ');
-      out.push({ id: `contents:${top}`, text: only ? s.get('ui.building.contents_one', { category: top, n }) : s.get('ui.building.contents_row', { category: top, n, types: list }) });
+      out.push({ id: `contents:${top}`, text: only ? s.get('ui.building.contents_one', { category: top, n }) : s.get('ui.building.contents_row', { category: top, n, types: list }), entries: true });
     }
     // Why goods still wait in it (T-681).
     const wait = goodsWaiting(ctx.readers, this.id, view.itemId);
@@ -844,8 +846,8 @@ export class BuildingPanel {
 /** Rows kept under the list for the cursor line's explanation. */
 const HELP_ROWS = 3;
 
-/** Rows a line without an action may wrap to. */
-const WRAP_ROWS = 3;
+/** Rows a line without an action may wrap to: all it needs (the list scrolls). */
+const WRAP_ROWS = Infinity;
 
 /** The panel body (the title row is the sidebar's). */
 export function drawBuildingPanel(s: Surface, rect: Rect, panel: BuildingPanel, ctx: PanelContext, takeApart?: (id: EntityId) => void): void {
@@ -865,7 +867,9 @@ export function drawBuildingLines(s: Surface, rect: Rect, lines: readonly Buildi
   // A line that says something (no action) wraps; an action keeps to one row.
   const shown: { line: BuildingLine; text: string; first: boolean }[] = [];
   for (const line of lines) {
-    const parts = line.run === undefined && line.cells === undefined ? wrapText(line.text, width, WRAP_ROWS) : [line.text];
+    // An entry of a list keeps its words together (no-break spaces), so the line breaks between entries.
+    const text = line.entries === true ? line.text.split(', ').map((entry) => entry.replace(/ /g, '\u00a0')).join(', ') : line.text;
+    const parts = line.run === undefined && line.cells === undefined ? wrapText(text, width, WRAP_ROWS) : [line.text];
     parts.forEach((text, k) => shown.push({ line, text, first: k === 0 }));
   }
   const at = chosen === undefined ? 0 : shown.findIndex((entry) => entry.line === chosen);

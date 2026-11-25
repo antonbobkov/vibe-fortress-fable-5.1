@@ -773,7 +773,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Escape');
   await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickZoneIn(page, site.wx + 2, site.wy - 5, site.wx + 5, site.wy - 3);
-  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  await expect.poll(() => textOf(page)).toContain('─── Farm plot #');
   for (const season of ['Spring', 'Summer', 'Autumn']) {
     const row = await textCell(page, season, 9);
     await page.mouse.click(row.x, row.y);
@@ -789,7 +789,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Escape');
   await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickZoneIn(page, site.wx + 6, site.wy - 5, site.wx + 9, site.wy - 3);
-  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  await expect.poll(() => textOf(page)).toContain('─── Farm plot #');
   for (const season of ['Spring', 'Summer']) {
     const row = await textCell(page, season, 9);
     await page.mouse.click(row.x, row.y);
@@ -935,7 +935,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('Escape');
   await clock.advance(1); // a zone's editor opens once system 13 has seen it: one tick, stepped (T-240 removes the need)
   await clickTile(page, site.sx + 1, site.sy);
-  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  await expect.poll(() => textOf(page)).toContain('─── Farm plot #');
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
     const row = await textCell(page, season, 9);
     await page.mouse.click(row.x, row.y);

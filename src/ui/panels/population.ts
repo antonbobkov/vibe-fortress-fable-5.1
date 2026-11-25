@@ -7,7 +7,7 @@ import type { ImmigrationReader } from '@systems/immigration/reader';
 import type { MoraleReader } from '@systems/morale';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { Surface } from '../surface';
-import { keyCells, label } from '../widgets';
+import { keyCells, label, wrapLabel } from '../widgets';
 import type { PanelContext } from './context';
 import { MOOD_TIER_NAMES } from './mood';
 import { dwarvesOf } from './units';
@@ -53,11 +53,13 @@ export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): 
   }
   const next = immigration.nextEvaluation();
   label(s, col, rect.row + 3, `Next evaluation: ${next.charAt(0).toUpperCase()}${next.slice(1)}`, { width });
-  label(s, col, rect.row + 4, eligibilityText(immigration.eligibility().reasons), { width });
+  // Why no wave comes is the line's fact: it wraps under itself rather than being cut.
+  let row = rect.row + 4;
+  row += wrapLabel(s, col, row, eligibilityText(immigration.eligibility().reasons), { width, indent: 2 });
   const last = immigration.lastWave();
   const season = last ? SEASON_NAMES[seasonOf(last.tick)] : null;
-  label(s, col, rect.row + 5, last ? `Last wave: ${last.count} in ${season?.charAt(0).toUpperCase()}${season?.slice(1)}, Year ${yearOf(last.tick)}` : 'Last wave: none', { width });
-  label(s, col, rect.row + 6, `Waves so far: ${immigration.wavesSoFar()}`, { width });
+  label(s, col, row++, last ? `Last wave: ${last.count} in ${season?.charAt(0).toUpperCase()}${season?.slice(1)}, Year ${yearOf(last.tick)}` : 'Last wave: none', { width });
+  label(s, col, row++, `Waves so far: ${immigration.wavesSoFar()}`, { width });
   const skip = immigration.lastSkipReason();
-  if (skip) label(s, col, rect.row + 7, `Last skip: ${skip}`, { fg: s.theme.dim, width });
+  if (skip) wrapLabel(s, col, row, `Last skip: ${skip}`, { fg: s.theme.dim, width, indent: 2 });
 }

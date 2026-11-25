@@ -9,7 +9,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { MoraleReader, ThoughtView } from '@systems/morale';
 import { MOOD_SUMMARY_THOUGHTS } from '../constants';
 import type { Surface } from '../surface';
-import { label, separator, type ListState } from '../widgets';
+import { label, separator, wrapLabel, type ListState } from '../widgets';
 import { dwarvesOf, fitName, nameOf } from './units';
 import type { PanelContext } from './context';
 
@@ -187,24 +187,27 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
   panel.list.selected = Math.max(0, Math.min(Math.max(0, total - 1), panel.list.selected));
   label(s, col, rect.row + 1, ctx.strings.get('ui.mood.held'), { fg: t.key, width, keys: false });
   if (summary.length === 0) label(s, col, rect.row + 2, ctx.strings.get('ui.mood.held_none'), { fg: t.dim, width, keys: false });
+  // A thought too long for its row wraps under itself, its count staying on the first row.
+  let summaryRow = rect.row + 2;
   summary.forEach((thought, k) => {
-    const row = rect.row + 2 + k;
+    const row = summaryRow;
     const count = `×${thought.holders.length}`;
     const mark = thought.text === panel.held ? '•' : ' ';
     const room = width - 1 - Array.from(count).length - 1;
     label(s, col, row, mark, { fg: t.value, width: 1, keys: false });
-    label(s, col + 1, row, thoughtText(thought), { width: room, keys: false });
+    const rows = wrapLabel(s, col + 1, row, thoughtText(thought), { width: room, indent: 2, keys: false });
     label(s, col + width - Array.from(count).length, row, count, { fg: t.value, keys: false });
-    const cells = { col, row, cols: width, rows: 1 };
+    const cells = { col, row, cols: width, rows };
     if (k === panel.list.selected) s.invert(cells);
     s.hit(cells, () => {
       panel.list.selected = k;
       panel.enter(ctx);
     });
+    summaryRow += rows;
   });
 
   // The dwarves: a header, then each dwarf's row, and a second row for thoughts that do not fit beside it.
-  const head = rect.row + 2 + Math.max(1, summary.length);
+  const head = Math.max(rect.row + 3, summaryRow);
   const bottom = rect.row + rect.rows - 4;
   const height = Math.max(1, bottom - head - 1);
   let layout = layoutDwarves(ctx, r, ids, width);

@@ -1123,7 +1123,7 @@ export class FortressScreen implements Screen {
       return s.get(this.build.multi(this.ctx) ? 'ui.status.build_many' : 'ui.status.build', { tool });
     }
     if (this.zones.selected !== 0 && this.ui.panel === 'zones' && this.zones.anchor === null) {
-      return s.get('ui.zone.selected', { name: zoneName(this.ctx, this.zones.selected), n: this.host.readers.has('14') ? (this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').zone(this.zones.selected)?.tiles.length ?? 0) : 0 });
+      return s.get('ui.zone.selected_status', { name: zoneName(this.ctx, this.zones.selected), n: this.host.readers.has('14') ? (this.host.readers.of<import('@systems/buildings').BuildingsReader>('14').zone(this.zones.selected)?.tiles.length ?? 0) : 0 });
     }
     if (this.zones.active) {
       const name = this.zones.resizing ? s.get('ui.zone.resize') : s.get(`ui.zone.type.${this.zones.kind ?? ''}`);

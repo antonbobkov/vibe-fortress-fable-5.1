@@ -117,11 +117,11 @@ test('U-02 M1/S2 and U-07 M7 build-and-stockpile', async ({ page }) => {
   expect(pausedZone.id).not.toBe(0);
   // T-609: the made line and the inspector come at once while paused, before any tick.
   await expect.poll(() => textOf(page)).toContain('Stockpile #1 made: 9 tiles.');
-  await expect.poll(() => textOf(page)).toContain('Selected: Stockpile #1 (9 t)');
+  await expect.poll(() => textOf(page)).toContain('Stockpile #1 · 9 tiles');
   await page.evaluate(() => (window as unknown as { __deepholm: BuildHook }).__deepholm.step(1));
   await page.keyboard.press('Escape');
   await page.mouse.click(a.x, a.y);
-  await expect.poll(() => textOf(page)).toContain('Selected: Stockpile #1 (9 t)');
+  await expect.poll(() => textOf(page)).toContain('Stockpile #1 · 9 tiles');
   const presetCell = await page.evaluate(() => {
     const hook = (window as unknown as { __deepholm: BuildHook }).__deepholm;
     const rows = hook.text();

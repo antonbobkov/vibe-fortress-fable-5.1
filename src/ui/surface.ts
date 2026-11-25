@@ -96,6 +96,8 @@ export class GlyphMap {
     }
     // CP437 has no glyph for index 0's space and 32 is the ASCII space; both draw nothing.
     this.byChar.set(' ', 32);
+    // A no-break space keeps two words on one row when a line wraps (`splint ×4`); it is drawn, and read back, as a space.
+    this.byChar.set('\u00a0', 32);
     // The documents write U+25B6, the multiplication sign and dashes that CP437 lacks: their nearest CP437 glyphs.
     for (const [alias, ch] of Object.entries(GLYPH_ALIASES)) {
       const at = this.byChar.get(ch);

@@ -178,7 +178,7 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
   await page.keyboard.press('Escape');
   const selected = await pixel(page, f.x + PLOT_W - 3, f.y);
   await page.mouse.click(selected.x, selected.y);
-  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  await expect.poll(() => textOf(page)).toContain('─── Farm plot #');
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
     const row = await textCell(page, season, 9);
     await page.mouse.click(row.x, row.y);
@@ -205,7 +205,7 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
   await page.evaluate(() => (window as unknown as { __deepholm: FarmHook }).__deepholm.step(1));
   await page.keyboard.press('Escape');
   await page.mouse.click(fourth.x, fourth.y);
-  await expect.poll(() => textOf(page)).toContain('Selected: Farm plot');
+  await expect.poll(() => textOf(page)).toContain('─── Farm plot #');
   for (const season of ['Spring', 'Summer', 'Autumn', 'Winter']) {
     const row = await textCell(page, season, 9);
     await page.mouse.click(row.x, row.y);

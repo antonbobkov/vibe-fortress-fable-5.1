@@ -224,7 +224,8 @@ describe('T-625 the Mood panel marks a cut thought', () => {
     const columns = [{ title: 'Name', width: 6 }, { title: 'Top', width: 12, mark: true }];
     expect(tableRow(columns, ['Ivar', '+5 Had a fine meal.'], 18)).toBe('Ivar  +5 Had a fi»');
     expect(tableRow(columns, ['Ivar', '+5 Ate.'], 18)).toBe('Ivar  +5 Ate.     ');
-    // A column without the mark is clipped as before.
-    expect(tableRow([{ title: 'Name', width: 6 }, { title: 'Top', width: 12 }], ['Ivar', '+5 Had a fine meal.'], 18)).toBe('Ivar  +5 Had a fin');
+    // A column marks its cut by default (T-703: no widget clips without the mark); `mark: false` clips it bare.
+    expect(tableRow([{ title: 'Name', width: 6 }, { title: 'Top', width: 12 }], ['Ivar', '+5 Had a fine meal.'], 18)).toBe('Ivar  +5 Had a fi»');
+    expect(tableRow([{ title: 'Name', width: 6 }, { title: 'Top', width: 12, mark: false }], ['Ivar', '+5 Had a fine meal.'], 18)).toBe('Ivar  +5 Had a fin');
   });
 });

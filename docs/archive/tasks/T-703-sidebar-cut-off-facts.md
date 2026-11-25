@@ -1,6 +1,8 @@
 # T-703 — The sidebar cuts off the number or word a line is there to give
 
-**Source:** playtest 2026-11-24 ([report](../../reports/data/2026-11-24-playtest.md), finding 5) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in b3412e5d,a2a1b30a.
+
+**Source:** playtest 2026-11-24 ([report](../../../reports/data/2026-11-24-playtest.md), finding 5) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -41,5 +43,8 @@ Spec: `ui-screens/fortress-screen.md` and `ui-screens/panels.md` where they draw
 
 ## Done
 
-- [ ] Tests: the width test above, over Zones (stockpile, farm, pasture), Jobs, Build, Stocks, Orders, the creature view's thoughts and the building panel.
-- [ ] e2e screenshots of the panels looked at; no raw keys, no cut facts. UI only: no world hash moves.
+- [x] **The rule**, 24 § Input model (the `»` line): only a name, or a list of entries each whole one step away, may end with `»`; a line that gives a fact wraps under itself (a number kept with its word), puts the fact before the label, or drops a redundant word; no widget clips without the mark. The widgets now keep it: a rule's cut title and a dropdown's cut value end with `»`, a table cell is marked by default, the tree's right-hand fact takes the cells it needs from the name, `wrapLabel` wraps a line under itself, a no-break space keeps a count with its word.
+- [x] **The scan**, `test/unit/ui/t703-sidebar-fit.test.ts`: every registered panel, the zone inspectors (stockpile, farm, pasture), each Build category, Stocks, Jobs with a long reason, Add order (carpenter and craftsdwarf), the creature view and the wagon's panel, drawn by the fortress screen at 80 × 50 over a fortress with a 120-tile stockpile and plot, 120 seeds, five-digit values, long names and thoughts. It fails on a `»` whose text is not a name and on any text clipped bare or written past the screen's edge. Two marks stay, listed in the test: the labor grid's "more columns" `»` and the Mood table's list of top thoughts.
+- [x] **The playtest's lines**, same file: the zone rule `─── Stockpile #1 · 120 tiles ───` and list rows `… 120 tiles` whole, `Tab next zone · Enter settings` and `↑↓ select  ←→ open  Space toggle` fit; the farm row's `(120)` with its tooltip "120 seeds of it in stock" and `0 growing · 0 ripe · 120 empty`; the Jobs reason whole over five rows with the holder's name; `[c] Constructions` whole and `Butcher's shop` / `  1 table+1 stone (0)`; `198  14,850 ☼` in Stocks; `Where    any craftsdwarf's` / `workshop`; the thought `-1 I have not talked to anyone` / `in a while.`; the wagon's `medical 21: bandage ×9,` / `brightleaf ×5, splint ×4, soap ×3`. Also wrapped: Population's eligibility, Threats' attention line, the Jobs empty hint, the Mood summary's thoughts. The pasture was already fixed by T-700.
+- [x] Spec: 24 § Input model; `panels.md` § Zones (lists, rule, farm rows, crops line), § Jobs, § Add order, § Building, § Stocks, § Population, § Mood; `fortress-screen.md` § Sidebar open (facts wrap), § Build tool (category columns, wrapped rows).
+- [x] UI only: no world hash moves; no render golden moved.

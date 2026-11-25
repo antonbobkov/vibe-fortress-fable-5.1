@@ -57,8 +57,12 @@ export function dropdown(
 ): number {
   const t = s.theme;
   const inner = Math.max(1, width - 6);
-  const shown = Array.from(value).slice(0, inner).join('').padEnd(inner);
+  // A value that does not fit ends with `»` and has the whole as its tooltip.
+  const chars = Array.from(value);
+  const cut = chars.length > inner;
+  const shown = (cut ? `${chars.slice(0, inner - 1).join('')}»` : value).padEnd(inner);
   s.text(col, row, `[ ${shown} ▼ ]`, t.value);
+  if (cut) s.tooltip({ col, row, cols: width, rows: 1 }, value);
   s.hit({ col, row, cols: width, rows: 1 }, onToggle);
   if (!state.open) return 1;
   options.forEach((option, index) => {

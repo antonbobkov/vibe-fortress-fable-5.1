@@ -168,7 +168,10 @@ export function tree(
     const n = item.node;
     const arrow = !openable(n) ? ' ' : state.expanded.has(n.id) ? '▾' : '▸';
     const head = `${'  '.repeat(item.depth)}${arrow} ${n.name}`;
-    const nameWidth = Math.max(4, Math.min(rect.cols - 6, 18));
+    // The right-hand text (a count, a value) is a fact: it takes the cells it needs, and the name gives them up.
+    const right = extra === undefined ? '' : extra(n);
+    const fixed = Math.max(4, Math.min(rect.cols - 6, 18));
+    const nameWidth = Math.max(4, Math.min(fixed, rect.cols - (checked !== null ? 4 : 0) - Array.from(right).length));
     label(s, rect.col, row, head, { width: nameWidth, keys: false, ...(n.alert === true ? { fg: s.theme.alert } : {}) });
     let col = rect.col + nameWidth;
     if (checked !== null) {
@@ -180,7 +183,7 @@ export function tree(
       }
       col += 4;
     }
-    if (extra !== undefined) label(s, col, row, extra(n), { fg: s.theme.value, width: rect.col + rect.cols - col, keys: false });
+    if (extra !== undefined) label(s, col, row, right, { fg: s.theme.value, width: rect.col + rect.cols - col, keys: false });
     if (index === state.selected) s.invert({ col: rect.col, row, cols: nameWidth, rows: 1 });
     const select = handlers.select;
     s.hit({ col: rect.col, row, cols: nameWidth, rows: 1 }, () => {

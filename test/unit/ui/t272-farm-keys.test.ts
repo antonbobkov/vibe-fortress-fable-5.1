@@ -86,7 +86,7 @@ describe('T-272 farm plot crops by keyboard', () => {
     expect(set.filter((id) => id !== 0).length).toBe(1 + expected.length);
   });
 
-  it('lists a crop with no seeds with "(no seeds)", and labels the figure after a row with "seeds"', async () => {
+  it('lists a crop with no seeds with "(no seeds)", and gives the seeds in stock after a row', async () => {
     const { g, zoneId } = await plot();
     const plants = g.registry.table<PlantRow>('plants');
     const stock = g.host.readers.of<ItemsReader>('13');
@@ -102,7 +102,8 @@ describe('T-272 farm plot crops by keyboard', () => {
     expect(crops.some((o) => !o.label.endsWith('(no seeds)'))).toBe(true);
     g.host.submit({ type: 'SetPlotCrop', zoneId, season: 0, speciesId: 'barley' });
     g.host.step(1);
-    expect(rows(g).find((line) => line.includes('Spring'))).toMatch(/barley.*\d+ seeds$/);
+    // The figure after the row is the seeds in stock; the tooltip names them (T-703: the word does not fit the sidebar).
+    expect(rows(g).find((line) => line.includes('Spring'))).toMatch(/barley.*\(\d+\)$/);
     expect(rows(g).join('\n')).toContain('↑↓ season · Enter choose crop');
     expect(rows(g).join('\n')).toContain('[a] all seasons');
   });

@@ -114,7 +114,9 @@ describe('T-626 the build tool and a waiting building name every alternative', (
     tool.category = 'furniture';
     const s = surface(36, 60);
     drawBuildPanel(s, { col: 0, row: 0, cols: 36, rows: 60 }, tool, ctx);
-    expect(s.lines().find((line) => line.trimStart().startsWith('Straw pallet'))?.trimEnd()).toMatch(/^ ?Straw pallet 3 fiber, straw ?[…»] \(9\)$/);
+    // Too long for one row, the inputs wrap under the name, whole, with the count (T-703).
+    const at = s.lines().findIndex((line) => line.trimStart().startsWith('Straw pallet'));
+    expect(`${s.lines()[at]?.trim()} ${s.lines()[at + 1]?.trim()}`).toBe('Straw pallet 3 fiber, straw or reed (9)');
     const offer = { match: 'fiber|straw|reed', have: 0, waiting: 1, itemId: 'fiber', recipeId: null, workshops: 'a farmer\'s workshop' };
     expect(new BuildTool().offerText(ctx, offer, 'o')).toEqual({ stock: '0 fiber, straw or reed in stock: 1 will wait', action: 'build a farmer\'s workshop to make fiber' });
     // A single input reads as before.

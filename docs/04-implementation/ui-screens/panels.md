@@ -23,26 +23,26 @@ Zones shows one of two views (T-680): the menu, the kinds of zone to make and th
 │ ─ Choose a kind, then drag.        │
 │ Click a zone for its settings.     │
 │ ── Zones (4) ───────────────────── │
-│ Stockpile #1 (Food)           30 t │
-│ Stockpile #2 (Nothing)        12 t │
-│ Farm plot #1                  24 t │
-│ Bedroom #1                     9 t │
+│ Stockpile #1 (Food)       30 tiles │
+│ Stockpile #2 (Nothing)    12 tiles │
+│ Farm plot #1              24 tiles │
+│ Bedroom #1                 9 tiles │
 │                                    │
-│ Tab next zone · Enter its settings │
+│ Tab next zone · Enter settings     │
 ```
 
-A letter or a click on a kind chooses it, and the two help lines become the tool's ("─ Drag a rectangle.", "Usable tiles show ▒, others x."). The list under the kinds names every zone, by kind in the menu's order and each kind by its ordinal (a stockpile with its preset, as in the log), with its size at the right; with none it reads "No zones yet.". A click on a row opens that zone's settings and centres the map on it; by keyboard `Tab` and `Shift+Tab` move a focus (inverted) through the rows, scrolling them, and `Enter` opens the focused one; with no zone `Tab` keeps its global meaning. With no row focused, `Enter` opens the zone at the map cursor or centre, and a click on a zone's tile on the map does the same. Opening a zone ends a kind chosen but not yet drawn.
+A letter or a click on a kind chooses it, and the two help lines become the tool's ("─ Drag a rectangle.", "Usable tiles show ▒, others x."). The list under the kinds names every zone, by kind in the menu's order and each kind by its ordinal (a stockpile with its preset, as in the log), with its size in tiles at the right (a name too long for the row is cut, never the size); with none it reads "No zones yet.". A click on a row opens that zone's settings and centres the map on it; by keyboard `Tab` and `Shift+Tab` move a focus (inverted) through the rows, scrolling them, and `Enter` opens the focused one; with no zone `Tab` keeps its global meaning. With no row focused, `Enter` opens the zone at the map cursor or centre, and a click on a zone's tile on the map does the same. Opening a zone ends a kind chosen but not yet drawn.
 
 A zone's settings replace the menu; `[y] zones menu`, a click on it, `z`, or `Esc` returns to the menu. Zones opened by a click on a zone's tile with Zones closed (24 § Inspection, the click ladder) leaves the map's clicks to the ladder, so a click elsewhere opens what is there, and `Esc` closes Zones instead of going back to the menu; `[y]` or `z` goes to the menu, which picks zones on the map again. While a zone's settings show, the kinds' letters are not keys: a panel letter the inspector does not bind opens its panel, so right after drawing a stockpile `b` opens Build and `d` Designate.
 
 ```
 │ [y] zones menu                    │
-│ ── Selected: Farm plot #3 (24 t)   │
-│►Spring  [dimcap      ▾]  14 seeds   │
-│ Summer  [dimcap      ▾]  14 seeds   │
-│ Autumn  [sweetroot   ▾]  0 seeds    │
-│ Winter  [dimcap      ▾]  14 seeds   │
-│ Crops: 18 growing, 4 ready, 2 empty │
+│ ─── Farm plot #3 · 24 tiles ────── │
+│►Spring  [ dimcap       ▼ ] (14)   │
+│ Summer  [ dimcap       ▼ ] (14)   │
+│ Autumn  [ sweetroot    ▼ ] (0)    │
+│ Winter  [ dimcap       ▼ ] (14)   │
+│ 18 growing · 4 ripe · 2 empty      │
 │ Fertilize: on (12 in stock)         │
 │ Too cold to grow: 4 of 24 tiles are │
 │ under 2°C for dimcap.               │
@@ -54,15 +54,15 @@ A zone's settings replace the menu; `[y] zones menu`, a click on it, `z`, or `Es
 │ [x] remove zone  [e] resize       │
 ```
 
-The kinds use names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather, Sanctum, Compost); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The line and the selection come as soon as the zone exists: at once while paused, when the `CreateZone` takes effect (24 § Input model), and at the next tick while time runs. The new zone is selected, so its settings show in the menu's place, and the tool stays chosen but idle: `Enter`, the arrows and the digits go to the inspector (a farm plot's `Enter` opens the season's crop list) until the pointer is pressed on the map again. A press on the map starts the next rectangle at once, so several zones in a row are one drag each, the menu showing while it is drawn; `Esc` drops the idle tool and goes back to the menu, and a right click drops it and keeps the zone's settings. A drag where no tile qualifies sends nothing and says why: the tiles another zone holds, counted per reason as above ("Stockpile: none of the 20 tiles qualify (20 belong to another zone)."), or, when no tile is another zone's, the rule ("Bedroom: none of the 4 tiles qualify (floor that no other zone holds)."). While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 t)".
+The kinds use names that fit a 16-cell column (Dining, Hearth, Meeting, Archery, Fishing, Gather, Sanctum, Compost); the full names stay in the tool prompt ("Dining hall · drag a rectangle") and in a zone's own name. After a drag the status row says what was made: "Stockpile #2 made: 12 tiles.", or, when tiles were left out, "Farm plot #1 made: 9 tiles (6 left out: 6 belong to another zone)." The reasons are counted per kind (another zone, not walkable, not soil, not beside deep water). The line and the selection come as soon as the zone exists: at once while paused, when the `CreateZone` takes effect (24 § Input model), and at the next tick while time runs. The new zone is selected, so its settings show in the menu's place, and the tool stays chosen but idle: `Enter`, the arrows and the digits go to the inspector (a farm plot's `Enter` opens the season's crop list) until the pointer is pressed on the map again. A press on the map starts the next rectangle at once, so several zones in a row are one drag each, the menu showing while it is drawn; `Esc` drops the idle tool and goes back to the menu, and a right click drops it and keeps the zone's settings. A drag where no tile qualifies sends nothing and says why: the tiles another zone holds, counted per reason as above ("Stockpile: none of the 20 tiles qualify (20 belong to another zone)."), or, when no tile is another zone's, the rule ("Bedroom: none of the 4 tiles qualify (floor that no other zone holds)."). While a zone is selected and the tool is idle, status row 2 reads "Selected: Farm plot #3 (24 tiles)". The rule over a zone's settings names the zone and its size, `─── Farm plot #3 · 24 tiles ───`; a name too long for the rule is cut with `»`, never the size.
 
-A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓` move the highlight (`►` before the season) over the rows; it starts on the current season each time a plot is selected. `Enter` opens the highlighted row's crop list, in which `↑` `↓` and `Enter` choose and `Esc` closes it without a change; the list is as wide as the panel allows. `a`, or a click on `[a] all seasons`, sets the highlighted row's crop for every season in which that crop can grow (when the row is `none` it clears all four). `[y]` returns to the menu. A crop with no seeds in stock is listed with `(no seeds)` after its name, and the figure after a row reads `14 seeds`, in red at 0. When tiles of the plot are below the minimum temperature of the crop standing on them (of the current season's crop on an empty tile), a red note under the crop count says how many ("Too cold to grow: 4 of 24 tiles are under 2°C for dimcap.", for the species with most such tiles), followed by a dim line, "Rock 3 levels below the surface stays warm all year." (`NEAR_SURFACE_DEPTH`); with no cold tile the note is absent. On a surface plot a red note under it says when a season's crop cannot ripen before its growing seasons end: the current season's crop sown today ("Sown now, strawberry cannot ripen before its seasons end: it needs 28 days, 9 are left.") and each other season's crop sown on its first day ("Sown in summer, strawberry … 25 are left at most."); 07 § Player-facing behavior gives the reckoning. The wireframe shows the cold note, which is not always there. Under the crop count the plot's `fertilize` setting and the units tagged `fertilizer` in stock ("Fertilize: off (0 in stock)"); `w`, a click on the line or on `[w] fertilize` turns it on or off (07 § Fertilizer). A selected compost heap shows the items on it waiting to turn ("Turning: 4 items", 13 § The compost heap).
+A farm plot's four season rows work by keyboard as well as by mouse. `↑` `↓` move the highlight (`►` before the season) over the rows; it starts on the current season each time a plot is selected. `Enter` opens the highlighted row's crop list, in which `↑` `↓` and `Enter` choose and `Esc` closes it without a change; the list is as wide as the panel allows. `a`, or a click on `[a] all seasons`, sets the highlighted row's crop for every season in which that crop can grow (when the row is `none` it clears all four). `[y]` returns to the menu. A crop with no seeds in stock is listed with `(no seeds)` after its name, and the figure after a row is the seeds of that crop in stock, `(14)`, in red at 0, its tooltip "14 seeds of it in stock" (the word does not fit the sidebar beside the crop's field). The crop count under the rows reads "18 growing · 4 ripe · 2 empty", each count kept with its word when it wraps. When tiles of the plot are below the minimum temperature of the crop standing on them (of the current season's crop on an empty tile), a red note under the crop count says how many ("Too cold to grow: 4 of 24 tiles are under 2°C for dimcap.", for the species with most such tiles), followed by a dim line, "Rock 3 levels below the surface stays warm all year." (`NEAR_SURFACE_DEPTH`); with no cold tile the note is absent. On a surface plot a red note under it says when a season's crop cannot ripen before its growing seasons end: the current season's crop sown today ("Sown now, strawberry cannot ripen before its seasons end: it needs 28 days, 9 are left.") and each other season's crop sown on its first day ("Sown in summer, strawberry … 25 are left at most."); 07 § Player-facing behavior gives the reckoning. The wireframe shows the cold note, which is not always there. Under the crop count the plot's `fertilize` setting and the units tagged `fertilizer` in stock ("Fertilize: off (0 in stock)"); `w`, a click on the line or on `[w] fertilize` turns it on or off (07 § Fertilizer). A selected compost heap shows the items on it waiting to turn ("Turning: 4 items", 13 § The compost heap).
 
 A selected pasture shows its capacity (08 § Pastures and feeding) in lines that fit the panel, the verdict first so that nothing cuts it: "Feeds 0 of 6 grazers", in the alert colour when the tame grazers assigned are more than its grass feeds ("Feeds 2 grazers" with none assigned); then, dim, what it rests on, "35 grass; 48 a grazer" ("12 grass, 30 grazing shrubs; 48 a grazer", wrapped over two rows); and, dim, while no animal is assigned, "Add animals: Animals [n], [p]."
 
 ```
 │ [y] zones menu                     │
-│ ── Selected: Pasture #1 (51 t) ─── │
+│ ─── Pasture #1 · 51 tiles ──────── │
 │ Feeds 0 of 6 grazers               │
 │ 35 grass; 48 a grazer              │
 ```
@@ -71,7 +71,7 @@ A stockpile made while paused can be configured immediately, before its `ZoneCha
 
 ```
 │ [y] zones menu                    │
-│ ── Selected: Stockpile #1 (30 t)   │
+│ ─── Stockpile #1 · 30 tiles ────── │
 │ [p] Preset [Food ▾]              │
 │ [g] tree  [q] settings             │
 │ [v] materials                     │
@@ -87,7 +87,7 @@ A stockpile made while paused can be configured immediately, before its `ZoneCha
 │ Materials [any]  Quality 0–5       │
 │ Priority 5    Links: none          │
 │ Usage 22/30 tiles                 │
-│ ↑↓ select ←→ expand Space toggle  │
+│ ↑↓ select  ←→ open  Space toggle  │
 │ [x] remove zone  [e] resize      │
 ```
 
@@ -105,7 +105,7 @@ A room inspector shows current tier and score parts, named missing requirements,
 
 ```
 │ [y] zones menu                    │
-│ ── Selected: Bedroom #2 (9 t)      │
+│ ─── Bedroom #2 · 9 tiles ──────── │
 │ Modest room (score 24)             │
 │ Tiles 9 Walls 2 Furniture 4 Size 9 │
 │ Not enclosed: 3 open border tiles │
@@ -121,7 +121,7 @@ A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in
 
 ```
 │ [y] zones menu                    │
-│ ── Selected: Sanctum #1 (12 t)     │
+│ ─── Sanctum #1 · 12 tiles ─────── │
 │ Room: Bare (score 15)              │
 │ tiles 12 walls 0 furn. 0 size 12   │
 │ Enclosed                          │
@@ -193,9 +193,9 @@ The Dwarves tab, the list of the fortress's dwarves with their marks, titles, sq
 
 Below the job list, "Orders waiting (n) [Tab]" lists the work orders that no job serves, three rows at a time, one row each with the reason the Orders panel shows ("x1 Mail shirt · no forge", "x3 Door · waiting for log (0)", "x1 Make steel · charcoal out of reach"); the Jobs text filter applies to those rows, and a click on a row opens Orders with that order selected. By keyboard, `Tab` moves the cursor (`►`) between the job list and these rows when there are any (with none it is the sidebar key); `↑` `↓` move over them, scrolling the rest into view, and `Enter` opens Orders with the order selected, as the click does.
 
-Jobs names a building target by its type (Build bed, Build carpenter's workshop), a trade by its depot's number (Trade, depot #1), an item target by its item name (Haul log), and a creature target by its own name or else its species (Hunt wild horse, Carry patient Liv Hammerfall). A job type with no name of its own in the strings reads as its id in words with a capital (Plant, Carry patient). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. A batch is one row: two or more jobs next to each other in the list, of one type and priority, each on a bare tile, all open or all blocked for the same reason, show as the job's name and their count (`Dig ×19`, `Plant ×16`) with the reason. While it is selected, the line under the list gives the box their tiles span and the level or levels (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`) before the reason's long text. `Enter` on it opens it to its rows and centres the first; the opened rows stay open while their jobs last (presentation state, not saved). `[p]` and `[x]` on the batch's row act on every job of it. With no rows, the first table body row says "No jobs. Designate [d], build [b] or order [o]."
+Jobs names a building target by its type (Build bed, Build carpenter's workshop), a trade by its depot's number (Trade, depot #1), an item target by its item name (Haul log), and a creature target by its own name or else its species (Hunt wild horse, Carry patient Liv Hammerfall). A job type with no name of its own in the strings reads as its id in words with a capital (Plant, Carry patient). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. A batch is one row: two or more jobs next to each other in the list, of one type and priority, each on a bare tile, all open or all blocked for the same reason, show as the job's name and their count (`Dig ×19`, `Plant ×16`) with the reason. While it is selected, the line under the list gives the box their tiles span and the level or levels (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`) before the reason's long text. `Enter` on it opens it to its rows and centres the first; the opened rows stay open while their jobs last (presentation state, not saved). `[p]` and `[x]` on the batch's row act on every job of it. With no rows, the first table body rows say "No jobs. Designate [d], build [b] or order [o].", wrapped.
 
-An open job (or open batch, by its oldest job) that has been open more than a day shows its age in the Who column (`open 41 days`), and while it is selected the line under the list, over up to four rows, says why nobody has taken it, from the dwarves 11's assignment would offer it to: those with its labor, or the one dwarf it is for. In this order: no dwarf has the labor ("Nobody takes it: no dwarf has the masonry labor. Turn it on in Labors [l]."); every one of them is on duty with a squad, hurt, or in shelter under the Hearth alert, naming which and what to do; the job needs a tool that none of the others holds, none is free in stock, and one of them who is on duty, hurt or in shelter holds it ("Nobody takes it yet: the only axe is with Urist, in the hospital. Make another, or wait for it to come back.", or with several holders "all 3 axes are with dwarves who cannot use them now (Urist, in the hospital, and others)"; 11 puts such a tool down for the fortress after `JOB_HOLD_TICKS`, § Assignment); more urgent jobs are open to them, since priority is strict and a job does not age ("Nobody takes it yet: 12 more urgent jobs come first for the 3 dwarves with the masonry labor. Raise its priority to have it sooner.", counting the open jobs of a lower effective priority whose labor one of them has); every one of them is at another job ("… is busy with another job. It comes next."); no free one can walk to it or beside it; the free ones are eating, drinking or asleep; and otherwise that a free dwarf has not taken it, which a skill, a tool another dwarf holds or a nearby danger explains. The same words are given wherever a panel says why a job waits.
+An open job (or open batch, by its oldest job) that has been open more than a day shows its age in the Who column (`open 41 days`), and while it is selected the line under the list says why nobody has taken it, from the dwarves 11's assignment would offer it to: those with its labor, or the one dwarf it is for. In this order: no dwarf has the labor ("Nobody takes it: no dwarf has the masonry labor. Turn it on in Labors [l]."); every one of them is on duty with a squad, hurt, or in shelter under the Hearth alert, naming which and what to do; the job needs a tool that none of the others holds, none is free in stock, and one of them who is on duty, hurt or in shelter holds it ("Nobody takes it yet: the only axe is with Urist, in the hospital. Make another, or wait for it to come back.", or with several holders "all 3 axes are with dwarves who cannot use them now (Urist, in the hospital, and others)"; 11 puts such a tool down for the fortress after `JOB_HOLD_TICKS`, § Assignment); more urgent jobs are open to them, since priority is strict and a job does not age ("Nobody takes it yet: 12 more urgent jobs come first for the 3 dwarves with the masonry labor. Raise its priority to have it sooner.", counting the open jobs of a lower effective priority whose labor one of them has); every one of them is at another job ("… is busy with another job. It comes next."); no free one can walk to it or beside it; the free ones are eating, drinking or asleep; and otherwise that a free dwarf has not taken it, which a skill, a tool another dwarf holds or a nearby danger explains. The same words are given wherever a panel says why a job waits. The line under the list, the reason of a blocked job and the batch's box with it, wraps over as many rows as it needs, the list above giving up its rows down to its header and one row; the name of the dwarf a reason gives is never cut.
 
 The counts line and the blocked summary wrap onto a second row rather than cutting. The filter controls wrap onto three rows at sidebar width: `/filter`, `[l] labor: all`, `[s] state: all`. `/` or clicking the field focuses text matching the job name or worker, ignoring case. Enter or Esc finishes typing without closing the panel. Shift-L or clicking the labor row cycles all and the labors with jobs in registry order; Shift-S or clicking the state row cycles all, open, claimed, blocked. Claimed includes fetching, travelling, working and completing. Filters combine; changing one resets selection. The summary counts all current jobs. Labor priorities show only non-default priorities, using full names separated by dots. With all defaults, the line reads "All labors at priority 5: change them in the labor manager ([l], Enter)."
 
@@ -307,7 +307,8 @@ A full-window screen over the fortress (`labor_manager`), opened with `Enter` in
 │   Quantity [-]   5 [+]              │
 │   Mode     once: make 5             │
 │   Material any material             │
-│ ▶ Where    any carpenter's workshop │
+│ ▶ Where    any carpenter's          │
+│            workshop                 │
 │ [Enter] add [Tab] next [Esc] back   │
 ```
 
@@ -318,7 +319,7 @@ A full-window screen over the fortress (`labor_manager`), opened with `Enter` in
 - A row too long for the list wraps at the list's width, its later lines indented under the recipe's name, rather than being cut; the highlight covers all its lines.
 - Each change to the filter highlights the first listed recipe of the best rank, so a recipe a workshop can make now is highlighted before one with no workshop whose category comes first. `Enter` adds the highlighted recipe only after the player has typed a filter or moved the highlight with a key or a click (or the picker opened on a recipe); otherwise the status row says "Type a name or choose a recipe."
 - The order is accepted even when nothing can make it yet, and the status row says so in the same line: "Ordered: x1 Mail shirt. No forge is built yet: [b] Build > Workshops.", or, when a workshop exists but an input is missing, "Ordered: x5 Barrel. Waiting for log (0 in stock)."
-- `Tab` / `Shift+Tab` move the `▶` between the fields; `←→` change the focused one: the quantity, the mode (`once: make N` / `keep ≥ N in stock`), the material (any, a class, or one material the recipe takes) and, for a global order, the workshop (any of the recipe's type, or one of them). A click on a field changes it.
+- `Tab` / `Shift+Tab` move the `▶` between the fields; `←→` change the focused one: the quantity, the mode (`once: make N` / `keep ≥ N in stock`), the material (any, a class, or one material the recipe takes) and, for a global order, the workshop (any of the recipe's type, or one of them). A click on a field changes it. A value longer than its 22 cells (`any craftsdwarf's workshop`) wraps under itself, the list giving up the row.
 - Opened from a workshop the picker lists that workshop's recipes and `Where` is fixed to it. When every `○` recipe listed, two or more, lacks the same input with the same step back, the note is said once on a line above the list, as the Workshop panel says it ("No log (from felling trees)"), and each row keeps its short note on one line ("○ Barrel · no log"); the list gives that line's rows. A filter that leaves one such recipe gives it its full note again. The picker opened from the Orders panel lists every workshop's recipes and keeps each row's note.
 - `Enter` (or a second click on the selected recipe) submits `AddWorkOrder` and closes the picker; the status row confirms ("Ordered: ×5 Door · Carpenter's workshop #1"). `Esc` closes it without ordering.
 
@@ -387,7 +388,7 @@ The panel is a list: `↑` `↓` move the cursor over the lines that act, `Enter
 - **Links** (lever, plate): `── Linked to (2)`, a line per target with its state (`→ Drawbridge #1: lowered`; `Enter` centres the map on it), a dim line per link a mechanic has still to make (`… Door #2: waiting: 1 mechanism`), `[i] link to…` and `[r] unlink` (the target under the cursor, or the only one: `UnlinkMechanism`). A linked target's own panel lists what works it (`← Lever #1`).
 - **Cage**: `Holds a wolf` or `Empty`; `[r] release` (`ReleaseCage`, after `c_release_cage`) and `[g] tame` (`TameCaged`).
 - **Bed** (any building tagged `sleep`: a bed, a stone bed, a pallet): `Owner: Urist (Bedroom #2)`, and `[w] owner…`, which assigns the bedroom zone the bed stands in (`AssignRoom`). A bed in no bedroom says so and how to make one. Then, for a wooden bed, `Made up: linen bedding, feather pillow` or `Not made up` with `Wants: bedding, pillow` for what it lacks (a featherbed's pieces are named after their feathers, the rest after their cloth), and for every bed `Rests at 110%` (14 § Beds).
-- **A `container` building** (the wagon, a chest): `Holds:`, then one line per top category of the stocks tree, in its order, with the units it holds there by item type, counting what lies inside the barrels and bags it holds and those containers too: `food 60: easy meal ×10, plant ×40, raw meat ×10`, `container 16: barrel ×5, bag ×9, bucket ×2`; a category whose one type has the category's name reads `drink 60`. A line wraps over up to three rows. With nothing in it, `Holds nothing`. While it holds anything, `[v] see the items` opens Look's tile list on the tile where they lie (the wagon's centre), the goods under the building's row. While goods in it want hauling, a line before it says why they wait, in units by reason (T-681): `{n} goods wait:` then, in this order and only those that apply, `{n} have no stockpile that takes them ({categories})`, `{n} wait for room in a stockpile`, `{n} wait for a barrel, bag or bin`, `{n} wait for a hauler: nobody has Hauling on`, `{n} out of reach`, `{n} are being hauled`; in the alert tone when goods have no stockpile, wait for room, for a hauler or are out of reach. A container that has no home and whose goods go by their stack (drink to a stockpile's barrels) counts by its goods' state. The hover line over the building's tiles ends with the short form: `· {n} goods wait: {n} no stockpile, {n} no room, {n} no container, {n} no hauler, {n} no path, {n} hauling`.
+- **A `container` building** (the wagon, a chest): `Holds:`, then one line per top category of the stocks tree, in its order, with the units it holds there by item type, counting what lies inside the barrels and bags it holds and those containers too: `food 60: easy meal ×10, plant ×40, raw meat ×10`, `container 16: barrel ×5, bag ×9, bucket ×2`; a category whose one type has the category's name reads `drink 60`. A line wraps over as many rows as it needs, the list scrolling, and breaks only between entries, never inside one (`splint ×4`). With nothing in it, `Holds nothing`. While it holds anything, `[v] see the items` opens Look's tile list on the tile where they lie (the wagon's centre), the goods under the building's row. While goods in it want hauling, a line before it says why they wait, in units by reason (T-681): `{n} goods wait:` then, in this order and only those that apply, `{n} have no stockpile that takes them ({categories})`, `{n} wait for room in a stockpile`, `{n} wait for a barrel, bag or bin`, `{n} wait for a hauler: nobody has Hauling on`, `{n} out of reach`, `{n} are being hauled`; in the alert tone when goods have no stockpile, wait for room, for a hauler or are out of reach. A container that has no home and whose goods go by their stack (drink to a stockpile's barrels) counts by its goods' state. The hover line over the building's tiles ends with the short form: `· {n} goods wait: {n} no stockpile, {n} no room, {n} no container, {n} no hauler, {n} no path, {n} hauling`.
 - **A building with wants** (14 § Building wants): `Holds: …` or `Holds nothing yet`, and `Wants: …` for what it lacks. While it holds anything, `[h] take out what it holds` (`ReleaseHeld`): it drops on the tile, and haulers bring the nearest again unless it is forbidden.
 - **Coffin**: `Kept for anyone` / `Kept for Urist` / `Holds a body`, and `[w] keep for…` (`AssignCoffin`).
 - Every built building: `Look at the tile` and `[x] take apart` (after `c_deconstruct_building`).
@@ -432,7 +433,7 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 │ [S-m] melt  [t] to depot          │
 ```
 
-Each row gives its units and their value, both with thousands separators (`8,570  43,928 ☼`). The wealth line, `Wealth 18,450 ☼   (buildings 3,200 ☼)`, puts the buildings' part on a second row, indented two cells, when it does not fit one.
+Each row gives its units and their value, both with thousands separators (`8,570  43,928 ☼`), in a column of 15 cells that holds six-character counts and five-digit values with `☼`; a longer value takes its cells from the row's name, which is cut with `»`, never the value. The wealth line, `Wealth 18,450 ☼   (buildings 3,200 ☼)`, puts the buildings' part on a second row, indented two cells, when it does not fit one.
 
 The line under the tree speaks of the selected row's rot (24 § Panels): a stack by its name, stage and days left, `turnip ×20 · stale, rots in 4 days`; a type or category that holds perishable stacks by the units under it that rot within `ROT_ALERT_DAYS`, `52 rot within 3 days`, in the alert colour when there are any; empty for anything else. A stack that is stale or rots within `ROT_ALERT_DAYS` has its name in the alert colour.
 
@@ -612,6 +613,8 @@ Depot panel (from a selected depot): items at the depot with values, `[m] move` 
 │ Waves so far: 3                     │
 ```
 
+The eligibility line wraps under itself, indented two cells, when the reason does not fit ("Eligible: no · hall spirit below" / "Content"), as does the last skip.
+
 ## Mood (e)
 
 ```
@@ -632,7 +635,7 @@ Depot panel (from a selected depot): items at the depot with values, `[m] move` 
 │ [Enter] holders  [s] sort tier   │
 ```
 
-The panel opens on a summary. Under the hall spirit, the `MOOD_SUMMARY_THOUGHTS` thoughts held by most dwarves, each with its weight and the number of dwarves who hold it (`×31`), most held first, then by the larger total weight, then by text. A thought is counted by its text; its weight is its holders' mean, rounded to a whole number; a thought whose weight rounds to 0 for a dwarf is not counted for that dwarf, and a dwarf holding one text twice counts once, at the stronger. "No dwarf holds a thought now." when none is held.
+The panel opens on a summary. Under the hall spirit, the `MOOD_SUMMARY_THOUGHTS` thoughts held by most dwarves, each with its weight and the number of dwarves who hold it (`×31`) at the right of its first row, the thought wrapping under itself, indented two cells, when it does not fit, most held first, then by the larger total weight, then by text. A thought is counted by its text; its weight is its holders' mean, rounded to a whole number; a thought whose weight rounds to 0 for a dwarf is not counted for that dwarf, and a dwarf holding one text twice counts once, at the stronger. "No dwarf holds a thought now." when none is held.
 
 The cursor runs over the summary's rows and then the dwarves. `Enter` on a summary row lists only the dwarves who hold that thought, its row marked `•` and the cursor on the first of them; `Enter` on the marked row, `Esc` or `Backspace` lists every dwarf again (`Esc` closes the panel only when every dwarf is listed). A click on a summary row does what `Enter` does. The listed thought stays in the summary while anyone holds it, in place of the fifth; when nobody holds it any more, the list is every dwarf again. The key row reads `[Enter] holders  [s] sort tier` on the summary, `[Enter] inspect  [Esc] all` while one thought's holders are listed, and `[Enter] inspect  [s] sort tier` otherwise.
 

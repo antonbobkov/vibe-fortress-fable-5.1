@@ -10,7 +10,7 @@ import { NEAR_DWARF_RADIUS } from '@systems/animals/constants';
 import type { ThreatsReader } from '@systems/threats';
 import type { TerrainReader } from '@systems/terrain';
 import type { Surface } from '../surface';
-import { label, separator, wrapHang } from '../widgets';
+import { label, separator, wrapHang, wrapLabel } from '../widgets';
 import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { EntityId } from '@core/types';
@@ -128,7 +128,7 @@ export function drawThreatsPanel(
   const renown = threats ? threats.renown() : 0;
   label(s, col, row, `Peril ${peril} · Renown ${renown.toFixed(1)}`, { fg: t.value, width });
   row += 1;
-  label(s, col, row, 'Wealth and population draw attention.', { fg: t.dim, width });
+  row += wrapLabel(s, col, row, 'Wealth and population draw attention.', { fg: t.dim, width }) - 1;
   row += 1;
 
   // Active threats

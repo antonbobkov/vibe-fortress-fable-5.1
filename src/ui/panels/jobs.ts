@@ -16,7 +16,7 @@ import { acceleratorLabel } from '../keymap';
 import { PanelFilter, drawPanelFilter } from './filter';
 import { jobBlockText, wrapText } from '../messages';
 import { jobWait } from '../job-wait';
-import { clampList, label, separator, table, type ListState } from '../widgets';
+import { clampList, label, separator, table, wrapLabel, type ListState } from '../widgets';
 import { buildings, tileXyz, type PanelContext } from './context';
 
 type JobLike = ReturnType<JobsReader['list']>[number];
@@ -337,10 +337,11 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const reason = blockText !== '' ? blockText : waitText;
   const batch = chosenRow !== undefined && chosenRow.jobs.length > 1;
   const detailText = batch ? `${batchDetail(ctx, panel, chosenRow)} ${reason}`.trim() : reason;
-  const detail = detailText === '' ? [] : wrapText(detailText, width, (batch ? 1 : 0) + (waitText !== '' ? 4 : 2));
-  const detailColor = waitText !== '' ? t.value : t.alert;
   const waiting = panel.waitingOf(orders);
   const waitingRows = waiting.length === 0 ? 0 : Math.min(WAITING_ROWS, waiting.length) + 1;
+  // The reason wraps over as many rows as it needs, the list giving them up down to its header and one row.
+  const detail = detailText === '' ? [] : wrapText(detailText, width, Math.max(2, rect.rows - top - 4 - priorities.length - waitingRows - 2));
+  const detailColor = waitText !== '' ? t.value : t.alert;
   const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length - waitingRows);
   table(
     s,
@@ -359,7 +360,7 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
       panel.list.selected = index;
     },
   );
-  if (jobs.length === 0) label(s, rect.col + 1, rect.row + top + 1, strings.get('ui.jobs.empty'), { fg: t.dim, width: rect.cols - 2 });
+  if (jobs.length === 0) wrapLabel(s, rect.col + 1, rect.row + top + 1, strings.get('ui.jobs.empty'), { fg: t.dim, width: rect.cols - 2, maxRows: Math.max(1, height - 1) });
   for (let r = 0; r < height - 1; r += 1) {
     const index = panel.list.scroll + r;
     const job = rows[index]?.jobs[0];

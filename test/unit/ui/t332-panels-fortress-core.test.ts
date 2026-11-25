@@ -67,13 +67,19 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
 
   it('Build offers the category keys, lists the chosen category with its cost and stock, and names the keys that place', () => {
     const rows = render('build');
-    // The first caption is cut at its column and says so with » (its tooltip has the whole).
-    expect(rows[0]).toMatch(/^\[c\] Constructio» +\[f\] Furniture/);
+    // Each caption is whole: the first column is as wide as its longest caption (T-703).
+    expect(rows[0]).toMatch(/^\[c\] Constructions +\[f\] Furniture$/);
     expect(rows[1]).toMatch(/^\[w\] Workshops +\[m\] Mechanisms/);
     expect(rows[2]).toMatch(/^\[t\] Traps +\[s\] Special/);
     expect(rows[3]).toMatch(/^─+ Workshops ─+$/);
     // The 21 workshops of version 1 and the magma kiln (T-553), by name; the later rows follow.
-    const listed = rows.slice(4, 25);
+    // A row whose inputs do not fit beside its name wraps them under it, indented (T-703): an entry is its rows joined.
+    const listed: string[] = [];
+    for (const row of rows.slice(4, 36)) {
+      if (row.startsWith('  ')) listed[listed.length - 1] += ` ${row.trim()}`;
+      else if (row !== '') listed.push(row);
+    }
+    listed.splice(21);
     expect(listed).toHaveLength(21);
     for (const row of listed) expect(row).toMatch(/\(\d+\)$/);
     const names = listed.map((row) => row.replace(/ {2,}.*$/, '').replace(/ 1 .*$/, ''));
@@ -91,7 +97,7 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
   it('Zones names the selected stockpile, its preset, one ticked category and the keys that change it', () => {
     const rows = render('zones');
     expect(rows[0]).toBe('[y] zones menu');
-    expect(rows[1]).toMatch(/Selected: Stockpile #\d+ \(20 t\)/);
+    expect(rows[1]).toMatch(/^─+ Stockpile #\d+ · 20 tiles ─+$/);
     expect(rows[2]).toBe('[p] Preset [Food ▼]');
     expect(rows[3]).toBe('[g] tree [q] settings');
     expect(rows[4]).toBe('[v] materials');
@@ -114,7 +120,7 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[36]).toBe('[c] Cellar: off');
     // The Food stockpile takes the wagon's food loose (T-676): four slots reserved by the hauls on their way.
     expect(rows[37]).toBe('Usage 4/20 tiles');
-    expect(rows[38]).toBe('↑↓ select  ←→ expand  Space toggle');
+    expect(rows[38]).toBe('↑↓ select  ←→ open  Space toggle');
     expect(rows[39]).toBe('[Del] remove zone  [e] resize');
   });
 
@@ -124,7 +130,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     for (const category of ['food', 'drink', 'seed', 'wood', 'bar', 'furniture', 'container', 'weapon', 'ammo', 'clothing', 'tool', 'textile', 'medical']) {
       expect(rows.some((row) => new RegExp(`^[► ] ${category} +\\d+ +\\d+ ☼$`).test(row)), category).toBe(true);
     }
-    expect(rows.find((row) => row.includes(' food '))).toBe('► food                60     190 ☼');
+    // The value column is 15 cells, five digits and ☼ (T-703).
+    expect(rows.find((row) => row.includes(' food '))).toBe('► food                60    190 ☼');
     // A category with nothing inside has no arrow; the others can be opened.
     expect(rows.find((row) => row.includes(' ammo '))).toMatch(/^ {2}ammo/);
     expect(rows.find((row) => row.includes(' food '))).toMatch(/^► food/);

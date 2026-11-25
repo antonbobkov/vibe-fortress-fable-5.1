@@ -715,7 +715,7 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
       const morale = readers.of<MoraleReader>('15');
       line(`Mood: ${MOOD_TIER_NAMES[morale.tier(id)]} (${Math.round(morale.mood(id))})`, t.value);
       // Only a thought that moves the mood by a whole point or more: one that rounds to 0 is not listed.
-      for (const thought of morale.thoughts(id)) if (Math.round(thought.value) !== 0) line(`  ${thoughtText(thought)}`);
+      for (const thought of morale.thoughts(id)) if (Math.round(thought.value) !== 0) wrapped('  ', thoughtText(thought));
     }
   }
   // 08 § Wild behavior, `sleep` (T-540): a wild animal that sleeps through noise.

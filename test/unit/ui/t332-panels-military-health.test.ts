@@ -142,17 +142,18 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {
     const rows = render('threats');
     expect(rows[0]).toMatch(/^Peril \d+ · Renown \d+(\.\d+)?$/);
-    expect(rows[1]).toBe('Wealth and population draw attent»');
-    expect(rows[2]).toBe('Active: none');
-    expect(rows[3]).toMatch(/^Thieves from (Spring|Summer|Autumn|Winter), Y\d+$/);
-    expect(rows[4]).toMatch(/^─+ Caverns ─+$/);
-    expect(rows.slice(5, 8)).toEqual(['1: sealed', '2: sealed', '3: sealed']);
+    // The line wraps under itself rather than being cut (T-703).
+    expect(rows.slice(1, 3)).toEqual(['Wealth and population draw', 'attention.']);
+    expect(rows[3]).toBe('Active: none');
+    expect(rows[4]).toMatch(/^Thieves from (Spring|Summer|Autumn|Winter), Y\d+$/);
+    expect(rows[5]).toMatch(/^─+ Caverns ─+$/);
+    expect(rows.slice(6, 9)).toEqual(['1: sealed', '2: sealed', '3: sealed']);
   });
 
   it('a selected hospital zone says what its room lacks and who is admitted', () => {
     const rows = render('hospital');
     expect(rows[0]).toBe('[y] zones menu');
-    expect(rows[1]).toMatch(/^─+ Selected: Hospital #\d+ \(2 t\) ─+$/);
+    expect(rows[1]).toMatch(/^─+ Hospital #\d+ · 2 tiles ─+$/);
     expect(rows[2]).toMatch(/^Room: Bare \(score \d+\)$/);
     expect(rows[3]).toBe('tiles 0 walls 0 furn. 0 size 2');
     expect(rows[4]).toMatch(/^Not enclosed: \d+ open border tiles$/);

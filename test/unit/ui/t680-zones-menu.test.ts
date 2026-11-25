@@ -73,7 +73,7 @@ describe('T-680 the Zones menu', () => {
     expect(g.fortress.zones.selected).toBe(zones()[0]);
     shown = text(g);
     expect(shown).toContain('[y] zones menu');
-    expect(shown).toContain('Selected: Stockpile #1');
+    expect(shown).toContain('─── Stockpile #1 · ');
     expect(shown).not.toContain('[s] Stockpile');
     // The settings are not the menu: `Esc` goes back to it, and `Esc` again closes Zones.
     g.handleKey(press('Esc'));
@@ -114,7 +114,7 @@ describe('T-680 the Zones menu', () => {
     clickAt(g, at);
     expect(g.ui.panel).toBe('zones');
     expect(g.fortress.zones.selected).toBe(pile);
-    expect(text(g)).toContain('Selected: Stockpile #1');
+    expect(text(g)).toContain('─── Stockpile #1 · ');
     g.handleKey(press('Esc'));
     expect(g.ui.panel, 'opened by a click, Esc closes').toBeNull();
     clickAt(g, at);
@@ -145,7 +145,7 @@ describe('T-680 the Zones menu', () => {
     expect(g.ui.sidebar, 'Tab moves through the list, not the sidebar').toBe(true);
     g.handleKey(press('Enter'));
     expect(g.fortress.zones.selected).toBe(plot);
-    expect(text(g)).toContain('Selected: Farm plot #1');
+    expect(text(g)).toContain('─── Farm plot #1 · ');
     g.handleKey(press('Esc'));
     const rows = g.textRows();
     g.render();
