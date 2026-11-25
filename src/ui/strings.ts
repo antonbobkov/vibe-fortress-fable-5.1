@@ -2331,6 +2331,12 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.summon_faded': '{name} fades.',
   'announce.infection': '{dwarf} has developed an infection.',
   'announce.no_dressing': '{dwarf} is bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',
+  // T-723: the day's line of fortress animals bleeding with nothing to bandage them.
+  'announce.no_dressing.animal': '{animal} is bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',
+  'announce.no_dressing.animals': '{animals} are bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',
+  'announce.no_dressing.animals_counted': '{n} animals are bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',
+  'announce.no_dressing.the_war': 'the war {species}',
+  'announce.no_dressing.the_hunting': 'the hunting {species}',
   'announce.limb_lost': '{name} has lost a limb.',
   // 19 Defense announcements.
   'announce.trap_triggered': 'A trap has been triggered.',
