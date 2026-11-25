@@ -20,7 +20,10 @@ export function reputationEntryText(ctx: PanelContext, entry: { readonly delta: 
   const date = logDate(ctx.strings, entry.tick, ctx.readers.calendar.tick);
   return `${entry.delta >= 0 ? '+' : ''}${entry.delta} ${ctx.strings.get(key)} (${date})`;
 }
-const CIV_NAMES: Readonly<Record<Civ, string>> = { mountainhome: 'Mountainhome', hillfolk: 'Hillfolk', wildwood: 'Wildwood', gloam: 'Gloam' };
+/** A civilization's name as the panel writes it ("Mountainhome"). */
+function civName(ctx: PanelContext, civ: Civ): string {
+  return ctx.strings.get(`ui.civ.name.${civ}`);
+}
 
 /**
  * The goods of a civilization's last caravan as the panel names them: each kind once by its name,
@@ -184,7 +187,7 @@ export class CivilizationsPanel {
         const entries = mergedRequests(this.trade(ctx).requests(this.civ()));
         // 20 § Never sold: refused here, with the reason.
         if (request !== null && neverSold(request.itemType, request.material, this.trade(ctx).reputation(this.civ()))) {
-          ctx.notice?.(ctx.strings.get('ui.trade.not_traded', { civ: CIV_NAMES[this.civ()] }));
+          ctx.notice?.(ctx.strings.get('ui.trade.not_traded', { civ: civName(ctx, this.civ()) }));
           this.choosingRequest = false;
           return true;
         }
@@ -225,15 +228,16 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   const active = trade.activeCaravan();
   for (const [index, civ] of TRADE_CIVILIZATIONS.entries()) {
     const rep = trade.reputation(civ);
-    const here = active?.civ === civ ? ' here!' : '';
-    const banned = trade.isBanned(civ) ? ' banned' : '';
-    label(s, col, row, `${index === panel.selected ? '▶' : ' '} ${CIV_NAMES[civ]} rep ${rep >= 0 ? '+' : ''}${rep} ${trade.schedule()[civ] ?? ''}${here}${banned}`, { fg: index === panel.selected ? s.theme.key : s.theme.text, width });
+    const here = active?.civ === civ ? ctx.strings.get('ui.civ.here') : '';
+    const banned = trade.isBanned(civ) ? ctx.strings.get('ui.civ.banned') : '';
+    const line = ctx.strings.get('ui.civ.row', { name: civName(ctx, civ), rep: `${rep >= 0 ? '+' : ''}${rep}`, when: trade.schedule()[civ] ?? '' });
+    label(s, col, row, `${index === panel.selected ? '▶' : ' '} ${line}${here}${banned}`, { fg: index === panel.selected ? s.theme.key : s.theme.text, width });
     s.hit({ col, row, cols: width, rows: 1 }, () => { panel.selected = index; panel.requestSelected = 0; });
     row += 1;
   }
   row += 1;
   const civ = panel.civ();
-  label(s, col, row++, `── ${CIV_NAMES[civ]} ──`, { fg: s.theme.key, width });
+  label(s, col, row++, `── ${civName(ctx, civ)} ──`, { fg: s.theme.key, width });
   // The caravan here: a waiting trade request says who it waits for and why, wrapped as the depot's warning.
   const wait = active?.civ === civ ? civilizationsTradeWait(ctx) : null;
   if (wait !== null) {
@@ -243,8 +247,8 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
     if (lines.length > shown.length) s.tooltip({ col, row, cols: width, rows: shown.length }, wait);
     row += shown.length;
   }
-  label(s, col, row++, `Last brought: ${lastBroughtText(ctx.registry, trade.lastBrought(civ)) || 'none'}`, { width });
-  const requestsWidth = label(s, col, row++, 'Requests [+]', { fg: s.theme.key, width });
+  label(s, col, row++, ctx.strings.get('ui.civ.last_brought', { goods: lastBroughtText(ctx.registry, trade.lastBrought(civ)) || ctx.strings.get('ui.civ.nothing') }), { width });
+  const requestsWidth = label(s, col, row++, ctx.strings.get('ui.civ.requests'), { fg: s.theme.key, width });
   s.hit({ col, row: row - 1, cols: requestsWidth, rows: 1 }, () => panel.openEditor());
   // One row per item and material, its priority as a word at the right ("seed: dimcap      high").
   const entries = mergedRequests(trade.requests(civ));
@@ -268,15 +272,15 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
     label(s, col, row++, ctx.strings.get('ui.civ.request_keys1'), { fg: s.theme.dim, width });
     label(s, col, row++, ctx.strings.get('ui.civ.request_keys2'), { fg: s.theme.dim, width });
   }
-  if (row < rect.row + rect.rows - 4) label(s, col, row++, '[←→] pick [p] prio [x] remove', { fg: s.theme.dim, width });
-  if (row < rect.row + rect.rows - 3) label(s, col, row++, 'Reputation log', { fg: s.theme.key, width });
+  if (row < rect.row + rect.rows - 4) label(s, col, row++, ctx.strings.get('ui.civ.request_keys'), { fg: s.theme.dim, width });
+  if (row < rect.row + rect.rows - 3) label(s, col, row++, ctx.strings.get('ui.civ.reputation_log'), { fg: s.theme.key, width });
   // Newest first, as many as fit above the footer, each reason in words ("−50 caravan member killed (Au 3)").
   for (const entry of [...trade.reputationLog(civ)].reverse()) {
     if (row >= rect.row + rect.rows - 2) break;
     label(s, col, row++, reputationEntryText(ctx, entry), { width });
   }
   const footer = rect.row + rect.rows - 1;
-  captionButtons(s, col, footer, '[d] depot  [t] trade now', [() => ctx.openPanel('depot'), openTrade], { fg: s.theme.key, width });
+  captionButtons(s, col, footer, ctx.strings.get('ui.civ.footer'), [() => ctx.openPanel('depot'), openTrade], { fg: s.theme.key, width });
 }
 
 /** The first depot's waiting trade request in words (`panels.md` § Civilizations), or null. */

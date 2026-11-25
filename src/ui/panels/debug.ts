@@ -32,11 +32,11 @@ export interface DebugHost {
   hashWorld(): void;
 }
 
-/** The timing table's columns (avg and worst in milliseconds, three decimals). */
+/** The timing table's columns (avg and worst in milliseconds, three decimals), titled `ui.debug.col.<title>`. */
 export const TIMING_COLUMNS: readonly Column[] = [
-  { title: 'System', width: 12 },
-  { title: 'avg ms', width: 9, align: 'right' },
-  { title: 'worst ms', width: 9, align: 'right' },
+  { title: 'system', width: 12 },
+  { title: 'avg', width: 9, align: 'right' },
+  { title: 'worst', width: 9, align: 'right' },
 ];
 
 export interface TimingRow {
@@ -88,15 +88,15 @@ export function drawDebugPanel(s: Surface, rect: Rect, panel: DebugPanel, ctx: P
     const row = rect.row + rect.rows - DEBUG_BUTTONS.length + k;
     if (row < rect.row) return;
     s.fill({ col, row, cols: width, rows: 1 }, t.black);
-    button(s, col, row, spec.key, spec.text, () => spec.run(host));
+    button(s, col, row, spec.key, ctx.strings.get(`ui.debug.button.${spec.text}`), () => spec.run(host));
   });
 }
 
-/** § Debug: the panel's three buttons, with the accelerators the panel keys use. */
+/** § Debug: the panel's three buttons, with the accelerators the panel keys use; `text` names `ui.debug.button.<text>`. */
 export const DEBUG_BUTTONS: readonly { readonly key: string; readonly text: string; readonly run: (host: DebugHost) => void }[] = [
-  { key: 'd', text: 'dump save', run: (host) => host.dumpSave() },
-  { key: 'r', text: 'replay season log', run: (host) => host.replaySeasonLog() },
-  { key: 'h', text: 'hash world', run: (host) => host.hashWorld() },
+  { key: 'd', text: 'dump_save', run: (host) => host.dumpSave() },
+  { key: 'r', text: 'replay_log', run: (host) => host.replaySeasonLog() },
+  { key: 'h', text: 'hash_world', run: (host) => host.hashWorld() },
 ];
 
 interface DebugLine {
@@ -109,24 +109,25 @@ interface DebugLine {
 export function debugLines(ctx: PanelContext, host: DebugHost): DebugLine[] {
   const readers = ctx.readers;
   const stats = host.stats();
+  const str = ctx.strings;
   const out: DebugLine[] = [];
-  out.push({ text: `seed ${host.seed()}  tick ${stats.tick}`, head: true });
-  out.push({ text: `last tick ${ms(stats.lastTickMs)} ms`, head: true });
-  out.push({ text: 'Timings', rule: true });
-  out.push({ text: tableRow(TIMING_COLUMNS, TIMING_COLUMNS.map((c) => c.title), 32), head: true });
+  out.push({ text: str.get('ui.debug.seed', { seed: host.seed(), tick: stats.tick }), head: true });
+  out.push({ text: str.get('ui.debug.last_tick', { ms: ms(stats.lastTickMs) }), head: true });
+  out.push({ text: str.get('ui.debug.timings'), rule: true });
+  out.push({ text: tableRow(TIMING_COLUMNS, TIMING_COLUMNS.map((c) => str.get(`ui.debug.col.${c.title}`)), 32), head: true });
   for (const row of timingRows(stats)) {
     out.push({ text: tableRow(TIMING_COLUMNS, [row.id, ms(row.avgMs), ms(row.worstMs)], 32) });
   }
-  out.push({ text: 'Counts', rule: true });
+  out.push({ text: str.get('ui.debug.counts'), rule: true });
   for (const kind of ENTITY_KINDS) out.push({ text: `${kind} ${readers.entities.countOfKind(kind)}` });
-  out.push({ text: `active fluid tiles ${readers.has('04') ? readers.of<FluidsReader>('04').activeCount() : 0}` });
+  out.push({ text: str.get('ui.debug.fluids', { n: readers.has('04') ? readers.of<FluidsReader>('04').activeCount() : 0 }) });
   const pending = readers.has('pathing') ? readers.pathing.requestsPending() : 0;
   const served = readers.has('pathing') ? readers.pathing.requestsServed() : 0;
-  out.push({ text: `path requests served ${served}, pending ${pending}` });
-  out.push({ text: 'Jobs', rule: true });
+  out.push({ text: str.get('ui.debug.paths', { served, pending }) });
+  out.push({ text: str.get('ui.debug.jobs'), rule: true });
   if (readers.has('11')) {
     const counts = readers.of<JobsReader>('11').counts();
-    out.push({ text: `open ${counts.open}  claimed ${counts.claimed}  blocked ${counts.blocked}` });
+    out.push({ text: str.get('ui.debug.job_counts', { open: counts.open, claimed: counts.claimed, blocked: counts.blocked }) });
     for (const reason of Object.keys(counts.byReason).sort()) {
       out.push({ text: `  ${reason.replaceAll('_', ' ')} ${counts.byReason[reason] ?? 0}` });
     }

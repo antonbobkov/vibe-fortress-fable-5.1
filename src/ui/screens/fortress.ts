@@ -888,7 +888,7 @@ export class FortressScreen implements Screen {
     else if (panel.id === 'population') drawPopulationPanel(surface, body, ctx);
     else if (panel.id === 'look') this.drawLook(surface, body);
     else if (panel.id === 'calendar') drawCalendarPanel(surface, body, readers, this.strings);
-    else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays);
+    else if (panel.id === 'overlays') drawOverlaysPanel(surface, body, this.overlayMenu, this.ui.overlays, this.strings);
     else if (panel.id === 'help') drawHelpPanel(surface, body, this.help);
     else if (panel.id === 'debug' && this.host.debug !== undefined) drawDebugPanel(surface, body, this.debugPanel, ctx, this.host.debug);
     else if (panel.id === 'military') drawMilitaryPanel(surface, body, this.military, ctx, this.host);
