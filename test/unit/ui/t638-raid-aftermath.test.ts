@@ -84,21 +84,21 @@ describe('T-638 the Threats panel lists a warned party until it arrives', () => 
     ];
     const reader = makeThreatsReader(createEntityStore(), () => 0, () => new Map(), () => 0, () => 0, undefined, undefined, () => arrivals);
     expect(reader.coming()).toEqual([
-      { kind: 'raid', civ: 'gloam', sizeBand: 'a band', edge: 'n', arrivalTick: 2000 },
-      { kind: 'siege', civ: 'gloam', sizeBand: 'a horde', edge: 'e', arrivalTick: 5000 },
+      { kind: 'raid', civ: 'gloam', sizeBand: 'band', edge: 'n', arrivalTick: 2000 },
+      { kind: 'siege', civ: 'gloam', sizeBand: 'horde', edge: 'e', arrivalTick: 5000 },
     ]);
   });
 
   it('"Coming: a horde of Gloam from the north, tomorrow." and a siege in days', () => {
-    const raid: ComingParty = { kind: 'raid', civ: 'gloam', sizeBand: 'a horde', edge: 'n', arrivalTick: TICKS_PER_DAY + 10 };
+    const raid: ComingParty = { kind: 'raid', civ: 'gloam', sizeBand: 'horde', edge: 'n', arrivalTick: TICKS_PER_DAY + 10 };
     expect(comingText(strings, registry, raid, 10)).toBe('Coming: a horde of Gloam from the north, tomorrow.');
-    expect(comingText(strings, registry, { ...raid, sizeBand: 'a few', arrivalTick: 20 }, 10)).toBe('Coming: a few Gloam from the north, today.');
+    expect(comingText(strings, registry, { ...raid, sizeBand: 'few', arrivalTick: 20 }, 10)).toBe('Coming: a few Gloam from the north, today.');
     expect(comingText(strings, registry, { ...raid, kind: 'siege', edge: 'e', arrivalTick: 2 * TICKS_PER_DAY }, 0)).toBe('Coming: a Gloam siege from the east, in 2 days.');
   });
 
   it('the panel shows the coming party under the Active line', () => {
     const w = world('t638-coming');
-    const readers = withComing(w.readers, [{ kind: 'raid', civ: 'gloam', sizeBand: 'a band', edge: 'n', arrivalTick: w.tick + TICKS_PER_DAY }]);
+    const readers = withComing(w.readers, [{ kind: 'raid', civ: 'gloam', sizeBand: 'band', edge: 'n', arrivalTick: w.tick + TICKS_PER_DAY }]);
     const s = surface(60, 30);
     drawThreatsPanel(s, { col: 0, row: 0, cols: 60, rows: 30 }, new ThreatsPanel(), ctxOf(readers));
     const text = s.lines().join('\n');

@@ -112,10 +112,10 @@ function causeText(strings: Strings, name: string, state: { cause: string; kille
 }
 
 /** The killer of a death event in the words its line uses ("a hillfolk bandit"), or ''. */
-export function deathKiller(registry: Registry, event: Readonly<Record<string, unknown>>): string {
+export function deathKiller(strings: Strings, registry: Registry, event: Readonly<Record<string, unknown>>): string {
   if (Number(event['killerId'] ?? 0) === 0) return '';
   const name = typeof event['killerName'] === 'string' ? event['killerName'] : undefined;
-  return killerWords(registry, name, typeof event['killerSpecies'] === 'number' ? event['killerSpecies'] : undefined);
+  return killerWords(strings, registry, name, typeof event['killerSpecies'] === 'number' ? event['killerSpecies'] : undefined);
 }
 
 /**

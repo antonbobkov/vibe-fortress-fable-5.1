@@ -92,7 +92,7 @@ describe('T-635 a raid says where it comes from, once', () => {
   it('the warning names its edge without doubling it', () => {
     const { w } = setup('t635-warning');
     const log = announcer(w);
-    const warning = { type: 'ThreatWarning', kind: 'raid', civ: 'gloam', sizeBand: 'a band', edge: 'the northern edge' } as unknown as GameEvent;
+    const warning = { type: 'ThreatWarning', kind: 'raid', civ: 'gloam', sizeBand: 'band', edge: 'the northern edge' } as unknown as GameEvent;
     expect(log.announce(warning, w.readers, 1)?.line.text).toBe('Gloam scouts have been seen at the northern edge. They will come tomorrow.');
   });
 

@@ -11,7 +11,7 @@ import type { Registry } from '@core/registry';
 import type { CombatReader } from '@systems/combat';
 import type { ComingParty, ThreatsReader } from '@systems/threats';
 import type { Said } from './announcements';
-import { capitalize, materialItemName } from './messages';
+import { capitalize, materialItemName, withArticle } from './messages';
 import type { Strings } from './strings';
 
 interface NamedRow {
@@ -23,11 +23,6 @@ interface NamedRow {
 
 /** How many goods of one name a theft line lists before "and n more". */
 const THEFT_GROUPS_LISTED = 3;
-
-/** "a boar", "an iron short sword": a lower-case noun with its indefinite article. */
-function withArticle(noun: string): string {
-  return `${/^[aeiou]/i.test(noun) ? 'an' : 'a'} ${noun}`;
-}
 
 /** A civilization by its name without the article, as the panels write it ("Gloam", "Hillfolk"). */
 export function civWords(registry: Registry, civ: string): string {
@@ -52,8 +47,7 @@ export function comingText(strings: Strings, registry: Registry, coming: ComingP
   const edge = strings.has(`ui.edge.${coming.edge}`) ? strings.get(`ui.edge.${coming.edge}`) : coming.edge;
   const when = whenWords(strings, coming.arrivalTick, now);
   if (coming.kind === 'siege') return strings.get('ui.threats.coming_siege', { civ, edge, when });
-  const band = coming.sizeBand === 'a few' ? 'few' : coming.sizeBand === 'a horde' ? 'horde' : 'band';
-  return strings.get('ui.threats.coming', { party: strings.get(`ui.threats.band_${band}`, { civ }), edge, when });
+  return strings.get('ui.threats.coming', { party: strings.get(`ui.threats.band_${coming.sizeBand}`, { civ }), edge, when });
 }
 
 /** A party by its purpose in a line: "Gloam raid", "Gloam siege", "bandit raid", "ambush", "thief", "restless dead". */
@@ -234,8 +228,8 @@ export function stolenGoodsText(strings: Strings, stolen: readonly Stolen[]): st
   }
   const total = groups.reduce((sum, g) => sum + g.n, 0);
   const only = groups.length === 1 ? groups[0] : undefined;
-  if (only !== undefined) return only.n === 1 ? withArticle(only.name) : `${only.n} ${only.plural}`;
-  const word = (g: Stolen): string => g.n === 1 ? withArticle(g.name) : strings.get('announce.theft.many_of', { n: g.n, name: g.plural });
+  if (only !== undefined) return only.n === 1 ? withArticle(strings, only.name) : `${only.n} ${only.plural}`;
+  const word = (g: Stolen): string => g.n === 1 ? withArticle(strings, g.name) : strings.get('announce.theft.many_of', { n: g.n, name: g.plural });
   const shown = groups.slice(0, THEFT_GROUPS_LISTED).map(word);
   const rest = groups.length - shown.length;
   const list = rest > 0

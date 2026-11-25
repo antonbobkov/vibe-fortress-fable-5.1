@@ -15,8 +15,8 @@ import { hasMorale, moraleOf, moraleWord, type MoraleWord } from './morale';
 export interface ComingParty {
   readonly kind: string;
   readonly civ: string;
-  /** As the warning words it: "a few", "a band", "a horde"; never the exact count. */
-  readonly sizeBand: string;
+  /** The warning's size band, never the exact count; the UI words it ("a horde of Gloam"). */
+  readonly sizeBand: SizeBand;
   readonly edge: 'n' | 'e' | 's' | 'w';
   readonly arrivalTick: number;
 }
@@ -27,9 +27,12 @@ export interface SchedulePreview {
   readonly year: number;
 }
 
+/** A warned party's size band (18 § Arrival and warning): fewer than 6, 6 to 15, more. */
+export type SizeBand = 'few' | 'band' | 'horde';
+
 /** The warning's size band of a party of `size` (18 § Arrival and warning). */
-export function sizeBandOf(size: number): string {
-  return size < 6 ? 'a few' : size <= 15 ? 'a band' : 'a horde';
+export function sizeBandOf(size: number): SizeBand {
+  return size < 6 ? 'few' : size <= 15 ? 'band' : 'horde';
 }
 
 export interface ThreatsReader {

@@ -123,12 +123,12 @@ describe('U-01 blocked jobs and workshops name the item, count and maker (Q4, §
     const w = new TestWorld({ seed: 'u01-jobs', world: 'flat-test', embark: 'none' });
     const ctx = ctxOf(w);
     const door = { type: items.index('door') };
-    expect(filterText(registry, door, 1)).toBe('1 door');
-    expect(filterText(registry, door, 2)).toBe('2 doors');
+    expect(filterText(registry, door, 1, strings)).toBe('1 door');
+    expect(filterText(registry, door, 2, strings)).toBe('2 doors');
     const job = { type: registry.table('jobTypes').index('build'), blockedReason: 'missing_input', tool: null, inputs: [{ filter: door, count: 1, delivered: [] }] };
     const text = jobBlockText(ctx, job);
     expect(text.short).toBe('waiting: 1 door');
-    expect(text.long).toBe(`waiting: 1 door — order at ${whereMade(registry, ['door'])}`);
+    expect(text.long).toBe(`waiting: 1 door — order at ${whereMade(registry, ['door'], strings)}`);
     expect(text.long).toContain("a carpenter's workshop");
     expect(jobBlockText(ctx, { ...job, blockedReason: 'no_tool', tool: 'pick' }).short).toBe('waiting: a pick');
     expect(jobBlockText(ctx, { ...job, type: registry.table('jobTypes').index('dig'), blockedReason: 'no_worker' }).long).toBe('No one has Mining enabled: [l] labors.');

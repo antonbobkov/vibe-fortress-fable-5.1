@@ -697,7 +697,7 @@ export class FortressScreen implements Screen {
     const creature = readers.entities.get(id, C.Creature);
     if (creature !== undefined) {
       if (!readers.entities.has(id, C.Position) || !creatureShown(readers, id)) return null;
-      return { id, kind: 'creature', name: creatureWords(this.host.registry, creature.name, creature.species) };
+      return { id, kind: 'creature', name: creatureWords(this.strings, this.host.registry, creature.name, creature.species) };
     }
     if (readers.entities.has(id, C.Item) && itemShown(readers, id)) return { id, kind: 'item', name: itemTitle(readers, this.host.registry, id) };
     return null;
@@ -1723,7 +1723,7 @@ export class FortressScreen implements Screen {
     if (this.lookAt.kind === 'tile' && this.lookBack.length === 0) return;
     const id = Number(event['id'] ?? 0);
     if (event.type === 'CreatureDied' && this.watched(id)) {
-      this.lookEnds.set(id, { kind: 'died', cause: String(event['cause'] ?? ''), killer: deathKiller(this.host.registry, event), tick: this.host.readers.calendar.tick, corpse: 0 });
+      this.lookEnds.set(id, { kind: 'died', cause: String(event['cause'] ?? ''), killer: deathKiller(this.strings, this.host.registry, event), tick: this.host.readers.calendar.tick, corpse: 0 });
     } else if (event.type === 'CorpseCreated') {
       const end = this.lookEnds.get(Number(event['creatureId'] ?? 0));
       if (end?.kind === 'died') end.corpse = id;

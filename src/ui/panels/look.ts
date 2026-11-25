@@ -283,7 +283,7 @@ export function careLine(readers: ReaderSet, registry: Registry, strings: String
     const input = short.job.inputs.find((i) => i.count - i.delivered.length > 0) ?? short.job.inputs[0];
     if (input !== undefined) {
       const filter = input.filter as Readonly<Record<string, unknown>>;
-      const item = filterText(registry, filter, 1).replace(/^\d+ /, '');
+      const item = filterText(registry, filter, 1, strings).replace(/^\d+ /, '');
       const stock = has(readers, '13') ? readers.of<ItemsReader>('13').countAvailable(filter) : 0;
       return say('ui.look.care.needs', { item, n: stock }, true);
     }

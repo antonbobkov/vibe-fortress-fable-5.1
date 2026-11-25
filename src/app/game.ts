@@ -369,7 +369,7 @@ export class Game {
         if (e.type === 'SeasonChanged') this.autosaveDue = { year: e['year'] as number, season: e['season'] as number };
         if (e.type === 'CreatureDied' && e['faction'] === 'fortress') {
           // The legend's last words name the killer as the death's line does (24 § The legend record).
-          const killer = Number(e['killerId'] ?? 0) === 0 ? '' : killerWords(this.registry,
+          const killer = Number(e['killerId'] ?? 0) === 0 ? '' : killerWords(this.strings, this.registry,
             typeof e['killerName'] === 'string' ? e['killerName'] : undefined, typeof e['killerSpecies'] === 'number' ? e['killerSpecies'] : undefined);
           this.lastDwarfDeath = { name: String(e['name'] ?? 'Unknown'), cause: String(e['cause'] ?? 'wounds'), killer };
         }

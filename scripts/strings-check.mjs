@@ -84,16 +84,40 @@ export function referencesIn(text, namespaces) {
 
 /**
  * The string and template literals of a TypeScript source, comments and regular expressions left
- * out: `{ line, text }`, each `${…}` of a template written as `\u0000`.
+ * out: `{ line, text, at }`, each `${…}` of a template written as `\u0000`. `at` is where the literal
+ * stands: the brackets around it, outermost first, each `{ open, callee, first, arg }` (`open` one
+ * of `(`, `{`, `[` or `` ` `` for a template's `${…}`; a call's `callee` and its `first` argument
+ * when that is a literal; `arg`, the argument or element the literal is in; a template's `text`),
+ * and `assigned`, the name a plain `name = '…'` gives it.
  */
-export function literalsIn(text) {
+export function literalsIn(text, outer = []) {
   const out = [];
   let i = 0;
   let line = 1;
   // The last significant character, to tell a regular expression's `/` from a division's.
   let last = '';
   let word = '';
+  // The brackets open at `i`; the last word (`.get` after a dot) and the character before it; the
+  // run of operator characters just read; and the name being given a value (`name = …`, `name: …`)
+  // at the depth `givenAt`, until the statement, the property or its bracket ends.
+  const stack = [];
+  let prevWord = '';
+  let beforeWord = '';
+  let ops = '';
+  let given = '';
+  let givenAt = -1;
   const regexAfter = '(,=:[!&|?{};+-*%<>~^';
+  const where = () => [...outer, ...stack.map((f) => ({ open: f.open, callee: f.callee, first: f.first, arg: f.arg, frame: f }))];
+  /** Whether the code after `j` compares with the literal: `'x' === a`, `'x' !== a`. */
+  const comparedAfter = (j) => /^\s*[!=]==?[^>]/.test(text.slice(j, j + 5));
+  const emit = (literal, end) => {
+    const top = stack[stack.length - 1];
+    if (top !== undefined && top.open === '(' && top.arg === 0 && top.first === undefined) top.first = literal.text;
+    const compared = /^(?:[!=]==?)$/.test(ops) || comparedAfter(end);
+    // Plain parentheses keep the name: `name = (row?.name ?? 'animal').toLowerCase()`.
+    const plain = givenAt >= 0 && stack.slice(givenAt).every((f) => f.open === '(' && f.callee === '');
+    out.push({ ...literal, at: where(), assigned: plain ? given : '', compared });
+  };
   while (i < text.length) {
     const c = text[i];
     const n = text[i + 1];
@@ -126,7 +150,7 @@ export function literalsIn(text) {
       while (j < text.length && text[j] !== c && text[j] !== '\n') {
         if (text[j] === '\\') { s += text[j + 1]; j += 2; } else { s += text[j]; j += 1; }
       }
-      out.push({ line, text: s });
+      emit({ line, text: s }, j + 1);
       i = j + 1; last = c; word = '';
       continue;
     }
@@ -134,6 +158,8 @@ export function literalsIn(text) {
       const start = line;
       let j = i + 1;
       let s = '';
+      const frame = { open: '`', text: '' };
+      const inside = [...where(), { open: '`', frame }];
       while (j < text.length && text[j] !== '`') {
         if (text[j] === '\\') { s += text[j + 1]; j += 2; continue; }
         if (text[j] === '$' && text[j + 1] === '{') {
@@ -150,7 +176,7 @@ export function literalsIn(text) {
             }
             k += 1;
           }
-          for (const inner of literalsIn(text.slice(j + 2, k - 1))) out.push({ line: line + inner.line - 1, text: inner.text });
+          for (const inner of literalsIn(text.slice(j + 2, k - 1), inside)) out.push({ ...inner, line: line + inner.line - 1 });
           for (const ch of text.slice(j, k)) if (ch === '\n') line += 1;
           s += '\u0000';
           j = k;
@@ -160,7 +186,8 @@ export function literalsIn(text) {
         s += text[j];
         j += 1;
       }
-      out.push({ line: start, text: s });
+      frame.text = s;
+      emit({ line: start, text: s }, j + 1);
       i = j + 1; last = '`'; word = '';
       continue;
     }
@@ -168,10 +195,25 @@ export function literalsIn(text) {
       let j = i;
       while (j < text.length && /[A-Za-z0-9_$]/.test(text[j])) j += 1;
       word = text.slice(i, j);
+      prevWord = last === '.' ? `.${word}` : word;
+      beforeWord = last;
       last = 'a';
       i = j;
       continue;
     }
+    // A call's callee is the word before its `(`, or `>` for a generic call (`table<Row>('items')`).
+    if (c === '(' || c === '{' || c === '[') stack.push({ open: c, callee: c === '(' && (last === 'a' || last === '>') ? (last === 'a' ? prevWord : '>') : '', first: undefined, arg: 0 });
+    else if (c === ')' || c === '}' || c === ']') stack.pop();
+    else if (c === ',' && stack.length > 0) stack[stack.length - 1].arg += 1;
+    if (stack.length < givenAt || ((c === ';' || c === ',') && stack.length <= givenAt)) { given = ''; givenAt = -1; }
+    // `name = …` (not `==`, `=>`, `!=`, `<=` or `>=`), and an object literal's `name: …`.
+    const top = stack[stack.length - 1];
+    if ((c === '=' && last === 'a' && n !== '=' && n !== '>') ||
+      (c === ':' && last === 'a' && top !== undefined && top.open === '{' && (beforeWord === '{' || beforeWord === ','))) {
+      given = `${prevWord.replace(/^\./, '')}${c === ':' ? ':' : ''}`;
+      givenAt = stack.length;
+    }
+    ops = '=!<>&|?:+-*%^~'.includes(last) ? ops + c : c;
     last = c; word = '';
     i += 1;
   }
@@ -196,6 +238,46 @@ export function looksPlayerFacing(literal) {
   if (/^[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)+$/.test(plain)) return false;
   if (/^(?:\.{1,2}|@[a-z]+)\/[\w./-]+$/.test(plain)) return false;
   return !literal.split('\u0000').every((part) => /^(?:[a-z_][A-Za-z0-9_]*)?(?:[.:/-][A-Za-z0-9_]*)*$/.test(part));
+}
+
+/** The widgets' and the surface's drawing calls, each with the argument that is drawn as text. */
+export const DRAWN_ARGS = new Map([
+  ['label', 3], ['wrapLabel', 3], ['labelRow', 4], ['button', 4], ['toggle', 4], ['separator', 4],
+  ['drawnCols', 1], ['keyCells', 1], ['cutText', 0], ['wrapHang', 0], ['.text', 2],
+]);
+
+/** Names whose value is drawn: a variable (`name = 'food'`) or a widget row's field (`label: 'none'`). */
+export const TEXT_NAMES = new Set([
+  'name', 'text', 'title', 'line', 'caption', 'what', 'word', 'words', 'label', 'noun',
+  'label:', 'text:', 'caption:',
+]);
+
+/**
+ * Whether a literal of one word (`food`, `none`, the article `a`), which reads like an id and so
+ * passes {@link looksPlayerFacing}, stands where the code draws it, as `literalsIn` gives where it
+ * stands: not compared (`kind === 'food'`), and
+ *
+ * - the text argument of a drawing call ({@link DRAWN_ARGS}): `label(s, 0, 0, 'none')`;
+ * - a placeholder's value in a call whose first argument is a strings key:
+ *   `strings.get('ui.creature.the_species', { species: name ?? 'animal' })`;
+ * - a part of a template that builds text (a space in its own text): `` `${n === 1 ? 'a' : 'an'} ${noun}` ``;
+ * - or the value given to a name of {@link TEXT_NAMES}: `name = 'food'`, `{ id: '0', label: 'none' }`.
+ *
+ * Plain parentheses between the literal and its place do not hide it: `(row?.name ?? 'animal')`.
+ */
+export function drawnWord(literal) {
+  if (!/^[A-Za-z]+$/.test(literal.text) || literal.compared === true || literal.at === undefined) return false;
+  if (TEXT_NAMES.has(literal.assigned)) return true;
+  const at = literal.at;
+  let k = at.length - 1;
+  while (k >= 0 && at[k].open === '(' && at[k].callee === '') k -= 1;
+  const place = at[k];
+  if (place === undefined) return false;
+  if (place.open === '(') return DRAWN_ARGS.get(place.callee) === place.arg;
+  if (place.open === '`') return / /.test(place.frame.text.replace(/\u0000/g, ''));
+  const call = at[k - 1];
+  return place.open === '{' && call !== undefined && call.open === '(' && call.arg >= 1 &&
+    typeof call.first === 'string' && /^[a-z]+(?:\.[a-z0-9_]+)+$/.test(call.first);
 }
 
 /**
@@ -230,8 +312,8 @@ export const LITERAL_ALLOWED = new Map([
   // Event types (`Starving` of 15, `Slept` of 14), one word with one capital.
   ['src/ui/announcements.ts', ['Starving']],
   ['src/ui/hints.ts', ['Starving', 'Slept']],
-  // The size bands 18's reader gives a warned party (`sizeBandOf`), compared to choose a key.
-  ['src/ui/raid-lines.ts', ['a few', 'a horde']],
+  // The world map's filter rows: `x` marks a ticked row (`[x]`), a mark like the stockpile editor's `■`, not a word.
+  ['src/ui/screens/world_map.ts', ['x']],
   // A catalog row's `condition` (`embark.md` § Supplies), parsed; and the presets menu's option id.
   ['src/ui/screens/embark.ts', [' or ', '@loadouts']],
   // The close button's caption measured for its column; `button` draws it from the key and the string.
@@ -276,7 +358,7 @@ function tableLines(text, name) {
   return [lineOf(at), lineOf(end + 1)];
 }
 
-/** Each literal of the scanned UI code that reads as player-facing text: `path:line: "text"`. */
+/** Each literal of the scanned UI code that reads as player-facing text, or a single word it draws (`drawnWord`): `path:line: "text"`. */
 export function panelLiterals(dir = root) {
   const out = [];
   for (const sub of LITERAL_DIRS) {
@@ -292,8 +374,9 @@ export function panelLiterals(dir = root) {
       const allowed = LITERAL_ALLOWED.get(rel) ?? [];
       const source = readFileSync(file, 'utf8');
       const table = LITERAL_TABLES_ALLOWED.has(rel) ? tableLines(source, LITERAL_TABLES_ALLOWED.get(rel)) : null;
-      for (const { line, text } of literalsIn(source)) {
-        if (!looksPlayerFacing(text) || allowed.includes(text.replace(/\u0000/g, '${}'))) continue;
+      for (const literal of literalsIn(source)) {
+        const { line, text } = literal;
+        if (!(looksPlayerFacing(text) || drawnWord(literal)) || allowed.includes(text.replace(/\u0000/g, '${}'))) continue;
         if (table !== null && line >= table[0] && line <= table[1]) continue;
         out.push(`${rel}:${line}: ${JSON.stringify(text.replace(/\u0000/g, '${}'))}`);
       }

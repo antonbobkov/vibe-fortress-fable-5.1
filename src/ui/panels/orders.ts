@@ -25,7 +25,7 @@ import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
 import { jobLabor, jobWait } from '../job-wait';
-import { buildingName, capitalize, itemName, jobBlockText, keepCounts, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, wrapHang, wrapText } from '../messages';
+import { buildingName, capitalize, itemName, jobBlockText, keepCounts, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, withArticle, wrapHang, wrapText } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -123,7 +123,7 @@ function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null):
   }
   const maker = makers[0] as RecipeRow;
   const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(maker.workshop)?.name ?? maker.workshop.replace(/_/g, ' ')).toLowerCase();
-  const where = `${/^[aeiou]/.test(workshop) ? 'an' : 'a'} ${workshop}`;
+  const where = withArticle(s, workshop);
   const name = maker.name.charAt(0).toLowerCase() + maker.name.slice(1);
   // What the maker's own inputs lack, as the whim's "at hand" counts stock: the units in stock (available).
   const items = ctx.readers.has('13') ? ctx.readers.of<ItemsReader>('13') : null;

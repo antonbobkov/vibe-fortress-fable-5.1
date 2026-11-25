@@ -26,7 +26,7 @@ import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAG
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
 import type { WorkshopsReader } from '@systems/workshops';
-import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText } from './messages';
+import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText, withArticle } from './messages';
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
@@ -345,7 +345,7 @@ export class AnnouncementLog {
       const creature = readers.entities.get(killerId, C.Creature);
       const name = typeof e['killerName'] === 'string' && e['killerName'].length > 0 ? e['killerName'] : creature?.name;
       const species = typeof e['killerSpecies'] === 'number' ? e['killerSpecies'] : creature?.species;
-      out['killer'] = killerWords(this.registry, name, species);
+      out['killer'] = killerWords(this.strings, this.registry, name, species);
     } else if (typeof killerId === 'number' && killerId !== 0) {
       out['killer'] = this.creatureLabel(readers, killerId, false);
     }
@@ -372,7 +372,7 @@ export class AnnouncementLog {
     const creature = typeof id === 'number' ? readers.entities.get(id, C.Creature) : undefined;
     const row = creature === undefined ? undefined : this.registry.table<NamedRow>('creatures').byIndex(creature.species);
     const own = creature !== undefined && creature.name !== '' && creature.name !== row?.name && creature.name !== row?.id;
-    params['animal'] = own ? creature.name : capitalize(this.strings.get('ui.creature.the_species', { species: (row?.name ?? 'animal').toLowerCase() }));
+    params['animal'] = own ? creature.name : capitalize(this.strings.get('ui.creature.the_species', { species: (row?.name ?? this.strings.get('ui.creature.unknown_animal')).toLowerCase() }));
     const pasture = typeof id === 'number' && readers.has('08') ? readers.of<AnimalsReader>('08').pastureOf(id) : 0;
     const feed = pasture === 0 ? null : pastureFeed(readers, pasture);
     if (feed === null || !overGrazed(feed)) return 'announce.animal_starving';
@@ -385,8 +385,8 @@ export class AnnouncementLog {
   /** A creature in a line: {@link creatureWords}, its own name's first word when `short`, "a creature" when it is gone. */
   private creatureLabel(readers: ReaderSet, id: number, short: boolean): string {
     const creature = readers.entities.get(id, C.Creature);
-    if (creature === undefined) return creatureWords(this.registry, undefined, undefined);
-    const words = creatureWords(this.registry, creature.name, creature.species);
+    if (creature === undefined) return creatureWords(this.strings, this.registry, undefined, undefined);
+    const words = creatureWords(this.strings, this.registry, creature.name, creature.species);
     return short && words === creature.name ? words.split(' ')[0] ?? words : words;
   }
 
@@ -457,7 +457,7 @@ export class AnnouncementLog {
   }
 
   private formatCreatureName(name: string | undefined, speciesIndex: number | undefined): string {
-    return creatureWords(this.registry, name, speciesIndex);
+    return creatureWords(this.strings, this.registry, name, speciesIndex);
   }
 
   /**
@@ -653,7 +653,7 @@ export class AnnouncementLog {
     const table = this.registry.table<NamedRow & { plural?: string }>('creatures');
     const parts = [...groups.values()].map((group) => {
       const first = group[0] as Fighter;
-      if (group.length === 1) return creatureWords(this.registry, first.name, first.species);
+      if (group.length === 1) return creatureWords(this.strings, this.registry, first.name, first.species);
       return `${group.length} ${speciesPlural(table.byIndex(first.species))}`;
     });
     if (parts.length <= 1) return parts[0] ?? '';
@@ -1135,27 +1135,19 @@ export function deathLineKey(strings: Strings, cause: unknown, killer: unknown):
 }
 
 /** A creature as a line names it: its own name, else its species with an article ("a deer"). */
-export function creatureWords(registry: Registry, name: string | undefined, speciesIndex: number | undefined): string {
+export function creatureWords(strings: Strings, registry: Registry, name: string | undefined, speciesIndex: number | undefined): string {
   const table = registry.table<NamedRow>('creatures');
   const speciesRow = typeof speciesIndex === 'number' ? table.byIndex(speciesIndex) : undefined;
   if (name && (!speciesRow || (name !== speciesRow.id && name !== speciesRow.name))) {
     return name;
   }
-  const species = speciesRow?.name ?? speciesRow?.id ?? 'creature';
-  const first = species.charAt(0).toLowerCase();
-  const article = 'aeiou'.includes(first) ? 'an' : 'a';
-  return `${article} ${species}`;
+  return withArticle(strings, speciesRow?.name ?? speciesRow?.id ?? strings.get('ui.creature.unknown'));
 }
 
 /** A death's killer as its line names it: a creature by {@link creatureWords}, a trap by its building ("a stone-fall trap"), or ''. */
-export function killerWords(registry: Registry, name: string | undefined, species: number | undefined): string {
-  if (species === undefined) return name === undefined || name === '' ? '' : withArticle(name.toLowerCase());
-  return creatureWords(registry, name, species);
-}
-
-/** "a boar", "an ember newt": a lower-case noun with its indefinite article. */
-function withArticle(noun: string): string {
-  return `${'aeiou'.includes(noun.charAt(0)) ? 'an' : 'a'} ${noun}`;
+export function killerWords(strings: Strings, registry: Registry, name: string | undefined, species: number | undefined): string {
+  if (species === undefined) return name === undefined || name === '' ? '' : withArticle(strings, name.toLowerCase());
+  return creatureWords(strings, registry, name, species);
 }
 
 /** A zone's first tile, for a line about the zone. */

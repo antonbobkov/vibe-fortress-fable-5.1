@@ -1,5 +1,7 @@
 # T-721 — Single words and readers' English the strings scan cannot see
 
+**Closed:** 2026-11-25, in 75ca86a5,92b599d2.
+
 **Source:** T-711, found while widening `strings:check` to all of `src/ui` · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why

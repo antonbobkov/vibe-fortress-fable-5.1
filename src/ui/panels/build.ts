@@ -49,11 +49,12 @@ function listed(row: BuildingRow, ctx: PanelContext): boolean {
 }
 
 /** The inputs as the menu shows them, by content name with every alternative: "1 table+1 stone", "n blocks", "3 fiber, straw or reed". */
-export function inputText(row: BuildingRow, registry: Registry): string {
+export function inputText(row: BuildingRow, registry: Registry, strings: Strings): string {
   if (row.inputs.length === 0) return '';
   return row.inputs.map((i) => {
     const n = i.count === 'tiles' ? 2 : i.count;
-    return `${i.count === 'tiles' ? 'n' : i.count} ${alternativesName(registry, i.match, n)}`;
+    const item = alternativesName(registry, i.match, n, strings);
+    return i.count === 'tiles' ? strings.get('ui.build.input_tiles', { item }) : `${i.count} ${item}`;
   }).join('+');
 }
 
@@ -397,7 +398,7 @@ export class BuildTool {
     const row = this.current(ctx);
     if (row === undefined || !mayBeOfBlocks(row)) return null;
     const blocks = this.ofBlocks(ctx, row);
-    const inputs = inputText({ ...row, inputs: inputsOf(row, blocks) }, ctx.registry);
+    const inputs = inputText({ ...row, inputs: inputsOf(row, blocks) }, ctx.registry, ctx.strings);
     const ticks = buildTicksOf(row, blocks);
     return blocks ? ctx.strings.get('ui.build.of_blocks', { inputs, ticks }) : ctx.strings.get('ui.build.of_logs', { inputs, ticks });
   }
@@ -634,7 +635,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
       const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
       const figure = tool.countText(ctx, r);
       const count = figure === '' ? '' : ` (${figure})`;
-      return buildRowLines(name, inputText(r, ctx.registry), count, rect.cols - 3);
+      return buildRowLines(name, inputText(r, ctx.registry, ctx.strings), count, rect.cols - 3);
     } })),
     tool.list,
     (index) => {

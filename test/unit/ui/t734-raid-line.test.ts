@@ -124,7 +124,7 @@ describe('T-734 the alert hint shows again for a raid at a Calm fortress', () =>
     const ui = defaultUiState(z);
     const hints = new HintEngine(w.game.registry, ui, log);
     const t0 = w.readers.calendar.tick;
-    hints.onEvents([{ type: 'ThreatWarning', kind: 'raid', civ: 'gloam', sizeBand: 'a band', edge: 'n' } as unknown as GameEvent, { type: 'HourPassed', hour: 0 } as unknown as GameEvent], w.readers);
+    hints.onEvents([{ type: 'ThreatWarning', kind: 'raid', civ: 'gloam', sizeBand: 'band', edge: 'n' } as unknown as GameEvent, { type: 'HourPassed', hour: 0 } as unknown as GameEvent], w.readers);
     expect(hintLines(log)).toBe(1);
     expect(ui.hintAlertTick).toBe(t0);
     hints.onEvents([raid(1)], at(w.readers, t0 + TICKS_PER_DAY));
