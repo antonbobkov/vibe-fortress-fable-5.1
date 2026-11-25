@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-701 | [Snow falls at 11 °C and rain at −2 °C](work/T-701-precipitation-follows-temperature.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-703 | [The sidebar cuts off the number or word a line is there to give](work/T-703-sidebar-cut-off-facts.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
-| T-704 | [One Esc too many, then a panel letter, asks to abandon the fortress](work/T-704-game-menu-panel-letters.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-705 | [The wagon's goods cannot be opened, and its "see the items" help promises a tab that is gone](work/T-705-building-goods-open-from-tile-list.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-706 | [A wolf has arms: the creature view names every body by the dwarf's parts](work/T-706-animal-body-part-names.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-707 | [A tame animal's view has no "Pasture" action, which 08 promises](work/T-707-creature-view-pasture-action.md) | [T-700](archive/tasks/T-700-pasture-too-small-starves-grazers.md) | — | open |

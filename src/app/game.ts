@@ -544,6 +544,14 @@ export class Game {
       abandon: () => this.abandonFortress(),
       canAbandon: () => this.host.worldMap !== null,
       mainMenu: () => this.leaveToMainMenu(),
+      // A panel letter closes the menu and acts on the fortress, as it would have without the menu.
+      panelLetter: (key) => {
+        if (this.keymap.resolve('fortress_panel', key) === null) return false;
+        this.popScreen();
+        this.host.setSpeed(this.menuSpeed);
+        this.handleKey(key);
+        return true;
+      },
       viewOnly: () => this.host.viewOnly,
       now: () => Date.now(),
     }, this.strings);

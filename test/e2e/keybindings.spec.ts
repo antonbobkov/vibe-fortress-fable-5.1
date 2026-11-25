@@ -32,7 +32,7 @@ async function openFortress(page: Page): Promise<void> {
 async function openKeybindings(page: Page): Promise<void> {
   await page.keyboard.press('Escape');
   await expect.poll(() => screenOf(page)).toBe('game_menu');
-  await page.keyboard.press('o');
+  await page.keyboard.press('Shift+O');
   await expect.poll(() => screenOf(page)).toBe('settings');
   for (let n = 0; n < 9; n += 1) await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');

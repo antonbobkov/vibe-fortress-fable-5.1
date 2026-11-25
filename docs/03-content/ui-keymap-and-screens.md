@@ -51,13 +51,13 @@ Stockpile inspector: `[i] link` or its button starts choosing a source stockpile
 
 Animals, Tame tab: `[c] cap` or click cap opens its inline number field: digits type, `+`/`-` step by one (Shift by ten), Enter or Set submits, Esc or Cancel discards; 0–100, no wrapping. Panel letters remain available.
 
-Animals, Tame tab: `[t] train` or its button opens War/Hunting; arrows and Enter, or click a choice; Esc cancels. Panel letters still switch panels inside the choice. Help lists this action and `Esc` then `[n] Rename fortress` from the game menu, also available by clicking its row and entering a name in the text input.
+Animals, Tame tab: `[t] train` or its button opens War/Hunting; arrows and Enter, or click a choice; Esc cancels. Panel letters still switch panels inside the choice. Help lists this action and `Esc` then `[S-n] Rename fortress` from the game menu, also available by clicking its row and entering a name in the text input.
 
 ## Keymap (defaults)
 
 Every row of the tables below is a binding that Settings › Keybindings can change; the keys of § Fixed keys are the only keys the game reacts to that are not here. Each table is one context: the screen, panel or panel state in which its keys act, named by its heading in the editor and in Help.
 
-Key notation: `Ctrl+S` and `Shift+Tab` are a key with modifiers; `arrows` are the four arrow keys; `1`–`9` binds every digit between its two ends; `[w]` is an accelerator letter of a panel, bound to the letter, which also takes it with `Shift`; `[d]` is an accelerator kept on `Shift`+letter, which the bare letter does not reach (§ Panels). A key written without `Shift` also takes a shifted press (arrows with `Shift` move ten, `+` with `Shift` changes ten), unless the context binds the shifted key itself (`Shift+Tab`).
+Key notation: `Ctrl+S` and `Shift+Tab` are a key with modifiers; `arrows` are the four arrow keys; `1`–`9` binds every digit between its two ends; `[w]` is an accelerator letter of a panel, bound to the letter, which also takes it with `Shift`; `[S-d]` is an accelerator kept on `Shift`+letter, which the bare letter does not reach (§ Panels). A key written without `Shift` also takes a shifted press (arrows with `Shift` move ten, `+` with `Shift` changes ten), unless the context binds the shifted key itself (`Shift+Tab`).
 
 ### Global
 
@@ -113,7 +113,7 @@ The keys every list, menu and chooser shares: the fortress panels and their choo
 | `Backspace` | back within nested menus |
 | `←` `→` | move across, or change the focused value |
 
-The open panel's own letters come first (D-253, which replaces D-U2's "panel hotkeys always win"). While a panel is open, a letter that the panel binds (in its current state: the zone inspector before the zone types, a map selection's keys) does the panel's action, even when the action does nothing at that moment; any other letter of § Fortress panels opens its panel, and the open panel's own letter closes it unless the panel binds that letter (Designate binds `d`: `d d` chooses Dig). `Esc` backs out one step, so `Esc` and then a letter reaches any panel; the sidebar's panel strip and the mouse always do. No panel binds bare `k`, so Look is one key from anywhere. When a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). `Shift` is kept for the actions that destroy or are hard to undo (set a fire, dump, melt, slaughter, suspend, kill), for the compost heap (so that `k` stays Look), and for a key's second variant (`Shift+Tab`, `Shift+↑` `Shift+↓` in Orders, `Shift+F1`, `Shift` held for ten); every other panel key is a bare letter, and a bare letter also takes its press with `Shift`. A letter with `Shift` never opens a panel. The first time a panel's letter acts where it is also a panel letter, the hint `hint_panel_letters` says so. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text.
+The open panel's own letters come first (D-253, which replaces D-U2's "panel hotkeys always win"). While a panel is open, a letter that the panel binds (in its current state: the zone inspector before the zone types, a map selection's keys) does the panel's action, even when the action does nothing at that moment; any other letter of § Fortress panels opens its panel, and the open panel's own letter closes it unless the panel binds that letter (Designate binds `d`: `d d` chooses Dig). `Esc` backs out one step, so `Esc` and then a letter reaches any panel; the sidebar's panel strip and the mouse always do. No panel binds bare `k`, so Look is one key from anywhere. When a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). `Shift` is kept for the actions that destroy or are hard to undo (set a fire, dump, melt, slaughter, suspend, kill, and the game menu's rows but Resume), for the compost heap (so that `k` stays Look), and for a key's second variant (`Shift+Tab`, `Shift+↑` `Shift+↓` in Orders, `Shift+F1`, `Shift` held for ten); every other panel key is a bare letter, and a bare letter also takes its press with `Shift`. A letter with `Shift` never opens a panel. The first time a panel's letter acts where it is also a panel letter, the hint `hint_panel_letters` says so. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text.
 
 A caption that names a key (`[t] train`, `[x] cancel`, a hint's `[d]`) shows the key its binding has now.
 
@@ -479,13 +479,15 @@ The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 | Key | Action |
 |---|---|
 | `r` | Resume |
-| `s` | Save |
-| `l` | Load |
-| `o` | Settings |
-| `n` | Rename fortress |
-| `x` | Retire fortress (confirm) |
-| `a` | Abandon fortress (confirm) |
-| `m` | Main menu |
+| `[S-s]` | Save |
+| `[S-l]` | Load |
+| `[S-o]` | Settings |
+| `[S-n]` | Rename fortress |
+| `[S-x]` | Retire fortress (confirm) |
+| `[S-a]` | Abandon fortress (confirm) |
+| `[S-m]` | Main menu |
+
+`Esc` with nothing open opens the game menu, so one `Esc` too many and then a panel letter lands in it. Every row but Resume therefore keeps its letter on `Shift`, as the panels keep theirs for the actions that end or are hard to undo (§ Panels), and the bare letter of a fortress panel (`a` Log, `m` Military, `s` Stocks, `l` Labors, `o` Orders, `n` Animals and the rest of § Fortress panels) closes the menu, restores the speed it paused, and opens its panel as it would have on the fortress screen. A rebinding of a menu row keeps it on `Shift`. A bare letter that is neither the menu's nor a panel's does nothing, and so does a `Shift` letter the menu does not bind. The arrows, `Enter` and a click choose a row as in any menu, and the rows that end the fortress still ask first.
 
 ### Confirmation
 

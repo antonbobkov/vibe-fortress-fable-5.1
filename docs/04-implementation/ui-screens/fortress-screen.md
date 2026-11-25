@@ -283,17 +283,17 @@ The count records units of the first input not covered at each placement; placem
 ## Game menu (Esc with nothing open)
 
 ```
-        ┌──────────────────────┐
-        │  Deepholm · Emberhall│
-        │  [r] Resume          │
-        │  [s] Save            │
-        │  [l] Load            │
-        │  [o] Settings        │
-        │  [n] Rename fortress │
-        │  [x] Retire fortress │
-        │  [a] Abandon fortress│
-        │  [m] Main menu       │
-        └──────────────────────┘
+        ┌────────────────────────┐
+        │  Deepholm · Emberhall  │
+        │  [r] Resume            │
+        │  [S-s] Save            │
+        │  [S-l] Load            │
+        │  [S-o] Settings        │
+        │  [S-n] Rename fortress │
+        │  [S-x] Retire fortress │
+        │  [S-a] Abandon fortress│
+        │  [S-m] Main menu       │
+        └────────────────────────┘
 ```
 
 Strings: `ui.status.date`, `ui.status.pop`, `ui.panel.units.title`, `ui.tool.designate.*`, `ui.build.category.*`, `ui.menu.*`; every label above is a key.

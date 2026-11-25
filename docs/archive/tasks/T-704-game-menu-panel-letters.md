@@ -1,6 +1,8 @@
 # T-704 — One Esc too many, then a panel letter, asks to abandon the fortress
 
-**Source:** playtest 2026-11-24 ([report](../../reports/data/2026-11-24-playtest.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in 77b2f1ec,e801c08a.
+
+**Source:** playtest 2026-11-24 ([report](../../../reports/data/2026-11-24-playtest.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
