@@ -20,6 +20,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { BuildingsReader, ZoneView } from '@systems/buildings';
 import type { PlantsReader } from '@systems/plants';
+import { SEASON_NAMES } from '@core/calendar';
 import type { PlantRow } from '@systems/plants';
 import { ripeningOutlook, seasonAllows } from '@systems/plants/growth';
 import { lightMatches } from '@systems/plants/plots';
@@ -36,6 +37,7 @@ import { C } from '@core/components';
 import type { Surface } from '../surface';
 import { cutText, drawnCols, keyCells, label, separator, toggleNode, wrapLabel, type TreeNode, type ListState } from '../widgets';
 import { acceleratorLabel } from '../keymap';
+import { seasonName } from './calendar';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
 import { stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
@@ -591,7 +593,6 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
 function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
   const plants = ctx.readers.has('07') ? ctx.readers.of<PlantsReader>('07') : null;
   if (plants === null) return rect.row;
-  const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'];
   const settings = plants.plotSettings(zone.id);
   const options = tool.farmOptions(ctx);
   const highlighted = tool.farmRow(ctx);
@@ -603,7 +604,7 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     const plant = id === 0 ? undefined : ctx.registry.table<PlantRow>('plants').byIndex(id);
     const here = season === highlighted;
     if (here) s.text(rect.col, row, '►', t.value);
-    label(s, rect.col + 1, row, seasons[season] as string, { width: 8, ...(here ? { fg: t.value } : {}) });
+    label(s, rect.col + 1, row, seasonName(ctx.strings, SEASON_NAMES[season] ?? ''), { width: 8, ...(here ? { fg: t.value } : {}) });
     const menu = tool.farmMenus[season] as DropdownState;
     const used = dropdown(s, rect.col + 9, row, 18, plant?.name ?? 'none', options, menu,
       (choice) => { menu.open = false; ctx.submit({ type: 'SetPlotCrop', zoneId: zone.id, season, speciesId: choice === '0' ? 0 : choice }); },
@@ -832,7 +833,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
       else if (bv.typeId === 'chest') chests += 1;
     }
     if (row < bottom) {
-      label(s, rect.col + 1, row, `Beds: ${beds}  Traction: ${traction}  Chests: ${chests}`, { width: rect.cols - 2 });
+      label(s, rect.col + 1, row, ctx.strings.get('ui.zone.hospital.furniture', { beds, traction, chests }), { width: rect.cols - 2 });
       row += 1;
     }
   }
@@ -840,20 +841,21 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
   // Wanted supplies
   const defaultWants = HOSPITAL_DEFAULT_SUPPLIES;
   const currentWants = ((zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? defaultWants) as Record<string, number>) ?? defaultWants;
-  const suppliesList: readonly { key: string; item: string; label: string }[] = [
-    { key: 'cloth', item: 'cloth', label: 'Cloth' },
-    { key: 'bandages', item: 'bandage', label: 'Bandages' },
-    { key: 'thread', item: 'thread', label: 'Thread' },
-    { key: 'splints', item: 'splint', label: 'Splints' },
-    { key: 'crutches', item: 'crutch', label: 'Crutches' },
-    { key: 'brightleaf', item: 'brightleaf', label: 'Brightleaf' },
-    { key: 'buckets', item: 'bucket', label: 'Buckets' },
-    { key: 'honey', item: 'honey', label: 'Honey' },
-    { key: 'soap', item: 'soap', label: 'Soap' },
+  // Each supply's setting key and item; its name is `ui.zone.hospital.supply.<key>`.
+  const suppliesList: readonly { key: string; item: string }[] = [
+    { key: 'cloth', item: 'cloth' },
+    { key: 'bandages', item: 'bandage' },
+    { key: 'thread', item: 'thread' },
+    { key: 'splints', item: 'splint' },
+    { key: 'crutches', item: 'crutch' },
+    { key: 'brightleaf', item: 'brightleaf' },
+    { key: 'buckets', item: 'bucket' },
+    { key: 'honey', item: 'honey' },
+    { key: 'soap', item: 'soap' },
   ];
 
   if (row < bottom) {
-    label(s, rect.col + 1, row, 'Supplies (current / wanted):', { fg: t.key, width: rect.cols - 2 });
+    label(s, rect.col + 1, row, ctx.strings.get('ui.zone.hospital.supplies'), { fg: t.key, width: rect.cols - 2 });
     row += 1;
   }
 
@@ -861,7 +863,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
     if (row >= bottom) break;
     const currentCount = countHospitalSupplies(ctx, zone, sup.item);
     const wanted = currentWants[sup.key] ?? currentWants[sup.item] ?? 0;
-    const lineText = `${sup.label}: ${currentCount}/${wanted}`;
+    const lineText = ctx.strings.get('ui.zone.hospital.supply', { supply: ctx.strings.get(`ui.zone.hospital.supply.${sup.key}`), current: currentCount, wanted });
     // The two buttons end at the right edge and take the cells their names are drawn in.
     const plusCol = rect.col + rect.cols - 1 - drawnCols(s, '[+]');
     const minusCol = plusCol - drawnCols(s, '[-]');
@@ -883,22 +885,22 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
 
   // Patients
   if (row < bottom) {
-    label(s, rect.col + 1, row, 'Patients:', { fg: t.key, width: rect.cols - 2 });
+    label(s, rect.col + 1, row, ctx.strings.get('ui.zone.hospital.patients'), { fg: t.key, width: rect.cols - 2 });
     row += 1;
     const patients = ctx.readers.entities.with(C.Patient).filter((id) => {
       const p = ctx.readers.entities.get(id, C.Patient);
       return p && p.hospitalZoneId === zone.id;
     });
     if (patients.length === 0) {
-      label(s, rect.col + 2, row, 'None', { fg: t.dim, width: rect.cols - 3 });
+      label(s, rect.col + 2, row, ctx.strings.get('ui.zone.hospital.no_patients'), { fg: t.dim, width: rect.cols - 3 });
       row += 1;
     } else {
       for (const pId of patients) {
         if (row >= bottom) break;
-        const name = ctx.readers.entities.get(pId, C.Creature)?.name ?? 'a patient';
+        const name = ctx.readers.entities.get(pId, C.Creature)?.name ?? ctx.strings.get('ui.zone.hospital.a_patient');
         const p = ctx.readers.entities.get(pId, C.Patient);
-        const needs = p && p.needs.length > 0 ? p.needs.join(', ') : 'resting';
-        label(s, rect.col + 2, row, `${name}: ${needs}`, { width: rect.cols - 3 });
+        const needs = p && p.needs.length > 0 ? p.needs.join(', ') : ctx.strings.get('ui.zone.hospital.resting');
+        label(s, rect.col + 2, row, ctx.strings.get('ui.zone.hospital.patient', { name, needs }), { width: rect.cols - 3 });
         row += 1;
       }
     }

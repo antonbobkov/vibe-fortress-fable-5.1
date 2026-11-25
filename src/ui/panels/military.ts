@@ -16,6 +16,7 @@ import { SQUAD_MAX_COUNT, SQUAD_MAX_SIZE, TICKS_PER_YEAR } from '@core/constants
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { Rect } from '@render/cellbuffer';
 import type { CombatReader, SquadWithId } from '@systems/combat';
+import { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { captionButtons, clampList, label, Marks, separator, table, type ListState } from '../widgets';
 import { accel, type PanelContext } from './context';
@@ -52,16 +53,16 @@ export function channelMark(ctx: PanelContext, memberId: EntityId): string {
   return item === undefined ? '' : ctx.registry.table<{ id: string; glyph?: string }>('items').byIndex(item.type)?.glyph ?? '';
 }
 
-export const SQUAD_PRESET_NAMES = [
-  'The Hearthguard',
-  'The Cold Bolts',
-  'The Iron Shields',
-  'The Deep Watchers',
-  'The Stone Axes',
-  'The Mountain Guard',
-  'The Shadowbanes',
-  'The Gatekeepers',
-];
+/** How many names a new squad picks from, `ui.military.squad_name.<n>`, before it is numbered. */
+const SQUAD_PRESET_COUNT = 8;
+
+/** The names a new squad takes, the first not in use ("The Hearthguard"). */
+export function squadPresetNames(strings: Strings): string[] {
+  return Array.from({ length: SQUAD_PRESET_COUNT }, (_, n) => strings.get(`ui.military.squad_name.${n}`));
+}
+
+/** The preset names as the default table gives them. */
+export const SQUAD_PRESET_NAMES: readonly string[] = squadPresetNames(new Strings());
 
 /**
  * The squad's arms under its members (`ui-screens/panels.md` § Military): "Armed 1 of 3 · unarmed:
@@ -247,7 +248,7 @@ export class MilitaryPanel {
     const squads = this.squads(ctx);
     if (squads.length >= SQUAD_MAX_COUNT) return null;
     const usedNames = new Set(squads.map((s) => s.name));
-    const name = SQUAD_PRESET_NAMES.find((n) => !usedNames.has(n)) ?? `Squad #${squads.length + 1}`;
+    const name = squadPresetNames(ctx.strings).find((n) => !usedNames.has(n)) ?? ctx.strings.get('ui.military.squad_numbered', { n: squads.length + 1 });
     return { type: 'CreateSquad', name };
   }
 
@@ -637,10 +638,10 @@ export function drawMilitaryPanel(
   const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : null;
   const currentAlert: Alert = combat ? combat.alert() : 'calm';
 
-  const alertStr = `Alert: ${currentAlert === 'hearth' ? 'Hearth' : currentAlert === 'watchful' ? 'Watchful' : 'Calm'}`;
+  const alertStr = ctx.strings.get('ui.military.alert', { level: ctx.strings.get(`ui.military.alert_level.${currentAlert}`) });
   label(s, col, row, alertStr, { fg: currentAlert === 'hearth' ? t.danger : currentAlert === 'watchful' ? t.alert : t.good, width });
   row += 1;
-  captionButtons(s, col, row, '[1] Calm  [2] Watch  [3] Hearth', [
+  captionButtons(s, col, row, ctx.strings.get('ui.military.alert_keys'), [
     () => ctx.submit({ type: 'SetAlert', level: 'calm' }),
     () => ctx.submit({ type: 'SetAlert', level: 'watchful' }),
     () => ctx.submit({ type: 'SetAlert', level: 'hearth' }),
@@ -662,14 +663,14 @@ export function drawMilitaryPanel(
   }
 
   // Squads header
-  label(s, col, row, 'Squads', { fg: t.key, width });
+  label(s, col, row, ctx.strings.get('ui.military.squads'), { fg: t.key, width });
   row += 1;
 
   const squads = panel.squads(ctx);
   // Q13: the table's header takes a row, so the list is one row taller than its squads.
   const listHeight = Math.min(SQUAD_MAX_COUNT, squads.length) + 1;
   if (squads.length === 0) {
-    label(s, col, row, 'No squads yet: [+] makes one.', { fg: t.dim, width });
+    label(s, col, row, ctx.strings.get('ui.military.no_squads'), { fg: t.dim, width });
     // What a first squad needs (the measured rule: iron spears and a kill order hold off boars; clubs do not).
     label(s, col, row + 1, ctx.strings.get('ui.military.no_squads_tip1'), { fg: t.dim, width, keys: false });
     label(s, col, row + 2, ctx.strings.get('ui.military.no_squads_tip2'), { fg: t.dim, width, keys: false });
@@ -677,9 +678,9 @@ export function drawMilitaryPanel(
     s,
     { col, row, cols: width, rows: listHeight },
     [
-      { title: 'Squad', width: 18 },
-      { title: 'Size', width: 6 },
-      { title: 'Mode', width: 8 },
+      { title: ctx.strings.get('ui.military.col.squad'), width: 18 },
+      { title: ctx.strings.get('ui.military.col.size'), width: 6 },
+      { title: ctx.strings.get('ui.military.col.mode'), width: 8 },
     ],
     squads.map((sq) => [
       sq.name,
@@ -692,7 +693,7 @@ export function drawMilitaryPanel(
   row += listHeight + (squads.length === 0 ? 2 : 0);
 
   // [+] new squad  [x] disband
-  captionButtons(s, col, row, '[+] new squad  [x] disband', [
+  captionButtons(s, col, row, ctx.strings.get('ui.military.squad_keys'), [
     () => {
       const cmd = panel.newSquad(ctx);
       if (cmd) ctx.submit(cmd);
@@ -715,21 +716,21 @@ export function drawMilitaryPanel(
   row += 1;
 
   // Leader line: Leader Halvar Grimshield (Warden)
-  let leaderText = 'none';
+  let leaderText = ctx.strings.get('ui.military.none');
   if (squad.leaderId !== 0) {
     const leaderCreature = ctx.readers.entities.get(squad.leaderId, C.Creature);
     const leaderTitle = ctx.readers.entities.get(squad.leaderId, C.Title)?.title;
-    const name = leaderCreature?.name ?? 'Leader';
+    const name = leaderCreature?.name ?? ctx.strings.get('ui.military.a_leader');
     leaderText = leaderTitle ? `${name} (${leaderTitle.charAt(0).toUpperCase() + leaderTitle.slice(1)})` : name;
   }
-  label(s, col, row, `Leader  ${leaderText}`, { width });
+  label(s, col, row, ctx.strings.get('ui.military.leader', { leader: leaderText }), { width });
   row += 1;
   captionButtons(s, col, row, ctx.strings.get('ui.military.leader_keys'), [() => panel.openChoice(ctx, 'leader'), () => panel.rename(ctx)], { width });
   row += 1;
 
-  label(s, col, row, `Mode: ${squad.mode}`, { width });
+  label(s, col, row, ctx.strings.get('ui.military.mode', { mode: squad.mode }), { width });
   row += 1;
-  captionButtons(s, col, row, '[o] Off [t] Train [v] Active', [
+  captionButtons(s, col, row, ctx.strings.get('ui.military.mode_keys'), [
     () => panel.changeMode(ctx, 'off', host),
     () => panel.changeMode(ctx, 'train', host),
     () => panel.changeMode(ctx, 'active', host),
@@ -742,10 +743,10 @@ export function drawMilitaryPanel(
     const mark = channelMark(ctx, mid);
     return c ? `${shortDwarfName(c.name)}${mark === '' ? '' : ` ${mark}`}` : '?';
   });
-  const membersStr = memberNames.length > 0 ? memberNames.join(', ') : 'none';
-  label(s, col, row, `Members ${membersStr}`, { width });
+  const membersStr = memberNames.length > 0 ? memberNames.join(', ') : ctx.strings.get('ui.military.none');
+  label(s, col, row, ctx.strings.get('ui.military.members', { list: membersStr }), { width });
   row += 1;
-  captionButtons(s, col, row, '        [a] add  [r] remove', [() => panel.openChoice(ctx, 'add'), () => panel.openChoice(ctx, 'remove')], { width });
+  captionButtons(s, col, row, ctx.strings.get('ui.military.members_keys'), [() => panel.openChoice(ctx, 'add'), () => panel.openChoice(ctx, 'remove')], { width });
   row += 1;
   // What the members hold, and what to do when the stock has no weapon for them.
   const armed = armedLines(ctx, squad);
@@ -788,17 +789,17 @@ export function drawMilitaryPanel(
 
   // Station line: Station (60,28,z31) [s] set [c]lear
   const map = ctx.readers.map;
-  let stationStr = 'none';
+  let stationStr = ctx.strings.get('ui.military.none');
   if (squad.station !== null) {
     const sx = squad.station % map.w;
     const sy = Math.floor(squad.station / map.w) % map.h;
     const sz = Math.floor(squad.station / (map.w * map.h));
     stationStr = `(${sx},${sy},z${sz})`;
   }
-  const stText = panel.settingStation ? 'Click tile...' : stationStr;
-  label(s, col, row, `Station ${stText}`, { fg: panel.settingStation ? t.value : t.text, width });
+  const stText = panel.settingStation ? ctx.strings.get('ui.military.click_tile') : stationStr;
+  label(s, col, row, ctx.strings.get('ui.military.station', { station: stText }), { fg: panel.settingStation ? t.value : t.text, width });
   row += 1;
-  captionButtons(s, col, row, '        [s] set  [c] clear', [
+  captionButtons(s, col, row, ctx.strings.get('ui.military.station_keys'), [
     () => panel.arm(ctx, 'station'),
     squad.station === null ? null : () => {
       const cmd = panel.clearStation(ctx);
@@ -808,8 +809,9 @@ export function drawMilitaryPanel(
   row += 1;
 
   // Patrol line
-  const patrolStr = squad.patrol && squad.patrol.length > 0 ? `${squad.patrol.length} pts` : 'none';
-  captionButtons(s, col, row, `Patrol ${panel.settingPatrol ? 'Click tile...' : `${patrolStr} [p] add [y] clear`}`, [
+  const patrolStr = squad.patrol && squad.patrol.length > 0 ? ctx.strings.get('ui.military.patrol_points', { n: squad.patrol.length }) : ctx.strings.get('ui.military.none');
+  const patrolText = panel.settingPatrol ? ctx.strings.get('ui.military.click_tile') : ctx.strings.get('ui.military.patrol_keys', { patrol: patrolStr });
+  captionButtons(s, col, row, ctx.strings.get('ui.military.patrol', { patrol: patrolText }), [
     () => panel.arm(ctx, 'patrol'),
     () => ctx.submit({ type: 'SetSquadPatrol', squadId: squad.id, tiles: [] }),
   ], { width });
@@ -823,12 +825,13 @@ export function drawMilitaryPanel(
       row += 1;
     }
   }
-  captionButtons(s, col, row, panel.settingKill ? 'Orders Click creature to attack' : panel.settingFollow ? 'Orders Click dwarf to follow' : ordersNow !== '' ? '       [S-k] kill [f] follow' : 'Orders [S-k] kill [f] follow', [
+  const ordersKey = panel.settingKill ? 'ui.military.orders_kill_pick' : panel.settingFollow ? 'ui.military.orders_follow_pick' : ordersNow !== '' ? 'ui.military.orders_keys_under' : 'ui.military.orders_keys';
+  captionButtons(s, col, row, ctx.strings.get(ordersKey), [
     () => panel.arm(ctx, 'kill'),
     () => panel.arm(ctx, 'follow'),
   ], { width });
   row += 1;
-  captionButtons(s, col, row, '       [q] cancel orders', [() => {
+  captionButtons(s, col, row, ctx.strings.get('ui.military.orders_cancel'), [() => {
     const cmd = panel.selectedSquad(ctx);
     if (cmd) ctx.submit({ type: 'SquadOrder', squadId: cmd.id, order: { kind: 'cancel' } });
   }], { width });

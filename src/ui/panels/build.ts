@@ -589,7 +589,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   row += 1;
   const current = tool.current(ctx);
   if (current?.footprint.variable !== undefined) {
-    label(s, rect.col + 1, row, `Size: ${tool.width} × ${tool.height}  [width] [height]`, { width: rect.cols - 2 });
+    label(s, rect.col + 1, row, strings.get('ui.build.size', { width: tool.width, height: tool.height }), { width: rect.cols - 2 });
     s.hit({ col: rect.col + 1, row, cols: 12, rows: 1 }, () => tool.cycleSize(ctx, 'width'));
     s.hit({ col: rect.col + 13, row, cols: rect.cols - 14, rows: 1 }, () => tool.cycleSize(ctx, 'height'));
     row += 1;

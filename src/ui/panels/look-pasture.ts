@@ -122,7 +122,7 @@ export function drawPastureChoice(s: Surface, rect: Rect, ctx: PanelContext, cho
   const id = choice.animalId;
   const creature = ctx.readers.entities.get(id, C.Creature);
   const species = ctx.readers.of<AnimalsReader>('08').def(creature?.species ?? 0)?.name ?? '';
-  const animal = creature === undefined || creature.name === '' || creature.name === species ? `the ${species}` : creature.name;
+  const animal = creature === undefined || creature.name === '' || creature.name === species ? ctx.strings.get('ui.look.pasture.the_species', { species }) : creature.name;
   label(s, col, row, ctx.strings.get('ui.look.pasture.prompt', { animal }), { fg: t.key, width });
   row += 1;
   const options = pastureOptions(ctx, id);

@@ -140,7 +140,7 @@ function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null):
   });
   return needs.length === 0
     ? s.get('ui.orders.pick.make_at', { item: waiting.item, recipe: name, where })
-    : s.get('ui.orders.pick.make_at_needs', { item: waiting.item, recipe: name, where, needs: needs.join(' and ') });
+    : s.get('ui.orders.pick.make_at_needs', { item: waiting.item, recipe: name, where, needs: needs.join(s.get('ui.orders.pick.and')) });
 }
 
 /**

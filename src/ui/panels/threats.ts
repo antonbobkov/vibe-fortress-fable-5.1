@@ -11,6 +11,8 @@ import type { ThreatsReader } from '@systems/threats';
 import type { TerrainReader } from '@systems/terrain';
 import type { Surface } from '../surface';
 import { label, separator, wrapHang, wrapLabel } from '../widgets';
+import { Strings } from '../strings';
+import { seasonName } from './calendar';
 import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { EntityId } from '@core/types';
@@ -18,25 +20,24 @@ import { visibleHostileIds } from '../status';
 import { speciesPlural } from '../messages';
 import { comingText, partyActiveText } from '../raid-lines';
 
-export function deepQuote(level: number): string {
-  switch (level) {
-    case 0:
-      return 'Something below has not yet noticed.';
-    case 1:
-      return 'The Deep stirs. Something has noticed the pale metal being taken.';
-    case 2:
-      return 'The rock cracks below. The Hollow sends its hunters.';
-    case 3:
-      return 'Fire moves in the deep. A wyrm has come up.';
-    case 4:
-      return 'The Hollow opens its mouth.';
-    default:
-      return 'The Hollow does not forget.';
-  }
+/** The Deep's line under its gauge, by level (18 § The Deep): `ui.threats.deep_quote.<level>`, the last for every level above. */
+export function deepQuote(level: number, strings: Strings = new Strings()): string {
+  return strings.get(`ui.threats.deep_quote.${Math.max(0, Math.min(DEEP_QUOTE_LAST, level))}`);
 }
 
-function shortSchedule(value: string): string {
-  return value.replace('possible from ', 'from ').replace('Year ', 'Y');
+/** The highest level with a line of its own. */
+const DEEP_QUOTE_LAST = 5;
+
+/**
+ * A schedule preview's value as the panel writes it, shorter than the reader's: "possible from
+ * Autumn, Year 2" reads "from Autumn, Y2".
+ */
+function shortSchedule(strings: Strings, value: string | undefined): string {
+  if (value === undefined) return strings.get('ui.threats.schedule_unknown');
+  if (value === 'never') return strings.get('ui.threats.schedule_never');
+  const at = /(\w+), \w+ (\d+)$/.exec(value);
+  if (at === null) return value;
+  return strings.get('ui.threats.schedule_from', { season: seasonName(strings, (at[1] as string).toLowerCase()), year: at[2] as string });
 }
 
 /** The dangerous species on the map: its name, how many, and whether one is within NEAR_DWARF_RADIUS of a dwarf. */
@@ -126,9 +127,9 @@ export function drawThreatsPanel(
 
   const peril = terrain?.spec()?.peril ?? 0;
   const renown = threats ? threats.renown() : 0;
-  label(s, col, row, `Peril ${peril} · Renown ${renown.toFixed(1)}`, { fg: t.value, width });
+  label(s, col, row, ctx.strings.get('ui.threats.peril', { peril, renown: renown.toFixed(1) }), { fg: t.value, width });
   row += 1;
-  row += wrapLabel(s, col, row, 'Wealth and population draw attention.', { fg: t.dim, width }) - 1;
+  row += wrapLabel(s, col, row, ctx.strings.get('ui.threats.attention'), { fg: t.dim, width }) - 1;
   row += 1;
 
   // Active threats
@@ -168,7 +169,7 @@ export function drawThreatsPanel(
         // 18 § Morale: the party's morale in words, on a line of its own, while it has not broken.
         const morale = p.state === 'retreat' ? '' : threats?.moraleWord(pId) ?? '';
         if (morale !== '' && row < rect.row + rect.rows) {
-          label(s, col, row, `  Morale: ${morale}`, { fg: t.bad, width });
+          label(s, col, row, ctx.strings.get('ui.threats.morale', { word: morale }), { fg: t.bad, width });
           row += 1;
         }
       }
@@ -187,14 +188,14 @@ export function drawThreatsPanel(
   // Schedule preview
   const preview = threats ? threats.schedulePreview() : {};
   if (preview['raid'] !== undefined && preview['raid'] !== 'never') {
-    label(s, col, row, `Raids ${shortSchedule(preview['raid'])}`, { width });
+    label(s, col, row, ctx.strings.get('ui.threats.raids', { when: shortSchedule(ctx.strings, preview['raid']) }), { width });
     row += 1;
   }
   if (preview['ambush'] !== undefined && preview['ambush'] !== 'never') {
-    label(s, col, row, `Ambushes ${shortSchedule(preview['ambush'])}`, { width });
+    label(s, col, row, ctx.strings.get('ui.threats.ambushes', { when: shortSchedule(ctx.strings, preview['ambush']) }), { width });
     row += 1;
   }
-  label(s, col, row, `Thieves ${shortSchedule(preview['thief'] ?? 'unknown')}`, { width });
+  label(s, col, row, ctx.strings.get('ui.threats.thieves', { when: shortSchedule(ctx.strings, preview['thief']) }), { width });
   row += 1;
 
   // Wildlife: the dangerous species on the map (08 § Registrations).
@@ -209,7 +210,7 @@ export function drawThreatsPanel(
   }
 
   // Caverns
-  separator(s, col, row, width, 'Caverns');
+  separator(s, col, row, width, ctx.strings.get('ui.threats.caverns'));
   row += 1;
   for (let c = 1; c <= 3; c += 1) {
     if (row >= rect.row + rect.rows) break;
@@ -219,7 +220,7 @@ export function drawThreatsPanel(
       // Where the cavern lies open, "1: breached at (84,73,z22)", and its monsters on the row under it.
       const tile = breaches.find(([cavern]) => cavern === c)?.[1];
       const at = tile === undefined ? null : ctx.readers.map.unpack(tile);
-      if (at === null) label(s, col, row, `${c}: breached · monsters ${monsterCount}`, { width });
+      if (at === null) label(s, col, row, ctx.strings.get('ui.threats.cavern_breached', { n: c, monsters: monsterCount }), { width });
       else {
         label(s, col, row, ctx.strings.get('ui.threats.cavern_breached_at', { n: c, x: at.x, y: at.y, z: at.z }), { width });
         row += 1;
@@ -227,7 +228,7 @@ export function drawThreatsPanel(
         label(s, col + 3, row, ctx.strings.get('ui.threats.cavern_monsters', { n: monsterCount }), { width: width - 3 });
       }
     } else {
-      label(s, col, row, `${c}: sealed`, { fg: t.dim, width });
+      label(s, col, row, ctx.strings.get('ui.threats.cavern_sealed', { n: c }), { fg: t.dim, width });
     }
     row += 1;
   }
@@ -236,7 +237,7 @@ export function drawThreatsPanel(
   const deepsilverFound = deepFound || (threats !== null && (threats.deepPressure() > 0 || threats.deepLevel() > 0));
 
   if (deepsilverFound) {
-    separator(s, col, row, width, 'The Deep');
+    separator(s, col, row, width, ctx.strings.get('ui.threats.deep'));
     row += 1;
     const pressure = threats ? threats.deepPressure() : 0;
     const level = threats ? threats.deepLevel() : 0;
@@ -244,10 +245,10 @@ export function drawThreatsPanel(
 
     const filled = Math.min(10, Math.max(0, Math.floor((pressure / Math.max(1, nextThresh)) * 10)));
     const bar = '▓'.repeat(filled) + '░'.repeat(10 - filled);
-    label(s, col, row, `Pressure ${bar} ${pressure} / ${nextThresh} (lvl ${level})`, { width });
+    label(s, col, row, ctx.strings.get('ui.threats.pressure', { bar, pressure, next: nextThresh, level }), { width });
     row += 1;
 
-    const quote = `"${deepQuote(level)}"`;
+    const quote = `"${deepQuote(level, ctx.strings)}"`;
     if (quote.length <= width) {
       label(s, col, row, quote, { fg: t.dim, width });
       row += 1;

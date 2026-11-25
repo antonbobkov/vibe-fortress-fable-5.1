@@ -63,9 +63,14 @@ export function weatherField(readers: ReaderSet, strings: Strings): string | nul
   return strings.get('ui.status.weather', { glyph: weatherGlyph(w), word: w.state().replace('_', ' '), temp: w.surfaceTempC() });
 }
 
+/** A season's name as a panel writes it ("Spring"), from the calendar's id of it ("spring"). */
+export function seasonName(strings: Strings, season: string): string {
+  return strings.has(`ui.season.${season}`) ? strings.get(`ui.season.${season}`) : season;
+}
+
 export function drawCalendarPanel(s: Surface, rect: Rect, readers: ReaderSet, strings: Strings): void {
   const cal = readers.calendar;
-  const season = cal.seasonName.charAt(0).toUpperCase() + cal.seasonName.slice(1);
+  const season = seasonName(strings, cal.seasonName);
   const lines = [strings.get('ui.calendar.season', { season, year: cal.year }), strings.get('ui.calendar.day', { day: cal.dayOfSeason, hour: cal.hour })];
   const w = weatherOf(readers);
   if (w !== null) {

@@ -34,10 +34,10 @@ import {
 } from '@render/glyphs';
 import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, contextTitle as keyContextTitle, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
 import { wrapHang } from '../messages';
-import type { Strings } from '../strings';
+import { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, tabs } from '../widgets';
-import { OVERLAY_ROWS } from './overlays';
+import { OVERLAY_ROWS, overlayLabel } from './overlays';
 
 export type HelpTab = 0 | 1 | 2;
 
@@ -60,25 +60,29 @@ const WORDING: Readonly<Record<string, string>> = Object.freeze(
   }, {}),
 );
 
+/** The default table, for the callers that pass no strings. */
+const DEFAULT_STRINGS = new Strings();
+
 /**
- * § Terrain, the solid rows: the glyphs the compositor draws and the thing they draw, in a typical
- * colour where the thing has one. `'trees'` stands for the tree rows, one per species glyph.
+ * § Terrain, the solid rows: the glyphs the compositor draws and the thing they draw
+ * (`ui.help.legend.<name>`), in a typical colour where the thing has one. `'trees'` stands for the
+ * tree rows, one per species glyph.
  */
 const TERRAIN_LEGEND: readonly ({ readonly glyphs: readonly number[]; readonly name: string; readonly fg?: string } | 'trees')[] = [
-  { glyphs: [GLYPH_ROUGH_WALL], name: 'rough wall' },
-  { glyphs: [GLYPH_SOLID_WALL], name: 'smoothed or block wall' },
-  { glyphs: [GLYPH_ENGRAVED], name: 'engraved wall or floor' },
-  { glyphs: [GLYPH_ROUGH_FLOOR], name: 'rough floor, mud, ash' },
-  { glyphs: [GLYPH_SMOOTH_FLOOR], name: 'smoothed floor' },
-  { glyphs: [GLYPH_PAVED_FLOOR], name: 'paved floor' },
-  { glyphs: [GLYPH_GRASS], name: 'grass, moss, shrub' },
-  { glyphs: [GLYPH_GRASS_SHORT, GLYPH_GRASS_TUFT], name: 'grass (outdoors)', fg: 'grass_green' },
-  { glyphs: [GLYPH_FLOWER], name: 'flowers on grass (outdoors)', fg: 'flower_yellow' },
-  { glyphs: [GLYPH_FLOWER], name: 'web (white)', fg: 'silk_white' },
+  { glyphs: [GLYPH_ROUGH_WALL], name: 'rough_wall' },
+  { glyphs: [GLYPH_SOLID_WALL], name: 'smooth_wall' },
+  { glyphs: [GLYPH_ENGRAVED], name: 'engraved' },
+  { glyphs: [GLYPH_ROUGH_FLOOR], name: 'rough_floor' },
+  { glyphs: [GLYPH_SMOOTH_FLOOR], name: 'smooth_floor' },
+  { glyphs: [GLYPH_PAVED_FLOOR], name: 'paved_floor' },
+  { glyphs: [GLYPH_GRASS], name: 'grass' },
+  { glyphs: [GLYPH_GRASS_SHORT, GLYPH_GRASS_TUFT], name: 'grass_outdoors', fg: 'grass_green' },
+  { glyphs: [GLYPH_FLOWER], name: 'flowers', fg: 'flower_yellow' },
+  { glyphs: [GLYPH_FLOWER], name: 'web', fg: 'silk_white' },
   { glyphs: [GLYPH_RAMP], name: 'ramp' },
-  { glyphs: [GLYPH_STAIRS_UP], name: 'stairs up' },
-  { glyphs: [GLYPH_STAIRS_DOWN], name: 'stairs down' },
-  { glyphs: [GLYPH_STAIRS_UPDOWN], name: 'stairs up and down' },
+  { glyphs: [GLYPH_STAIRS_UP], name: 'stairs_up' },
+  { glyphs: [GLYPH_STAIRS_DOWN], name: 'stairs_down' },
+  { glyphs: [GLYPH_STAIRS_UPDOWN], name: 'stairs_updown' },
   { glyphs: [GLYPH_FORTIFICATION], name: 'fortification' },
   'trees',
   { glyphs: [GLYPH_SAPLING], name: 'sapling' },
@@ -100,7 +104,7 @@ interface PlantGlyphRow {
  * One row per tree glyph of the plants table, naming the species drawn with it in table order
  * ("↑  tree: ash, birch, stalk fern"), in the colour of its first species.
  */
-export function treeLegendRows(registry: Registry): HelpRow[] {
+export function treeLegendRows(registry: Registry, strings: Strings = DEFAULT_STRINGS): HelpRow[] {
   const byGlyph = new Map<string, { names: string[]; fg?: string }>();
   const plants = registry.table<PlantGlyphRow>('plants');
   for (const id of plants.ids()) {
@@ -115,18 +119,18 @@ export function treeLegendRows(registry: Registry): HelpRow[] {
     entry.names.push(row.name ?? id.replaceAll('_', ' '));
   }
   return [...byGlyph].map(([glyph, entry]) => ({
-    category: 'Terrain',
-    text: `${glyph}  tree: ${entry.names.join(', ')}`,
+    category: strings.get('ui.help.legend.heading.terrain'),
+    text: strings.get('ui.help.legend.tree', { glyph, names: entry.names.join(', ') }),
     ...(entry.fg === undefined ? {} : { fg: entry.fg }),
   }));
 }
 
-/** § Terrain, the fluid rows and fire, with their ramp colours. */
+/** § Terrain, the fluid rows and fire (`ui.help.legend.<name>`), with their ramp colours. */
 const FLUID_LEGEND: readonly { readonly glyph: string; readonly name: string; readonly fg: string }[] = [
-  { glyph: '~', name: 'water, levels 1-2', fg: 'water_1' },
-  { glyph: '≈', name: 'water, levels 3-7', fg: 'water_7' },
-  { glyph: '~', name: 'magma, levels 1-2', fg: 'magma_1' },
-  { glyph: '≈', name: 'magma, levels 3-7', fg: 'magma_7' },
+  { glyph: '~', name: 'water_low', fg: 'water_1' },
+  { glyph: '≈', name: 'water_high', fg: 'water_7' },
+  { glyph: '~', name: 'magma_low', fg: 'magma_1' },
+  { glyph: '≈', name: 'magma_high', fg: 'magma_7' },
   { glyph: '▒', name: 'ice', fg: 'ice_blue' },
   { glyph: '^', name: 'fire', fg: 'yellow' },
 ];
@@ -183,8 +187,8 @@ export function helpKeyLabel(spec: KeySpec): string {
 }
 
 /** A group's keys as one label: a run of digits as a range (`1–9`), arrows side by side, the rest spaced. */
-export function keysLabel(labels: readonly string[]): string {
-  const shown = labels.map((l) => (l === 'any-letter' ? '[letter]' : l));
+export function keysLabel(labels: readonly string[], strings: Strings = DEFAULT_STRINGS): string {
+  const shown = labels.map((l) => (l === 'any-letter' ? strings.get('ui.help.any_letter') : l));
   const digits = shown.map(Number);
   if (shown.length > 2 && shown.every((l) => /^\d$/.test(l)) && digits.every((d, k) => k === 0 || d === (digits[k - 1] as number) + 1)) {
     return `${shown[0] as string}–${shown[shown.length - 1] as string}`;
@@ -206,12 +210,12 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
     out.push({ category: context, text: keyContextTitle(context), heading: true });
     const groups: { text: string; id: string; keys: string[] }[] = [];
     for (const binding of bindings) {
-      const text = actionText(binding);
+      const text = actionText(binding, strings);
       const last = groups[groups.length - 1];
       if (last !== undefined && last.id === binding.id && last.text === text) last.keys.push(helpKeyLabel(binding.spec));
       else groups.push({ text, id: binding.id, keys: [helpKeyLabel(binding.spec)] });
     }
-    for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys)}  ${g.text}`, keys: g.keys });
+    for (const g of groups) out.push({ category: context, text: `${keysLabel(g.keys, strings)}  ${g.text}`, keys: g.keys });
     // D-253: a panel's own letters come before the panel letters; the keymap table has no row to say so.
     if (context === 'panel' && strings !== undefined) out.push({ category: context, text: strings.get('ui.help.accelerators') });
     // The panel's notes follow its rows, each key they still name as its binding has it now.
@@ -230,9 +234,9 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
  * The wording the keymap table gives this row (Q14: per context, so Trade's `+` reads "quantity"),
  * a panel hotkey's panel name, or the action id read as words.
  */
-export function actionText(binding: Binding): string {
+export function actionText(binding: Binding, strings: Strings = DEFAULT_STRINGS): string {
   if (binding.text !== undefined) return binding.text;
-  if (binding.context === 'fortress_panel') return `${binding.id.charAt(0).toUpperCase()}${binding.id.slice(1)} panel`;
+  if (binding.context === 'fortress_panel') return strings.get('ui.help.panel_action', { panel: `${binding.id.charAt(0).toUpperCase()}${binding.id.slice(1)}` });
   return WORDING[binding.id] ?? binding.id.replaceAll('_', ' ');
 }
 
@@ -247,6 +251,8 @@ const DESIGNATION_BLINK_KEYS: readonly string[] = ['ui.help.legend.designation_q
 
 export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => string, strings?: Strings): HelpRow[] {
   const out: HelpRow[] = [];
+  const str = strings ?? DEFAULT_STRINGS;
+  const title = (category: string): string => str.get(`ui.help.legend.heading.${category}`);
   const heading = (text: string): void => { out.push({ category: text, text, heading: true }); };
   const fromTable = (category: string, table: string): void => {
     heading(category);
@@ -263,20 +269,23 @@ export function helpGlyphRows(registry: Registry, charOf: (glyph: number) => str
     }
   };
 
-  heading('Terrain');
+  const terrain = title('terrain');
+  heading(terrain);
   for (const row of TERRAIN_LEGEND) {
-    if (row === 'trees') out.push(...treeLegendRows(registry));
-    else out.push({ category: 'Terrain', text: `${row.glyphs.map(charOf).join(' ')}  ${row.name}`, ...(row.fg === undefined ? {} : { fg: row.fg }) });
+    if (row === 'trees') out.push(...treeLegendRows(registry, str));
+    else out.push({ category: terrain, text: `${row.glyphs.map(charOf).join(' ')}  ${str.get(`ui.help.legend.${row.name}`)}`, ...(row.fg === undefined ? {} : { fg: row.fg }) });
   }
-  heading('Fluids');
-  for (const row of FLUID_LEGEND) out.push({ category: 'Fluids', text: `${row.glyph}  ${row.name}`, fg: row.fg });
-  fromTable('Creatures', 'creatures');
-  fromTable('Items', 'items');
-  fromTable('Buildings', 'buildings');
-  heading('Overlays');
-  for (const row of OVERLAY_ROWS) out.push({ category: 'Overlays', text: `∙  ${row.label}` });
+  const fluids = title('fluids');
+  heading(fluids);
+  for (const row of FLUID_LEGEND) out.push({ category: fluids, text: `${row.glyph}  ${str.get(`ui.help.legend.${row.name}`)}`, fg: row.fg });
+  fromTable(title('creatures'), 'creatures');
+  fromTable(title('items'), 'items');
+  fromTable(title('buildings'), 'buildings');
+  const overlays = title('overlays');
+  heading(overlays);
+  for (const row of OVERLAY_ROWS) out.push({ category: overlays, text: `∙  ${overlayLabel(str, row)}` });
   // 23 § Animation: what a designation's blink says.
-  if (strings !== undefined) for (const key of DESIGNATION_BLINK_KEYS) out.push({ category: 'Overlays', text: `∙  ${strings.get(key)}` });
+  if (strings !== undefined) for (const key of DESIGNATION_BLINK_KEYS) out.push({ category: overlays, text: `∙  ${strings.get(key)}` });
   return out;
 }
 
@@ -315,7 +324,7 @@ export class HelpPanel {
   visible = 10;
   private legend: HelpRow[] | null = null;
 
-  constructor(private readonly registry: Registry, private readonly keymap: Keymap, private readonly strings?: Strings) {}
+  constructor(private readonly registry: Registry, private readonly keymap: Keymap, readonly strings?: Strings) {}
 
   rows(charOf: (glyph: number) => string): HelpRow[] {
     if (this.tab === 0) return helpKeyRows(this.keymap, this.strings);
@@ -344,7 +353,8 @@ export class HelpPanel {
 export function drawHelpPanel(surface: Surface, rect: Rect, panel: HelpPanel): void {
   if (rect.rows <= 0) return;
   const t = surface.theme;
-  tabs(surface, rect.col + 1, rect.row, [{ key: '1', label: 'Keys' }, { key: '2', label: 'Legend' }, { key: '3', label: 'Start' }], panel.tab,
+  const strings = panel.strings ?? DEFAULT_STRINGS;
+  tabs(surface, rect.col + 1, rect.row, [{ key: '1', label: strings.get('ui.help.tab.keys') }, { key: '2', label: strings.get('ui.help.tab.legend') }, { key: '3', label: strings.get('ui.help.tab.start') }], panel.tab,
     (index) => panel.setTab(index as HelpTab));
   const width = rect.cols - 2;
   const lines = helpLines(panel.rows((glyph) => surface.glyphs.char(glyph)), width);
@@ -366,7 +376,7 @@ export function drawHelpPanel(surface: Surface, rect: Rect, panel: HelpPanel): v
     const step = Math.max(1, visible - 1);
     const pages = 1 + Math.ceil((lines.length - visible) / step);
     const page = Math.min(pages, 1 + Math.ceil(panel.scroll / step));
-    const mark = `page ${page}/${pages}`;
+    const mark = strings.get('ui.help.page', { page, pages });
     label(surface, rect.col + rect.cols - mark.length - 1, rect.row + rect.rows - 1, mark, { fg: t.dim, keys: false });
   }
 }

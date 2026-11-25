@@ -119,7 +119,9 @@ export class AnimalsPanel {
     const id = this.selected(ctx);
     const creature = ctx.readers.entities.get(id, C.Creature);
     const species = this.reader(ctx)?.def(creature?.species ?? 0)?.name ?? '';
-    const animal = creature === undefined || creature.name === species || creature.name === '' ? `the ${species}` : `${creature.name} the ${species}`;
+    const animal = creature === undefined || creature.name === species || creature.name === ''
+      ? ctx.strings.get('ui.animals.the_species', { species })
+      : ctx.strings.get('ui.animals.detail.named', { name: creature.name, species });
     confirmThen(ctx, 'c_slaughter_animal', { animal }, () => ctx.submit(cmd));
   }
   startCap(ctx: PanelContext): void {
@@ -282,7 +284,7 @@ export function tameDetail(ctx: PanelContext, r: AnimalsReader, ids: readonly En
 export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ctx: PanelContext): void {
   const r = panel.reader(ctx); if (r === null) return;
   const col = rect.col + 1; const width = rect.cols - 2;
-  label(s, col, rect.row, `[1] Tame (${r.tameList().length})  [2] Wild (${r.wildList().length})`, { fg: s.theme.key, width });
+  label(s, col, rect.row, ctx.strings.get('ui.animals.tabs', { tame: r.tameList().length, wild: r.wildList().length }), { fg: s.theme.key, width });
   const groups = panel.groups(ctx);
   const str = ctx.strings;
   const pastures = buildings(ctx)?.zonesOfType('pasture') ?? [];
@@ -347,10 +349,10 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
       captionButtons(s, col, row, ctx.strings.get('ui.animals.actions2'), [() => panel.startCap(ctx)], { width }); row += 1;
       button(s, col, row, acceleratorLabel('t', ctx.shiftLetters).slice(1, -1), ctx.strings.get('ui.animals.train'), () => panel.startTrain(ctx)); row += 1;
       const species = ctx.readers.entities.get(panel.selected(ctx), C.Creature)?.species;
-      if (species !== undefined) label(s, col, row, panel.name.focused ? 'Name:' : `Breeding cap: ${r.breedingCap(species)}`, { width });
+      if (species !== undefined) label(s, col, row, panel.name.focused ? ctx.strings.get('ui.animals.name_prompt') : ctx.strings.get('ui.animals.cap_line', { n: r.breedingCap(species) }), { width });
       if (panel.name.focused) textField(s, col + 6, row, Math.max(1, width - 10), panel.name);
     }
   } else {
-    label(s, col, row, '[h] hunt toggle', { width });
+    label(s, col, row, ctx.strings.get('ui.animals.hunt_keys'), { width });
   }
 }

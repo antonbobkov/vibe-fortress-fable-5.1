@@ -23,7 +23,7 @@
 
 import { readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
+import { dirname, join, relative } from 'node:path';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
@@ -80,6 +80,165 @@ export function referencesIn(text, namespaces) {
     else exact.add(key);
   }
   return { exact, soft, prefixes };
+}
+
+/**
+ * The string and template literals of a TypeScript source, comments and regular expressions left
+ * out: `{ line, text }`, each `${…}` of a template written as `\u0000`.
+ */
+export function literalsIn(text) {
+  const out = [];
+  let i = 0;
+  let line = 1;
+  // The last significant character, to tell a regular expression's `/` from a division's.
+  let last = '';
+  let word = '';
+  const regexAfter = '(,=:[!&|?{};+-*%<>~^';
+  while (i < text.length) {
+    const c = text[i];
+    const n = text[i + 1];
+    if (c === '\n') { line += 1; i += 1; continue; }
+    if (c === ' ' || c === '\t' || c === '\r') { i += 1; continue; }
+    if (c === '/' && n === '/') { while (i < text.length && text[i] !== '\n') i += 1; continue; }
+    if (c === '/' && n === '*') {
+      i += 2;
+      while (i < text.length && !(text[i] === '*' && text[i + 1] === '/')) { if (text[i] === '\n') line += 1; i += 1; }
+      i += 2;
+      continue;
+    }
+    if (c === '/' && (last === '' || regexAfter.includes(last) || word === 'return')) {
+      let j = i + 1;
+      let inClass = false;
+      while (j < text.length && text[j] !== '\n' && (inClass || text[j] !== '/')) {
+        if (text[j] === '\\') j += 1;
+        else if (text[j] === '[') inClass = true;
+        else if (text[j] === ']') inClass = false;
+        j += 1;
+      }
+      i = j + 1;
+      while (i < text.length && /[a-z]/.test(text[i])) i += 1;
+      last = '/'; word = '';
+      continue;
+    }
+    if (c === "'" || c === '"') {
+      let j = i + 1;
+      let s = '';
+      while (j < text.length && text[j] !== c && text[j] !== '\n') {
+        if (text[j] === '\\') { s += text[j + 1]; j += 2; } else { s += text[j]; j += 1; }
+      }
+      out.push({ line, text: s });
+      i = j + 1; last = c; word = '';
+      continue;
+    }
+    if (c === '`') {
+      const start = line;
+      let j = i + 1;
+      let s = '';
+      while (j < text.length && text[j] !== '`') {
+        if (text[j] === '\\') { s += text[j + 1]; j += 2; continue; }
+        if (text[j] === '$' && text[j + 1] === '{') {
+          // The expression inside is code: its own literals are read on their own.
+          let depth = 1;
+          let k = j + 2;
+          while (k < text.length && depth > 0) {
+            const d = text[k];
+            if (d === '{') depth += 1;
+            else if (d === '}') depth -= 1;
+            else if (d === '`' || d === "'" || d === '"') {
+              k += 1;
+              while (k < text.length && text[k] !== d) { if (text[k] === '\\') k += 1; k += 1; }
+            }
+            k += 1;
+          }
+          for (const inner of literalsIn(text.slice(j + 2, k - 1))) out.push({ line: line + inner.line - 1, text: inner.text });
+          for (const ch of text.slice(j, k)) if (ch === '\n') line += 1;
+          s += '\u0000';
+          j = k;
+          continue;
+        }
+        if (text[j] === '\n') line += 1;
+        s += text[j];
+        j += 1;
+      }
+      out.push({ line: start, text: s });
+      i = j + 1; last = '`'; word = '';
+      continue;
+    }
+    if (/[A-Za-z0-9_$]/.test(c)) {
+      let j = i;
+      while (j < text.length && /[A-Za-z0-9_$]/.test(text[j])) j += 1;
+      word = text.slice(i, j);
+      last = 'a';
+      i = j;
+      continue;
+    }
+    last = c; word = '';
+    i += 1;
+  }
+  return out;
+}
+
+/** The `KeyboardEvent.key` names a panel compares a key press with. */
+const KEY_NAMES = new Set([
+  'Enter', 'Esc', 'Escape', 'Tab', 'Space', 'Backspace', 'Delete', 'Del', 'Home', 'End', 'Insert',
+  'PageUp', 'PageDown', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Shift', 'Control', 'Alt', 'Meta',
+]);
+
+/**
+ * Whether a literal reads as text for the player rather than as an identifier: it has a word of
+ * two letters or more, and is not a key or id (`ui.zone.type.${id}`, `hall_spirit`), a command or
+ * event type (`SetSquadMode`), a key name (`Enter`) or a module path.
+ */
+export function looksPlayerFacing(literal) {
+  const plain = literal.replace(/\u0000/g, '');
+  if (!/[A-Za-z]{2,}/.test(plain)) return false;
+  if (KEY_NAMES.has(plain)) return false;
+  if (/^[A-Z][a-z0-9]*(?:[A-Z][a-z0-9]*)+$/.test(plain)) return false;
+  if (/^(?:\.{1,2}|@[a-z]+)\/[\w./-]+$/.test(plain)) return false;
+  return !literal.split('\u0000').every((part) => /^(?:[a-z_][A-Za-z0-9_]*)?(?:[.:/-][A-Za-z0-9_]*)*$/.test(part));
+}
+
+/**
+ * The fortress panels' code, where every player-facing text is a strings key (`content-pipeline.md`
+ * § Strings): `strings:check` fails on a literal there that reads as text.
+ */
+export const LITERAL_DIRS = ['src/ui/panels'];
+
+/**
+ * Files of those directories the scan leaves out, each with why. A literal that is not text for
+ * the player despite its look is listed in `LITERAL_ALLOWED` instead.
+ */
+export const LITERAL_FILES_SKIPPED = new Map([
+  // The creature view's mood and health lines still draw literals; they move to the strings table
+  // with the follow-up of T-709 (docs/work), which then removes this line.
+  ['src/ui/panels/look.ts', 'the creature view: not yet moved'],
+]);
+
+/** Literals that read as text but are not drawn for the player, by file: `file` → texts. */
+export const LITERAL_ALLOWED = new Map([
+  // The command type `Designate` (command-catalog.md), one word with one capital.
+  ['src/ui/panels/designate.ts', ['Designate']],
+  // The end 10 gives a recipe job's activity text, read to find the recipe; never drawn.
+  ['src/ui/panels/units.ts', [' (recipe)']],
+  // The hospital zone's setting key for its wanted supplies (17), never drawn.
+  ['src/ui/panels/zones.ts', ['desired supplies']],
+]);
+
+/** Each literal of the scanned panels that reads as player-facing text: `path:line: "text"`. */
+export function panelLiterals(dir = root) {
+  const out = [];
+  for (const sub of LITERAL_DIRS) {
+    for (const file of sourceFiles(join(dir, sub))) {
+      const rel = relative(dir, file).replace(/\\/g, '/');
+      if (LITERAL_FILES_SKIPPED.has(rel)) continue;
+      const allowed = LITERAL_ALLOWED.get(rel) ?? [];
+      for (const { line, text } of literalsIn(readFileSync(file, 'utf8'))) {
+        if (!looksPlayerFacing(text) || allowed.includes(text.replace(/\u0000/g, '${}'))) continue;
+        out.push(`${rel}:${line}: ${JSON.stringify(text.replace(/\u0000/g, '${}'))}`);
+      }
+    }
+  }
+  return out;
 }
 
 /** The namespaces whose keys are the canonical text of a content table's rows. */
@@ -151,7 +310,8 @@ export function check(dir = root) {
   const missing = Array.from(exact).filter((key) => !keys.has(key) &&
     !Array.from(keys).some((k) => k.startsWith(`${key}.`))).sort();
   const unused = Array.from(keys).filter((key) => !reaches(key)).sort();
-  return { keys: keys.size, content: Object.keys(content).length, ui: ui.length, missing, unused, mismatched: [...mismatched, ...rejectMismatch], namespaces };
+  const literals = panelLiterals(dir);
+  return { keys: keys.size, content: Object.keys(content).length, ui: ui.length, missing, unused, mismatched: [...mismatched, ...rejectMismatch], literals, namespaces };
 }
 
 function main() {
@@ -168,8 +328,9 @@ function main() {
   for (const key of result.missing) console.error(`strings:check: missing key "${key}"`);
   for (const key of result.unused) console.error(`strings:check: unused key "${key}"`);
   for (const line of result.mismatched) console.error(`strings:check: ${line}`);
-  if (result.missing.length > 0 || result.unused.length > 0 || result.mismatched.length > 0) {
-    console.error(`strings:check: ${result.missing.length} missing, ${result.unused.length} unused, ${result.mismatched.length} mismatched`);
+  for (const line of result.literals) console.error(`strings:check: text in code, not in the strings table: ${line}`);
+  if (result.missing.length > 0 || result.unused.length > 0 || result.mismatched.length > 0 || result.literals.length > 0) {
+    console.error(`strings:check: ${result.missing.length} missing, ${result.unused.length} unused, ${result.mismatched.length} mismatched, ${result.literals.length} literal texts in ${LITERAL_DIRS.join(', ')}`);
     process.exit(1);
     return;
   }

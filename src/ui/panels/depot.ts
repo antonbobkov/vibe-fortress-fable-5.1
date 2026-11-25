@@ -119,8 +119,8 @@ export function drawDepotPanel(s: Surface, rect: Rect, panel: DepotPanel, ctx: P
   const depotId = panel.selectedDepot(ctx);
   const col = rect.col + 1;
   const width = rect.cols - 2;
-  if (!depotId) { label(s, col, rect.row, 'No built trade depot.', { fg: s.theme.dim, width }); return; }
-  label(s, col, rect.row, `${buildingName(ctx, depotId)} · goods at depot`, { fg: s.theme.key, width });
+  if (!depotId) { label(s, col, rect.row, ctx.strings.get('ui.depot.none'), { fg: s.theme.dim, width }); return; }
+  label(s, col, rect.row, ctx.strings.get('ui.depot.title', { depot: buildingName(ctx, depotId) }), { fg: s.theme.key, width });
   const warning = depotWarning(ctx, depotId);
   let top = rect.row + 1;
   if (warning !== '') {

@@ -1,6 +1,8 @@
 # T-709 — Panels draw player-facing text that is not in the strings table
 
-**Source:** [T-703](../archive/tasks/T-703-sidebar-cut-off-facts.md), found while wrapping the panels' cut lines · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in 96e779c3,25ee6bfb.
+
+**Source:** [T-703](T-703-sidebar-cut-off-facts.md), found while wrapping the panels' cut lines · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
