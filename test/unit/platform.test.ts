@@ -42,8 +42,9 @@ describe('T-M0-12 platform: the canvas surface', () => {
   it('applies the CSS scale of the step-down rule without shrinking the grid', () => {
     const canvas = new MockCanvas();
     const surface = new CanvasSurface(canvas);
-    surface.resize(960, 540, 1, 0.5);
+    surface.resize(480, 270, 1, { widthPx: 960, heightPx: 540, cssScale: 0.5 });
     expect(surface.widthPx).toBe(960);
+    expect(surface.heightPx).toBe(540);
     expect(canvas.style.width).toBe('480px');
     expect(canvas.style.height).toBe('270px');
   });

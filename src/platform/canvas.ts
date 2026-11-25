@@ -76,6 +76,17 @@ export interface SurfaceOptions {
 }
 
 /**
+ * The grid the step-down rule keeps below the smallest zoom (23 § Canvas and cells): its size in
+ * device pixels, and the CSS scale that fits it to the window.
+ */
+export interface ScaledGrid {
+  readonly widthPx: number;
+  readonly heightPx: number;
+  /** Below 1: the element is drawn this much smaller than the grid's CSS size. */
+  readonly cssScale: number;
+}
+
+/**
  * One canvas plus its 2D context, sized in device pixels and CSS-sized to the window.
  *
  * `resize` is idempotent: it only touches the element when the size actually changed, because
@@ -123,12 +134,14 @@ export class CanvasSurface {
 
   /**
    * Size the backing store to `cssWidth × dpr` device pixels and the element to `cssWidth` CSS
-   * pixels. `cssScale` below 1 is the step-down rule's CSS scaling (23 § Canvas and cells): the
-   * backing store keeps the full grid and the element is drawn smaller.
+   * pixels. With a `scaled` grid (the step-down rule below the smallest zoom, 23 § Canvas and
+   * cells) the backing store keeps the full grid, `widthPx × heightPx` device pixels, and the
+   * element is that size in CSS pixels times `cssScale`, so it fits the window and shows every row.
+   * `cssWidth` and `cssHeight` stay the window's size either way.
    */
-  resize(cssWidth: number, cssHeight: number, dpr = this.dpr, cssScale = 1): void {
-    const w = Math.max(1, Math.floor(cssWidth * dpr));
-    const h = Math.max(1, Math.floor(cssHeight * dpr));
+  resize(cssWidth: number, cssHeight: number, dpr = this.dpr, scaled?: ScaledGrid): void {
+    const w = Math.max(1, Math.floor(scaled === undefined ? cssWidth * dpr : scaled.widthPx));
+    const h = Math.max(1, Math.floor(scaled === undefined ? cssHeight * dpr : scaled.heightPx));
     this.dpr = dpr;
     this.cssW = cssWidth;
     this.cssH = cssHeight;
@@ -139,8 +152,10 @@ export class CanvasSurface {
     }
     const style = this.canvas.style;
     if (style !== undefined) {
-      style.width = `${Math.floor(cssWidth * cssScale)}px`;
-      style.height = `${Math.floor(cssHeight * cssScale)}px`;
+      const elementW = scaled === undefined ? cssWidth : (w / dpr) * scaled.cssScale;
+      const elementH = scaled === undefined ? cssHeight : (h / dpr) * scaled.cssScale;
+      style.width = `${Math.max(1, Math.floor(elementW))}px`;
+      style.height = `${Math.max(1, Math.floor(elementH))}px`;
     }
   }
 }
