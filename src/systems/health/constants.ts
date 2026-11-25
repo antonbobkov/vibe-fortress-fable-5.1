@@ -36,6 +36,7 @@ export const HOSPITAL_SUPPLY_MAX = 999;
 
 export const HOSPITAL_DEFAULT_SUPPLIES: Readonly<Record<string, number>> = Object.freeze({
   cloth: 10,
+  bandages: 0,
   thread: 5,
   splints: 4,
   crutches: 2,

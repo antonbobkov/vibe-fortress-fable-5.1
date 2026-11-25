@@ -117,7 +117,7 @@ export const STOCKPILE_PRESETS: Readonly<Record<string, { categories: readonly s
 export const COMPOST_CATEGORIES: readonly string[] = Object.freeze(['refuse/rotten', 'farm/dung']);
 
 /** 17 § Patients and hospitals: supplies a hospital's chests take whatever filter its record was made with. */
-const HOSPITAL_EXTRA_CATEGORIES: readonly string[] = Object.freeze(['medical/soap']);
+const HOSPITAL_EXTRA_CATEGORIES: readonly string[] = Object.freeze(['medical/soap', 'medical/bandage']);
 
 /** A new stockpile's filter: nothing selected until the player picks (D-071). */
 export function emptyFilter(): StockpileFilter {
@@ -472,7 +472,8 @@ export class StockpileStore {
       const wants = (zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
       const facts = this.core.host.facts;
       const typeId = facts.row(it.type).id;
-      const wantKey = typeId === 'splint' ? 'splints' : typeId === 'crutch' ? 'crutches' : typeId === 'bucket' ? 'buckets' : typeId;
+      const wantKey = typeId === 'splint' ? 'splints' : typeId === 'crutch' ? 'crutches' : typeId === 'bucket' ? 'buckets' :
+        typeId === 'bandage' ? 'bandages' : typeId;
       const maxWanted = wants[wantKey] ?? wants[typeId] ?? 0;
       if (maxWanted <= 0) return false;
       const current = this.countInStockpile(spId, it.type);
