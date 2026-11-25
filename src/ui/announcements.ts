@@ -27,6 +27,7 @@ import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
 import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText, withArticle } from './messages';
+import { markFigure } from './panels/context';
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
@@ -358,7 +359,9 @@ export class AnnouncementLog {
       const reason = String(e['reason'] ?? '');
       const tier = readers.has('15') ? moodTierName(this.strings, readers.of<{ hallSpiritTier(): number }>('15').hallSpiritTier()) : '';
       const keyOf = (code: string): string => event.type === 'ImmigrationSkipped' ? `announce.immigration_skipped.reason.${code}` : `announce.reputation_changed.reason.${code}`;
-      out['reason'] = this.strings.has(keyOf(reason)) ? this.strings.get(keyOf(reason), { tier }) : this.strings.get(keyOf('other'));
+      // A wealth skip names the fortress's wealth and the bar the wave asked (21 § Player-facing behavior).
+      const figures = { wealth: markFigure(Number(e['wealth'] ?? 0)), need: markFigure(Number(e['need'] ?? 0)) };
+      out['reason'] = this.strings.has(keyOf(reason)) ? this.strings.get(keyOf(reason), { tier, ...figures }) : this.strings.get(keyOf('other'));
     }
     if (event.type === 'StockpileFull' && typeof deadId === 'number') out['zone'] = stockpileName({ readers, strings: this.strings }, deadId) || this.strings.get('ui.zone.type.stockpile');
     const victimId = e['victimId'];

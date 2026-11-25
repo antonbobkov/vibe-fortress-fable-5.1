@@ -28,6 +28,8 @@ export interface ImmigrationStateV1 {
   deferredSeason: number;
   deferredYear: number;
   lastSkipReason: string | null;
+  /** The wealth and the bar at a wealth skip; missing after any other skip and in older saves. */
+  lastSkipWealth?: { wealth: number; need: number };
   pending: PendingWave | null;
   raidOngoing: boolean;
   rng: RngState;

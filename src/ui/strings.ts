@@ -508,6 +508,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.population.last_wave_none': 'Last wave: none',
   'ui.population.waves': 'Waves so far: {n}',
   'ui.population.last_skip': 'Last skip: {reason}',
+  'ui.population.last_skip_wealth': 'Last skip: wealth ({wealth} of {need} ☼)',
+  'ui.population.wealth_bar': 'Next wave asks {need} ☼ of wealth (now {wealth} ☼)',
   'ui.status.help': '[?] help',
   'ui.status.help_short': '[?]',
   'ui.military.orders_now': 'Orders {list}',
@@ -2381,7 +2383,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 21 and 20: the reason of a skipped wave or a fallen standing, in words (§4.5).
   'announce.immigrants_arrived_adults': '{count} dwarves have come to join the hall.',
   'announce.immigration_skipped.reason.spirit': 'hall spirit must be Content (now {tier})',
-  'announce.immigration_skipped.reason.wealth': 'the hall is not yet wealthy enough',
+  'announce.immigration_skipped.reason.wealth': 'the hall is not yet wealthy enough ({wealth} of {need} ☼)',
   'announce.immigration_skipped.reason.winter': 'winter here is too harsh to travel',
   'announce.immigration_skipped.reason.cap': 'the population cap is reached',
   'announce.immigration_skipped.reason.luck': 'no one set out this time',

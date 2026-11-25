@@ -633,6 +633,8 @@ Depot panel (from a selected depot): items at the depot with values, `[m] move` 
 
 The eligibility line wraps under itself, indented two cells, when the reason does not fit ("Eligible: no · hall spirit below" / "Content"), as does the last skip.
 
+While the fortress's wealth is below what the evaluation to come asks (`immigration.wealthBar()`, 21 § Reader), whatever the eligibility line's reason, a line under it names the bar and the wealth Stocks shows: `Next wave asks 6,000 ☼ of wealth (now 4,100 ☼)` (`ui.population.wealth_bar`, wrapping as the eligibility line does). The last skip, when it was for wealth, carries the figures it was made with: `Last skip: wealth (4,100 of 6,000 ☼)` (`ui.population.last_skip_wealth`); without them (an older save) it reads `Last skip: wealth`.
+
 ## Mood (e)
 
 ```

@@ -22,8 +22,8 @@ On every `SeasonChanged` (the first evaluation is the change to summer of year 1
 1. If the fortress has no living dwarves, nothing happens (the game is ending).
 2. If a battle is on the map, defer to the next day and re-check daily until clear (immigrants do not walk into a battle). A battle is an active raid or siege, or an ambush that has sprung (18 § Stealth); a hidden ambush, which nobody knows of, defers nothing.
 3. Guaranteed waves: at summer year 1 and autumn year 1, if `population < cap`, a wave of `GUARANTEED_SIZE_MIN..GUARANTEED_SIZE_MAX` arrives. These are "the cousins": their announcement says so.
-4. Otherwise, eligible if all hold: `hallSpirit ≥ IMMIGRATION_SPIRIT_MIN`; `population < cap`; `wealth ≥ WEALTH_PER_WAVE × wavesSoFar` (each wave asks a little more renown than the last); not winter at temper ≥ 2 (the passes are closed). When eligible, a wave arrives with probability `IMMIGRATION_PERMILLE + reputation(mountainhome) × REP_PERMILLE_PER_POINT`. The season's roll is drawn on a stream of its own, `21.roll.<year>.<season>`, seeded from the world seed, the year and the season alone (`seasonRoll`): the first draw of that stream, `int(0, 999)`, brings the wave when it is under the chance. It is never drawn on 21's stream, which plans the waves (§ Composition) and draws a different number of times for a wave of another size, so no earlier wave, skip or deferral moves a later season's roll, and two versions of the code meet the same roll in every season both of them evaluate (T-652). A deferred evaluation rolls its own season's roll on the day it is made.
-5. `ImmigrationSkipped { reason }` is emitted when not eligible, so the panel can say why ("Hall spirit is Fine; immigrants come when it is Content").
+4. Otherwise, eligible if all hold: `hallSpirit ≥ IMMIGRATION_SPIRIT_MIN`; `population < cap`; `wealth ≥ WEALTH_PER_WAVE × wavesSoFar` (each wave asks a little more renown than the last; `wealth` is 13's, the figure Stocks shows: goods the fortress holds and its buildings, so loot carried off the map lowers it); not winter at temper ≥ 2 (the passes are closed). When eligible, a wave arrives with probability `IMMIGRATION_PERMILLE + reputation(mountainhome) × REP_PERMILLE_PER_POINT`. The season's roll is drawn on a stream of its own, `21.roll.<year>.<season>`, seeded from the world seed, the year and the season alone (`seasonRoll`): the first draw of that stream, `int(0, 999)`, brings the wave when it is under the chance. It is never drawn on 21's stream, which plans the waves (§ Composition) and draws a different number of times for a wave of another size, so no earlier wave, skip or deferral moves a later season's roll, and two versions of the code meet the same roll in every season both of them evaluate (T-652). A deferred evaluation rolls its own season's roll on the day it is made.
+5. `ImmigrationSkipped { reason }` is emitted when not eligible, so the panel can say why ("Hall spirit is Fine; immigrants come when it is Content"). A skip for wealth also carries `wealth` (the fortress's, rounded) and `need` (`WEALTH_PER_WAVE × wavesSoFar`), which are kept as `lastSkipWealth` until the next skip or wave.
 
 ### Wave size
 
@@ -58,7 +58,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 
 ## State
 
-- `wavesSoFar`, `guaranteedDone: [boolean, boolean]`, `lastWave: { tick, count }`, `deferredUntilTick`, `lastSkipReason`, the pending wave (its plan, the members already arrived and the tick of the next arrival) and whether a battle holds it, which are saved so that the remaining arrivals resume after a load.
+- `wavesSoFar`, `guaranteedDone: [boolean, boolean]`, `lastWave: { tick, count }`, `deferredUntilTick`, `lastSkipReason`, `lastSkipWealth: { wealth, need }` (only after a skip for wealth; missing in older saves means none), the pending wave (its plan, the members already arrived and the tick of the next arrival) and whether a battle holds it, which are saved so that the remaining arrivals resume after a load.
 - Rng stream, which plans the waves and sizes the guaranteed ones. The season's roll (§ Evaluation) is derived, not saved: nothing of it is in the state or in the `rng` section.
 
 ## Interfaces
@@ -69,6 +69,8 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 - `immigration.eligibility()` — `{ eligible, reasons: string[] }` computed from current readers for the panel
 - `immigration.nextEvaluation()` — the next season name
 - `immigration.lastSkipReason()` — why the last wave was skipped, or null
+- `immigration.wealthBar()` — `{ wealth, need }`: the fortress's wealth now and what the evaluation to come asks of it, `WEALTH_PER_WAVE × wavesSoFar` (0 when it is one of Year 1's guaranteed waves)
+- `immigration.lastSkipWealth()` — `{ wealth, need }` as they were at the last skip when it was for wealth, or null
 
 ### Commands
 
@@ -80,7 +82,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 
 ### Events emitted
 
-`ImmigrantsArrived`, `ImmigrationSkipped { reason }`.
+`ImmigrantsArrived`, `ImmigrationSkipped { reason[, wealth, need] }`.
 
 ### Registrations
 
@@ -89,6 +91,7 @@ Panel `population` (population, cap editor, hall spirit, eligibility reasons, la
 ## Player-facing behavior
 
 - The population panel is the explanation of why immigrants do or do not come.
+- A skip for wealth names the bar and how far off it is: "No immigrants this season: the hall is not yet wealthy enough (4,100 of 6,000 ☼)." While the fortress's wealth is below what the evaluation to come asks, whatever else holds the wave back, the panel shows it under the eligibility line: "Next wave asks 6,000 ☼ of wealth (now 4,100 ☼)", the wealth being the figure Stocks shows. Its last skip for wealth keeps the figures it was made with, "Last skip: wealth (4,100 of 6,000 ☼)" (a skip from an older save reads "Last skip: wealth").
 - Hints: "Immigrants come at the turn of the season when hall spirit is Content", "Set a population cap in the population panel".
 
 ## Tuning constants

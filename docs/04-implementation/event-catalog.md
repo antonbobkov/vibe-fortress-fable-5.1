@@ -160,7 +160,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `DepotGoodsReturned` | `depotId, count` | 20 | ui (a note: a caravan's departure took the goods left at a depot back to stock) |
 | `ReputationChanged` | `civ, delta, reason` | 20 | 21 (Mountainhome), ui |
 | `ImmigrantsArrived` | `ids[], count, children, guaranteed` | 21 | 11, 15, 18 (renown), ui |
-| `ImmigrationSkipped` | `reason` | 21 | ui |
+| `ImmigrationSkipped` | `reason[, wealth, need]` | 21 | ui (`wealth` and `need`, the fortress's wealth and the bar, with reason `wealth`) |
 | `EntitiesMoved` | `moves: [id, from, to][]` | core movement helper | 03, 04, 18, 19 |
 | `Fell` | `id, levels, landedOn` | core movement helper | 17 |
 | `AttuneSession` | `id, xp, mishap` | 25 | 15 |
