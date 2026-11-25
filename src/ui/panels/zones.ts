@@ -736,10 +736,11 @@ function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   const tierId = tiers.ids().find((id) => tiers.byId(id)?.tier === score.tier) ?? '';
   label(s, col, row++, strings.get('ui.zone.room', { tier: strings.get(`ui.room_tier.${tierId}`), score: Math.floor(score.score) }), { width });
   const p = score.parts;
-  label(s, col, row++, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { width, fg: s.theme.dim });
-  label(s, col, row++, strings.get(score.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open', { n: diagnostics.openBorder.length }), { width, fg: score.enclosed ? s.theme.good : s.theme.bad });
+  // Each line gives a fact: one too long for the panel wraps under itself (a count kept with its word).
+  row += wrapLabel(s, col, row, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { width, indent: 2, fg: s.theme.dim });
+  row += wrapLabel(s, col, row, strings.get(score.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open', { n: diagnostics.openBorder.length }), { width, indent: 2, fg: score.enclosed ? s.theme.good : s.theme.bad });
   if (diagnostics.missing.length === 0) label(s, col, row++, strings.get('ui.zone.requirements_met'), { width, fg: s.theme.good });
-  else for (const missing of diagnostics.missing) label(s, col, row++, strings.get(`ui.zone.needs.${missing}`), { width, fg: s.theme.bad });
+  else for (const missing of diagnostics.missing) row += wrapLabel(s, col, row, strings.get(`ui.zone.needs.${missing}`), { width, indent: 2, fg: s.theme.bad });
   if (zone.type === 'bedroom') {
     const ownerId = b?.ownerOf(zone.id) ?? 0;
     const owner = ownerId === 0 ? strings.get('ui.zone.nobody') : nameOf(ctx, ownerId);

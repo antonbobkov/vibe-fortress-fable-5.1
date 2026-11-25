@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-714 | ["X is miserable." repeats several times a day and buries the alerts](work/T-714-miserable-line-flaps.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
-| T-719 | [Facts still cut with "»" after T-703: room lines, the log, orders, the status bar](work/T-719-cut-facts-second-pass.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-721 | [Single words and readers' English the strings scan cannot see](work/T-721-ui-words-the-scan-cannot-see.md) | [T-711](archive/tasks/T-711-ui-texts-outside-panels.md) | — | open |
 | T-730 | [An animal's view and the Animals panel say nothing of its wounds](work/T-730-animal-view-bleeding.md) | [T-723](archive/tasks/T-723-animal-no-dressing-alert.md) | — | open |
 | T-731 | [The miserable line keeps its string key](work/T-731-miserable-line-key.md) | [T-725](archive/tasks/T-725-log-line-string-key.md) | — | open |

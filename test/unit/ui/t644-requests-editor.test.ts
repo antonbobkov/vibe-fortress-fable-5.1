@@ -77,7 +77,7 @@ describe('T-644 the requests editor finds a good without stepping through every 
     expect(shown.length).toBeLessThan(f.civilizations.allCandidates(f.ctx).length / 10);
     expect(draw(f)).toContain('/filter: [ bar');
     // The title shows the filter, as Jobs' and Log's do.
-    expect(f['panelTitle']('civilizations', 'Civilizations', surface(36, 40))).toBe(`Civilizations · filter: bar (${shown.length} of ${f.civilizations.allCandidates(f.ctx).length})`);
+    expect(f['panelTitle']('civilizations', 'Civilizations', surface(36, 40))).toBe(`Civilizations · ${shown.length} of ${f.civilizations.allCandidates(f.ctx).length} · filter: bar`);
     // `Enter` finishes typing; the editor stays open, and the arrows choose as before.
     f.key(press('Enter'));
     expect(f.civilizations.filter.focused).toBe(false);

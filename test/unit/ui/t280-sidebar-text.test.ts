@@ -48,7 +48,7 @@ describe('T-280 no text in the last column without a mark', () => {
     expect(empty).toEqual([]);
     // Whole words that end exactly in the last column (each was read in the drawn panel; a cut word would end in »).
     expect(bad).toEqual([
-      'help: ...Start', 'help: ...then', 'units: ...later', 'jobs: ...reason', 'labors: ...labors', 'military: ...spears',
+      'help: ...Start', 'help: ...then', 'units: ...later', 'labors: ...labors', 'military: ...spears',
     ]);
   });
 });

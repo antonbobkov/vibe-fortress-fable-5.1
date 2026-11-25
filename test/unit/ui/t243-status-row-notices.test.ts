@@ -52,9 +52,10 @@ describe('T-243 status row notices and counts', () => {
     expect(game.fortress.statusRow2()).not.toBe('No tile here can be dug: dig marks rock walls and boulders.');
   });
 
-  it('a long notice ends with … and its tooltip has the full text', async () => {
+  it('a notice longer than two rows ends with … and its tooltip has the full text', async () => {
     const game = await fortressGame();
-    const longNotice = 'No tile here can be dug: dig marks rock walls and boulders. Make sure you select rock or veins.';
+    // A notice of two rows wraps onto the hover line's row (T-719); a longer one is cut.
+    const longNotice = Array.from({ length: 4 }, () => 'No tile here can be dug: dig marks rock walls and boulders. Make sure you select rock or veins.').join(' ');
     game.fortress.notice(longNotice);
 
     const layout = game.compositor.layout;

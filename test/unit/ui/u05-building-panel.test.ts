@@ -460,12 +460,12 @@ describe('U-05 the building panel (M4)', () => {
     expect(drawn.text).toContain('planned');
     // U-01's block text: the missing input and where to get it.
     expect(drawn.text.replace(/\s+/g, ' ')).toContain('Waiting: 1 bed - order at a carpenter\'s workshop');
-    expect(drawn.text).toContain('Priority 5 · set 1 2 3 4 5 6 7 8 9');
+    expect(drawn.text).toContain('Priority 5 · 1 2 3 4 5 6 7 8 9');
     f.screen.key(press('2'));
     expect(f.sent).toEqual([{ type: 'SetBuildingPriority', buildingId: id, priority: 2 }]);
     expect(notice(f)).toBe('Bed #1: build priority 2.');
     f.w.step(1);
-    expect(panel(f).text).toContain('Priority 2 · set');
+    expect(panel(f).text).toContain('Priority 2 · 1 2');
     // A click on a digit.
     f.sent.length = 0;
     panel(f).click('7 8 9');

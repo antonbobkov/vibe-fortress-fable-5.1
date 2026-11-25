@@ -104,9 +104,9 @@ describe('T-639 the Mood panel at thirty dwarves', () => {
     // Neither the sixth thought nor one that rounds to 0 is in the summary.
     expect(text.split('Ate something raw.').length - 1).toBe(side.filter((l) => /^│ {3}.*Ate something raw\./.test(l)).length);
     expect(text).not.toContain('Ate in a bare hall.');
-    // The table follows, each dwarf's thoughts whole on the row under its name.
+    // The table follows, each dwarf's thoughts whole under its name, one to a row.
     expect(text).toMatch(/Ragnhild Brightvein +Fine/);
-    expect(text).toMatch(/\n│ {3}-15 My friend is dead\. -3 I a/);
+    expect(text).toMatch(/\n│ {3}-15 My friend is dead\. +│?\s*\n│ {3}-3 I am tired\./);
   });
 
   it('Enter on a summary row lists only who holds the thought; Esc lists every dwarf again', () => {

@@ -161,7 +161,7 @@ describe('T-282 a filter does not outlive its panel', () => {
     expect(f.draw().join('\n')).not.toContain('Units · filter');
     f.screen.key(press('/'));
     for (const ch of 'f01') f.screen.key(press(ch));
-    expect(f.draw().join('\n')).toContain('Units · filter: f01 (1 of 4)');
+    expect(f.draw().join('\n')).toContain('Units · 1 of 4 · filter: f01');
   });
 });
 

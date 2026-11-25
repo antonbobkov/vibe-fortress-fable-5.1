@@ -114,6 +114,11 @@ export function wrapText(text: string, width: number, maxLines: number): string[
 
 export { wrapHang } from './widgets/label';
 
+/** A line as it wraps: a count in brackets stays with the word before it ("plant (0)", "stocked (12)"). */
+export function keepCounts(text: string): string {
+  return text.replace(/ \((\d)/g, ' ($1');
+}
+
 /** "carpenter's workshop" → "Carpenter's workshop". */
 export function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);

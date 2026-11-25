@@ -59,7 +59,7 @@ import { DebugPanel, drawDebugPanel, type DebugHost } from '../panels/debug';
 import { Strings } from '../strings';
 import { rowText, type ScrollRegion, type Surface } from '../surface';
 import type { UiState } from '../ui-state';
-import { captionButtons, drawTooltip, editText, label, labelRow, typedChar } from '../widgets';
+import { captionButtons, drawTooltip, editText, label, labelRow, typedChar, wrapHang } from '../widgets';
 import { blockedText, buildingName, commandFocus, pluralName, rejectionText, speciesPlural, unreachableFrom, zoneName, zoneEditorMessage } from '../messages';
 
 /** A panel the UI draws itself, titled `ui.panel.<id>.title` as the default table gives it. */
@@ -1003,6 +1003,8 @@ export class FortressScreen implements Screen {
       const at = rect.col + 1 + date + fieldSpacing;
       surface.put(at, rect.row, surface.glyphs.index(weatherGlyph(weather)), weatherColor(weather, t), t.black);
     }
+    // A message too long for row 2 wraps onto row 3, the hover line giving way while it shows.
+    let wrapped = false;
     if (rect.rows > 1) {
       const text2 = this.statusRow2(rect.cols - 1);
       const full = ` ${text2}`;
@@ -1010,16 +1012,22 @@ export class FortressScreen implements Screen {
       // A notice that warns (a pasture that cannot feed its grazers) is drawn in the alert colour.
       const notice = this.currentNotice;
       const fg = this.message?.alert === true && notice !== null && text2 === this.keymap.relabel(notice, this.labelContexts()) ? t.alert : t.text;
-      if (chars.length > rect.cols && rect.cols > 0) {
+      const lines = chars.length > rect.cols && rect.cols > 2 ? wrapHang(text2, rect.cols - 1, 0) : [text2];
+      if (lines.length === 2 && rect.rows > 2) {
+        wrapped = true;
+        lines.forEach((line, k) => labelRow(surface, rect.col, rect.row + 1 + k, rect.cols, ` ${line}`, { fg, relabel: false }));
+        this.hitStrip(surface, rect, ` ${lines[0] as string}`);
+      } else if (chars.length > rect.cols && rect.cols > 0) {
         surface.tooltip({ col: rect.col, row: rect.row + 1, cols: rect.cols, rows: 1 }, text2);
         const visible = `${chars.slice(0, rect.cols - 1).join('')}…`;
         labelRow(surface, rect.col, rect.row + 1, rect.cols, visible, { fg, relabel: false });
+        this.hitStrip(surface, rect, visible);
       } else {
         labelRow(surface, rect.col, rect.row + 1, rect.cols, full, { fg, relabel: false });
+        this.hitStrip(surface, rect, full);
       }
-      this.hitStrip(surface, rect, chars.length > rect.cols ? `${chars.slice(0, rect.cols - 1).join('')}…` : full);
     }
-    if (rect.rows > 2) {
+    if (rect.rows > 2 && !wrapped) {
       // The hover line: always the tile under the mouse (or the cursor), whatever row 2 shows.
       const hover = this.hoverLine();
       const full = ` ${hover}`;

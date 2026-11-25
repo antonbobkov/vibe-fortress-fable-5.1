@@ -705,7 +705,7 @@ test('panels-act', async ({ page }) => {
   await expect.poll(() => textOf(page)).toContain('/filter: x y_');
   expect(await speedOf()).toBe(speedBefore);
   await page.keyboard.press('Enter');
-  await expect.poll(() => textOf(page)).toMatch(/Units . filter: x y \(0 of \d+\)/);
+  await expect.poll(() => textOf(page)).toMatch(/Units . 0 of \d+ . filter: x y/);
   await page.keyboard.press('Escape');
   await expect.poll(panel).toBeNull();
   await page.keyboard.press('u');

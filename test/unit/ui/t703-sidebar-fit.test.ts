@@ -16,15 +16,20 @@ import type { MoraleReader, ThoughtView } from '@systems/morale';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
 import type { Surface } from '@ui/surface';
 import { defaultUiState } from '@ui/ui-state';
+import { table } from '@ui/widgets';
 import { TestWorld } from '../../scenarios/test-world';
 import { keymap, strings, surface } from './ui-fixture';
 
 const z = FLAT_TEST_SURFACE_Z;
 const COLS = 80;
 const ROWS = 50;
-/** The sidebar's first column at 80 columns, and the rows above the log strip and the status rows. */
+/** The sidebar's first column at 80 columns, the rows above the log strip, and the first of the three status rows. */
 const SIDE = COLS - 36;
-const MAP_ROWS = ROWS - 5;
+const MAP_ROWS = ROWS - 6;
+const STATUS_ROW = ROWS - 3;
+
+/** The dwarves' names: a name cut with `»` is the rule, not a cut fact. */
+const NAMES = ['Gunnar Coalhammer', 'Ragnhild Brightvein', 'Torvald Deepshield'];
 
 function thought(text: string, value: number): ThoughtView {
   return { id: text, text, value, remainingHours: null };
@@ -32,7 +37,7 @@ function thought(text: string, value: number): ThoughtView {
 
 function setup() {
   const w = new TestWorld({ seed: 't703-fit', world: 'flat-test', embark: 'none', surfaceWildlife: 'none', startTick: 10 * TICKS_PER_DAY });
-  const dwarves: EntityId[] = ['Gunnar Coalhammer', 'Ragnhild Brightvein', 'Torvald Deepshield'].map((name, k) => w.spawnDwarf({ at: w.index(12 + k, 12, z), name, ageYears: 40 }));
+  const dwarves: EntityId[] = NAMES.map((name, k) => w.spawnDwarf({ at: w.index(12 + k, 12, z), name, ageYears: 40 }));
   const layout = computeLayout(COLS, ROWS, true);
   const host: FortressHost = {
     readers: w.readers, registry: w.game.registry, ui: defaultUiState(z), submit: (c) => w.submit(c),
@@ -96,15 +101,53 @@ function scan(f: Fixture, state: string): string[] {
   };
   f.screen.draw(s);
   s.lines().forEach((line, row) => {
+    // The status rows under the log strip (T-719): a message there wraps, it is never cut with `…` or `»`.
+    if (row >= STATUS_ROW) {
+      if (/[…»]/.test(line)) cuts.push(`${state}: status "${line.trim()}"`);
+      return;
+    }
     if (row >= MAP_ROWS) return;
     const side = Array.from(line).slice(SIDE);
     side.forEach((ch, k) => {
       if (ch !== '»') return;
       const tip = s.tooltipAt(SIDE + k, row);
+      if (tip !== null && NAMES.includes(tip.text)) return;
       cuts.push(`${state}: ${tip === null ? side.join('').trim() : tip.text}`);
     });
   });
   return [...new Set(cuts)];
+}
+
+/**
+ * The states the second playtest found cut (T-719): a room not enclosed, a planned building, a still
+ * with a brewing order waiting for its plants, an alert whose reason is its last words among many log
+ * lines, a dwarf hauling to the depot, long thoughts in Mood.
+ */
+function setup719() {
+  const f = setup();
+  const { w } = f;
+  const rect = (x0: number, y0: number, cols: number, rows: number): number[] => Array.from({ length: cols * rows }, (_, n) => w.index(x0 + (n % cols), y0 + Math.floor(n / cols), z));
+  const dining = w.zone('dining_hall', rect(10, 30, 12, 10));
+  w.build('still', w.index(28, 20, z), 'oak');
+  w.submit({ type: 'PlaceBuilding', buildingType: 'still', origin: w.index(32, 24, z), orientation: 0, materialChoice: 0 });
+  w.submit({ type: 'AddWorkOrder', workshopId: 0, order: { recipeId: 'brew', mode: 'once', remaining: 1, threshold: 0, priority: 5 } });
+  w.step(2);
+  const planned = w.readers.of<import('@systems/buildings').BuildingsReader>('14').byType('still').find((id) => w.readers.of<import('@systems/buildings').BuildingsReader>('14').get(id)?.state === 'planned') ?? 0;
+  // Forty-odd log lines, the missed trade among the oldest that show, an ambush among them.
+  const tick = w.tick;
+  const lines = f.screen.log.lines;
+  lines.push({ tick, severity: 'alert', text: `The Hillfolk caravan is leaving without trading. ${strings.get('ui.trade.wait.late_any')}`, count: 1 });
+  lines.push({ tick, severity: 'note', text: 'The ambush has withdrawn: 5 raiders left empty-handed.', count: 1 });
+  // 39 one-row alerts above it in the Alerts tab: the missed trade starts on the list's last row.
+  for (let k = 0; k < 41; k += 1) lines.push({ tick, severity: k < 39 ? 'alert' : 'note', text: k < 39 ? 'The restless dead rise.' : 'Gunnar Coalhammer is miserable.', count: 1 });
+  return { ...f, dining, planned };
+}
+
+/** The status rows (under the map and the log strip) as drawn, without trailing blanks. */
+function statusRows(f: Fixture): string[] {
+  const s = surface(COLS, ROWS);
+  f.screen.draw(s);
+  return s.lines().slice(STATUS_ROW).map((line) => line.trimEnd());
 }
 
 describe('T-703 no panel at the sidebar width cuts a fact', () => {
@@ -140,11 +183,9 @@ describe('T-703 no panel at the sidebar width cuts a fact', () => {
     cuts.push(...scan(f, 'creature'));
     f.screen.openBuilding(f.wagon);
     cuts.push(...scan(f, 'wagon'));
-    // What may end with `»`: the labor grid's mark that more columns lie to the right, and a list of
-    // entries in one cell (the Mood table's top thoughts), each whole one step away (the creature view).
+    // What may end with `»`: a name, and the labor grid's mark that more columns lie to the right.
     expect(cuts).toEqual([
       'labors: │            AnC AnT Bre But Car »',
-      'mood: -4 I slept in the open on the cold ground. -1 I have not talked to anyone in a while.',
     ]);
   });
 });
@@ -246,5 +287,147 @@ describe('T-703 the lines the playtest found cut', () => {
     for (const entry of ['splint x4', 'brightleaf x5', 'crutch x2', 'bandage x9', 'soap x3']) expect(rows.some((row) => row.includes(entry)), entry).toBe(true);
     expect(rows.filter((row) => /^x\d/.test(row))).toEqual([]);
     expect(rows.join('\n')).not.toContain('»');
+  });
+});
+
+describe('T-719 the second pass: rooms, a planned building, the log, Mood, orders, the creature view, the status bar', () => {
+  it('scans the states the second playtest found cut, and the status rows under them', () => {
+    const f = setup719();
+    const cuts: string[] = [];
+    f.screen.openPanel('zones');
+    f.screen.zones.selectZone(f.dining);
+    cuts.push(...scan(f, 'zones dining hall'));
+    f.screen.openBuilding(f.planned);
+    cuts.push(...scan(f, 'planned still'));
+    f.screen.openPanel('log');
+    cuts.push(...scan(f, 'log'));
+    f.screen.logFilter = 1;
+    cuts.push(...scan(f, 'log alerts'));
+    f.screen.logFilter = 0;
+    f.screen.logView.filter.value = 'ambush';
+    cuts.push(...scan(f, 'log filtered'));
+    f.screen.logView.filter.value = '';
+    for (const panel of ['mood', 'orders', 'jobs']) {
+      f.screen.openPanel(panel);
+      cuts.push(...scan(f, panel));
+    }
+    haul(f);
+    f.screen.inspectCreature(f.dwarves[0] as EntityId);
+    cuts.push(...scan(f, 'creature hauling'));
+    f.screen.notice(LONG_NOTICE);
+    cuts.push(...scan(f, 'status notice'));
+    expect(cuts).toEqual([]);
+  });
+});
+
+/** A 120-character notice: the placement advice the playtest saw cut. */
+const LONG_NOTICE = "Mason's workshop placed · 0 stone or block in stock: 1 will wait · build a forge, a mason's workshop or a kiln to make blocks.";
+
+/** The first dwarf hauls to the depot at priority 3. */
+function haul(f: Fixture): void {
+  const dwarves = f.w.readers.of<{ activityText(id: EntityId): string }>('10');
+  vi.spyOn(dwarves, 'activityText').mockImplementation(() => 'Haul to depot');
+  const jobs = f.w.readers.of<{ forWorker(id: EntityId): unknown }>('11');
+  const real = jobs.forWorker.bind(jobs);
+  vi.spyOn(jobs, 'forWorker').mockImplementation((id) => (id === f.dwarves[0] ? { priority: 3, data: {} } : real(id)));
+}
+
+describe('T-719 the lines the second playtest found cut', () => {
+  it('Zones: a room not enclosed gives its count of open border tiles whole, wrapped under itself', () => {
+    const f = setup719();
+    f.screen.openPanel('zones');
+    f.screen.zones.selectZone(f.dining);
+    const { rows } = side(f);
+    const at = rows.findIndex((row) => row.startsWith('Not enclosed'));
+    expect(`${rows[at] as string} ${(rows[at + 1] as string).trim()}`).toMatch(/^Not enclosed: \d{2} open border tiles$/);
+  });
+
+  it('Building: a planned building\'s priority row gives every digit, 1 to 9', () => {
+    const f = setup719();
+    f.screen.openBuilding(f.planned);
+    const { rows } = side(f);
+    expect(rows).toContain('Priority 5 · 1 2 3 4 5 6 7 8 9');
+  });
+
+  it('Log: a filtered title gives its count first; an entry the panel cannot hold whole is left for the scroll, never cut', () => {
+    const f = setup719();
+    f.screen.openPanel('log');
+    f.screen.logView.filter.value = 'ambush';
+    expect(side(f).rows[0]).toMatch(/^Log · 1 of 43 · filter: ambush *\[x\]$/);
+    f.screen.logView.filter.value = '';
+    f.screen.logFilter = 1;
+    const text = side(f).rows.join('\n');
+    expect(text).not.toContain('»');
+    // Scrolled to the oldest, the missed trade shows whole with its reason.
+    f.screen.logView.move(999);
+    const all = side(f).rows.map((row) => row.replace(/[│█]$/, '')).join(' ').replace(/ +/g, ' ');
+    expect(all).toContain(`leaving without trading. ${strings.get('ui.trade.wait.late_any')}`);
+  });
+
+  it('Mood: each dwarf\'s thoughts one to a row, each whole, wrapped under itself', () => {
+    const f = setup719();
+    f.screen.openPanel('mood');
+    const text = side(f).rows.join('\n');
+    expect(text).toMatch(/\nGunnar Coalhammer +\S+\n {2}-4 I slept in the open on the\n {4}cold ground\.\n {2}-1 I have not talked to anyone\n {4}in a while\.\n/);
+    expect(text).not.toContain('»');
+  });
+
+  it('Orders: a waiting order\'s reason wraps to a second row, in Orders and under Jobs', () => {
+    const f = setup719();
+    f.screen.openPanel('orders');
+    // The glyph set draws `×` as `x`.
+    let text = side(f).rows.join('\n');
+    expect(text).toMatch(/x1 Brew drink · waiting for\n +plant \(0\)/);
+    f.screen.openPanel('jobs');
+    text = side(f).rows.join('\n');
+    expect(text).toMatch(/x1 Brew drink · waiting for\n +plant \(0\)/);
+  });
+
+  it('Jobs: the table keeps its columns; a job too long for its column is named by its kind, the whole in its tooltip', () => {
+    const f = setup719();
+    f.screen.openPanel('jobs');
+    const { s, rows } = side(f);
+    const at = rows.findIndex((row) => /^ \d +Plant +/.test(row));
+    expect(at).toBeGreaterThan(0);
+    const col = SIDE + 2 + (rows[at] as string).indexOf('Plant');
+    expect(s.tooltipAt(col, at)?.text).toMatch(/^Plant \(\d+,\d+,z\d+\)$/);
+  });
+
+  it('Jobs: a reason that fits the last column beside the scrollbar is not marked cut', () => {
+    const s = surface(40, 6);
+    const columns = [{ title: 'Pri', width: 4 }, { title: 'Job', width: 16 }, { title: 'Who / reason', width: 13 }];
+    const rows = Array.from({ length: 9 }, () => [' 3', 'Haul to depot', 'open 2 days']);
+    table(s, { col: 0, row: 0, cols: 33, rows: 6 }, columns, rows, { selected: 0, scroll: 0 });
+    const lines = s.lines().slice(1).map((line) => line.trimEnd());
+    expect(lines[1]).toMatch(/^ 3 {2}Haul to depot {3}open 2 days\s*│$/);
+    expect(lines.join('\n')).not.toContain('»');
+  });
+
+  it('The log strip: the newest hint wraps over as many of the strip\'s rows as it needs; an older line is the one cut', () => {
+    const f = setup719();
+    const tick = f.w.tick;
+    const hint = 'Wild beasts will come. Dig a hall into rock, put a door on it, click the door and choose Lock on alert. Make a squad in Military and arm it with iron spears: clubs lose to boars. Order a kill when a beast comes.';
+    f.screen.log.lines.push({ tick, severity: 'note', text: `☼ ${hint}`, count: 1, category: 'hint' });
+    const s = surface(COLS, ROWS);
+    f.screen.draw(s);
+    const strip = s.lines().slice(MAP_ROWS, STATUS_ROW).map((line) => line.trim());
+    expect(strip.join(' ')).toBe(`☼ ${hint}`);
+  });
+
+  it('The creature view: the activity and its priority wrap under the line', () => {
+    const f = setup719();
+    haul(f);
+    f.screen.inspectCreature(f.dwarves[0] as EntityId);
+    const text = side(f).rows.join('\n');
+    expect(text).toMatch(/Activity: Haul to depot\n +\(priority 3\)/);
+  });
+
+  it('The status bar: a 120-character message shows whole over its two rows, the hover line giving way', () => {
+    const f = setup719();
+    f.screen.notice(LONG_NOTICE);
+    const rows = statusRows(f);
+    expect(Array.from(LONG_NOTICE).length).toBeGreaterThanOrEqual(120);
+    expect(`${(rows[1] as string).trim()} ${(rows[2] as string).trim()}`).toBe(LONG_NOTICE);
+    expect(rows.join('\n')).not.toMatch(/[…»]/);
   });
 });

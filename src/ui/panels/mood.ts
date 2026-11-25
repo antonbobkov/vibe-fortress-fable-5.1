@@ -2,7 +2,7 @@
  * `ui-screens/panels.md` § Mood; `15` § Player-facing behavior. The panel opens on a summary: the
  * hall spirit and the thoughts held by most dwarves, each with its weight and how many hold it;
  * `Enter` on one lists only the dwarves who hold it. Under it, every dwarf with its tier and its
- * strongest thoughts, on a second row when they do not fit beside the name.
+ * strongest thoughts under its name, one to a row, each wrapped under itself.
  */
 import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
@@ -10,7 +10,7 @@ import type { MoraleReader, ThoughtView } from '@systems/morale';
 import { MOOD_SUMMARY_THOUGHTS } from '../constants';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
-import { label, separator, wrapLabel, type ListState } from '../widgets';
+import { label, separator, wrapHang, wrapLabel, type ListState } from '../widgets';
 import { dwarvesOf, fitName, nameOf } from './units';
 import type { PanelContext } from './context';
 
@@ -148,33 +148,27 @@ export class MoodPanel {
   }
 }
 
-/** A dwarf's rows: its name and tier, and its thoughts beside them when the first fits there, else on a second row. */
+/** A dwarf's rows: its name and tier, then its strongest thoughts one to a row, each wrapped under itself. */
 interface DwarfLayout {
   readonly id: EntityId;
   readonly full: string;
   readonly name: string;
   readonly tier: string;
-  readonly thoughts: string;
-  readonly wrap: boolean;
+  /** The thoughts' rows, under the name. */
+  readonly lines: readonly string[];
 }
 
 function layoutDwarves(ctx: PanelContext, morale: MoraleReader, ids: readonly EntityId[], listCols: number): { nameCols: number; dwarves: DwarfLayout[] } {
   const names = ids.map((id) => nameOf(ctx, id));
   const longest = names.reduce((most, name) => Math.max(most, Array.from(name).length), 0);
   const nameCols = Math.max(1, Math.min(longest + 1, listCols - TIER_COLS));
-  const beside = listCols - nameCols - TIER_COLS;
-  const dwarves = ids.map((id, k) => {
-    const top = weighedThoughts(morale, id).slice(0, TOP_THOUGHTS).map(thoughtText);
-    const first = top[0];
-    return {
-      id,
-      full: names[k] as string,
-      name: fitName(names[k] as string, nameCols - 1, names),
-      tier: moodTierName(ctx.strings, morale.tier(id)),
-      thoughts: top.join(' '),
-      wrap: first !== undefined && Array.from(first).length > beside,
-    };
-  });
+  const dwarves = ids.map((id, k) => ({
+    id,
+    full: names[k] as string,
+    name: fitName(names[k] as string, nameCols - 1, names),
+    tier: moodTierName(ctx.strings, morale.tier(id)),
+    lines: weighedThoughts(morale, id).slice(0, TOP_THOUGHTS).flatMap((t) => wrapHang(thoughtText(t), listCols - THOUGHT_INDENT, THOUGHT_INDENT)),
+  }));
   return { nameCols, dwarves };
 }
 
@@ -210,12 +204,12 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
     summaryRow += rows;
   });
 
-  // The dwarves: a header, then each dwarf's row, and a second row for thoughts that do not fit beside it.
+  // The dwarves: a header, then each dwarf's row and its thoughts' rows under it.
   const head = Math.max(rect.row + 3, summaryRow);
   const bottom = rect.row + rect.rows - 4;
   const height = Math.max(1, bottom - head - 1);
   let layout = layoutDwarves(ctx, r, ids, width);
-  const rowsOf = (d: DwarfLayout): number => (d.wrap ? 2 : 1);
+  const rowsOf = (d: DwarfLayout): number => 1 + d.lines.length;
   const scrollbar = layout.dwarves.reduce((n, d) => n + rowsOf(d), 0) > height;
   if (scrollbar) layout = layoutDwarves(ctx, r, ids, width - 1);
   const listCols = scrollbar ? width - 1 : width;
@@ -223,7 +217,6 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
   const strings = ctx.strings;
   label(s, col, head, strings.get('ui.mood.name'), { fg: t.key, width: nameCols, keys: false });
   label(s, col + nameCols, head, strings.get('ui.mood.tier'), { fg: t.key, width: TIER_COLS, keys: false });
-  if (listCols - nameCols - TIER_COLS >= Array.from(strings.get('ui.mood.top')).length) label(s, col + nameCols + TIER_COLS, head, strings.get('ui.mood.top'), { fg: t.key, keys: false });
 
   // Keep the cursor's dwarf in view.
   const cursor = panel.list.selected - summary.length;
@@ -242,8 +235,7 @@ export function drawMoodPanel(s: Surface, rect: Rect, panel: MoodPanel, ctx: Pan
     label(s, col, row, d.name, { width: nameCols - 1, keys: false });
     if (d.name !== d.full) s.tooltip({ col, row, cols: nameCols - 1, rows: 1 }, d.full);
     label(s, col + nameCols, row, d.tier, { width: TIER_COLS - 1, keys: false });
-    if (!d.wrap) label(s, col + nameCols + TIER_COLS, row, d.thoughts, { width: listCols - nameCols - TIER_COLS, keys: false });
-    else if (rows > 1) label(s, col + THOUGHT_INDENT, row + 1, d.thoughts, { fg: t.dim, width: listCols - THOUGHT_INDENT, keys: false });
+    d.lines.slice(0, rows - 1).forEach((line, n) => label(s, col + THOUGHT_INDENT, row + 1 + n, line, { fg: t.dim, width: listCols - THOUGHT_INDENT, keys: false }));
     if (summary.length + k === panel.list.selected) s.invert(cells);
     const index = summary.length + k;
     s.hit(cells, () => { panel.list.selected = index; });
