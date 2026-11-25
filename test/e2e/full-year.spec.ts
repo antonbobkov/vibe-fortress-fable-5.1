@@ -153,6 +153,8 @@ async function closePanels(page: Page): Promise<void> {
 async function placeBuilding(page: Page, categoryKey: string, nameQuery: string, clickX: number, clickY: number): Promise<void> {
   await page.keyboard.press('b');
   await page.keyboard.press(categoryKey);
+  // A long list scrolls (a row whose figure reads "(no stone)" wraps, T-717): the highlight brings the row into view.
+  for (let k = 0; k < 40 && !(await textOf(page)).includes(nameQuery); k += 1) await page.keyboard.press('ArrowDown');
   await clickText(page, nameQuery);
   await expect.poll(async () => (await textOf(page)).toLowerCase()).toContain(`${nameQuery.toLowerCase()} ·`);
   if (nameQuery === 'Trade depot') {
