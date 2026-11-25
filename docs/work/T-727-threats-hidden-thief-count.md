@@ -14,5 +14,5 @@ At `twilight_pass` thieves come in pairs, one party of two (18 § Schedule). Onc
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a pair of thieves with one spotted reads `1`; both spotted `2`; a revealed ambush is unchanged.
-- [ ] UI only: world hashes unchanged.
+- [x] Tests (`describe` with the task id): a pair of thieves with one spotted reads `1`; both spotted `2`; a revealed ambush is unchanged (`test/unit/ui/t727-threats-hidden-count.test.ts`, with the click on a hidden leader going to the spotted member, and a hidden member gone from the map in neither number).
+- [x] UI only: world hashes unchanged (only `src/ui` changed).

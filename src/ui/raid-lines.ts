@@ -83,13 +83,21 @@ export function partyDoingWords(strings: Strings, readers: ReaderSet, party: Par
   return strings.has(key) ? strings.get(key) : party.state;
 }
 
+/** A member the map shows: not stealthed, or spotted (18 § Stealth). One it hides is never counted. */
+export function memberShown(readers: ReaderSet, m: number): boolean {
+  const h = readers.entities.get(m, C.Hostile);
+  return h?.stealthed !== true || h.spotted === true;
+}
+
 /**
  * The threats panel's line for a party in view, named as the log names it, with the members still
  * on the map ("7 of 10" when some are dead, fled or caged) and what it is doing: "Active: Gloam
- * raid, 7 of 10, attacking", "Active: bandit raid, 4, looting".
+ * raid, 7 of 10, attacking", "Active: bandit raid, 4, looting". A member the map hides is left out
+ * of both numbers, as in Look's `Party` row: a thief pair with one spotted reads "thief, 1, coming".
  */
 export function partyActiveText(strings: Strings, registry: Registry, readers: ReaderSet, party: Party): string {
-  return strings.get('ui.threats.active_party', { party: partyWords(strings, registry, party), count: partyCountWords(strings, readers, party), doing: partyDoingWords(strings, readers, party) });
+  const count = partyCountWords(strings, readers, party, (m) => memberShown(readers, m));
+  return strings.get('ui.threats.active_party', { party: partyWords(strings, registry, party), count, doing: partyDoingWords(strings, readers, party) });
 }
 
 /**

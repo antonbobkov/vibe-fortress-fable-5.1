@@ -18,7 +18,7 @@ import type { KeyPress } from '@platform/input';
 import type { EntityId } from '@core/types';
 import { visibleHostileIds } from '../status';
 import { speciesPlural } from '../messages';
-import { comingText, partyActiveText } from '../raid-lines';
+import { comingText, memberShown, partyActiveText } from '../raid-lines';
 
 /** The Deep's line under its gauge, by level (18 § The Deep): `ui.threats.deep_quote.<level>`, the last for every level above. */
 export function deepQuote(level: number, strings: Strings = new Strings()): string {
@@ -153,8 +153,8 @@ export function drawThreatsPanel(
       if (row >= rect.row + rect.rows) break;
       const p = threats?.party(pId);
       if (p) {
-        // A click centres on the party's leader, or on its first member still on the map.
-        const lead = [p.leaderId, ...p.members].map((m) => (ctx.readers.entities.alive(m) ? tileOf(ctx, m) : null)).find((at) => at !== null);
+        // A click centres on the party's leader, or on its first member still on the map: one the map shows.
+        const lead = [p.leaderId, ...p.members].map((m) => (ctx.readers.entities.alive(m) && memberShown(ctx.readers, m) ? tileOf(ctx, m) : null)).find((at) => at !== null);
         for (const part of wrapHang(partyActiveText(ctx.strings, ctx.registry, ctx.readers, p), width, 2)) {
           if (row >= rect.row + rect.rows) break;
           label(s, col, row, part, { fg: t.bad, width, keys: false });
