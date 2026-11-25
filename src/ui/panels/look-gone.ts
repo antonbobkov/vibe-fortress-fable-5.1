@@ -14,6 +14,7 @@ import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import type { ItemsReader } from '@systems/items';
 import { deathLineKey, killerWords } from '../announcements';
+import { creatureName } from '../creature-name';
 import { wrapHang } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -126,6 +127,7 @@ export function drawGoneView(
   s: Surface,
   rect: Rect,
   readers: ReaderSet,
+  registry: Registry,
   strings: Strings,
   state: GoneState,
   facts: GoneFacts,
@@ -165,7 +167,7 @@ export function drawGoneView(
   if (facts.holder !== 0 && readers.entities.has(facts.holder, C.Creature)) {
     const c = readers.entities.get(facts.holder, C.Creature);
     const shown = readers.entities.alive(facts.holder) && state.kind !== 'hidden';
-    const who: Span[] = [{ text: c?.name ?? '', target: shown ? { kind: 'creature', id: facts.holder } : undefined }];
+    const who: Span[] = [{ text: creatureName(registry, c), target: shown ? { kind: 'creature', id: facts.holder } : undefined }];
     spans(stringSpans(strings, 'ui.look.last_carried', { who }), t.text);
   }
   if (p !== null) line(strings.get(state.kind === 'hidden' ? 'ui.look.last_seen_at' : 'ui.look.last_at', p), t.value);

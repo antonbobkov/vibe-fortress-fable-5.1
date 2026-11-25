@@ -14,6 +14,7 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { EntityId } from '@core/types';
 import type { ThreatsReader } from '@systems/threats';
+import { creatureNameOf } from '../creature-name';
 import { partyCountWords, partyDoingWords, partyWords } from '../raid-lines';
 import type { Strings } from '../strings';
 import type { Span } from './look-links';
@@ -50,11 +51,7 @@ function roleWords(strings: Strings, role: string): string {
 
 /** A creature by a name of its own, else by its species's name ("gloam captain"), a link to its view. */
 function creatureSpan(ctx: HostileContext, id: EntityId): Span[] {
-  const c = ctx.readers.entities.get(id, C.Creature);
-  const row = c === undefined ? undefined : ctx.registry.table<{ id: string; name: string }>('creatures').byIndex(c.species);
-  // A creature called by its species carries the species's id as its name (spawn's default).
-  const own = c !== undefined && c.name !== '' && c.name !== row?.id;
-  return [{ text: own ? c.name : row?.name ?? c?.name ?? '', target: { kind: 'creature', id } }];
+  return [{ text: creatureNameOf(ctx.readers, ctx.registry, id), target: { kind: 'creature', id } }];
 }
 
 /**
