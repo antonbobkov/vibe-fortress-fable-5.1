@@ -23,8 +23,21 @@ Decisions:
 
 Spec: `embark-catalog.md` § Presets and § Rules of thumb (totals re-checked by `content:check`); 17 § Player-facing behavior and § Registrations (the alert); `ui-screens/panels.md` (hospital zone line).
 
+## Decision
+
+As above, with these choices made in the work (17 § Patients and hospitals, § Player-facing behavior; `embark-catalog.md`):
+
+- **No bandaging without a dressing, kept.** A medic does not stop a serious cut's bleeding by hand (pressure) or with a worse clot. The owner keeps hard trade-offs: five linen in the wagon, or a caravan's bandages, are the difference between a soldier bled out and a soldier bandaged, and that is a decision the player can now see coming. The fallback would also blunt the hospital's cloth reserve (T-693, T-696) and the clothier's bandages, which exist to matter. Logged as "No cloth, no clot" in `fun-features.md`, with what a fallback would take.
+- **The alert is raised at the cut, not when the job blocks.** `NoDressing { id }` comes when a dwarf patient has a wound that bleeds until bandaged (serious or grievous; a light one clots), no bandage or cloth is to be had in the fortress, and no medic has its `stop_bleeding` under way. It is checked at every patient update, the wound's own tick included, so it is not delayed behind a medic trying the job. Once a wound: `Patient.noDressingAlerted` keeps the alert's tick, and only a later such wound raises it again; an older save without it warns at the next update. A light cut with no cloth raises nothing (it clots in `CLOT_TICKS`).
+- **The text names what helps:** "… is bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom." The clothier's bandages need cloth, so they are not named when there is none.
+- **The Care line names it first**, before the hospital: "Care: bleeding, and no bandage or cloth to bandage it. Buy them from a caravan, or weave cloth at a loom." (when its `stop_bleeding` is blocked for a missing input). In the playtest the hospital had no bed, so a line after the hospital's would have hidden it.
+- **The hospital panel line** reads the fortress's bandages and cloth to be had (not the hospital's chests), above the supplies.
+- **The hint** is a third line the supplies tab turns over to: "Hint: bring linen. Without cloth or bandages no wound can be bandaged, and a deep cut bleeds to death."
+- No golden world hash moved: `world-hashes.json` plays Balanced, which already carried linen. The scenarios that embark Warband (`pp_defence`, T-521's world) or Farmstead (`pp_pasture`) keep no hash; T-521's timeline moved (another dwarf's hunt takes the put-down crossbow at once), and its step accepts that.
+
 ## Done
 
-- [ ] `npm run content:check` passes with the new preset totals; a test reads each preset and finds a `cloth` or `bandage`.
-- [ ] Tests (`describe` with the task id): a serious cut in a fortress with no cloth or bandage gives the alert once; the patient's Care line names the cloth; the hospital panel shows the line while both are 0 and not once one exists.
-- [ ] World hashes of scenarios that embark Warband or Farmstead move (the supplies changed); the commit names them.
+- [x] `npm run content:check` passes with the new preset totals; a test reads each preset and finds a `cloth` or `bandage` (`test/unit/health/t716-no-dressing.test.ts`).
+- [x] Tests (`describe` with the task id): a serious cut in a fortress with no cloth or bandage gives the alert once, at the cut, and again for a later serious cut, none for a light cut or with cloth; the patient's Care line names the bandage and cloth; the hospital panel shows the line while both are 0 and not once one exists; the save keeps the record; the embark hint.
+- [x] World hashes: none recorded for Warband or Farmstead embarks (above).
+- [x] Follow-up: `T-NEW-animal-no-dressing-alert.md` (five dogs bled out the same way, unannounced).
