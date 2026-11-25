@@ -11,7 +11,7 @@ import type { DwarvesReader } from '@systems/dwarves';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TileFlag } from '@core/map3d';
-import { currentValue, heldTier, moodValue, needPressureOf, productivity } from './mood';
+import { currentValue, moodValue, productivity, tierOf } from './mood';
 import { baseValue, eventPredicate, eventTargets, personalityBase, personalityMultiplier, thoughtDetail, triggerEvent, worldPredicate, type ThoughtDef } from './thoughts';
 import { NEED_PRESSURE_THOUGHTS, standingThoughts } from './standing';
 import { advanceSulkCounter, doSulk, sulkKind } from './sulks';
@@ -302,14 +302,13 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
         return { value: currentValue(thought, def, ctx.tick), need: NEED_PRESSURE_THOUGHTS.has(def.id) };
       });
       const value = moodValue(values, hearth, personalityBase(ctx.registry, traits));
-      // 15 § Tiers and effects: the tier holds until the mood has truly moved (`heldTier`).
-      const tier = heldTier(before.tier, value, needPressureOf(values));
+      const tier = tierOf(value);
       entities.add(id, C.Mood, { ...before, value, tier, thoughts: next });
       if (tier !== before.tier) ctx.emit({ type: 'MoodTierChanged', id, from: before.tier, to: tier });
     }
     const adults = dwarves.adults();
     const value = adults.length === 0 ? 55 : adults.reduce((sum, id) => sum + (entities.get(id, C.Mood)?.value ?? 55), 0) / adults.length;
-    const tier = heldTier(this.spiritTier, value);
+    const tier = tierOf(value);
     this.spirit = value;
     if (tier !== this.spiritTier) ctx.emit({ type: 'HallSpiritChanged', value, tier });
     this.spiritTier = tier;

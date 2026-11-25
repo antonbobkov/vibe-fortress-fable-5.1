@@ -1,16 +1,15 @@
 /**
  * T-714: "X is miserable." no longer repeats several times a day (`reports/data/2026-11-24-playtest-2.md`,
- * finding 1). A tier holds until the mood has truly moved (15 § Tiers and effects: Miserable below 20,
- * left at 25); the miserable line names its reasons and a day's are one line (15 § Registrations); and
- * the restless dead fall to dust at dawn (17 § Registrations).
+ * finding 1). The miserable line names its reasons and a day's are one line, each dwarf named once
+ * however often its mood dips below 20 (15 § Registrations; the simulation's tier is unchanged); and
+ * the restless dead fall to dust at dawn (17 § Registrations). T-731: the line keeps its string key.
  */
 import { describe, expect, it } from 'vitest';
 import { FLAT_TEST_SURFACE_Z } from '@app/headless';
 import { C } from '@core/components';
 import { TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
 import type { GameEvent } from '@core/events';
-import { heldTier, type MoraleReader } from '@systems/morale';
-import { MOOD_TIER_HYSTERESIS } from '@systems/morale/constants';
+import type { MoraleReader } from '@systems/morale';
 import { AnnouncementLog } from '@ui/announcements';
 import { TestWorld } from '../../scenarios/test-world';
 import { strings } from '../ui/ui-fixture';
@@ -56,28 +55,8 @@ function announcer(w: TestWorld): AnnouncementLog {
  */
 const THIRST_FOR = { 18.5: 97.5, 20.5: 92.5, 22.5: 87.5, 24.5: 82.5, 26.5: 77.5, 30.5: 67.5 } as const;
 
-describe('T-714 a mood tier holds until the mood has truly moved', () => {
-  it('heldTier: falls at a bound, climbs only MOOD_TIER_HYSTERESIS past it, at every bound', () => {
-    expect(MOOD_TIER_HYSTERESIS).toBe(5);
-    expect(heldTier(1, 19)).toBe(0);
-    expect(heldTier(0, 21)).toBe(0);
-    expect(heldTier(0, 24.9)).toBe(0);
-    expect(heldTier(0, 25)).toBe(1);
-    expect(heldTier(1, 42)).toBe(1);
-    expect(heldTier(1, 45)).toBe(2);
-    expect(heldTier(2, 39)).toBe(1);
-    expect(heldTier(2, 69)).toBe(2);
-    expect(heldTier(3, 89)).toBe(3);
-    expect(heldTier(3, 90)).toBe(4);
-    // A jump climbs as far as the margins allow: 46 from Miserable is Fine; 44 only Unhappy.
-    expect(heldTier(0, 46)).toBe(2);
-    expect(heldTier(0, 44)).toBe(1);
-    // With no need pressing a dwarf leaves Miserable at 20 (the needs-met floor, 15 § Mood).
-    expect(heldTier(0, 20, 0)).toBe(1);
-    expect(heldTier(0, 21, 3)).toBe(0);
-  });
-
-  it('a dwarf whose mood moves 19, 21, 19, 22 through a day stays Miserable and is announced once; at 25 it leaves', () => {
+describe('T-714 a mood that hovers about 20 is told once a day', () => {
+  it('a dwarf whose mood moves 19, 21, 19, 22 through a day falls to Miserable again and again, and the log has one line', () => {
     const w = world('t714-hover');
     const id = plainDwarf(w, 'Dagny Goldstone', 10);
     const morale = w.readers.of<MoraleReader>('15');
@@ -92,15 +71,18 @@ describe('T-714 a mood tier holds until the mood has truly moved', () => {
       return morale.tier(id);
     };
     expect(hour(30.5)).toBe(1);
+    // Twenty hours of hovering about the bound, as needs rise and fall, within the first day.
     const tiers: number[] = [];
-    // A day of hovering about the bound, as needs rise and fall.
-    for (let k = 0; k < 6; k += 1) for (const mood of [18.5, 20.5, 18.5, 22.5] as const) tiers.push(hour(mood));
-    expect(tiers.every((tier) => tier === 0)).toBe(true);
-    expect(told.filter((e) => e['to'] === 0)).toHaveLength(1);
-    expect(log.lines.filter((l) => l.text.includes('miserable'))).toHaveLength(1);
-    expect(hour(24.5)).toBe(0);
-    expect(hour(26.5)).toBe(1);
-    expect(told.map((e) => [e['from'], e['to']])).toEqual([[2, 1], [1, 0], [0, 1]]);
+    for (let k = 0; k < 5; k += 1) for (const mood of [18.5, 20.5, 18.5, 22.5] as const) tiers.push(hour(mood));
+    expect(w.tick).toBeLessThan(TICKS_PER_DAY);
+    // The simulation reads the plain band each hour: the tier flips with the mood.
+    expect(tiers).toEqual(Array.from({ length: 5 }, () => [0, 1, 0, 1]).flat());
+    expect(told.filter((e) => e['to'] === 0)).toHaveLength(10);
+    // The announcer names the dwarf once that day.
+    const lines = log.lines.filter((l) => l.text.includes('miserable'));
+    expect(lines).toHaveLength(1);
+    expect(lines[0]?.count).toBe(1);
+    expect(lines[0]?.text).toBe('Dagny Goldstone is miserable: "I am thirsty. I am hungry."');
   });
 });
 
@@ -134,6 +116,21 @@ describe('T-714 the miserable line names its reasons, and a day\'s are one line'
     const log = announcer(w);
     expect(log.announce({ type: 'MoodTierChanged', id: asa, from: 2, to: 1 } as GameEvent, w.readers, 100)).toBeNull();
     expect(log.announce({ type: 'MoodTierChanged', id: asa, from: 0, to: 1 } as GameEvent, w.readers, 100)).toBeNull();
+  });
+});
+
+describe('T-731 the miserable line keeps its string key', () => {
+  it('announce.mood_tier_why for one dwarf, announce.mood_tier_many_why once a second joins it', () => {
+    const w = world('t731-key');
+    const asa = plainDwarf(w, 'Asa Forgehall', 10);
+    const njal = plainDwarf(w, 'Njal Asheye', 12);
+    holdHour(w, new Map([[asa, { hunger: 95, thirst: 90 }], [njal, { thirst: 95 }]]));
+    const log = announcer(w);
+    const fall = (id: number, tick: number) => log.announce({ type: 'MoodTierChanged', id, from: 1, to: 0 } as GameEvent, w.readers, tick);
+    const day = 5 * TICKS_PER_DAY;
+    expect(fall(asa, day + 10)?.line.key).toBe('announce.mood_tier_why');
+    expect(fall(njal, day + 400)?.line.key).toBe('announce.mood_tier_many_why');
+    expect(log.lines.filter((l) => l.key?.startsWith('announce.mood_tier'))).toHaveLength(1);
   });
 });
 

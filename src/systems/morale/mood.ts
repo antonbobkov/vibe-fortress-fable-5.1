@@ -3,7 +3,6 @@ import { MOOD_BASELINE, MOOD_MAX, MOOD_MIN, TICKS_PER_HOUR } from '@core/constan
 import type { ActiveThought } from '@core/components';
 import type { MoodTier } from '@core/types';
 import type { ThoughtDef } from './thoughts';
-import { MOOD_TIER_HYSTERESIS } from './constants';
 
 export const POSITIVE_CAP = 40;
 export const NEGATIVE_CAP = 35;
@@ -15,25 +14,6 @@ export const SULK_DAYS = 7;
 /** 0 Miserable, 1 Unhappy, 2 Fine, 3 Content, 4 Ecstatic. */
 export function tierOf(value: number): MoodTier {
   return value >= 85 ? 4 : value >= 65 ? 3 : value >= 40 ? 2 : value >= 20 ? 1 : 0;
-}
-
-/** The lower bound of the tier above each tier: Unhappy 20, Fine 40, Content 65, Ecstatic 85. */
-const TIER_FLOORS: readonly number[] = [20, 40, 65, 85];
-
-/**
- * 15 § Tiers and effects: the tier a mood holds, given the tier it held. It falls to a lower tier as
- * soon as the mood is below that tier's bound, and climbs into a higher one only at
- * `MOOD_TIER_HYSTERESIS` past its bound (Miserable below 20, left at 25), so a mood that hovers about
- * a bound does not flip the tier back and forth. With no need pressing (`needPressure` 0) a dwarf
- * leaves Miserable at 20, as the needs-met floor promises (15 § Mood). Hall spirit has no needs: it
- * passes none and keeps the margin.
- */
-export function heldTier(held: MoodTier, value: number, needPressure = 1): MoodTier {
-  const plain = tierOf(value);
-  if (plain <= held) return plain;
-  let tier: number = held === 0 && needPressure === 0 ? 1 : held;
-  while (tier < plain && value >= (TIER_FLOORS[tier] as number) + MOOD_TIER_HYSTERESIS) tier += 1;
-  return tier as MoodTier;
 }
 
 export function productivity(tier: MoodTier): number {
@@ -59,13 +39,8 @@ export function currentValue(thought: ActiveThought, def: ThoughtDef, tick: numb
 export function moodValue(values: readonly { value: number; need?: boolean }[], hearthTier: number, personalityBase: number): number {
   const positives = Math.min(POSITIVE_CAP, values.reduce((n, v) => n + Math.max(0, v.value), 0));
   const negatives = Math.min(NEGATIVE_CAP, values.reduce((n, v) => n + Math.max(0, -v.value), 0));
-  const needPressure = needPressureOf(values);
+  const needPressure = Math.floor(Math.min(NEED_PRESSURE_CAP, values.reduce((n, v) => n + (v.need ? Math.max(0, -v.value) : 0), 0)));
   const hearthBonus = hearthTier * HEARTH_TIER_BONUS;
   const raw = MOOD_BASELINE + positives - negatives - needPressure + hearthBonus + personalityBase;
   return Math.max(MOOD_MIN, Math.min(MOOD_MAX, Math.max(raw, MOOD_NEEDS_MET_FLOOR - needPressure)));
-}
-
-/** 15 § Mood: `needPressure`, the floored, capped sum of the need thoughts' weights. */
-export function needPressureOf(values: readonly { value: number; need?: boolean }[]): number {
-  return Math.floor(Math.min(NEED_PRESSURE_CAP, values.reduce((n, v) => n + (v.need ? Math.max(0, -v.value) : 0), 0)));
 }

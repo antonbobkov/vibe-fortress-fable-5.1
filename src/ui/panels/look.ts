@@ -17,6 +17,7 @@ import type { Rgb } from '@render/palette';
 import { patternCell } from '@render/things';
 import { agedMaterial, buildingName, enchantedName, filterText, itemRotText, materialItemName, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
+import { creatureName, creatureNameOf } from '../creature-name';
 import { goodsWaiting, goodsWaitText } from '../goods-wait';
 import type { MoraleReader } from '@systems/morale';
 import type { BuildingsReader } from '@systems/buildings';
@@ -34,6 +35,7 @@ import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { creatureActivity } from './look-activity';
 import { ANIMAL_FIELDS, animalFields } from './look-animal';
+import { HOSTILE_FIELDS, hostileFields } from './look-hostile';
 import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
 import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
 import { creatureGone, drawGoneView, drawLookFoot, footRows, itemGone, type LookFoot } from './look-gone';
@@ -172,7 +174,7 @@ export function clickRung(readers: ReaderSet, i: TileIndex): LookRung {
 
 /** "Ketil Ironvein, Digging", "wolf, Asleep": a creature's summary for the status bar, its activity never empty. */
 export function creatureSummary(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string {
-  const name = readers.entities.get(id, C.Creature)?.name ?? '';
+  const name = creatureNameOf(readers, registry, id);
   const activity = creatureActivity({ readers, registry, strings }, id);
   return activity.length > 0 ? `${name}, ${activity}` : name;
 }
@@ -205,7 +207,7 @@ export function tileContents(readers: ReaderSet, registry: Registry, strings: St
   const wait = buildingWait(readers, strings, i);
   if (others === 0) return summary + wait;
   if (others > 1) return strings.get('ui.status.here_more', { summary, n: others }) + wait;
-  const thing = items.length === 1 ? itemName(readers, registry, items[0] as EntityId) : readers.entities.get(creatures[1] as EntityId, C.Creature)?.name ?? '';
+  const thing = items.length === 1 ? itemName(readers, registry, items[0] as EntityId) : creatureNameOf(readers, registry, creatures[1] as EntityId);
   return strings.get('ui.status.here_one', { summary, thing }) + wait;
 }
 
@@ -490,7 +492,7 @@ export function tileListRows(readers: ReaderSet, registry: Registry, strings: St
     rows.push({
       target: { kind: 'creature', id },
       glyph: firstGlyph(species.byIndex(c?.species ?? -1)?.glyph),
-      name: c?.name ?? '',
+      name: creatureName(registry, c),
       fact: creatureActivity({ readers, registry, strings }, id),
       inner: false,
       notes: [],
@@ -661,7 +663,7 @@ export function drawCreatureView(
   };
   const gone = creatureGone(readers, id, creatureShown(readers, id), undefined);
   if (gone !== null) {
-    drawGoneView(s, rect, readers, strings, gone, { name: readers.entities.get(id, C.Creature)?.name ?? '', sub: '', holder: 0, last }, sink, foot);
+    drawGoneView(s, rect, readers, registry, strings, gone, { name: creatureNameOf(readers, registry, id), sub: '', holder: 0, last }, sink, foot);
     if (view !== undefined) view.key = `gone:${id}`;
     return;
   }
@@ -693,13 +695,18 @@ export function drawCreatureView(
 function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, dwarf: boolean): void {
   const t = s.theme;
   const { line, wrapped, put } = pen;
-  // 08's `creature › animal`: species, state, owner, pasture, condition and training, a dim label and a value a row.
+  // 08's `creature › animal` (species, state, owner, pasture, condition, training) and 18's
+  // `creature › hostile` (party, role, state): a dim label and a value a row, the values in one column.
+  const labels = [...ANIMAL_FIELDS.map((f) => `ui.look.animal.field.${f}`), ...HOSTILE_FIELDS.map((f) => `ui.look.hostile.field.${f}`)];
+  const pad = Math.max(...labels.map((key) => Array.from(strings.get(key)).length)) + 2;
   const fields = animalFields({ readers, registry, strings }, id);
-  if (fields.length > 0) {
-    const pad = Math.max(...ANIMAL_FIELDS.map((f) => Array.from(strings.get(`ui.look.animal.field.${f}`)).length)) + 2;
-    for (const f of fields) {
-      const head = strings.get(`ui.look.animal.field.${f.name}`).padEnd(pad);
-      pen.spans([{ text: head, fg: t.dim }, ...f.value], f.tone === 'bad' ? t.bad : f.tone === 'alert' ? t.alert : t.text, pad);
+  for (const f of fields) {
+    const head = strings.get(`ui.look.animal.field.${f.name}`).padEnd(pad);
+    pen.spans([{ text: head, fg: t.dim }, ...f.value], f.tone === 'bad' ? t.bad : f.tone === 'alert' ? t.alert : t.text, pad);
+  }
+  if (fields.length === 0) {
+    for (const f of hostileFields({ readers, registry, strings, shown: (other) => creatureShown(readers, other) }, id)) {
+      pen.spans([{ text: strings.get(`ui.look.hostile.field.${f.name}`).padEnd(pad), fg: t.dim }, ...f.value], t.text, pad);
     }
   }
   const skills = registry.table<{ id: string; name: string }>('skills');
@@ -846,9 +853,7 @@ export function itemShown(readers: ReaderSet, id: EntityId): boolean {
 
 /** A creature by its own name, or its species's; a link to its view when the map shows it. */
 function creatureLink(readers: ReaderSet, registry: Registry, id: EntityId): Span[] {
-  const c = readers.entities.get(id, C.Creature);
-  const name = c === undefined ? '' : c.name !== '' ? c.name : registry.table<{ id: string; name: string }>('creatures').byIndex(c.species)?.name ?? '';
-  return [{ text: name, target: creatureShown(readers, id) ? { kind: 'creature', id } : undefined }];
+  return [{ text: creatureNameOf(readers, registry, id), target: creatureShown(readers, id) ? { kind: 'creature', id } : undefined }];
 }
 
 /** An item by its name (with its count when more than one), a link to its view. */
@@ -963,7 +968,7 @@ export function drawItemView(
   };
   const gone = itemGone(readers, id, itemShown(readers, id), undefined);
   if (gone !== null) {
-    drawGoneView(s, rect, readers, strings, gone, { name: '', sub: '', holder: 0, last }, sink, foot);
+    drawGoneView(s, rect, readers, registry, strings, gone, { name: '', sub: '', holder: 0, last }, sink, foot);
     if (view !== undefined) view.key = `gone:item:${id}`;
     return;
   }

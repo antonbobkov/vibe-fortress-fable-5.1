@@ -681,3 +681,19 @@ describe('T-695 a ruin\'s armed old trap in the building panel', () => {
     expect(panel(f).text).not.toContain('An old trap');
   });
 });
+
+describe('T-726 a caged creature without a name of its own is named by its species', () => {
+  it('a caged gloam captain reads "Holds a gloam captain", never its species id', () => {
+    const f = setup('t726-cage');
+    const cage = f.w.build('cage_building', f.w.index(30, 30, z), 'oak');
+    f.w.step(1);
+    open(f, cage);
+    const captain = f.w.spawnCreature('gloam_captain', f.w.index(30, 30, z), 'hostile:gloam');
+    const entities = f.w.game.world.entities;
+    const building = entities.get(cage, C.Building);
+    if (building === undefined) throw new Error('no cage');
+    entities.add(cage, C.Building, { ...building, settings: { ...building.settings, occupantId: captain } });
+    expect(panel(f).text).toContain('Holds a gloam captain');
+    expect(panel(f).text).not.toContain('gloam_captain');
+  });
+});

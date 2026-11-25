@@ -33,6 +33,9 @@ export const LOG_IMMIGRANT_NAMES = 4;
 /** The miserable line gives this many reasons: a dwarf's strongest negative thoughts, the day's line the ones weighing most over its dwarves. */
 export const LOG_MISERABLE_REASONS = 3;
 
+/** The day's line of animals bleeding with no dressing (17) names at most this many; more are counted. */
+export const LOG_BLEEDING_NAMES = 3;
+
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
 export const CURSOR_SCROLL_MARGIN = 3;
 

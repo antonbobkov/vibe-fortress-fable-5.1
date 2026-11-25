@@ -22,6 +22,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Layout, Rect } from '@render/cellbuffer';
 import { AnnouncementLog, creatureWords, type LogLine } from '../announcements';
+import { creatureNameOf, hasOwnName } from '../creature-name';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, LOOK_BACK_MAX, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
@@ -440,6 +441,7 @@ export class FortressScreen implements Screen {
       if (group !== undefined) {
         group.count += 1;
         group.line.text = this.strings.get('announce.dangerous_arrived_many', { count: group.count, species: group.plural });
+        group.line.key = 'announce.dangerous_arrived_many';
         continue;
       }
       if (event.type === 'ZoneChanged' && event['change'] === 'created' && this.pendingZone !== null && event['zoneType'] === this.pendingZone.type &&
@@ -629,11 +631,10 @@ export class FortressScreen implements Screen {
   /** The creatures a log line can name: those with a name of their own (an unnamed one is called by its species). */
   private namedCreatures(): { id: EntityId; name: string }[] {
     const readers = this.host.readers;
-    const species = this.host.registry.table<{ id: string }>('creatures');
     const out: { id: EntityId; name: string }[] = [];
     for (const id of readers.entities.with(C.Creature, C.Position)) {
       const c = readers.entities.get(id, C.Creature);
-      if (c === undefined || c.name === '' || c.name === species.byIndex(c.species)?.id) continue;
+      if (c === undefined || !hasOwnName(this.host.registry, c)) continue;
       out.push({ id, name: c.name });
     }
     return out;
@@ -1525,7 +1526,7 @@ export class FortressScreen implements Screen {
     const p = readers.entities.get(id, C.Position);
     this.openPanel('look');
     if (from === 'fresh') this.lookBack.length = 0;
-    this.lookAt = { kind: 'creature', id, name: readers.entities.get(id, C.Creature)?.name ?? '', last: p === undefined ? null : readers.map.index(p.x, p.y, p.z) };
+    this.lookAt = { kind: 'creature', id, name: creatureNameOf(readers, this.host.registry, id), last: p === undefined ? null : readers.map.index(p.x, p.y, p.z) };
     this.lookView.key = '';
     this.trackLook();
   }
@@ -1861,7 +1862,7 @@ export class FortressScreen implements Screen {
   /** Look's title row: the tile list's "Tile (58, 93, z27)", the creature's name, or the item's. */
   private lookTitle(fallback: string): string {
     const at = this.lookAt;
-    if (at.kind === 'creature') return this.host.readers.entities.get(at.id, C.Creature)?.name ?? at.name;
+    if (at.kind === 'creature') return this.host.readers.entities.has(at.id, C.Creature) ? creatureNameOf(this.host.readers, this.host.registry, at.id) : at.name;
     if (at.kind === 'item') return at.name;
     const tile = this.cursorTile();
     return tile === null ? fallback : tileTitle(this.host.readers, this.strings, tile);
@@ -1878,7 +1879,7 @@ export class FortressScreen implements Screen {
       const sink = this.lookView.sink(key, open);
       this.lookView.key = key;
       const facts = { name: this.lookTitle(''), sub: at.sub ?? '', holder: at.kind === 'item' ? at.holder ?? 0 : 0, last: at.last };
-      drawGoneView(surface, body, readers, this.strings, gone, facts, sink, this.lookFoot(), (id) => itemTitle(readers, this.host.registry, id));
+      drawGoneView(surface, body, readers, this.host.registry, this.strings, gone, facts, sink, this.lookFoot(), (id) => itemTitle(readers, this.host.registry, id));
     } else if (at.kind === 'creature') {
       const submit = (cmds: readonly Command[]): void => { for (const c of cmds) this.host.submit(c); };
       const picker = this.lookPasture.showing(readers, at.id) ? (region: Rect): void => drawPastureChoice(surface, region, this.ctx, this.lookPasture, submit) : undefined;

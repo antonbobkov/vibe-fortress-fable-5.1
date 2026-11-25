@@ -22,7 +22,7 @@ import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
-import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, ROT_ALERT_DAYS } from './constants';
+import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
 import type { WorkshopsReader } from '@systems/workshops';
@@ -47,6 +47,19 @@ export interface LogLine {
    * `[v]` opens its view while it still exists. Presentation state, saved with the line.
    */
   subject?: EntityId;
+  /**
+   * The string key the line's text was filled from (T-725), as it reads now: a line that grows
+   * ("3 dwarves are starving: …") takes the key of its new words. The legend's last words fold by it.
+   * Set on every line the announcer writes; a line the UI writes itself (a refused command, a save's
+   * note, a hint) and a line of an older save have none. Presentation state, saved with the line.
+   */
+  key?: string;
+}
+
+/** A line's words and the string key they were filled from (T-725). */
+export interface Said {
+  readonly key: string;
+  readonly text: string;
 }
 
 /** The strip's prefix per severity: "danger lines are prefixed `!!`, alerts `!`". */
@@ -116,6 +129,8 @@ export class AnnouncementLog {
   private starving: { line: LogLine; ids: number[]; names: string[] } | null = null;
   /** The day's miserable line, the dwarves it names and the reasons each gave (`announceMiserable`). */
   private miserable: { line: LogLine; ids: number[]; names: string[]; reasons: Reason[][] } | null = null;
+  /** The day's line of fortress animals bleeding with no dressing and the animals it names (`announceBleedingAnimal`). */
+  private bleeding: { line: LogLine; ids: number[]; names: string[] } | null = null;
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
   private readonly partyTiles = new Map<number, TileIndex>();
 
@@ -472,6 +487,9 @@ export class AnnouncementLog {
     if (event.type === 'CropDied') return this.announceFrost(fields, readers, tick, spec);
     if (event.type === 'Starving') return this.announceStarving(event, readers, tick, spec);
     if (event.type === 'MoodTierChanged') return this.announceMiserable(event, readers, tick, spec);
+    if (event.type === 'NoDressing' && typeof fields['id'] === 'number' && !readers.entities.has(fields['id'], C.Attributes)) {
+      return this.announceBleedingAnimal(event, fields['id'], readers, tick, spec);
+    }
     if (event.type === 'MiasmaSpread') return this.announceMiasma(fields, readers, tick, spec);
     if (event.type === 'ThiefEscaped') return this.announceTheft(fields, readers, tick, spec);
     if (event.type === 'RaidEnded') return this.announceRaidEnded(fields, readers, tick, spec);
@@ -511,9 +529,9 @@ export class AnnouncementLog {
     }
     // A blow that does no damage says so, rather than "0 edge".
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && fields['amount'] === 0) {
-      return this.done(this.append(severity, this.strings.get('announce.attack_harmless', params), tick, focus, category));
+      return this.done(this.append(severity, this.strings.get('announce.attack_harmless', params), tick, focus, category, 'announce.attack_harmless'));
     }
-    const line = this.append(severity, text, tick, focus, category);
+    const line = this.append(severity, text, tick, focus, category, key);
     return { line, severity, focus };
   }
 
@@ -570,15 +588,17 @@ export class AnnouncementLog {
     this.enlist(fight.ours, ours, readers);
     this.enlist(fight.foes, foe, readers);
     fight.last = tick;
-    const text = capitalize(this.engagementText(fight));
+    const said = this.engagementText(fight);
+    const text = capitalize(said.text);
     if (open !== null) {
       open.line.text = text;
+      open.line.key = said.key;
       open.line.tick = tick;
       if (focus !== undefined) open.line.focus = focus;
       open.line.subject = foe;
       return null;
     }
-    const line = this.append('alert', text, tick, focus, 'combat');
+    const line = this.append('alert', text, tick, focus, 'combat', said.key);
     line.subject = foe;
     this.engagement = { line, ours: fight.ours, foes: fight.foes, last: tick };
     return this.done(line);
@@ -592,10 +612,15 @@ export class AnnouncementLog {
   }
 
   /** "Halvar Ironfell is fighting a wolf.", "4 dwarves and a dog are fighting 9 gloam warriors and a gloam captain." */
-  private engagementText(fight: Engagement): string {
+  private engagementText(fight: Engagement): Said {
     const ours = this.fightersText(fight.ours);
     const foes = this.fightersText(fight.foes);
-    return this.strings.get(fight.ours.length === 1 ? 'announce.engagement.one' : 'announce.engagement.many', { ours, foes });
+    return this.say(fight.ours.length === 1 ? 'announce.engagement.one' : 'announce.engagement.many', { ours, foes });
+  }
+
+  /** A template's words and its key (T-725). */
+  private say(key: string, params: Readonly<Record<string, string | number>> = {}): Said {
+    return { key, text: this.strings.get(key, params) };
   }
 
   /** A side of an engagement by species, in the order they joined: one by its name or "a dog", more counted ("4 dwarves"). */
@@ -636,7 +661,7 @@ export class AnnouncementLog {
       prev.line.tick = tick;
       return { line: prev.line, severity: prev.line.severity, focus: prev.line.focus };
     }
-    const line = this.append(spec.severity, text, tick, tile, spec.category);
+    const line = this.append(spec.severity, text, tick, tile, spec.category, spec.stringKey);
     this.frostLines.set(key, { line, n });
     return { line, severity: spec.severity, focus: tile };
   }
@@ -655,15 +680,16 @@ export class AnnouncementLog {
       (tick - prev.line.tick <= LOG_DEDUP_TICKS || dayIndexOf(prev.line.tick) === dayIndexOf(tick));
     const all = merges ? [...prev.stolen, stolen] : stolen === null ? [] : [stolen];
     const goods = all.length === 0 ? this.strings.get('announce.goods_unknown') : stolenGoodsText(this.strings, all);
-    const text = this.strings.get(theftKey(readers, partyId), { goods });
+    const said = this.say(theftKey(readers, partyId), { goods });
     if (merges) {
       prev.stolen = all;
-      prev.line.text = capitalize(text);
+      prev.line.text = capitalize(said.text);
+      prev.line.key = said.key;
       prev.line.tick = tick;
       return { line: prev.line, severity: prev.line.severity, focus: prev.line.focus };
     }
     // The thief has left the map with it: the line's place is where its party was last told of (`announce`).
-    const line = this.append(spec.severity, text, tick, undefined, spec.category);
+    const line = this.append(spec.severity, said.text, tick, undefined, spec.category, said.key);
     if (partyId !== 0 && stolen !== null) this.theftLines.set(partyId, { line, stolen: all });
     return { line, severity: line.severity, focus: undefined };
   }
@@ -678,11 +704,12 @@ export class AnnouncementLog {
     const partyId = Number(fields['partyId']);
     const outcome = String(fields['outcome'] ?? '');
     const severity: Severity = outcome === 'looted' ? 'alert' : spec.severity;
-    const text = raidEndedText(this.strings, this.registry, readers, partyId, outcome);
+    const said = raidEndedText(this.strings, this.registry, readers, partyId, outcome);
     const purpose = readers.has('18') ? readers.of<{ party(id: number): { purpose: string } | undefined }>('18').party(partyId)?.purpose : undefined;
     // A thief that got away with something was told by its theft line.
-    const line = text === null && purpose === 'thief' ? null : this.append(severity, text ?? this.strings.get(spec.stringKey), tick, undefined, spec.category);
-    const gone = raidGone(readers, partyId) ? this.append('alert', this.strings.get('announce.raid_gone'), tick) : null;
+    const told = said ?? this.say(spec.stringKey);
+    const line = said === null && purpose === 'thief' ? null : this.append(severity, told.text, tick, undefined, spec.category, told.key);
+    const gone = raidGone(readers, partyId) ? this.append('alert', this.strings.get('announce.raid_gone'), tick, undefined, undefined, 'announce.raid_gone') : null;
     const shown = gone ?? line;
     return shown === null ? null : { line: shown, severity: shown.severity, focus: undefined };
   }
@@ -698,12 +725,15 @@ export class AnnouncementLog {
     const open = this.starving;
     if (open !== null && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
       if (!open.ids.includes(id)) { open.ids.push(id); open.names.push(name); }
-      open.line.text = this.starvingText(open.names, spec);
+      const said = this.starvingText(open.names, spec);
+      open.line.text = said.text;
+      open.line.key = said.key;
       open.line.tick = tick;
       return { line: open.line, severity: open.line.severity, focus: open.line.focus };
     }
     const focus = focusOf(event, readers);
-    const line = this.append(spec.severity, this.starvingText([name], spec), tick, focus, spec.category);
+    const said = this.starvingText([name], spec);
+    const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
     this.starving = { line, ids: [id], names: [name] };
     return { line, severity: spec.severity, focus };
   }
@@ -727,33 +757,87 @@ export class AnnouncementLog {
       open.ids.push(id);
       open.names.push(name);
       open.reasons.push(reasons);
-      open.line.text = this.miserableText(open.names, open.reasons, spec);
+      const said = this.miserableText(open.names, open.reasons, spec);
+      open.line.text = said.text;
+      open.line.key = said.key;
       open.line.tick = tick;
       return { line: open.line, severity: open.line.severity, focus: open.line.focus };
     }
     const focus = focusOf(event, readers);
-    const line = this.append(spec.severity, this.miserableText([name], [reasons], spec), tick, focus, spec.category);
+    const said = this.miserableText([name], [reasons], spec);
+    const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
     this.miserable = { line, ids: [id], names: [name], reasons: [reasons] };
     return { line, severity: spec.severity, focus };
   }
 
-  private miserableText(names: readonly string[], reasons: readonly (readonly Reason[])[], spec: AnnouncementSpec): string {
+  /** The miserable line's text and its key (T-731): `announce.mood_tier[_why]` for one dwarf, `announce.mood_tier_many[_why]` for more. */
+  private miserableText(names: readonly string[], reasons: readonly (readonly Reason[])[], spec: AnnouncementSpec): Said {
     // The reasons weighing most over everyone named, the first named first on a tie.
     const weights = new Map<string, number>();
     for (const list of reasons) for (const r of list) weights.set(r.text, (weights.get(r.text) ?? 0) + r.weight);
     const why = Array.from(weights).sort((a, b) => b[1] - a[1]).slice(0, LOG_MISERABLE_REASONS).map(([text]) => text).join(' ');
     if (names.length === 1) {
       const dwarf = names[0] ?? '';
-      return capitalize(why === '' ? this.strings.get(spec.stringKey, { dwarf }) : this.strings.get('announce.mood_tier_why', { dwarf, why }));
+      const said = why === '' ? this.say(spec.stringKey, { dwarf }) : this.say('announce.mood_tier_why', { dwarf, why });
+      return { key: said.key, text: capitalize(said.text) };
     }
     const first = names.map((n) => n.split(' ')[0] ?? n).join(', ');
-    return this.strings.get(why === '' ? 'announce.mood_tier_many' : 'announce.mood_tier_many_why', { n: names.length, names: first, why });
+    return this.say(why === '' ? 'announce.mood_tier_many' : 'announce.mood_tier_many_why', { n: names.length, names: first, why });
   }
 
-  private starvingText(names: readonly string[], spec: AnnouncementSpec): string {
-    if (names.length === 1) return capitalize(this.strings.get(spec.stringKey, { dwarf: names[0] ?? '' }));
+  /**
+   * 17 § Player-facing behavior (T-723): a fortress animal's `NoDressing`. The day's are one line that
+   * names each animal once, by its own name or as "the dog" ("the war dog"), and counts more than
+   * `LOG_BLEEDING_NAMES`. Only the first is announced (its flash and pause); a later one changes the
+   * line in place, its focus and subject the latest animal, and returns null.
+   */
+  private announceBleedingAnimal(event: GameEvent, id: number, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const name = this.animalWords(id, readers);
+    const focus = focusOf(event, readers);
+    const open = this.bleeding;
+    if (open !== null && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
+      if (!open.ids.includes(id)) { open.ids.push(id); open.names.push(name); }
+      const said = this.bleedingText(open.names);
+      open.line.text = said.text;
+      open.line.key = said.key;
+      open.line.tick = tick;
+      if (focus !== undefined) open.line.focus = focus;
+      const subject = subjectOf(event, readers);
+      if (subject !== undefined) open.line.subject = subject;
+      return null;
+    }
+    const said = this.bleedingText([name]);
+    const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
+    this.bleeding = { line, ids: [id], names: [name] };
+    return { line, severity: spec.severity, focus };
+  }
+
+  private bleedingText(names: readonly string[]): Said {
+    if (names.length > LOG_BLEEDING_NAMES) return this.say('announce.no_dressing.animals_counted', { n: names.length });
+    if (names.length === 1) {
+      const said = this.say('announce.no_dressing.animal', { animal: names[0] ?? '' });
+      return { key: said.key, text: capitalize(said.text) };
+    }
+    const animals = this.strings.get('announce.list_and', { list: names.slice(0, -1).join(', '), last: names[names.length - 1] as string });
+    const said = this.say('announce.no_dressing.animals', { animals });
+    return { key: said.key, text: capitalize(said.text) };
+  }
+
+  /** An animal by its own name, else "the dog", "the war dog" or "the hunting dog" (as `animalStarvingKey` names one). */
+  private animalWords(id: number, readers: ReaderSet): string {
+    const creature = readers.entities.get(id, C.Creature);
+    const row = creature === undefined ? undefined : this.registry.table<NamedRow>('creatures').byIndex(creature.species);
+    if (creature !== undefined && creature.name !== '' && creature.name !== row?.name && creature.name !== row?.id) return creature.name;
+    const species = (row?.name ?? 'animal').toLowerCase();
+    const trained = readers.entities.get(id, C.Tame)?.trained;
+    const key = trained === 'war' ? 'announce.no_dressing.the_war' : trained === 'hunting' ? 'announce.no_dressing.the_hunting' : 'ui.creature.the_species';
+    return this.strings.get(key, { species });
+  }
+
+  private starvingText(names: readonly string[], spec: AnnouncementSpec): Said {
+    if (names.length === 1) return { key: spec.stringKey, text: capitalize(this.strings.get(spec.stringKey, { dwarf: names[0] ?? '' })) };
     const first = names.map((n) => n.split(' ')[0] ?? n).join(', ');
-    return this.strings.get('announce.starving_many', { n: names.length, names: first });
+    return this.say('announce.starving_many', { n: names.length, names: first });
   }
 
   /**
@@ -765,17 +849,19 @@ export class AnnouncementLog {
   private announceMiasma(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
     const tiles = Array.isArray(fields['tiles']) ? fields['tiles'] as TileIndex[] : [];
     const source = readers.has('13') ? this.miasmaSource(readers, tiles) : null;
-    let text = this.strings.get(spec.stringKey);
+    let key = spec.stringKey;
+    let text = this.strings.get(key);
     let focus = tiles[0];
     if (source !== null) {
-      text = this.strings.get('announce.miasma_from', { what: source.what, place: source.place });
+      key = 'announce.miasma_from';
+      text = this.strings.get(key, { what: source.what, place: source.place });
       focus = source.tile;
       if (this.history.miasmaAdvised !== true) {
         this.history.miasmaAdvised = true;
         text = `${text} ${this.strings.get('announce.miasma_advice')}`;
       }
     }
-    const line = this.append(spec.severity, text, tick, focus, spec.category);
+    const line = this.append(spec.severity, text, tick, focus, spec.category, key);
     return { line, severity: spec.severity, focus };
   }
 
@@ -838,13 +924,16 @@ export class AnnouncementLog {
     const env = { readers, registry: this.registry, strings: this.strings };
     const text = this.strings.get('announce.rot_soon', { n, days: ROT_ALERT_DAYS, stack: stackName(env, largest.id), place: itemPlace(env, tile) });
     const focus = tile >= 0 ? tile : undefined;
-    const line = this.append('alert', text, tick, focus);
+    const line = this.append('alert', text, tick, focus, undefined, 'announce.rot_soon');
     line.subject = largest.id;
     return { line, severity: 'alert', focus };
   }
 
-  /** `ui.announce(severity, text, focus?, category?)`, with the dedup rule. */
-  append(severity: Severity, text: string, tick: number, focus?: TileIndex, category?: string): LogLine {
+  /**
+   * `ui.announce(severity, text, focus?, category?)`, with the dedup rule. `key` is the string key
+   * the text was filled from (T-725); an identical line merged into one without a key gives it its own.
+   */
+  append(severity: Severity, text: string, tick: number, focus?: TileIndex, category?: string, key?: string): LogLine {
     if (text.length > 0) {
       text = text.charAt(0).toUpperCase() + text.slice(1);
     }
@@ -857,6 +946,7 @@ export class AnnouncementLog {
       if (prev.text === text && prev.severity === severity && prev.category === category) {
         prev.count += 1;
         prev.tick = tick;
+        if (prev.key === undefined && key !== undefined) prev.key = key;
         return prev;
       }
     }
@@ -867,6 +957,7 @@ export class AnnouncementLog {
       count: 1,
       ...(focus === undefined ? {} : { focus }),
       ...(category === undefined ? {} : { category }),
+      ...(key === undefined ? {} : { key }),
     };
     this.lines.push(line);
     if (this.lines.length > LOG_MAX_LINES) this.lines.splice(0, this.lines.length - LOG_MAX_LINES);

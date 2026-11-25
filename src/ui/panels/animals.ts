@@ -16,6 +16,7 @@ import { dwarvesOf } from './units';
 import { acceleratorLabel } from '../keymap';
 import { rejectionText, speciesPlural, wrapText, zoneName } from '../messages';
 import { overGrazed, pastureFeed } from '../pasture';
+import { hasOwnName } from '../creature-name';
 
 /**
  * How fed a tame grazer is, from its condition (08: hunger, 0 fed to 100 starving): 3 (fed) to 0
@@ -119,7 +120,7 @@ export class AnimalsPanel {
     const id = this.selected(ctx);
     const creature = ctx.readers.entities.get(id, C.Creature);
     const species = this.reader(ctx)?.def(creature?.species ?? 0)?.name ?? '';
-    const animal = creature === undefined || creature.name === species || creature.name === ''
+    const animal = !hasOwnName(ctx.registry, creature) || creature === undefined
       ? ctx.strings.get('ui.animals.the_species', { species })
       : ctx.strings.get('ui.animals.detail.named', { name: creature.name, species });
     confirmThen(ctx, 'c_slaughter_animal', { animal }, () => ctx.submit(cmd));

@@ -127,17 +127,41 @@ function findHospitalOrFreeBed(ctx: TickContext, patientId: EntityId): { hospita
 function warnNoDressing(ctx: TickContext, id: EntityId, wounds: readonly Wound[]): void {
   const entities = ctx.world.entities;
   const patient = entities.get(id, C.Patient);
-  if (patient === undefined || !ctx.readers.has('13')) return;
+  if (patient === undefined || !noDressingFor(ctx, id, wounds, patient.noDressingAlerted, 'stop_bleeding')) return;
+  entities.add(id, C.Patient, { ...patient, noDressingAlerted: ctx.tick });
+  ctx.emit({ type: 'NoDressing', id });
+}
+
+/**
+ * 17 § Player-facing behavior (T-723): the same alert for a fortress animal that `bandage_animal`
+ * would treat (§ Animals; not a summon, not caged, not a merchant's), once a wound, kept on its `Tame`.
+ */
+function warnAnimalNoDressing(ctx: TickContext, id: EntityId, wounds: readonly Wound[]): void {
+  const entities = ctx.world.entities;
+  const tame = entities.get(id, C.Tame);
+  if (tame === undefined || entities.has(id, C.Summoned)) return;
+  const creature = entities.get(id, C.Creature);
+  if (creature === undefined || creature.faction !== 'fortress' || (creature.cagedIn ?? 0) !== 0) return;
+  if (!noDressingFor(ctx, id, wounds, tame.noDressingAlerted, 'bandage_animal')) return;
+  entities.add(id, C.Tame, { ...tame, noDressingAlerted: ctx.tick });
+  ctx.emit({ type: 'NoDressing', id });
+}
+
+/**
+ * True when a wound that bleeds until bandaged (not a light one, which clots) was made after the
+ * last alert, no one has the creature's bandaging job (`kind`) under way, and no bandage or cloth is
+ * to be had in the fortress.
+ */
+function noDressingFor(ctx: TickContext, id: EntityId, wounds: readonly Wound[], alerted: number | undefined, kind: string): boolean {
+  if (!ctx.readers.has('13')) return false;
   let newest = -1;
   for (const w of wounds) {
     if (w.bleed > 0 && !w.bandaged && w.severity !== 'light' && w.createdTick > newest) newest = w.createdTick;
   }
-  if (newest < 0 || (patient.noDressingAlerted !== undefined && newest <= patient.noDressingAlerted)) return;
-  if (ctx.readers.has('11') && (ctx.readers.of<JobsReader>('11').byKey(`stop_bleeding:${id}`)?.workerId ?? 0) !== 0) return;
+  if (newest < 0 || (alerted !== undefined && newest <= alerted)) return false;
+  if (ctx.readers.has('11') && (ctx.readers.of<JobsReader>('11').byKey(`${kind}:${id}`)?.workerId ?? 0) !== 0) return false;
   const items = ctx.readers.of<ItemsReader>('13');
-  if (items.countAvailable(DRESSING_BANDAGE) + items.countAvailable(DRESSING_CLOTH) > 0) return;
-  entities.add(id, C.Patient, { ...patient, noDressingAlerted: ctx.tick });
-  ctx.emit({ type: 'NoDressing', id });
+  return items.countAvailable(DRESSING_BANDAGE) + items.countAvailable(DRESSING_CLOTH) === 0;
 }
 
 /** The dressings `stop_bleeding` takes (17 § Patients and hospitals, Bandages first). */
@@ -151,8 +175,12 @@ export function updatePatient(
 ): void {
   const entities = ctx.world.entities;
   if (!entities.alive(id)) return;
-  // Patient flow is for dwarves (entities with Attributes)
-  if (!entities.has(id, C.Attributes)) return;
+  // Patient flow is for dwarves (entities with Attributes); a fortress animal is only warned for (T-723).
+  if (!entities.has(id, C.Attributes)) {
+    const body = entities.get(id, C.Body);
+    if (body !== undefined && entities.has(id, C.Tame)) warnAnimalNoDressing(ctx, id, body.parts.flatMap((p) => p.wounds));
+    return;
+  }
   const b = entities.get(id, C.Body);
   if (b === undefined) return;
 

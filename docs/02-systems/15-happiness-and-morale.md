@@ -41,8 +41,6 @@ With the constants below: baseline 55, positives up to +40, negatives down to �
 | Unhappy | 20–39 | 90% | Slower; more likely to idle at the hearth |
 | Miserable | < 20 | 80% | Sulk counter runs |
 
-A dwarf's tier is held, not read off the mood each hour. It falls to a lower tier as soon as the mood is below that tier's bound, and climbs into a higher tier only when the mood is at least `MOOD_TIER_HYSTERESIS` past that tier's bound: a dwarf enters Miserable below 20 and leaves it at 25 or more, enters Unhappy below 40 and climbs back to Fine at 45, and so on at every bound. A mood that jumps climbs as far as the margins allow (46 from Miserable is Fine, 44 only Unhappy). A dwarf with no need pressing (`needPressure` 0) leaves Miserable at 20, so the needs-met floor (§ Mood) keeps every dwarf whose needs are met out of Miserable. Need pressure rises and falls with hunger, thirst and rest through the day; the margin keeps a mood that hovers about a bound from flipping the tier back and forth. `MoodTierChanged` fires only when the held tier changes, and productivity, the sulk counter and every reader of the tier read the held tier. A new dwarf holds Fine until its first hourly recomputation.
-
 Productivity is read by 11 as the work rate multiplier and by 10 as `productivity(id)` together with 17's wound modifier. The tier bounds and the productivity factors are *unmeasured*.
 
 ### Thoughts
@@ -71,7 +69,7 @@ Personality scaling (three traits per dwarf from the table): `stoic` halves nega
 
 ### Hall spirit
 
-`hallSpirit = mean(mood of adult dwarves)` recomputed hourly. Its tier has the same bands as mood and is held the same way, with the same margin (§ Tiers and effects); hall spirit has no need pressure, so it leaves Miserable at 25 like any other bound. `HallSpiritChanged { value, tier }` when the held tier changes. 21 reads the value; the status bar colors the hearth glyph by tier.
+`hallSpirit = mean(mood of adult dwarves)` recomputed hourly. `HallSpiritChanged { value, tier }` when the tier (same bands as mood) changes. 21 reads the value; the status bar colors the hearth glyph by tier.
 
 ### Sulks
 
@@ -133,7 +131,7 @@ None.
 
 ### Registrations
 
-Panel `mood`; inspector section `creature › mood` (mood, tier, thoughts sorted by absolute value with remaining time, personality with its effects in words); status bar hearth glyph; announcements: `SulkHappened` (note or alert per kind), `MoodTierChanged` to Miserable (note). The miserable line gives the dwarf's reasons, its `LOG_MISERABLE_REASONS` (24) strongest negative thoughts at that moment, in their own words: 'Ketil Ironvein is miserable: "I am hungry. Slept on the floor. My friend is dead."'. A day's miserable lines are one line, as the starving line is (24 § Announcements and the log): it names each dwarf once as it falls, by first name, with the reasons that weigh most over the dwarves named (each reason's values summed over them, the first given first on a tie): '3 dwarves are miserable: Ketil, Asa, Njal. "I am hungry. I am thirsty. Slept on the floor."'. A dwarf already named on the day's line makes no line when it falls again that day; the line keeps its place, takes the time of the latest dwarf named and focuses the first; the next day starts a new line. So a dwarf is told at most once a day, and a fortress's misery is one line a day however many dwarves share it.
+Panel `mood`; inspector section `creature › mood` (mood, tier, thoughts sorted by absolute value with remaining time, personality with its effects in words); status bar hearth glyph; announcements: `SulkHappened` (note or alert per kind), `MoodTierChanged` to Miserable (note). The miserable line gives the dwarf's reasons, its `LOG_MISERABLE_REASONS` (24) strongest negative thoughts at that moment, in their own words: 'Ketil Ironvein is miserable: "I am hungry. Slept on the floor. My friend is dead."'. The tier is the mood's band at each hourly recomputation, so a mood that hovers about 20 as hunger, thirst and rest rise and fall can fall to Miserable several times a day; the announcer, not the simulation, keeps that from filling the log. A day's miserable lines are one line, as the starving line is (24 § Announcements and the log): it names each dwarf once as it first falls that day, by first name, with the reasons that weigh most over the dwarves named (each reason's values summed over them, the first given first on a tie): '3 dwarves are miserable: Ketil, Asa, Njal. "I am hungry. I am thirsty. Slept on the floor."'. A dwarf already named on the day's line makes no line when it falls again that day; the line keeps its place, takes the time of the latest dwarf named and focuses the first; the next day starts a new line. So a dwarf is told at most once a day, and a fortress's misery is one line a day however many dwarves share it.
 
 ## Player-facing behavior
 
@@ -152,7 +150,6 @@ Panel `mood`; inspector section `creature › mood` (mood, tier, thoughts sorted
 | `NEED_WEIGHT` | 40 | Per point of need over its want threshold, /100 |
 | `HEARTH_TIER_BONUS` | 2 | Per hearth hall tier index (bare 0 … royal 5) |
 | `SULK_DAYS` | 7 | Consecutive days Miserable before a sulk (*unmeasured*) |
-| `MOOD_TIER_HYSTERESIS` | 5 | How far past a tier's lower bound a mood must rise to climb into that tier; it falls out at the bound (§ Tiers and effects; *unmeasured*) |
 | `UNBURIED_DAYS` | 3 | *unmeasured* |
 | `LAB_STINK_TILES` | 3 | A dwarf this close to a laboratory that spoiled a batch today (the larger axis distance to its footprint, on its level) gets `lab_stink` (*unmeasured*) |
 

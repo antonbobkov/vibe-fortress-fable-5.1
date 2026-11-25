@@ -499,6 +499,11 @@ export interface Tame {
   noBreed: boolean;
   /** 08 § Tame behavior (T-482): lying curled in the pets' heap beside the hearth; absent otherwise and in older saves. */
   curled?: boolean;
+  /**
+   * The tick of the alert that this animal bleeds with no bandage or cloth to be had (`17` § Player-facing
+   * behavior, T-723); a wound that bleeds until bandaged, made after it, raises it again. Absent: none raised.
+   */
+  noDressingAlerted?: Tick;
 }
 
 export interface Wild {

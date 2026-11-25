@@ -115,7 +115,7 @@ Look shows a tile list, one creature's view or one item's view (24 § Inspection
 
 The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll.
 
-The activity line is never empty, and the tile list's row and the hover line's summary of a creature use the same words (`wolf  Asleep`, `deer, Grazing`). A dwarf's is its activity (10 § Player-facing behavior). Any other creature says what its behaviour is: `Caged` in a cage; a wild or hostile creature its state in the Units All tab's words, capitalized (`Activity: Grazing`, `Asleep`, `Hunting`, `Fleeing`, `Attacking`); a tame animal, the first that holds of `Curled up in the pets' heap`, `Starving` (a grazer at full hunger), `Waiting for the butcher` (marked for slaughter), `Following Ketil Ironvein` (its assigned dwarf) and `Keeping to Pasture #1`; and with none of these, `Wandering` while it walks and `Standing about` while it stands.
+The activity line is never empty, and the tile list's row and the hover line's summary of a creature use the same words (`wolf  Asleep`, `deer, Grazing`). A dwarf's is its activity (10 § Player-facing behavior). Any other creature says what its behaviour is: `Caged` in a cage; a wild or hostile creature its state in the Units All tab's words, capitalized (`Activity: Grazing`, `Asleep`, `Hunting`, `Fleeing`, `Attacking`), a raider with no target of its own its party's state in the Threats panel's words (`Attacking`, `Waiting`, `Leaving`); a tame animal, the first that holds of `Curled up in the pets' heap`, `Starving` (a grazer at full hunger), `Waiting for the butcher` (marked for slaughter), `Following Ketil Ironvein` (its assigned dwarf) and `Keeping to Pasture #1`; and with none of these, `Wandering` while it walks and `Standing about` while it stands.
 
 The health section lists each part on a line of its own, with a bar and its hit points, named as the creature's body plan names it (17's `health.partNames`): a dwarf's `left arm` and `right leg`, a wolf's `left foreleg` and `right hindleg`, a chicken's `left wing`, a fish's `tail` twice (its tail fills both leg slots, each with its own hit points). A slot the plan gives no part (a fish's arms, the Hollow Maw's limbs) is not listed. The `Permanent:` line names its slots the same way: `lost left foreleg`. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour.
 
@@ -167,6 +167,31 @@ A tame grazer's view has a third key row, its pasture (`[p] pasture: none` off p
 ```
 
 `Enter` or a click on a row sends `AssignPasture` and says on the status row what it did, as the Animals panel's `[p]` does; `Esc`, `Backspace` or `[p]` close the picker. A dwarf's view, a wild animal's and a tame animal's that does not graze have no pasture row.
+
+A hostile's view (18's `creature › hostile`) has, under the rule, the same dim label and value a row, in the Threats panel's words:
+
+```
+│ gloam warrior                         [x] │
+│ Activity: Attacking                       │
+│ At (52, 12, z27)                          │
+│ ───────────────────────────────────────── │
+│ Party     Gloam raid, 7 of 10, attacking  │
+│ Morale    shaken                          │
+│ Role      warrior                         │
+│ Leader    gloam captain                   │
+│ State     hostile, carrying loot          │
+│ Health: Blood 100%, Pain 0                │
+│   Conscious                               │
+│   head ▓▓▓▓▓ 30/30 hp                     │
+│   torso ▓▓▓▓▓ 60/60 hp                    │
+│ Equipment copper short sword, leather     │
+│           cap, 2 iron bars                │
+│ ───────────────────────────────────────── │
+│ [c] center  [f] follow off                │
+│ [h] here  [Bksp] back  [Tab] link         │
+```
+
+`Party` names its party as the log does, with the members still on the map and what the party is doing, as the Threats panel's line has them (`Gloam raid, 7 of 10, attacking`, `thief, 1, coming`); `Morale` is the party's morale in words (`steady`, `shaken`, `wavering`, `breaking`) while it has one and has not broken; `Role` is its part in the party (`thief`, `warrior`, `archer`, `captain`, `hexer`), with `, leads the party` for its leader; `Leader` is the member that leads it, a link, when that is another creature the map shows; and `State` is `hostile`, then `breaking a door`, `carrying loot` and `lost its nerve` while they hold. A hostile without a party (a cavern monster, the Hollow-born, the restless dead) has its `Role` (`cavern monster`, `Hollow-born`, `restless dead`) and `State` only. A hostile the map hides (stealthed and not yet spotted) is never counted, named or linked: the party counts only the members the map does not hide, and its own view reads `Out of sight.` (24 § Inspection). Under them come the health lines and, when it holds something, `Equipment`.
 
 A click on one loose item opens the item's view:
 
@@ -273,7 +298,7 @@ A long line wraps under its text. Another creature has the `Equipment` line when
 
 Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another item, another tile, or another view.
 
-Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training, health, equipment (tame animal); species, state, huntable, health, equipment (wild animal); party, role, state (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
+Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training, health, equipment (tame animal); species, state, huntable, health, equipment (wild animal); party, morale, role, leader, state, health, equipment (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 
 ## Designate tool
 
