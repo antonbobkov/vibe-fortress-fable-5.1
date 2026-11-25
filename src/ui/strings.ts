@@ -121,6 +121,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.legend.milestones_testing': 'Milestones (testing start)',
   'ui.legend.notable': 'Notable',
   'ui.legend.last_words': 'Last words (log)',
+  'ui.legend.folded': '{line} ({n|day|days})',
   // The fortress screen's own panels and the building views opened from the map.
   'ui.panel.overlays.title': 'Overlays',
   'ui.panel.calendar.title': 'Calendar',
@@ -2398,6 +2399,14 @@ export class Strings {
   get(key: string, params: Readonly<Record<string, string | number>> = {}): string {
     const raw = this.content[key] ?? UI_STRINGS[key] ?? key;
     return fill(raw, params);
+  }
+
+  /** Every template whose key starts with `prefix`, the content's over the UI table's (T-720: the legend reads a line's key back from its text). */
+  templates(prefix: string): [string, string][] {
+    const out = new Map<string, string>();
+    for (const [key, value] of Object.entries(UI_STRINGS)) if (key.startsWith(prefix)) out.set(key, value);
+    for (const [key, value] of Object.entries(this.content)) if (key.startsWith(prefix)) out.set(key, value);
+    return [...out];
   }
 }
 
