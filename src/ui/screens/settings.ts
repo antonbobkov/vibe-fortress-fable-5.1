@@ -29,14 +29,15 @@ export interface SettingsHost {
   back(): void;
 }
 
-const SETTING_NAMES = [
-  'Auto-pause on danger', 'Auto-pause on alert', 'Hints', 'Colorblind palette', 'Zoom',
-  'Edge scrolling', 'Autosave each season', 'Snapshots kept', 'Combat log', 'Keybindings ▸',
-  'Music volume', 'Music', 'Intro at launch', 'Intro style', 'Reduced motion',
-  'Wheel up goes',
+/** The rows, top to bottom; each is named by `ui.settings.row.<row>`. */
+const SETTING_ROWS = [
+  'auto_pause_danger', 'auto_pause_alert', 'hints', 'colorblind', 'zoom',
+  'edge_scrolling', 'autosave', 'snapshots', 'combat_log', 'keybindings',
+  'music_volume', 'music', 'intro', 'intro_style', 'reduced_motion',
+  'wheel_up',
 ] as const;
 
-/** The row of {@link SETTING_NAMES} that opens the keybinding editor, and has no value. */
+/** The row of {@link SETTING_ROWS} that opens the keybinding editor, and has no value. */
 const KEYBINDINGS_ROW = 9;
 
 /** The music volumes, 0 to 100. */
@@ -66,24 +67,30 @@ export class SettingsScreen implements Screen {
 
   constructor(private readonly host: SettingsHost) {}
 
+  /** A stored value as the row shows it: `ui.settings.value.<value>`, its spaces as `_`. */
+  private word(value: string): string {
+    return this.host.strings.get(`ui.settings.value.${value.replaceAll(' ', '_')}`);
+  }
+
   private value(index: number): string {
     const settings = this.host.settings();
+    const onOff = (on: boolean): string => this.word(on ? 'on' : 'off');
     switch (index) {
-      case 0: return settings.autoPauseDanger ? 'on' : 'off';
-      case 1: return settings.autoPauseAlert ? 'on' : 'off';
-      case 2: return settings.hints ? 'on' : 'off';
-      case 3: return settings.colorblind ? 'on' : 'off';
-      case 4: return settings.zoom === 'auto' ? 'Auto' : `${settings.zoom}×`;
-      case 5: return settings.edgeScrolling ? 'on' : 'off';
-      case 6: return settings.autosave ? 'on' : 'off';
+      case 0: return onOff(settings.autoPauseDanger);
+      case 1: return onOff(settings.autoPauseAlert);
+      case 2: return onOff(settings.hints);
+      case 3: return onOff(settings.colorblind);
+      case 4: return settings.zoom === 'auto' ? this.word('auto') : `${settings.zoom}×`;
+      case 5: return onOff(settings.edgeScrolling);
+      case 6: return onOff(settings.autosave);
       case 7: return String(settings.snapshotsKept);
-      case 8: return settings.combatLog;
+      case 8: return this.word(settings.combatLog);
       case 10: return `${settings.musicVolume}%`;
-      case 11: return settings.music ? 'on' : 'off';
-      case 12: return settings.intro;
-      case 13: return settings.introStyle;
-      case 14: return settings.reducedMotion ? 'on' : 'off';
-      case 15: return settings.wheelUp;
+      case 11: return onOff(settings.music);
+      case 12: return this.word(settings.intro);
+      case 13: return this.word(settings.introStyle);
+      case 14: return onOff(settings.reducedMotion);
+      case 15: return this.word(settings.wheelUp);
       default: return '';
     }
   }
@@ -146,7 +153,7 @@ export class SettingsScreen implements Screen {
     for (const context of KEY_CONTEXTS) {
       const indices = keymap.bindings.flatMap((binding, index) => (binding.context === context ? [index] : []));
       if (indices.length === 0) continue;
-      out.push({ heading: contextTitle(context) });
+      out.push({ heading: contextTitle(context, this.host.strings) });
       for (const index of indices) out.push({ index });
     }
     return out;
@@ -180,7 +187,7 @@ export class SettingsScreen implements Screen {
   }
 
   private keyText(spec: KeySpec): string {
-    return spec.key === 'any-letter' ? '[letter]' : this.host.keymap.label(spec);
+    return spec.key === 'any-letter' ? this.host.strings.get('ui.settings.editor.any_letter') : this.host.keymap.label(spec);
   }
 
   private capture(press: KeyPress): void {
@@ -231,7 +238,7 @@ export class SettingsScreen implements Screen {
     }
     if (k === 'ArrowDown' || k === '↓') {
       if (this.keybindings) this.move(1);
-      else this.selected = Math.min(SETTING_NAMES.length - 1, this.selected + 1);
+      else this.selected = Math.min(SETTING_ROWS.length - 1, this.selected + 1);
       return true;
     }
     if (this.keybindings) {
@@ -252,23 +259,24 @@ export class SettingsScreen implements Screen {
   draw(surface: Surface): void {
     this.last = surface;
     const t = surface.theme;
-    label(surface, 2, 1, this.keybindings ? 'Settings · Keybindings' : 'Settings', { fg: t.key });
+    const strings = this.host.strings;
+    label(surface, 2, 1, strings.get(this.keybindings ? 'ui.settings.title_keybindings' : 'ui.settings.title'), { fg: t.key });
     if (!this.keybindings) {
-      for (let index = 0; index < SETTING_NAMES.length; index += 1) {
+      for (let index = 0; index < SETTING_ROWS.length; index += 1) {
         const row = 3 + index;
         const prefix = index === this.selected ? '▶' : ' ';
-        label(surface, 2, row, `${prefix} ${SETTING_NAMES[index]}`, { fg: index === this.selected ? t.key : t.text, width: 29 });
+        label(surface, 2, row, `${prefix} ${strings.get(`ui.settings.row.${SETTING_ROWS[index] as string}`)}`, { fg: index === this.selected ? t.key : t.text, width: 29 });
         if (index !== KEYBINDINGS_ROW) label(surface, 32, row, `[${this.value(index)}]`, { fg: t.value, width: 18 });
         surface.hit({ col: 2, row, cols: 48, rows: 1 }, () => { this.selected = index; this.change(index); });
       }
-      const below = 3 + SETTING_NAMES.length;
+      const below = 3 + SETTING_ROWS.length;
       label(surface, 2, below, this.host.strings.get('ui.settings.zoom_hint'), { fg: t.dim });
       const view = this.host.zoomView?.();
       if (view !== undefined && view.shown < view.requested) {
-        const zoom = this.host.settings().zoom === 'auto' ? 'Auto' : String(view.requested);
+        const zoom = this.host.settings().zoom === 'auto' ? this.word('auto') : String(view.requested);
         label(surface, 2, below + 1, this.host.strings.get('ui.settings.zoom_shown', { zoom, shown: view.shown }), { fg: t.alert });
       }
-      captionButtons(surface, 2, below + 2, '[d] Reset to defaults    [Esc] Back', [() => this.host.resetDefaults(), () => this.host.back()], { fg: t.dim });
+      captionButtons(surface, 2, below + 2, strings.get('ui.settings.footer'), [() => this.host.resetDefaults(), () => this.host.back()], { fg: t.dim });
       return;
     }
     this.drawKeybindings(surface);
@@ -276,6 +284,7 @@ export class SettingsScreen implements Screen {
 
   private drawKeybindings(surface: Surface): void {
     const t = surface.theme;
+    const strings = this.host.strings;
     const keymap = this.host.keymap;
     const rows = this.rows();
     const height = Math.max(1, surface.rows - 6);
@@ -286,7 +295,7 @@ export class SettingsScreen implements Screen {
     if (at >= this.bindingList.scroll + height) this.bindingList.scroll = at - height + 1;
     this.bindingList.scroll = Math.max(0, Math.min(maxScroll, this.bindingList.scroll));
     const keyWidth = Math.max(4, surface.cols - KEY_COL - 2);
-    label(surface, 2, 2, `${'Action'.padEnd(KEY_COL - ACTION_COL)}Key`, { fg: t.key, keys: false });
+    label(surface, 2, 2, `${strings.get('ui.settings.editor.action').padEnd(KEY_COL - ACTION_COL)}${strings.get('ui.settings.editor.key')}`, { fg: t.key, keys: false });
     const clashing = new Set<Binding>(KEY_CONTEXTS.flatMap((context) => keymap.conflicts(context)));
     for (let k = this.bindingList.scroll; k < Math.min(rows.length, this.bindingList.scroll + height); k += 1) {
       const entry = rows[k] as EditorRow;
@@ -302,14 +311,14 @@ export class SettingsScreen implements Screen {
       const fixed = keymap.fixed(index);
       const fg = bad ? t.bad : selected ? t.key : fixed ? t.dim : t.text;
       label(surface, 2, row, selected ? '▶' : ' ', { fg, keys: false });
-      label(surface, ACTION_COL, row, actionText(binding), { fg, width: KEY_COL - ACTION_COL - 1, keys: false });
+      label(surface, ACTION_COL, row, actionText(binding, strings), { fg, width: KEY_COL - ACTION_COL - 1, keys: false });
       // The key as it is now; a changed one says what it was, a fixed one says so.
       const was = keymap.defaultOf(index);
-      const note = fixed ? '  fixed' : keymap.rebound(index) && was !== undefined ? `  (default ${this.keyText(was.spec)})` : '';
+      const note = fixed ? `  ${strings.get('ui.settings.editor.fixed')}` : keymap.rebound(index) && was !== undefined ? `  ${strings.get('ui.settings.editor.default', { key: this.keyText(was.spec) })}` : '';
       label(surface, KEY_COL, row, `${this.keyText(binding.spec)}${note}`, { fg: bad ? t.bad : keymap.rebound(index) ? t.value : fg, width: keyWidth, keys: false });
       surface.hit({ col: 2, row, cols: surface.cols - 4, rows: 1 }, () => this.startCapture(index));
     }
-    label(surface, 2, surface.rows - 2, this.capturing ? 'Press a key · [Esc] cancel' : '[Enter] rebind  [Del] default  [d] all defaults  [Esc] Back', { fg: t.dim, keys: false });
+    label(surface, 2, surface.rows - 2, strings.get(this.capturing ? 'ui.settings.editor.capture' : 'ui.settings.editor.footer'), { fg: t.dim, keys: false });
     if (this.conflict) label(surface, 2, surface.rows - 1, this.conflict, { fg: this.refused ? t.bad : t.value, width: surface.cols - 4, keys: false });
   }
 

@@ -11,7 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-711 | [The creature view, the screens and the UI's shared modules still write text in code](work/T-711-ui-texts-outside-panels.md) | [T-709](archive/tasks/T-709-panel-texts-in-strings.md) | — | open |
 | T-713 | [A hostile's view lacks the hostile sections the inspector list names](work/T-713-hostile-view-sections.md) | [T-710](archive/tasks/T-710-animal-view-sections.md) | — | open |
 | T-714 | ["X is miserable." repeats several times a day and buries the alerts](work/T-714-miserable-line-flaps.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-715 | [The caravan leaves untraded while the trader hauls goods to the depot](work/T-715-trade-waits-behind-depot-hauls.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
@@ -20,5 +19,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-718 | ["Calm: everyone works." while a training squad does no work](work/T-718-calm-says-everyone-works.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-719 | [Facts still cut with "»" after T-703: room lines, the log, orders, the status bar](work/T-719-cut-facts-second-pass.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
 | T-720 | [The legend scrolls past its end, and its last words are thirty starving lines](work/T-720-legend-scroll-and-last-words.md) | [the second playtest of 2026-11-24](../reports/data/2026-11-24-playtest-2.md) | — | open |
+| T-721 | [Single words and readers' English the strings scan cannot see](work/T-721-ui-words-the-scan-cannot-see.md) | [T-711](archive/tasks/T-711-ui-texts-outside-panels.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

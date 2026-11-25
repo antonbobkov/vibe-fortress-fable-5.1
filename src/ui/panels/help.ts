@@ -32,7 +32,7 @@ import {
   GLYPH_STAIRS_UP,
   GLYPH_STAIRS_UPDOWN,
 } from '@render/glyphs';
-import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, contextTitle as keyContextTitle, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
+import { ACTION_IDS, KEY_CONTEXTS, acceleratorLabel, keyLabel, type Binding, type KeyContext, type KeySpec, type Keymap } from '../keymap';
 import { wrapHang } from '../messages';
 import { Strings } from '../strings';
 import type { Surface } from '../surface';
@@ -207,7 +207,7 @@ export function helpKeyRows(keymap: Keymap, strings?: Strings): HelpRow[] {
   for (const context of HELP_CONTEXT_ORDER) {
     const bindings = keymap.of(context);
     if (bindings.length === 0) continue;
-    out.push({ category: context, text: keyContextTitle(context), heading: true });
+    out.push({ category: context, text: contextTitle(context, strings), heading: true });
     const groups: { text: string; id: string; keys: string[] }[] = [];
     for (const binding of bindings) {
       const text = actionText(binding, strings);
@@ -240,9 +240,13 @@ export function actionText(binding: Binding, strings: Strings = DEFAULT_STRINGS)
   return WORDING[binding.id] ?? binding.id.replaceAll('_', ' ');
 }
 
-/** A key context's heading, as the keymap table names its sections. */
-export function contextTitle(context: string): string {
-  return keyContextTitle(context);
+/**
+ * A key context's heading, as the keymap table names its sections (`ui.keymap.context.<context>`);
+ * an unknown context is returned as it is.
+ */
+export function contextTitle(context: string, strings: Strings = DEFAULT_STRINGS): string {
+  const key = `ui.keymap.context.${context}`;
+  return strings.has(key) ? strings.get(key) : context;
 }
 
 /** The six legend categories of § Help, generated from the content tables. */

@@ -23,7 +23,7 @@ import { clickHit, type CellPointer, type CellWheel, type Screen } from '../scre
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { bar, button, label, list, separator, type ListState } from '../widgets';
-import { wrapHang, wrapText } from '../messages';
+import { chainText, wrapHang, wrapText } from '../messages';
 
 /** `01` § Region record: ratings are integers 0–`RATING_MAX`; the wireframe draws five cells. */
 export const RATING_BAR_CELLS = 5;
@@ -273,7 +273,7 @@ export class WorldMapScreen implements Screen {
     const water: string[] = [];
     const w = site.water;
     if (w.river !== null) {
-      const params = { class: s.get(`ui.site.river_class.${w.river.class}`), from: w.river.inflow.map(edge).join(' and ') };
+      const params = { class: s.get(`ui.site.river_class.${w.river.class}`), from: chainText(s, w.river.inflow.map(edge), 'and') };
       const spring = w.river.inflow.length === 0;
       water.push(w.river.outflow === null
         ? s.get(spring ? 'ui.site.river_spring_lake' : 'ui.site.river_lake', params)

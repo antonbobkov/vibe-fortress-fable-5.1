@@ -199,37 +199,102 @@ export function looksPlayerFacing(literal) {
 }
 
 /**
- * The fortress panels' code, where every player-facing text is a strings key (`content-pipeline.md`
- * § Strings): `strings:check` fails on a literal there that reads as text.
+ * The UI's code, where every player-facing text is a strings key (`content-pipeline.md` § Strings):
+ * `strings:check` fails on a literal there that reads as text. The default table itself
+ * (`LITERAL_TABLE`) is the one place the texts are written.
  */
-export const LITERAL_DIRS = ['src/ui/panels'];
+export const LITERAL_DIRS = ['src/ui'];
+const LITERAL_TABLE = 'src/ui/strings.ts';
 
 /**
- * Files of those directories the scan leaves out, each with why. A literal that is not text for
- * the player despite its look is listed in `LITERAL_ALLOWED` instead.
+ * Files of those directories the scan leaves out, each with why. None: a literal that is not text
+ * for the player despite its look is listed in `LITERAL_ALLOWED`, or its table in `LITERAL_TABLES_ALLOWED`.
  */
 export const LITERAL_FILES_SKIPPED = new Map([]);
+
+/** The stored values of the Settings rows (`ui-keymap-and-screens.md` § Settings), compared and saved; drawn through `ui.settings.value.*`. */
+const SETTING_VALUES = ['hits only', 'first time', 'down a level', 'up a level'];
 
 /** Literals that read as text but are not drawn for the player, by file: `file` → texts. */
 export const LITERAL_ALLOWED = new Map([
   // The command type `Designate` (command-catalog.md), one word with one capital.
   ['src/ui/panels/designate.ts', ['Designate']],
+  ['src/ui/screens/fortress.ts', ['Designate', ...SETTING_VALUES]],
   // The end 10 gives a recipe job's activity text, read to find the recipe; never drawn.
   ['src/ui/panels/units.ts', [' (recipe)']],
   // The hospital zone's setting key for its wanted supplies (17), never drawn.
   ['src/ui/panels/zones.ts', ['desired supplies']],
+  // The settings store's values and defaults (24 § State).
+  ['src/ui/constants.ts', SETTING_VALUES],
+  ['src/ui/settings.ts', SETTING_VALUES],
+  // Event types (`Starving` of 15, `Slept` of 14), one word with one capital.
+  ['src/ui/announcements.ts', ['Starving']],
+  ['src/ui/hints.ts', ['Starving', 'Slept']],
+  // The size bands 18's reader gives a warned party (`sizeBandOf`), compared to choose a key.
+  ['src/ui/raid-lines.ts', ['a few', 'a horde']],
+  // A catalog row's `condition` (`embark.md` § Supplies), parsed; and the presets menu's option id.
+  ['src/ui/screens/embark.ts', [' or ', '@loadouts']],
+  // The close button's caption measured for its column; `button` draws it from the key and the string.
+  ['src/ui/screens/labor_manager.ts', ['[Esc] ${}']],
+  // The keymap loader: key names and the key column's notation (`Ctrl+`, `[letter]`, `Bksp`), the
+  // binding names of older saves (`global/Ctrl+S`), its errors on a bad keymap row (a content error,
+  // thrown, never drawn) and a regular expression's source.
+  ['src/ui/keymap.ts', [
+    'Fn', 'Dead', 'Process', 'Unidentified', 'Ctrl+', 'Shift+', 'Ctrl', '[letter]', 'Bksp',
+    'global/+', 'global/=', 'global/Ctrl+S', 'global/?', 'global/Ctrl+Z', 'global/Shift+Y',
+    'map/←', 'map/→', 'map/↑', 'map/↓', 'map/<', 'map/,', 'map/>', 'map/Ctrl+↑', 'map/Ctrl+↓',
+    'panel/↑', 'panel/↓', 'panel/Shift+Tab',
+    'world_map/←', 'world_map/→', 'world_map/↑', 'world_map/↓', 'world_map/?',
+    'embark/+', 'trade_session/+',
+    'labor_manager/←', 'labor_manager/→', 'labor_manager/↑', 'labor_manager/↓', 'labor_manager/*', 'labor_manager/+',
+    'units_panel/*', 'units_panel/Shift+W', 'units_panel/Shift+T', 'units_panel/Shift+N', 'units_panel/Shift+M', 'units_panel/[', 'units_panel/]',
+    'military_panel/*', 'military_panel/Shift+L', 'military_panel/Shift+B', 'military_panel/Shift+N',
+    '${}/Shift+${}',
+    'keymap: unknown modifier "${}" in "${}"', 'keymap: empty key in "${}"', 'keymap: unknown context "${}"', 'keymap: no action id for "${}"',
+    '(^|[\\s(,;:/])((?:Ctrl|Shift)\\+[^\\s,;:)]+|${})(?=$|[\\s),;:/.])',
+  ]],
 ]);
 
-/** Each literal of the scanned panels that reads as player-facing text: `path:line: "text"`. */
+/**
+ * Object tables whose every literal is allowed, by file, each with why: `file` → the table's name,
+ * whose body runs from `<name>` to the first line `});` after it.
+ */
+export const LITERAL_TABLES_ALLOWED = new Map([
+  // The keymap's action wordings are data: `keymap.json` carries each as its § Keymap row's own
+  // text (`content:export`), and Help and the editor draw that row's text. `ACTION_IDS` only names
+  // each wording with an action id, so its keys are the wordings, copied to be matched.
+  ['src/ui/keymap.ts', 'ACTION_IDS'],
+]);
+
+/** The line span of a file's allowed table, `[first, last]`, or null. */
+function tableLines(text, name) {
+  const at = text.indexOf(`${name}:`) >= 0 ? text.indexOf(`${name}:`) : text.indexOf(`${name} =`);
+  if (at < 0) return null;
+  const end = text.indexOf('\n});', at);
+  if (end < 0) return null;
+  const lineOf = (index) => text.slice(0, index).split('\n').length;
+  return [lineOf(at), lineOf(end + 1)];
+}
+
+/** Each literal of the scanned UI code that reads as player-facing text: `path:line: "text"`. */
 export function panelLiterals(dir = root) {
   const out = [];
   for (const sub of LITERAL_DIRS) {
-    for (const file of sourceFiles(join(dir, sub))) {
+    let files;
+    try {
+      files = sourceFiles(join(dir, sub));
+    } catch {
+      continue;
+    }
+    for (const file of files) {
       const rel = relative(dir, file).replace(/\\/g, '/');
-      if (LITERAL_FILES_SKIPPED.has(rel)) continue;
+      if (rel === LITERAL_TABLE || LITERAL_FILES_SKIPPED.has(rel)) continue;
       const allowed = LITERAL_ALLOWED.get(rel) ?? [];
-      for (const { line, text } of literalsIn(readFileSync(file, 'utf8'))) {
+      const source = readFileSync(file, 'utf8');
+      const table = LITERAL_TABLES_ALLOWED.has(rel) ? tableLines(source, LITERAL_TABLES_ALLOWED.get(rel)) : null;
+      for (const { line, text } of literalsIn(source)) {
         if (!looksPlayerFacing(text) || allowed.includes(text.replace(/\u0000/g, '${}'))) continue;
+        if (table !== null && line >= table[0] && line <= table[1]) continue;
         out.push(`${rel}:${line}: ${JSON.stringify(text.replace(/\u0000/g, '${}'))}`);
       }
     }

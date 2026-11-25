@@ -4,8 +4,13 @@ import { SEASONS_PER_YEAR, TICKS_PER_YEAR } from '@core/constants';
 import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
 import type { KeyContext } from '../keymap';
+import { seasonName } from '../panels/calendar';
+import { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { button } from '../widgets';
+
+/** The default table, for a legend drawn without the game's strings. */
+const DEFAULT_STRINGS = new Strings();
 
 export interface LegendRecord {
   readonly id: string;
@@ -32,24 +37,24 @@ export interface LegendRecord {
   readonly testing?: boolean;
 }
 
-/** The legend's note on a testing fortress (24 § The legend record). */
-export const LEGEND_TESTING_NOTE = 'A testing fortress: it began with an unlimited loadout, so its milestones were not earned in normal play.';
+/** The legend's note on a testing fortress (24 § The legend record), as the default table gives it. */
+export const LEGEND_TESTING_NOTE = DEFAULT_STRINGS.get('ui.legend.testing_note');
 
-export function legendLines(record: LegendRecord): string[] {
+export function legendLines(record: LegendRecord, strings: Strings = DEFAULT_STRINGS): string[] {
   const foundedSeason = SEASON_NAMES[Math.floor(record.foundedTick / (TICKS_PER_YEAR / SEASONS_PER_YEAR)) % SEASONS_PER_YEAR] ?? 'spring';
   const foundedYear = Math.floor(record.foundedTick / TICKS_PER_YEAR) + 1;
   const testing = record.testing === true;
   return [
-    testing ? `${record.name} (testing)` : record.name,
-    ...(testing ? [LEGEND_TESTING_NOTE] : []),
-    `Founded ${foundedSeason[0]?.toUpperCase()}${foundedSeason.slice(1)}, Year ${foundedYear} at ${record.region} (${record.biome}, wealth ${record.wealthRating}, peril ${record.perilRating})`,
+    testing ? strings.get('ui.legend.name_testing', { name: record.name }) : record.name,
+    ...(testing ? [strings.get('ui.legend.testing_note')] : []),
+    strings.get('ui.legend.founded', { season: seasonName(strings, foundedSeason), year: foundedYear, region: record.region, biome: record.biome, wealth: record.wealthRating, peril: record.perilRating }),
     record.cause,
-    `Years ${record.yearsSurvived} · Days ${record.daysSurvived} · Peak population ${record.peakPopulation} · Deepest level ${record.deepestLevel} · Wealth ${record.finalWealth.toLocaleString('en-US')} ☼`,
-    testing ? 'Milestones (testing start)' : 'Milestones',
+    strings.get('ui.legend.stats', { years: record.yearsSurvived, days: record.daysSurvived, peak: record.peakPopulation, deepest: record.deepestLevel, wealth: record.finalWealth.toLocaleString('en-US') }),
+    strings.get(testing ? 'ui.legend.milestones_testing' : 'ui.legend.milestones'),
     ...record.milestones.map((entry) => `  ${entry.date}  ${entry.text}`),
-    'Notable',
+    strings.get('ui.legend.notable'),
     ...record.killsOfNote.map((entry) => `  ${entry}`),
-    'Last words (log)',
+    strings.get('ui.legend.last_words'),
     ...record.lastWords.map((entry) => `  ${entry}`),
   ];
 }
@@ -58,6 +63,8 @@ export interface LegendHost {
   back(): void;
   /** A fortress's end: `Enter` goes to the world map of its world for a new embark (T-672). */
   embarkAgain?(): void;
+  /** The game's strings; absent, the default table. */
+  readonly strings?: Strings;
 }
 
 export class LegendScreen implements Screen {
@@ -86,23 +93,24 @@ export class LegendScreen implements Screen {
   draw(surface: Surface): void {
     this.last = surface;
     const { text, key, dim } = surface.theme;
-    surface.text(2, 1, this.detail ? 'Legend' : 'Legends', key);
+    const strings = this.host.strings ?? DEFAULT_STRINGS;
+    surface.text(2, 1, strings.get(this.detail ? 'ui.legend.title_one' : 'ui.legend.title'), key);
     if (this.detail) {
       const record = this.records[this.selected];
       if (record !== undefined) {
-        const lines = legendLines(record);
+        const lines = legendLines(record, strings);
         const visible = Math.max(0, surface.rows - 5);
         for (let i = 0; i < visible && i + this.scroll < lines.length; i += 1) {
           const line = lines[i + this.scroll] as string;
           surface.text(2, 3 + i, Array.from(line).slice(0, Math.max(0, surface.cols - 4)).join(''), text);
         }
-        if (lines.length > visible) surface.text(2, surface.rows - 2, `↑↓ Scroll ${this.scroll + 1}/${lines.length}`, dim);
+        if (lines.length > visible) surface.text(2, surface.rows - 2, strings.get('ui.legend.scroll', { at: this.scroll + 1, n: lines.length }), dim);
       }
-    } else if (this.records.length === 0) surface.text(2, 3, 'No legends recorded.', dim);
+    } else if (this.records.length === 0) surface.text(2, 3, strings.get('ui.legend.none'), dim);
     else {
       for (let i = 0; i < this.records.length && i < surface.rows - 5; i += 1) {
         const record = this.records[i] as LegendRecord;
-        const line = `${i === this.selected ? '▶' : ' '} ${record.name}${record.testing === true ? ' (testing)' : ''} · ${record.region} · Year ${Math.floor(record.endedTick / TICKS_PER_YEAR) + 1}`;
+        const line = strings.get(record.testing === true ? 'ui.legend.row_testing' : 'ui.legend.row', { marker: i === this.selected ? '▶' : ' ', name: record.name, region: record.region, year: Math.floor(record.endedTick / TICKS_PER_YEAR) + 1 });
         surface.text(2, i + 3, line, i === this.selected ? key : text);
         surface.hit({ col: 2, row: i + 3, cols: Math.min(surface.cols - 4, Array.from(line).length), rows: 1 }, () => {
           this.selected = i;
@@ -110,9 +118,9 @@ export class LegendScreen implements Screen {
         });
       }
     }
-    const back = button(surface, 2, surface.rows - 1, 'Esc', 'Back', () => this.back());
+    const back = button(surface, 2, surface.rows - 1, 'Esc', strings.get('ui.legend.back'), () => this.back());
     const again = this.host.embarkAgain;
-    if (again !== undefined && this.detail) button(surface, 2 + back + 2, surface.rows - 1, 'Enter', 'New embark on this world', () => again());
+    if (again !== undefined && this.detail) button(surface, 2 + back + 2, surface.rows - 1, 'Enter', strings.get('ui.legend.embark_again'), () => again());
   }
 
   key(press: KeyPress): boolean {

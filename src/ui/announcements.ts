@@ -25,8 +25,8 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { WorkshopsReader } from '@systems/workshops';
-import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText } from './messages';
-import { MOOD_TIER_NAMES } from './panels/mood';
+import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText } from './messages';
+import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
 import type { Strings } from './strings';
@@ -237,7 +237,7 @@ export class AnnouncementLog {
     }
     if ((event.type === 'WorkshopBlocked' || event.type === 'WorkOrderSkipped') && typeof e['workshopId'] === 'number') {
       out['workshop'] = buildingName({ readers, registry: this.registry }, e['workshopId']);
-      out['input'] = typeof e['input'] === 'string' ? e['input'].split('|').map(id => itemName(this.registry, id)).join(' or ') : this.strings.get('ui.workshop.input_unspecified');
+      out['input'] = typeof e['input'] === 'string' ? matchName(this.registry, e['input'], 1, this.strings) : this.strings.get('ui.workshop.input_unspecified');
     }
     // 12 § Registrations: a skipped order is named by its recipe ("its make steel order").
     const recipeId = e['recipeId'];
@@ -309,7 +309,7 @@ export class AnnouncementLog {
     // Content (now Unhappy)", "…fallen: they were offered wooden goods"); a stockpile by name.
     if (event.type === 'ImmigrationSkipped' || event.type === 'ReputationChanged') {
       const reason = String(e['reason'] ?? '');
-      const tier = readers.has('15') ? MOOD_TIER_NAMES[readers.of<{ hallSpiritTier(): number }>('15').hallSpiritTier()] ?? '' : '';
+      const tier = readers.has('15') ? moodTierName(this.strings, readers.of<{ hallSpiritTier(): number }>('15').hallSpiritTier()) : '';
       const keyOf = (code: string): string => event.type === 'ImmigrationSkipped' ? `announce.immigration_skipped.reason.${code}` : `announce.reputation_changed.reason.${code}`;
       out['reason'] = this.strings.has(keyOf(reason)) ? this.strings.get(keyOf(reason), { tier }) : this.strings.get(keyOf('other'));
     }
@@ -328,7 +328,7 @@ export class AnnouncementLog {
     const creature = typeof id === 'number' ? readers.entities.get(id, C.Creature) : undefined;
     const row = creature === undefined ? undefined : this.registry.table<NamedRow>('creatures').byIndex(creature.species);
     const own = creature !== undefined && creature.name !== '' && creature.name !== row?.name && creature.name !== row?.id;
-    params['animal'] = own ? creature.name : capitalize(`the ${(row?.name ?? 'animal').toLowerCase()}`);
+    params['animal'] = own ? creature.name : capitalize(this.strings.get('ui.creature.the_species', { species: (row?.name ?? 'animal').toLowerCase() }));
     const pasture = typeof id === 'number' && readers.has('08') ? readers.of<AnimalsReader>('08').pastureOf(id) : 0;
     const feed = pasture === 0 ? null : pastureFeed(readers, pasture);
     if (feed === null || !overGrazed(feed)) return 'announce.animal_starving';
