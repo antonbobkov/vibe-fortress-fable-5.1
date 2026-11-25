@@ -22,7 +22,7 @@ import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
-import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, ROT_ALERT_DAYS } from './constants';
+import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, LOG_STANDING_ALERTS, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
 import type { WorkshopsReader } from '@systems/workshops';
@@ -30,7 +30,7 @@ import { capitalize, enchantedName, itemName, matchName, materialItemName, stock
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
-import type { Strings } from './strings';
+import { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
 
@@ -54,6 +54,11 @@ export interface LogLine {
    * note, a hint) and a line of an older save have none. Presentation state, saved with the line.
    */
   key?: string;
+  /**
+   * The days in a row a standing alert has come (T-741), when more than one: its line of the day
+   * before took the newest words. Presentation state, saved with the line; absent is one day.
+   */
+  days?: number;
 }
 
 /** A line's words and the string key they were filled from (T-725). */
@@ -75,8 +80,17 @@ export function combatOnly(line: LogLine): boolean {
   return line.category === 'combat' && line.severity === 'note';
 }
 
-/** A line as the strip and the log panel print it, with its merge count. */
+/** The UI's own strings, for the words a line is printed with. */
+const PLAIN = new Strings();
+
+/**
+ * A line as the strip and the log panel print it, with its merge count; a standing alert that has
+ * come on more days than one is marked with them instead, as the legend's last words are
+ * ("! 113 food will rot within 3 days; … (6 days)", T-741).
+ */
 export function lineText(line: LogLine): string {
+  const days = line.days ?? 1;
+  if (days > 1) return PLAIN.get('ui.legend.folded', { line: `${prefixOf(line.severity)}${line.text}`, n: days });
   return `${prefixOf(line.severity)}${line.text}${line.count > 1 ? ` ×${line.count}` : ''}`;
 }
 
@@ -111,6 +125,8 @@ export interface Announced {
   readonly line: LogLine;
   readonly severity: Severity;
   readonly focus: TileIndex | undefined;
+  /** A standing alert folded into its line of the day before (T-741): it neither flashes the strip nor pauses. */
+  readonly folded?: true;
 }
 
 export class AnnouncementLog {
@@ -135,6 +151,8 @@ export class AnnouncementLog {
   private readonly thoughtLines = new Map<string, { line: LogLine; tick: number; ids: number[]; names: string[] }>();
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
   private readonly partyTiles = new Map<number, TileIndex>();
+  /** The standing alerts' templates as patterns (`templateOf`). */
+  private readonly templates = new Map<string, RegExp>();
 
   constructor(
     private readonly strings: Strings,
@@ -537,8 +555,7 @@ export class AnnouncementLog {
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && fields['amount'] === 0) {
       return this.done(this.append(severity, this.strings.get('announce.attack_harmless', params), tick, focus, category, 'announce.attack_harmless'));
     }
-    const line = this.append(severity, text, tick, focus, category, key);
-    return { line, severity, focus };
+    return this.appendStanding(severity, text, tick, focus, category, key);
   }
 
   private done(line: LogLine): Announced {
@@ -913,8 +930,7 @@ export class AnnouncementLog {
         text = `${text} ${this.strings.get('announce.miasma_advice')}`;
       }
     }
-    const line = this.append(spec.severity, text, tick, focus, spec.category, key);
-    return { line, severity: spec.severity, focus };
+    return this.appendStanding(spec.severity, text, tick, focus, spec.category, key);
   }
 
   /** The largest group of rotting units on the tiles, by place and by material (or corpse species), with its first tile. */
@@ -976,9 +992,80 @@ export class AnnouncementLog {
     const env = { readers, registry: this.registry, strings: this.strings };
     const text = this.strings.get('announce.rot_soon', { n, days: ROT_ALERT_DAYS, stack: stackName(env, largest.id), place: itemPlace(env, tile) });
     const focus = tile >= 0 ? tile : undefined;
-    const line = this.append('alert', text, tick, focus, undefined, 'announce.rot_soon');
-    line.subject = largest.id;
-    return { line, severity: 'alert', focus };
+    const done = this.appendStanding('alert', text, tick, focus, undefined, 'announce.rot_soon');
+    done.line.subject = largest.id;
+    return done;
+  }
+
+  /**
+   * 24 § Announcements and the log (T-741): a standing alert (`LOG_STANDING_ALERTS`) that comes again
+   * on the day after its line of one key and one condition last came folds into that line: the line
+   * takes the newest words, time and place, counts one more day in a row, and moves to the newest
+   * place in the log; its subject is cleared for the caller to set anew. A day without it ends the
+   * run, so a later one starts a line of its own. Anything else, and a standing alert with no line
+   * of the day before, is appended as {@link append} does.
+   */
+  private appendStanding(severity: Severity, text: string, tick: number, focus: TileIndex | undefined, category: string | undefined, key: string): Announced {
+    const folded = severity === 'alert' && category !== 'combat' ? this.fold(text, tick, focus, key) : null;
+    if (folded !== null) return { line: folded, severity, focus: folded.focus, folded: true };
+    const line = this.append(severity, text, tick, focus, category, key);
+    return { line, severity, focus };
+  }
+
+  private fold(text: string, tick: number, focus: TileIndex | undefined, key: string): LogLine | null {
+    if (LOG_STANDING_ALERTS[key] === undefined) return null;
+    const words = text.length > 0 ? text.charAt(0).toUpperCase() + text.slice(1) : text;
+    const which = this.condition(key, words);
+    const day = dayIndexOf(tick);
+    for (let k = this.lines.length - 1; k >= 0; k -= 1) {
+      const prev = this.lines[k] as LogLine;
+      if (prev.key !== key || prev.severity !== 'alert' || prev.category === 'combat' || this.condition(key, prev.text) !== which) continue;
+      // The newest line of this condition: it folds only when it came the day before.
+      if (dayIndexOf(prev.tick) !== day - 1) return null;
+      prev.text = words;
+      prev.tick = tick;
+      prev.count = 1;
+      prev.days = (prev.days ?? 1) + 1;
+      if (focus === undefined) delete prev.focus;
+      else prev.focus = focus;
+      delete prev.subject;
+      this.lines.splice(k, 1);
+      this.lines.push(prev);
+      return prev;
+    }
+    return null;
+  }
+
+  /** The condition a standing alert's line tells of: its key's naming placeholders as its text fills them ('' for the fortress's own). */
+  private condition(key: string, text: string): string {
+    const fields = LOG_STANDING_ALERTS[key] ?? [];
+    if (fields.length === 0) return '';
+    const read = this.templateOf(key).exec(text);
+    // A text its template does not read (an older template's words) is a condition of its own.
+    if (read === null) return text;
+    return fields.map((field) => read.groups?.[field] ?? '').join('|');
+  }
+
+  /** A key's template as a pattern that reads its placeholders back from the start of a line (case aside: the log capitalizes the first letter). */
+  private templateOf(key: string): RegExp {
+    let re = this.templates.get(key);
+    if (re === undefined) {
+      const template = this.strings.get(key);
+      const seen = new Set<string>();
+      let source = '';
+      let at = 0;
+      for (const match of template.matchAll(/\{(\w+)(?:\|[^|}]+\|[^|}]+)?\}/g)) {
+        const name = match[1] as string;
+        source += escapeRegExp(template.slice(at, match.index));
+        source += seen.has(name) ? '.+?' : `(?<${name}>.+?)`;
+        seen.add(name);
+        at = match.index + match[0].length;
+      }
+      source += escapeRegExp(template.slice(at));
+      re = new RegExp(`^${source}`, 'si');
+      this.templates.set(key, re);
+    }
+    return re;
   }
 
   /**
@@ -1159,4 +1246,8 @@ export function subjectOf(event: GameEvent, readers: ReaderSet): EntityId | unde
     if (readers.entities.has(id, C.Item)) return id;
   }
   return undefined;
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

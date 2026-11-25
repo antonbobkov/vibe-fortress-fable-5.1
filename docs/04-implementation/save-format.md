@@ -56,7 +56,7 @@ Typed array section names carry the element type after a colon: `map.kind:u8`, `
 | `systems` | JSON | `{ id: { stateVersion, state } }` for every system; typed arrays inside are base64 with a `"$type"` marker. System 15 saves pending initial or hourly recomputation in `hourlyDue`, so a fresh embark save continues its first morale tick exactly |
 | `commandLog` | JSON | current season's entries |
 | `queues` | JSON | pending `{ events, commands }` |
-| `ui` | JSON | `UiState` ([schemas/system-state.md](schemas/system-state.md)): the log tail's lines carry their merge count, category, focus, subject and string key, each optional, absent in an older save |
+| `ui` | JSON | `UiState` ([schemas/system-state.md](schemas/system-state.md)): the log tail's lines carry their merge count, category, focus, subject, string key and a standing alert's days in a row, each optional, absent in an older save |
 
 ### Command diagnostics
 

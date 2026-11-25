@@ -36,6 +36,22 @@ export const LOG_MISERABLE_REASONS = 3;
 /** The day's line of animals bleeding with no dressing (17) names at most this many; more are counted. */
 export const LOG_BLEEDING_NAMES = 3;
 
+/**
+ * The standing alerts (24 § Announcements and the log): alerts that tell of a condition rather than an
+ * event, so the same one coming again on the next day folds into its line of the day before, marked
+ * with the days in a row it has come. Each key names the placeholders that tell one such condition
+ * from another (one animal, one place, one kind of container); a key with none is the fortress's own.
+ */
+export const LOG_STANDING_ALERTS: Readonly<Record<string, readonly string[]>> = Object.freeze({
+  'announce.rot_soon': [],
+  'announce.workshop_no_container': ['container'],
+  'announce.workshop_blocked': [],
+  'announce.miasma': [],
+  'announce.miasma_from': ['place'],
+  'announce.animal_starving': ['animal'],
+  'announce.animal_starving.pasture': ['animal', 'pasture'],
+});
+
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
 export const CURSOR_SCROLL_MARGIN = 3;
 
