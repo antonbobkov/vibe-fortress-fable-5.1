@@ -1906,9 +1906,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
   }
 
   // 2. Set door modes: lock_on_alert (19 § The airlock, ordinary player setting); open while the
-  // watch looks at the gate before an alert comes down (T-653, `lookBeforeAllClear`). T-732: where
-  // no watch stands at the north door (`northWatch === false`, the defence fortress, whose north
-  // door opens on its kill corridor) its mode is the defence script's alone, and the look leaves it.
+  // watch looks at the gate before an alert comes down (T-653, `lookBeforeAllClear`).
   const wantDoorMode = state.looking !== undefined ? 'open' : 'lock_on_alert';
   if (state.gateDoorPlaced && state.gateDoorId !== 0) {
     const b = buildings.get(state.gateDoorId);
@@ -1916,7 +1914,7 @@ export function checkFortressDefense(w: TestWorld, state: FortressState): void {
       command(w, { type: 'SetDoorMode', buildingId: state.gateDoorId, mode: wantDoorMode });
     }
   }
-  if (state.gateDoorPlaced2 && state.gateDoorId2 !== 0 && state.northWatch !== false) {
+  if (state.gateDoorPlaced2 && state.gateDoorId2 !== 0) {
     const b2 = buildings.get(state.gateDoorId2);
     if (b2?.state === 'built' && b2.mode !== wantDoorMode) {
       command(w, { type: 'SetDoorMode', buildingId: state.gateDoorId2, mode: wantDoorMode });
@@ -2276,14 +2274,10 @@ export const LOOK_TICKS = 60;
 /** T-653: the longest the look holds the alert up, should a post find nobody to hold it. */
 export const LOOK_MAX_TICKS = 600;
 
-/**
- * T-653: the gate's doors and the second line's, as they stand built. T-732: not the north door
- * where no watch stands there (`northWatch === false`): the look has no post beyond it to open it
- * for, and the defence script keeps it locked on the alert but for its own sallies.
- */
+/** T-653: the gate's doors and the second line's, as they stand built. */
 function gateDoors(w: TestWorld, state: FortressState): number[] {
   const buildings = w.readers.of<BuildingsReader>('14');
-  return [state.gateDoorId, ...(state.northWatch === false ? [] : [state.gateDoorId2]), ...(state.innerDoorIds ?? [])]
+  return [state.gateDoorId, state.gateDoorId2, ...(state.innerDoorIds ?? [])]
     .filter((id) => id !== 0 && buildings.get(id)?.state === 'built');
 }
 

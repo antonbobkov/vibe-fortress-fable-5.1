@@ -7,6 +7,8 @@ import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { ThreatScheduleEntry } from '@systems/threats';
 import { TestWorld } from '../scenarios/test-world';
+import { checkDefenceRaid, type DefenceYearState } from '../scenarios/defence_year_fortress';
+import { scriptRecord } from '../scenarios/script-commands';
 import { HALL_Z, LOOK_MAX_TICKS, LOOK_TICKS, Z, checkFortressDefense, innerLineBuilt, innerRingTiles, type FortressState } from '../scenarios/three_years_fortress';
 
 /**
@@ -195,26 +197,39 @@ describe('T-653 the three-year script looks before an alert comes down', () => {
   });
 });
 
-describe('T-732 the look leaves a north door with no watch to the defence script', () => {
-  it('opens the south door and the second line for the look, never the north door, and leaves the mode it finds there', () => {
+describe('T-732 the defence script locks its north door only after its own sally', () => {
+  it('leaves the look the north door it opens, and locks it again after a sally', () => {
     const { w, state } = gatehouse('t732-north', false);
     const buildings = w.readers.of<BuildingsReader>('14');
     const north = state.gateDoorId2;
-    expect(buildings.get(north)?.mode, 'the fortress script sets no mode on it').not.toBe('lock_on_alert');
-    // The defence script locks it on the alert (`checkDefenceRaid`).
-    expect(w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: north, mode: 'lock_on_alert' }).ok).toBe(true);
+    const defence = { fortress: state, corridor: [], notes: [] } as unknown as DefenceYearState;
+    const sets = (): number => scriptRecord(w).accepted.get('SetDoorMode') ?? 0;
     raidGone(w, state);
     checkFortressDefense(w, state);
+    checkDefenceRaid(w, defence);
     expect(state.looking).toBeDefined();
-    const modes = doorModes(w, state);
-    expect(modes[1], 'the north door stays locked on the alert').toBe('lock_on_alert');
-    expect([modes[0], ...modes.slice(2)].every((m) => m === 'open'), 'the south door and the second line open').toBe(true);
-    // A sally of the defence script opens it: the fortress script leaves it so through the look and after.
-    expect(w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: north, mode: 'open' }).ok).toBe(true);
-    play(w, state, LOOK_MAX_TICKS + 100, () => w.game.world.fortress.alert === 'calm');
+    expect(doorModes(w, state).every((m) => m === 'open'), 'the look opens every gate door').toBe(true);
+    // Through the look the two scripts send no door mode: the look holds the doors open.
+    const before = sets();
+    const end = w.tick + LOOK_MAX_TICKS + 100;
+    while (w.tick < end && w.game.world.fortress.alert !== 'calm') {
+      w.step(20);
+      checkFortressDefense(w, state);
+      if (state.looking !== undefined) {
+        checkDefenceRaid(w, defence);
+        expect(buildings.get(north)?.mode, 'the north door stays open for the look').toBe('open');
+      }
+    }
     expect(w.game.world.fortress.alert).toBe('calm');
-    checkFortressDefense(w, state);
-    expect(buildings.get(north)?.mode).toBe('open');
-    expect(buildings.get(state.gateDoorId)?.mode).toBe('lock_on_alert');
+    expect(sets() - before, "only the look's end locks the doors").toBe(doorModes(w, state).length);
+    expect(defence.notes).toEqual([]);
+    // A sally's end locks it on the alert again, with a note.
+    w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
+    expect(w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: north, mode: 'open' }).ok).toBe(true);
+    (defence as { sallying?: boolean }).sallying = true;
+    checkDefenceRaid(w, defence);
+    expect(buildings.get(north)?.mode).toBe('lock_on_alert');
+    expect(defence.notes).toHaveLength(1);
+    expect(defence.notes[0]).toContain('north door locks on the alert again');
   });
 });
