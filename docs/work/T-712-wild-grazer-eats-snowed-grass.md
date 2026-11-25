@@ -14,5 +14,5 @@ Decision: in the wild `graze` arrival, eat only grass with no `snow` (`!map.hasF
 
 ## Done
 
-- [ ] Test: a wild grazer walking to a grass tile that is snowed before it arrives does not clear that tile's grass.
-- [ ] The instrument's verdict in the commit body (wild grazing moves the wildlife year).
+- [x] Test: a wild grazer walking to a grass tile that is snowed before it arrives does not clear that tile's grass.
+- [x] The instrument's verdict in the commit body (wild grazing moves the wildlife year).
