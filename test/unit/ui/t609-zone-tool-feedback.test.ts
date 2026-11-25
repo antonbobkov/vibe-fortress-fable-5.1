@@ -58,7 +58,7 @@ describe('T-609 a zone answers at once, and its inspector has the keys it names'
     expect(g.fortress.zones.selected).toBe(zones[0]);
     expect(g.fortress.statusRow2()).toMatch(/^Stockpile #1 made: \d+ tiles?/);
     g.render();
-    expect(g.textRows().join('\n')).toContain('Selected: Stockpile #1');
+    expect(g.textRows().join('\n')).toContain('─── Stockpile #1 · 12 tiles ─');
   });
 
   it('a second drag over the zone names another zone as the reason', async () => {

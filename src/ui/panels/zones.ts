@@ -34,7 +34,7 @@ import { dropdown, dropdownKey, type DropdownOption, type DropdownState } from '
 import type { KeyPress } from '@platform/input';
 import { C } from '@core/components';
 import type { Surface } from '../surface';
-import { drawnCols, keyCells, label, separator, toggleNode, type TreeNode, type ListState } from '../widgets';
+import { cutText, drawnCols, keyCells, label, separator, toggleNode, wrapLabel, type TreeNode, type ListState } from '../widgets';
 import { acceleratorLabel } from '../keymap';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
@@ -546,7 +546,9 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
   const b = buildings(ctx);
   const zone = b?.zone(tool.selected);
   if (b === null || zone === undefined) return;
-  separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.zone.selected', { name: zoneName(ctx, zone), n: zone.tiles.length }));
+  // The rule names the zone and its size: a name too long for it is cut, never the size.
+  const size = strings.get('ui.zone.selected', { name: '', n: zone.tiles.length });
+  separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.zone.selected', { name: cutText(zoneName(ctx, zone), rect.cols - 7 - Array.from(size).length), n: zone.tiles.length }));
   row += 1;
   const bottom = rect.row + rect.rows - 1;
   if (zone.type === 'stockpile') { drawStockpileEditor(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool.stockpile, ctx, zone.id, zone.tiles.length); row = bottom; }
@@ -609,14 +611,18 @@ function drawFarmSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
       Math.max(18, rect.cols - 10));
     if (plant !== undefined) {
       const seed = tool.seedsOf(ctx, plant);
-      label(s, rect.col + 27, row, ctx.strings.get('ui.zone.farm_seeds', { n: seed }), { fg: seed === 0 ? t.bad : t.value, width: Math.max(1, rect.cols - 28) });
+      // The seeds in stock, after the crop and clear of its field: a count only, its meaning in the tooltip.
+      const n = label(s, rect.col + 28, row, ctx.strings.get('ui.zone.farm_seeds', { n: seed }), { fg: seed === 0 ? t.bad : t.value, width: Math.max(1, rect.cols - 29) });
+      s.tooltip({ col: rect.col + 28, row, cols: n, rows: 1 }, ctx.strings.get('ui.zone.farm_seeds_tip', { n: seed }));
     }
     row += used;
   }
   const cropIds = plants.crops().filter((id) => plants.cropInfo(id)?.plotZoneId === zone.id);
   const ready = cropIds.filter((id) => (plants.cropInfo(id)?.stage ?? 0) === 3).length;
-  if (row < rect.row + rect.rows) label(s, rect.col + 1, row, `Crops: ${cropIds.length - ready} growing, ${ready} ready, ${Math.max(0, zone.tiles.length - cropIds.length)} empty`, { width: rect.cols - 2 });
-  row += 1;
+  if (row < rect.row + rect.rows) {
+    const crops = ctx.strings.get('ui.zone.farm_crops', { growing: cropIds.length - ready, ripe: ready, empty: Math.max(0, zone.tiles.length - cropIds.length) });
+    row += wrapLabel(s, rect.col + 1, row, crops, { width: rect.cols - 2, indent: 2, maxRows: Math.max(1, rect.row + rect.rows - row) });
+  } else row += 1;
   // `07` § Fertilizer: the plot's setting and the fertilizer in stock; a click turns it on or off.
   if (row < rect.row + rect.rows) {
     const on = plants.plotFertilize(zone.id);

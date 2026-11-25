@@ -174,6 +174,29 @@ export function wrapHang(text: string, width: number, indent: number): string[] 
   return lines;
 }
 
+/** A name in at most `room` cells: whole when it fits, else cut with `»` as its last cell. */
+export function cutText(text: string, room: number): string {
+  const chars = Array.from(text);
+  if (chars.length <= room) return text;
+  return room <= 0 ? '' : `${chars.slice(0, room - 1).join('')}»`;
+}
+
+/**
+ * Draw a line that says something over as many rows as it needs, at most `maxRows` (24 § Rules: a
+ * line in a panel does not cut the fact it gives; it wraps under itself). Each row after the first
+ * starts `indent` cells in. A text longer than `maxRows` rows ends its last row with `»` and keeps the
+ * whole as its tooltip. Returns the rows used.
+ */
+export function wrapLabel(s: Surface, col: number, row: number, text: string, options: LabelOptions & { readonly width: number; readonly indent?: number; readonly maxRows?: number }): number {
+  const lines = wrapHang(text, options.width, options.indent ?? 0);
+  const rows = Math.max(1, Math.min(lines.length, options.maxRows ?? Infinity));
+  const shown = lines.slice(0, rows);
+  if (lines.length > rows) shown[rows - 1] = `${shown[rows - 1] as string} ${lines.slice(rows).map((line) => line.trim()).join(' ')}`;
+  shown.forEach((line, k) => label(s, col, row + k, line, options));
+  if (lines.length > rows) s.tooltip({ col, row, cols: options.width, rows }, text);
+  return rows;
+}
+
 /** A label padded with blanks to exactly `width` cells (so a row is fully repainted). */
 export function labelRow(s: Surface, col: number, row: number, width: number, text: string, options: LabelOptions = {}): void {
   const bg = options.bg ?? s.theme.black;

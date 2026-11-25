@@ -975,7 +975,7 @@ const WORKSHOP_KEYS: Readonly<Record<string, WorkshopAction>> = Object.freeze({
 
 // ---------- drawing ----------
 
-interface GroupRow {
+export interface GroupRow {
   readonly heading?: string;
   readonly text?: () => string;
   readonly fg?: Rgb;
@@ -1028,7 +1028,7 @@ function groupedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: L
  * the first row drawn; a row's text is asked for only when it is drawn or the scroll needs its
  * height. Returns whether the list drew its scrollbar.
  */
-function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: ListState, onSelect: (index: number) => void): boolean {
+export function wrappedList(s: Surface, rect: Rect, rows: readonly GroupRow[], state: ListState, onSelect: (index: number) => void): boolean {
   const items: number[] = [];
   rows.forEach((row, k) => { if (row.heading === undefined) items.push(k); });
   state.selected = Math.max(0, Math.min(items.length - 1, state.selected));
@@ -1126,7 +1126,13 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
   textField(s, col + find.length + 1, rect.row + 1, Math.max(1, width - find.length - 5), { value: p.filter, focused: p.field === 'recipe', maxLength: width }, () => { p.field = 'recipe'; });
   // The workshop is shown for a workshop's own order too, where it cannot change.
   const fields: PickerField[] = ['quantity', 'mode', 'material', 'where'];
-  const bottom = fields.length + 2;
+  // A value too long for its row ("any craftsdwarf's workshop") wraps under itself, the list giving up the rows.
+  const recipe = panel.pickerRecipe(ctx);
+  const valueCols = Math.max(1, width - 11);
+  const values = new Map(fields.filter((field) => field !== 'quantity').map((field) => [field, wrapHang(field === 'mode' ? strings.get(`ui.orders.picker.mode.${p.mode}`, { n: p.quantity })
+    : field === 'material' ? panel.materialName(ctx, p.material, recipe)
+      : panel.whereName(ctx, p.workshopId, recipe), valueCols, 0)] as const));
+  const bottom = fields.length + 2 + [...values.values()].reduce((n, lines) => n + lines.length - 1, 0);
   const rows = panel.pickerRows(ctx);
   // Opened from a workshop, what every `○` recipe listed lacks alike is said once above the list, as the
   // Workshop panel says it; the list from every workshop mixes their inputs and keeps each row's note.
@@ -1168,8 +1174,7 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
   }
   let row = top + height;
   separator(s, col, row, width); row += 1;
-  const recipe = panel.pickerRecipe(ctx);
-  const caption = (field: PickerField, name: string): number => label(s, col, row, `${p.field === field ? '▶' : ' '} ${name.padEnd(9)}`, { width, fg: p.field === field ? t.value : t.text });
+  const caption =(field: PickerField, name: string): number => label(s, col, row, `${p.field === field ? '▶' : ' '} ${name.padEnd(9)}`, { width, fg: p.field === field ? t.value : t.text });
   for (const field of fields) {
     if (row >= rect.row + rect.rows - 1) break;
     if (field === 'quantity') {
@@ -1178,12 +1183,11 @@ function drawPickerFields(s: Surface, rect: Rect, panel: OrdersPanel, ctx: Panel
     } else {
       const name = field === 'mode' ? strings.get('ui.orders.picker.mode') : field === 'material' ? strings.get('ui.orders.picker.material') : strings.get('ui.orders.picker.where');
       const n = caption(field, name);
-      const value = field === 'mode' ? strings.get(`ui.orders.picker.mode.${p.mode}`, { n: p.quantity })
-        : field === 'material' ? panel.materialName(ctx, p.material, recipe)
-          : panel.whereName(ctx, p.workshopId, recipe);
+      const lines = (values.get(field) ?? ['']).slice(0, Math.max(1, rect.row + rect.rows - 1 - row));
       const locked = field === 'where' && p.fixed;
-      label(s, col + n, row, value, { fg: locked ? t.dim : t.value, width: width - n, keys: false });
-      if (!locked) s.hit({ col, row, cols: width, rows: 1 }, () => { p.field = field; panel.pickerAdjust(ctx, field, 1); });
+      lines.forEach((line, k) => label(s, col + n, row + k, line, { fg: locked ? t.dim : t.value, width: width - n, keys: false }));
+      if (!locked) s.hit({ col, row, cols: width, rows: lines.length }, () => { p.field = field; panel.pickerAdjust(ctx, field, 1); });
+      row += lines.length - 1;
     }
     row += 1;
   }

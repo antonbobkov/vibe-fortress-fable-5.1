@@ -249,8 +249,8 @@ describe('U-03 work orders have a quantity (D-U5, M2, Q2)', () => {
     expect(f.screen.orders.pickerRecipes(f.screen.ctx).map((r) => r.id).sort()).toEqual(['forge_door', 'make_door_bone', 'make_door_stone', 'make_door_wood']);
     f.screen.orders.picker.list.selected = f.screen.orders.pickerRecipes(f.screen.ctx).findIndex((r) => r.id === 'make_door_wood');
     expect(f.screen.orders.whereOptions(f.screen.ctx)).toEqual([0, first, second]);
-    // (The 33-cell row cuts the name; hovering shows it whole, U-08.)
-    expect(panelText(f)).toContain("Where    any carpenter's work");
+    // (A name longer than the 22-cell value wraps under itself, T-703.)
+    expect(panelText(f)).toMatch(/Where {4}any carpenter's *\n {12}workshop/);
     for (let k = 0; k < 4; k += 1) f.screen.key(press('Tab'));
     expect(p.field).toBe('where');
     f.screen.key(press('→'));

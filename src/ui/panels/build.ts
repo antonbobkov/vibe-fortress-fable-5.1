@@ -23,9 +23,10 @@ import { acceleratorLabel } from '../keymap';
 import { alternativesName, blockedText, capitalize, itemName, whereMade } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
-import { label, list, separator, type ListState } from '../widgets';
+import { drawnCols, label, separator, type ListState } from '../widgets';
 import { buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
+import { wrappedList, type GroupRow } from './orders';
 
 /** The panel's categories, in the wireframe's order, with their accelerators. */
 export const BUILD_CATEGORIES: readonly { readonly key: string; readonly id: BuildingRow['category'] }[] = [
@@ -73,6 +74,28 @@ export function buildRowText(name: string, inputs: string, count: string, width:
   const nameText = nameCells.slice(0, Math.max(1, width - rightCells.length - (rightCells.length > 0 ? 1 : 0))).join('');
   const gap = Math.max(rightCells.length > 0 ? 1 : 0, width - cells(nameText).length - rightCells.length);
   return `${nameText}${' '.repeat(gap)}${right}`;
+}
+
+/**
+ * A row of the build list: one row laid out by {@link buildRowText} when the name, the inputs and the
+ * count fit `width` cells; otherwise the whole text, to be wrapped under the name, each input kept
+ * with its number and the count with the last input (no-break spaces).
+ */
+export function buildRowLines(name: string, inputs: string, count: string, width: number): string {
+  if (Array.from(`${name} ${inputs}${count}`).length <= width) return buildRowText(name, inputs, count, width);
+  const kept = inputs.replace(/(^|\+)(\d+|n) /g, '$1$2\u00a0');
+  return `${name} ${kept}${count.replace(/^ /, '\u00a0')}`;
+}
+
+/**
+ * The cells of the two columns of a caption grid (the Build categories, the zone kinds): half each,
+ * unless a caption of the first column needs more and the second still holds its own.
+ */
+export function twoColumnWidths(s: Surface, captions: readonly string[], width: number): readonly [number, number] {
+  const half = Math.floor(width / 2);
+  const need = (j: number): number => Math.max(0, ...captions.filter((_, k) => k % 2 === j).map((c) => drawnCols(s, c) + 1));
+  const first = Math.max(half, Math.min(need(0), width - need(1)));
+  return [first, width - first];
 }
 
 /** The material choice "blocks": a workshop of blocks in place of its logs (14 § Placement, Workshops of stone). */
@@ -520,13 +543,14 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   const t = s.theme;
   const strings = ctx.strings;
   let row = rect.row;
-  const colW = Math.floor((rect.cols - 2) / 2);
+  const caption = (c: typeof BUILD_CATEGORIES[number]): string => `${acceleratorLabel(c.key, ctx.shiftLetters)} ${strings.get(`ui.build.category.${c.id}`)}`;
+  const widths = twoColumnWidths(s, BUILD_CATEGORIES.map(caption), rect.cols - 2);
   for (let k = 0; k < BUILD_CATEGORIES.length; k += 2) {
     for (let j = 0; j < 2; j += 1) {
       const c = BUILD_CATEGORIES[k + j];
       if (c === undefined) continue;
-      const col = rect.col + 1 + j * colW;
-      const n = label(s, col, row, `${acceleratorLabel(c.key, ctx.shiftLetters)} ${strings.get(`ui.build.category.${c.id}`)}`, { width: colW - 1 });
+      const col = rect.col + 1 + (j === 0 ? 0 : widths[0]);
+      const n = label(s, col, row, caption(c), { width: (j === 0 ? widths[0] : widths[1]) - 1 });
       if (tool.category === c.id) s.invert({ col, row, cols: n, rows: 1 });
       s.hit({ col, row, cols: n, rows: 1 }, () => void tool.choose(c.key));
     }
@@ -540,14 +564,15 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
   row += 1;
   const rows = tool.rows(ctx);
   const height = Math.max(1, rect.rows - (row - rect.row) - (tool.current(ctx)?.footprint.variable === undefined ? 4 : 5));
-  list(
+  // A row whose inputs do not fit beside its name wraps them under it, as the Workshop panel's recipes do.
+  wrappedList(
     s,
     { col: rect.col + 1, row, cols: rect.cols - 2, rows: height },
-    rows.map((r) => {
+    rows.map((r): GroupRow => ({ text: () => {
       const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
       const count = r.inputs.length === 0 ? '' : ` (${tool.available(ctx, r)})`;
-      return buildRowText(name, inputText(r, ctx.registry), count, rect.cols - 3);
-    }),
+      return buildRowLines(name, inputText(r, ctx.registry), count, rect.cols - 3);
+    } })),
     tool.list,
     (index) => {
       tool.list.selected = index;

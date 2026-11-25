@@ -410,7 +410,7 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
         : n.id.startsWith('type:') && it !== null
           ? (panel.totals(ctx).itemIds.get(Number(n.id.slice(5))) ?? []).reduce((sum, id) => ({ count: sum.count + (it.get(id)?.count ?? 0), value: sum.value + it.value(id) }), { count: 0, value: 0 })
           : totals.get(n.id) ?? { count: 0, value: 0 };
-      return `${v.count.toLocaleString('en-US').padStart(6)} ${marks(v.value).padStart(9)}`;
+      return `${v.count.toLocaleString('en-US').padStart(6)} ${marks(v.value).padStart(8)}`;
     },
   );
   panel.tree.selected = state.selected;

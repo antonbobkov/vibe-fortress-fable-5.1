@@ -31,8 +31,9 @@ describe('T-332 panel: population after immigration', () => {
     expect(rows[1]).toBe('Cap [-] 40 [+]');
     expect(rows[2]).toMatch(/^Hall spirit: Fine \(\d+(\.\d+)?\)$/);
     expect(rows[3]).toBe('Next evaluation: Autumn');
-    expect(rows[4]).toMatch(/^Eligible: no · hall spirit below /);
-    expect(rows[5]).toBe('Last wave: 2 in Summer, Year 1');
-    expect(rows[6]).toBe('Waves so far: 1');
+    // Why no wave comes wraps under itself rather than being cut (T-703).
+    expect(rows.slice(4, 6)).toEqual(['Eligible: no · hall spirit below', '  Content']);
+    expect(rows[6]).toBe('Last wave: 2 in Summer, Year 1');
+    expect(rows[7]).toBe('Waves so far: 1');
   });
 });

@@ -68,7 +68,7 @@ describe('T-274 the message after a zone drag', () => {
     f.drag('s', 10, 10, 13, 12);
     f.screen.zones.cancel();
     f.screen.clearNotice();
-    expect(f.screen.statusRow2()).toContain('Selected: Stockpile #1 (12 t)');
+    expect(f.screen.statusRow2()).toContain('Selected: Stockpile #1 (12 tiles)');
   });
 });
 

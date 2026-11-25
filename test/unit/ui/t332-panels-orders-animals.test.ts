@@ -171,14 +171,16 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[0]).toMatch(/^Hall spirit \S Fine \(\d+\)$/);
     // T-639: the summary, its count drawn `x` (the glyph set has no `×`).
     expect(rows[1]).toBe('Thoughts held by most');
-    expect(rows[2]).toBe(' -1 The Thane sleeps in a hove» x6');
-    expect(rows[3]).toMatch(/^Name +Tier$/);
-    const listed = rows.slice(4, 28).filter((row) => row !== '' && !row.startsWith('  '));
+    // A thought too long for its row wraps under itself, the count on its first row (T-703).
+    expect(rows[2]).toBe(' -1 The Thane sleeps in a       x6');
+    expect(rows[3]).toBe('   hovel.');
+    expect(rows[4]).toMatch(/^Name +Tier$/);
+    const listed = rows.slice(5, 28).filter((row) => row !== '' && !row.startsWith('  '));
     expect(listed).toHaveLength(dwarves.length);
     for (const row of listed) expect(row).toMatch(/^\S+ \S+ +Fine$/);
     // Each dwarf's whole name, and its top thought whole on the row under it.
-    expect(rows[4]).toBe('Ludin Grimfell   Fine');
-    expect(rows[5]).toBe('  -1 The Thane sleeps in a hovel.');
+    expect(rows[5]).toBe('Ludin Grimfell   Fine');
+    expect(rows[6]).toBe('  -1 The Thane sleeps in a hovel.');
     expect(rows[28]).toMatch(/^─+$/);
     expect(rows[29]).toBe('[Enter] holders  [s] sort tier');
   });
@@ -190,16 +192,17 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[1]).toBe('Cap [-] 80 [+]');
     expect(rows[2]).toMatch(/^Hall spirit: Fine \(\d+\)$/);
     expect(rows[3]).toBe('Next evaluation: Summer');
-    expect(rows[4]).toMatch(/^Eligible: no · hall spirit below /);
-    expect(rows[5]).toBe('Last wave: none');
-    expect(rows[6]).toBe('Waves so far: 0');
+    // Why no wave comes wraps under itself rather than being cut (T-703).
+    expect(rows.slice(4, 6)).toEqual(['Eligible: no · hall spirit below', '  Content']);
+    expect(rows[6]).toBe('Last wave: none');
+    expect(rows[7]).toBe('Waves so far: 0');
   });
 
   it('a selected farm plot shows its settings in the menu\'s place, one crop choice for each season, and the crop count of its tiles', () => {
     const rows = render('farm');
     // T-680: the settings replace the menu of kinds; [y] goes back to it.
     expect(rows[0]).toBe('[y] zones menu');
-    expect(rows[1]).toMatch(/^─+ Selected: Farm plot #\d+ \(2 t\) ─+$/);
+    expect(rows[1]).toMatch(/^─+ Farm plot #\d+ · 2 tiles ─+$/);
     // The highlight (►) starts on the current season; each row ends with the seeds in stock when a crop is set.
     expect(rows.slice(2, 6)).toEqual([
       '►Spring  [ none         ▼ ]',
@@ -207,7 +210,7 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
       'Autumn  [ none         ▼ ]',
       'Winter  [ none         ▼ ]',
     ]);
-    expect(rows[6]).toBe('Crops: 0 growing, 0 ready, 2 empty');
+    expect(rows[6]).toBe('0 growing · 0 ripe · 2 empty');
     expect(rows[7]).toBe('Fertilize: off (0 in stock)');
     expect(rows[8]).toBe('↑↓ season · Enter choose crop');
     expect(rows[9]).toBe('[a] all seasons');
