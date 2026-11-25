@@ -7,6 +7,8 @@ import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat/reader';
 import type { ThreatScheduleEntry } from '@systems/threats';
 import { TestWorld } from '../scenarios/test-world';
+import { checkDefenceRaid, type DefenceYearState } from '../scenarios/defence_year_fortress';
+import { scriptRecord } from '../scenarios/script-commands';
 import { HALL_Z, LOOK_MAX_TICKS, LOOK_TICKS, Z, checkFortressDefense, innerLineBuilt, innerRingTiles, type FortressState } from '../scenarios/three_years_fortress';
 
 /**
@@ -23,7 +25,7 @@ const sx = cx + 6;
 const sy = cy + 6;
 
 /** T-575's gatehouse with the second line built, three armed soldiers and four civilians in the hearth hall (two of them join the squad); ambushes possible from day 0. */
-function gatehouse(seed: string): { w: TestWorld; state: FortressState; civilians: EntityId[] } {
+function gatehouse(seed: string, northWatch = true): { w: TestWorld; state: FortressState; civilians: EntityId[] } {
   const w = new TestWorld({ seed, registry: contentRegistry() });
   w.carve(w.index(sx, sy, Z), TileKind.StairsDown);
   for (let z = HALL_Z + 1; z < Z; z += 1) w.carve(w.index(sx, sy, z), TileKind.StairsUpDown);
@@ -67,13 +69,14 @@ function gatehouse(seed: string): { w: TestWorld; state: FortressState; civilian
     gateDoorId: south, gateDoorPlaced: true, gateDoorId2: north, gateDoorPlaced2: true, gateWallLostTick: 0,
     squadId, answered: '', lastDangerTick: -1, shutOut: false, eventsRead: 0, warnedUntil: -1, alertSince: -1, wildQuietUntil: -1,
   } as unknown as FortressState;
+  if (!northWatch) state.northWatch = false;
   for (const t of innerRingTiles(w, state)) w.carve(t, TileKind.Floor);
   checkFortressDefense(w, state);
   const system = w.game.world.scheduler.byId('14') as BuildingsSystem;
   for (const id of state.innerDoorIds ?? []) if (id !== 0 && w.readers.of<BuildingsReader>('14').get(id)?.state !== 'built') system.completeNow(id, 0, 0);
   checkFortressDefense(w, state);
   expect(innerLineBuilt(w, state)).toBe(true);
-  expect(state.watch?.length, 'a watch post outside each gate door').toBe(2);
+  expect(state.watch?.length, 'a watch post outside each gate door').toBe(northWatch ? 2 : 1);
   return { w, state, civilians };
 }
 
@@ -191,5 +194,42 @@ describe('T-653 the three-year script looks before an alert comes down', () => {
     expect(w.game.world.fortress.alert).toBe('calm');
     expect(w.map.designationAt(north), 'the tree on the post is to be felled').not.toBe(0);
     expect(combat.squad(state.watch![0]!.squadId)!.orders.some((o) => o.kind === 'station' && o.tile === north)).toBe(false);
+  });
+});
+
+describe('T-732 the defence script locks its north door only after its own sally', () => {
+  it('leaves the look the north door it opens, and locks it again after a sally', () => {
+    const { w, state } = gatehouse('t732-north', false);
+    const buildings = w.readers.of<BuildingsReader>('14');
+    const north = state.gateDoorId2;
+    const defence = { fortress: state, corridor: [], notes: [] } as unknown as DefenceYearState;
+    const sets = (): number => scriptRecord(w).accepted.get('SetDoorMode') ?? 0;
+    raidGone(w, state);
+    checkFortressDefense(w, state);
+    checkDefenceRaid(w, defence);
+    expect(state.looking).toBeDefined();
+    expect(doorModes(w, state).every((m) => m === 'open'), 'the look opens every gate door').toBe(true);
+    // Through the look the two scripts send no door mode: the look holds the doors open.
+    const before = sets();
+    const end = w.tick + LOOK_MAX_TICKS + 100;
+    while (w.tick < end && w.game.world.fortress.alert !== 'calm') {
+      w.step(20);
+      checkFortressDefense(w, state);
+      if (state.looking !== undefined) {
+        checkDefenceRaid(w, defence);
+        expect(buildings.get(north)?.mode, 'the north door stays open for the look').toBe('open');
+      }
+    }
+    expect(w.game.world.fortress.alert).toBe('calm');
+    expect(sets() - before, "only the look's end locks the doors").toBe(doorModes(w, state).length);
+    expect(defence.notes).toEqual([]);
+    // A sally's end locks it on the alert again, with a note.
+    w.game.world.applyCommand({ type: 'SetAlert', level: 'hearth' });
+    expect(w.game.world.applyCommand({ type: 'SetDoorMode', buildingId: north, mode: 'open' }).ok).toBe(true);
+    (defence as { sallying?: boolean }).sallying = true;
+    checkDefenceRaid(w, defence);
+    expect(buildings.get(north)?.mode).toBe('lock_on_alert');
+    expect(defence.notes).toHaveLength(1);
+    expect(defence.notes[0]).toContain('north door locks on the alert again');
   });
 });

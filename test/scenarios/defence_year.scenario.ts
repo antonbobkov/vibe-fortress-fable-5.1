@@ -33,6 +33,9 @@ const scenario: Scenario = {
     const struck = new Set<number>();
     const hearthEpisodes: { locked: boolean }[] = [];
     let wasHearth = false;
+    // T-733: a soldier at drill seen holding a role the economy chooses, at a look (an immigrant: the
+    // founders' own trades, the smith's and the mason's metal chain among them, are the fixture's).
+    const drillingSpecialists = new Set<string>();
     const { w, state } = playDefenceYear({
       observe: (tw) => {
         tw.game.world.onEvents((batch) => {
@@ -54,6 +57,13 @@ const scenario: Scenario = {
         const squad = tw.readers.of<CombatReader>('16').squads().find((s) => s.id === st.fortress.squadId);
         soldiers.clear();
         for (const id of squad?.members ?? []) soldiers.add(id);
+        if (squad?.mode === 'train') {
+          const founders = tw.game.arrival?.dwarves ?? [];
+          const { economy } = st.fortress;
+          for (const [role, id] of [...Object.entries(economy.specialists), ['brewer', economy.brewer ?? 0] as const]) {
+            if (squad.members.includes(id) && !founders.includes(id)) drillingSpecialists.add(`${id} (${role})`);
+          }
+        }
         const hearth = tw.game.world.fortress.alert === 'hearth';
         if (hearth && !wasHearth) hearthEpisodes.push({ locked: false });
         wasHearth = hearth;
@@ -115,6 +125,8 @@ const scenario: Scenario = {
     expect(new Set([...standing, ...fallen]).size).toBeGreaterThanOrEqual(3);
     if ((squad?.members.length ?? 0) > 0) expect(squad?.members).toContain(squad?.leaderId);
     expect(buildings.zone(state.barracksZoneId)?.settings['squad']).toBe(squad?.id);
+    // T-733: no soldier at drill is the economy's specialist (a full-time soldier does no civilian work).
+    expect([...drillingSpecialists], 'a specialist at drill').toEqual([]);
     expect(w.events('TrainingSession').length).toBeGreaterThan(0);
     const skills = w.game.registry.table('skills');
     const weaponSkills = ['sword', 'spear', 'axe', 'mace', 'hammer'].map((s) => skills.index(s)).filter((k) => k > 0);
@@ -131,6 +143,15 @@ const scenario: Scenario = {
     // and a timeline change in the economy script alone left it none.
     expect(hearthEpisodes.length).toBeGreaterThan(0);
     expect(hearthEpisodes.every((e) => e.locked), 'the gate locked under every hearth alert').toBe(true);
+    // T-732: the north door is the defence script's alone: it locks on the alert again only after a sally opened it.
+    let opened = false;
+    for (const n of state.notes) {
+      if (n.includes('north door opened to the squad')) opened = true;
+      else if (n.includes('north door locks on the alert again')) {
+        expect(opened, `${n}: no sally before it`).toBe(true);
+        opened = false;
+      }
+    }
     expect(jobsDone('rearm_trap'), 'a trap rearmed').toBeGreaterThan(0);
     // A trap jams on a roll (19: TRAP_JAM_PERMILLE times the corpses on it); a jammed trap is cleaned.
     if (w.events('TrapJammed').length > 0) expect(jobsDone('clean_trap'), 'a jammed trap cleaned').toBeGreaterThan(0);

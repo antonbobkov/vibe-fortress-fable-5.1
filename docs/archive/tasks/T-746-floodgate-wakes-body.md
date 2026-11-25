@@ -1,0 +1,28 @@
+# T-746 — Reopening a full cistern's floodgate does nothing: the water never climbs the well's column
+
+**Closed:** 2026-11-25, in 260e3512,b675279e.
+
+**Source:** playtest 2026-11-25 (peril 4) ([report](../../../reports/data/2026-11-25-playtest-4.md), finding 2) · **Size:** M · **Needs:** — · **Status:** open
+
+## Why
+
+The fun feature "The floodgate left open" ([fun-features.md](../../fun-features.md), T-688) says that a cistern's floodgate left open floods the hall above: the water rises up the well's column. With a finished well it does not.
+
+The test was `bd_cistern_well`'s fortress (seed `bd-cistern-well`), run until its well worked (tick 14,580; the driver is [cistern.test.ts.txt](../../../reports/data/2026-11-25-playtest-4/cistern.test.ts.txt)). At that point the floodgate at (2, 19, z23) was shut, the cistern was full (7) under the well at (4, 17), the well's column was open from the cistern (z23) up to the hall (z26), and the feed shaft at (2, 22) was full up to the brook at z31. I clicked the lever at (4, 15, z26) and pressed `[y] pull`, and a dwarf pulled it: "Lever: on", "→ Floodgate #1: open". After 3,000 ticks the column held no water above the cistern and the hall was dry (`30-gate-open-hall-dry.png`). Then I called the fluids system's `touch` on the cistern tile under the column, (4, 17, z23). In 600 ticks the hall held 175 units of water and two dwarves and two dogs drowned (`31-touched-hall-floods.png`).
+
+The cause is in 04's wake rule. A `BuildingStateChanged` touches only the gate's footprint and its six neighbours (`src/systems/fluids/index.ts`, `sim.touch`). All of those tiles are full and none can move: the tile above each is rock, and its sideways neighbours are full. So they idle and settle. The tile under the well's column now has the brook's head behind it (rule 3, pressure), but it is four tiles away in the same body. It was settled before the gate opened and it stays settled, so rule 3 never runs for it. The hall floods only when the gate is open *while* the cistern fills under an open column. A well built the script's safe way (column last) can never flood, whatever the player does with the lever. The same holds wherever a floodgate or a lowered bridge joins a settled full body to a higher one.
+
+## What to do
+
+Decisions:
+
+- **Opening a fluid-blocking building wakes the bodies it joins.** This applies when 14's `blocksFluidAt` turns from true to false on a footprint (a floodgate opens, a bridge lowers or is taken down). For each fluid tile beside the footprint, 04 walks breadth first over the full tiles of the same type joined to it (the same joining as rule 3's body: through an upper tile's open bottom vertically), at most `PRESSURE_SEARCH_LIMIT` tiles from each start, and activates each tile it reaches (settled bit cleared, idle count 0). A tile that still cannot move settles again after `FLUID_SETTLE_STEPS`, as now.
+- Closing a gate, or raising a bridge, stays a touch of its footprint.
+- The fun feature stands as written. Its "Remove by" cell is unchanged.
+
+Spec: 04 § Activation (`touch` and the new wake on opening), § Events consumed (`BuildingStateChanged`); a sentence in fun-features.md's row that the flood comes whenever the gate is left open with the column dug.
+
+## Done
+
+- [x] Tests (`describe` with the task id): `test/unit/fluids/t746-wake.test.ts`. A shaft full to z 7, a level tunnel with a shut floodgate and a full, settled cistern with an open column: after the gate opens, the column fills and the hall is wet within 30 steps (gate tile holding water; asserted within 45), 41 (gate tile dry; 60), 90 (six tiles of rock dug instead; 135); with only a touch of the gate (the old wake) it stays empty; with nothing higher than the cistern it stays asleep and only the gate's three tiles wake; a tile filled by the water joining a full, settled cistern to the shaft (no event at all) wakes it; and in the game, a dug wall's `TilesChanged` floods the hall. `bd_cistern_well`: after the well works, pulled open and at once shut (open 20 ticks) the column takes 5 units and the hall stays dry for 1,000 ticks; pulled open and left, the hall is wet after 40 ticks. Beyond the decision above: the wake also runs for `TilesChanged` (a dug wall or channel), activates only the settled tiles rule 3 could move (not every tile reached), searches through the opened tile so the bodies on its two sides count as one, and runs at the end of each step from the tiles a move filled, since a joint that fills after the opening (an empty gate tile, a long passage) would otherwise join the bodies after the woken tiles had settled again.
+- [x] Goldens: none moved. Perf (local, T-688's probe and `fl_perf`): `perf-1`/`perf-2`/`perf-3` fluid steps 5,059/19,113/5,954 ms before, 5,420/20,233/6,496 ms after (about +6 to 9 %, the same ticks and active sums: generated water wakes nothing new); `fl_perf` 04 0.015 → 0.016 ms a tick. CI 45669450866 green on b675279e (e2e: 46 passed). Sweep 45669441569 on b675279e: pooled alive 20, grown 7, need-death fortresses 0, living 1169.25, deaths 110.25, extinct 0, need deaths 0; **verdict: pass**, nothing worth tracing, no invariant findings, every seed job green; deaths by cause bled out 293, killed 129, infection 13, no drowning.

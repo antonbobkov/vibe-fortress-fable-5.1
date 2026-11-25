@@ -770,14 +770,14 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 |---|---|---|---|
 | `view` | `view_moved` | `z` | "Welcome to your hall. Move the view with ←→ ↑↓ (or drag with the middle button), and change the level with [<] and [>] (or the wheel). Do both: the z field below shows the level." |
 | `look` | `looked` | `look` | "Look at things with [k], or a click on the map. The look panel lists all that is on the tile, and a click on a dwarf opens its view; the status row names what is under the pointer. Look at a tile, then at one of your dwarves." |
-| `dig` | `dig_designated` | `designate` | "Open Designate with [d]: Dig is chosen. Go down a level with [<] into the rock, click one corner of a box, then the opposite corner (or Enter twice). The marked tiles blink while the work waits for a miner." |
-| `stairs` | `stairs_designated` | `designate` | "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft." |
-| `stockpile` | `stockpile_made` | `zones` | "Hauled goods need a place. Open Zones with [z], choose a stockpile with [s], and drag a rectangle over open floor (or Enter at two corners)." |
-| `workshop` | `workshop_placed` | `build` | "Open Build with [b] (from the zones menu, Esc first), then [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs." |
-| `order` | `order_queued` | `orders` | "Workshops make what is ordered. Open Orders with [o]: [n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it." |
-| `farm` | `farm_plot_made` | `zones` | "Food grows on soil. In Zones ([z]), [f] chooses a farm plot: drag it over soil or grass. Its settings then show: choose its crop for each season." |
-| `labors` | `labors_changed` | `labors` | "A dwarf works only at the labors that are on. Open Labors with [l]: ↑↓ choose a dwarf, a click on a cell turns that labor on or off, and [a] turns the whole row." |
 | `speed` | `paused_and_sped` | `speed` | "Time stands still while the game is paused. [Space] pauses and resumes, and [+] and [-] change the speed. Run the fortress at 2× or 4×, then pause it again." |
+| `dig` | `dig_designated` | `designate` | "Open Designate with [d]: Dig is chosen. Click one corner of a box on a hillside or rock face, then the opposite corner (or Enter twice). Dwarves dig into rock from the side; the marked tiles blink while the work waits for a miner. They start once time runs: [Space]." |
+| `stairs` | `stairs_designated` | `designate` | "Stairs lead down. In Designate, [w] chooses stairs: click a floor tile twice for a down stair and the stair beneath it. Change the level between the two clicks and the box makes a whole shaft." |
+| `stockpile` | `stockpile_made` | `zones` | "Hauled goods need a place. Open Zones with [z], choose a stockpile with [s], and drag a rectangle over open floor. A new stockpile takes nothing: choose its Preset with [p] (Everything will do)." |
+| `workshop` | `workshop_placed` | `build` | "Close Zones with Esc (twice from a zone's settings), then open Build with [b] and [w] for the workshops. Choose one with ↑↓ and Enter, then click a free spot, or Enter at the cursor. Dwarves build it once time runs." |
+| `order` | `order_queued` | `orders` | "Workshops make what is ordered. Open Orders with [o]: [n] adds an order, type part of a recipe's name and press Enter. An order waits for a workshop that can make it." |
+| `farm` | `farm_plot_made` | `zones` | "Food grows on soil. In Zones ([z]), [f] chooses a farm plot: drag it over soil or grass. Its settings then show the seasons: Enter lists this season's crops, and ↑↓ and Enter choose one." |
+| `labors` | `labors_changed` | `labors` | "A dwarf works only at the labors that are on. Open Labors with [l]: ↑↓ choose a dwarf, a click on a cell turns that labor on or off, and [a] turns the whole row." |
 | `save` | `saved` | `menu` | "Save your fortress: [F5] makes a quick save, and Esc opens the game menu, which has Save. Saves are kept in this browser." |
 
 ## Milestones (legend record)

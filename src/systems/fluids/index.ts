@@ -129,21 +129,22 @@ export class FluidsSystem extends BaseSystem<FluidsStateV1> {
 
   /**
    * `04` § Step algorithm: "Any `TilesChanged` event from 03 or a building state change from 14/19
-   * touches the changed tiles and their neighbors."
+   * touches the changed tiles and their neighbors", and wakes the bodies a tile it opened joins.
    */
   override handle(event: GameEvent, ctx: TickContext): void {
     const sim = this.sim;
     if (event.type === 'TilesChanged') {
       const tiles = event['tiles'] as readonly TileIndex[];
       this.freezer.tilesChanged(tiles);
-      for (const t of tiles) sim.touch(t);
+      sim.opened(tiles);
     } else if (event.type === 'TemperatureTick') {
       // `04` § Events consumed: "`TemperatureTick` (from 05: freeze and thaw list processing)", run
       // at 04's next tick (D-099).
       this.freezer.pending = true;
     } else if (event.type === 'BuildingStateChanged') {
       const b = ctx.readers.entities.get(event['id'] as number, C.Building);
-      if (b !== undefined) for (const t of b.footprint) sim.touch(t);
+      // A floodgate opened or a bridge lowered wakes the bodies it joins; shut, it only touches.
+      if (b !== undefined) sim.opened(b.footprint);
     } else if (event.type === 'EntitiesMoved') {
       // `tick-order.md`: 04 consumes `EntitiesMoved`; a creature that fell or was pushed into deep
       // water or magma is checked where it landed (`04` § Creatures and items in fluid).

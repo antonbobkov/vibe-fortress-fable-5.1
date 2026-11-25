@@ -26,7 +26,7 @@ const steps = registry.derived<readonly TutorialStep[]>('tutorial');
 /** Facts with nothing done: the view at (10, 10, 30), paused, no designations, zones, orders or saves. */
 function facts(over: Partial<{
   camX: number; camY: number; z: number; canPan: boolean; lookTile: number | null; lookDwarf: boolean;
-  speed: 0 | 1 | 2 | 4; saves: number; dig: number; stairs: number; down: number; zones: Record<string, number>;
+  speed: 0 | 1 | 2 | 4; saves: number; dig: number; stairs: number; down: number; stockpiles: number; sown: number;
   workshops: number; orders: number; labors: string;
 }> = {}): TutorialFacts {
   return {
@@ -35,7 +35,8 @@ function facts(over: Partial<{
     digDesignations: () => over.dig ?? 0,
     stairDesignations: () => over.stairs ?? 0,
     downStairs: () => over.down ?? 0,
-    zones: (type) => over.zones?.[type] ?? 0,
+    stockpilesTaking: () => over.stockpiles ?? 0,
+    farmPlotsSown: () => over.sown ?? 0,
     workshops: () => over.workshops ?? 0,
     orders: () => over.orders ?? 0,
     labors: () => over.labors ?? 'a',
@@ -71,7 +72,8 @@ async function settle(g: Game): Promise<void> {
 
 describe('T-439 tutorial: the content table', () => {
   it('lists the eleven steps of the work file in order, each with a known check, a highlight and its string', () => {
-    expect(steps.map((s) => s.id)).toEqual(['view', 'look', 'dig', 'stairs', 'stockpile', 'workshop', 'order', 'farm', 'labors', 'speed', 'save']);
+    // T-755: speed is third, so time is known from the first job on.
+    expect(steps.map((s) => s.id)).toEqual(['view', 'look', 'speed', 'dig', 'stairs', 'stockpile', 'workshop', 'order', 'farm', 'labors', 'save']);
     expect(steps.map((s) => s.check)).toEqual([...TUTORIAL_CHECKS]);
     const panels = new Set([...uiPanels(strings).map((p) => p.id), ...FORTRESS_PANEL_KEYS.map((p) => p.id)]);
     for (const step of steps) {
@@ -103,8 +105,8 @@ describe('T-439 tutorial: the step checks', () => {
     expect(run('stairs_designated', [facts({ down: 2 }), facts({ down: 3 })])).toEqual([false, true]);
   });
 
-  it('stockpile_made: a stockpile zone exists', () => {
-    expect(run('stockpile_made', [facts({ zones: { farm_plot: 1 } }), facts({ zones: { stockpile: 1 } })])).toEqual([false, true]);
+  it('stockpile_made: a stockpile that takes something exists (T-755)', () => {
+    expect(run('stockpile_made', [facts(), facts({ stockpiles: 1 })])).toEqual([false, true]);
   });
 
   it('workshop_placed: a workshop in any state', () => {
@@ -115,8 +117,8 @@ describe('T-439 tutorial: the step checks', () => {
     expect(run('order_queued', [facts(), facts({ orders: 1 })])).toEqual([false, true]);
   });
 
-  it('farm_plot_made: a farm plot zone exists', () => {
-    expect(run('farm_plot_made', [facts({ zones: { stockpile: 2 } }), facts({ zones: { stockpile: 2, farm_plot: 1 } })])).toEqual([false, true]);
+  it('farm_plot_made: a farm plot with a crop for the season exists (T-755)', () => {
+    expect(run('farm_plot_made', [facts({ stockpiles: 2 }), facts({ stockpiles: 2, sown: 1 })])).toEqual([false, true]);
   });
 
   it('labors_changed: any labor differs from the start', () => {
@@ -174,15 +176,15 @@ describe('T-439 tutorial: the box', () => {
     expect(t.update(facts({ camX: 12, z: 29 }))).toBe(1);
     expect(t.step?.id).toBe('look');
     // A step whose check already holds goes by at once: here dig to farm all hold, labors waits for its start.
-    t.index = 2;
-    expect(t.update(facts({ dig: 1, stairs: 1, zones: { stockpile: 1, farm_plot: 1 }, workshops: 1, orders: 1 }))).toBe(6);
+    t.index = 3;
+    expect(t.update(facts({ dig: 1, stairs: 1, stockpiles: 1, sown: 1, workshops: 1, orders: 1 }))).toBe(6);
     expect(t.step?.id).toBe('labors');
   });
 
   it('highlights a panel title while it is open, its strip entry otherwise, and the status fields', () => {
     const t = new Tutorial(steps, strings, new Keymap(keymap.bindings));
     const landmarks = new Map([['strip:designate', { col: 2, row: 38, cols: 9, rows: 1 }], ['z', { col: 50, row: 37, cols: 4, rows: 1 }]]);
-    t.index = 2;
+    t.index = 3;
     expect(t.highlight((n) => landmarks.get(n) ?? null)).toEqual({ col: 2, row: 38, cols: 9, rows: 1 });
     landmarks.set('panel:designate', { col: 61, row: 0, cols: 19, rows: 1 });
     expect(t.highlight((n) => landmarks.get(n) ?? null)).toEqual({ col: 61, row: 0, cols: 19, rows: 1 });
@@ -207,10 +209,10 @@ describe('T-439 tutorial: the box', () => {
     const row = s.lines().findIndex((line) => line.includes('[F1] skip step'));
     const col = (s.lines()[row] ?? '').indexOf('[F1] skip step');
     expect(t.press(col + 1, row, 0)).toBe(true);
-    expect(t.step?.id).toBe('dig');
+    expect(t.step?.id).toBe('speed');
     // Elsewhere on the box: kept from the map, does nothing.
     expect(t.press(1, 1, 0)).toBe(true);
-    expect(t.step?.id).toBe('dig');
+    expect(t.step?.id).toBe('speed');
     // Off the box: not the tutorial's.
     expect(t.press(70, 30, 0)).toBe(false);
     t.index = steps.length - 1;
@@ -244,9 +246,9 @@ describe('T-439 tutorial: the box', () => {
     const t = new Tutorial(steps, strings, keys);
     expect(t.text()).toContain('[F7]');
     expect(t.text()).not.toContain('[<]');
-    t.index = 2;
-    expect(t.text()).toContain('Open Designate with [q]');
     t.index = 3;
+    expect(t.text()).toContain('Open Designate with [q]');
+    t.index = 4;
     expect(t.text()).toContain('[v] chooses stairs');
     const s = surface(80, 40);
     t.draw(s, map, () => null);
@@ -261,7 +263,7 @@ describe('T-439 tutorial: the box', () => {
     const before = readTutorialFacts(view);
     expect(before.canPan).toBe(true);
     expect(before.digDesignations()).toBe(0);
-    expect(before.zones('stockpile')).toBe(0);
+    expect(before.stockpilesTaking()).toBe(0);
     expect(before.orders()).toBe(0);
     const dwarf = g.host.readers.of<{ list(): number[] }>('10').list()[0] as number;
     const tile = g.host.headless.movement.tileOf(dwarf);
@@ -298,7 +300,7 @@ describe('T-439 tutorial: the app', () => {
     g.handleKey(press('<'));
     expect(g.tutorialState()?.step).toBe('look');
     g.handleKey(press('F1'));
-    expect(g.tutorialState()?.step).toBe('dig');
+    expect(g.tutorialState()?.step).toBe('speed');
     g.handleKey(press('F1', { shift: true }));
     expect(g.tutorialState()).toBeNull();
     g.render();

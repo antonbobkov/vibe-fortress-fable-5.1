@@ -15,7 +15,9 @@
  * and at once pulled shut: left open, the cistern would fill and lift the brook into the hall); and under the hearth alert, with every drink forbidden, the dwarves sheltering
  * in the hall drink at the well (a want-level thirst is served there because the well stands in
  * the hall, 10 § Behavior selection step 2), as does one at critical thirst, and none of them goes
- * out to the brook.
+ * out to the brook. Then the player plays the floodgate of the finished well (T-746): pulled open
+ * and at once shut, the hall stays dry; pulled open and left, the brook comes up the well's column
+ * into the hall within 1,000 ticks.
  */
 
 import { expect } from 'vitest';
@@ -25,6 +27,8 @@ import { TileFlag, TileKind } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader, BuildingsSystem } from '@systems/buildings';
 import { CRITICAL } from '@systems/dwarves/needs';
+import type { JobsReader } from '@systems/jobs';
+import { LINK_DELAY_TICKS } from '@systems/buildings/constants';
 import type { Scenario } from './runner';
 import { cmd, expectNoInvariantFindings, fortressDwarves, pathWorld, trace, wagon } from './player-path';
 import { CISTERN_DEPTH, cisternWater, cisternWork, lookAtCistern, planCistern, tileOf, wellWorks, type CisternPlan, type Col } from './cistern-well';
@@ -171,6 +175,44 @@ function play(): void {
   const dwarf = w.game.registry.table('creatures').index('dwarf');
   expect(w.events('CreatureDied').filter((e) => e['species'] === dwarf).length, `no dwarf died; ${trace(w, 'bd_cistern_well')}`).toBe(0);
   expectNoInvariantFindings(w, 'bd_cistern_well');
+
+  // T-746: the player plays the floodgate of the finished well. Opening it joins the settled cistern
+  // to the brook's full feed, and the water under the well's column rises (04, waking a body).
+  cmd(w, { type: 'SetAlert', level: 'calm' });
+  const jobs = w.readers.of<JobsReader>('11');
+  const gateState = (): string => b.mechanismState(work.floodgateId);
+  const pull = (): void => {
+    expect(send({ type: 'PullLever', leverId: work.leverId }), 'the lever takes a pull').toBe(true);
+    for (let k = 0; k < TICKS_PER_DAY / 20 && jobs.list().some((job) => job.key.startsWith(`pull_lever:${work.leverId}:`)); k += 1) { w.step(20); look(); }
+  };
+  const waitGate = (state: string): void => {
+    for (let k = 0; k < 20 && gateState() !== state; k += 1) { w.step(LINK_DELAY_TICKS / 5); look(); }
+    expect(gateState(), `the floodgate ${state}`).toBe(state);
+  };
+  const column = (): string => {
+    const out: number[] = [];
+    for (let z = plan.cisternZ; z <= H; z += 1) out.push(map.fluidLevelAt(tileOf(w, W, z)));
+    return out.join(' ');
+  };
+  const hallLevel = (): number => [...hall, doorTile].reduce((s, t) => s + map.fluidLevelAt(t), 0);
+  // Pulled open and at once shut: the gate stands open a few dozen ticks, and the hall stays dry.
+  const openBefore = work.openTicks;
+  pull();
+  pull();
+  waitGate('closed');
+  let wet = 0;
+  for (let k = 0; k < 1000 / 20; k += 1) { w.step(20); look(); wet = Math.max(wet, hallLevel()); }
+  const quick = `column ${column()}; gate open ${work.openTicks - openBefore} ticks`;
+  console.log(`T-746 pulled open and shut: ${quick}`);
+  expect(wet, `the hall stays dry after a quick open; ${quick}`).toBe(0);
+  // Pulled open and left: the brook comes up the well's column into the hall.
+  pull();
+  waitGate('open');
+  const opened = w.tick;
+  while (w.tick - opened < 1000 && hallLevel() === 0) { w.step(20); look(); }
+  const left = `column ${column()}; hall ${hallLevel()} after ${w.tick - opened} ticks`;
+  console.log(`T-746 pulled open and left: ${left}`);
+  expect(hallLevel(), `the open floodgate floods the hall; ${left}`).toBeGreaterThan(0);
 }
 
 const scenario: Scenario = {

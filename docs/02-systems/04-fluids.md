@@ -11,10 +11,10 @@ Move water and magma through the map in a way that is cheap at scale and rich en
 - **Level**: 0–`FLUID_MAX_LEVEL` units in a tile. A tile holds one fluid type at a time.
 - **Passable for fluid**: a tile fluid can enter: `open`, `floor`, `ramp`, `stairs_*`, `sapling`, `shrub`, `fortification`, and any of these with a building that does not block fluid. Blocking buildings: closed floodgate, raised bridge, closed hatch (for vertical movement only). Walls, trees and boulders are not passable.
 - **Active tile**: a tile whose fluid may still move. Only active tiles are simulated. A new game starts with none active; generated fluid stays as generated until disturbed. There is no first-tick activation pass or saved `started` flag. River sinks drain on the first step and start river flow.
-- **Settled**: a tile that has not changed for `FLUID_SETTLE_STEPS` steps; removed from the active set until a neighbor changes.
+- **Settled**: a tile that has not changed for `FLUID_SETTLE_STEPS` steps; removed from the active set until a neighbor changes or its body is woken (§ Step algorithm, waking a body).
 - **Source**: a tile that refills to full at every step (river inflow, a river's spring, the Sea of Fire, a volcano pipe). **Sink**: a tile at the map edge that destroys fluid entering it (river outflow).
 - **Step**: one run of the fluid rules over the active set. Water steps every `FLUID_TICK_CADENCE_WATER` ticks, magma every `FLUID_TICK_CADENCE_MAGMA`.
-- **Body**: a set of full tiles connected through full tiles. Used only by the pressure rule.
+- **Body**: a set of full tiles connected through full tiles. Used by the pressure rule and by waking a body.
 
 ## Rules
 
@@ -47,7 +47,9 @@ step(type):
   emit FluidsChanged { chunks touched }
 ```
 
-`touch(i)`: activate the tile if it holds unfrozen fluid, reset its idle counter, and activate only its six neighbours that hold unfrozen fluid. Newly activated tiles start idle count at zero. Track sources below full as they drain, and refill only that sorted set; this has the same result as checking every source. `idle(i)`: increment the idle counter; at `FLUID_SETTLE_STEPS` mark settled and remove from the active set. Any `TilesChanged` event from 03 or a building state change from 14/19 touches the changed tiles and their neighbors. Activation is idempotent.
+`touch(i)`: activate the tile if it holds unfrozen fluid, reset its idle counter, and activate only its six neighbours that hold unfrozen fluid. Newly activated tiles start idle count at zero. Track sources below full as they drain, and refill only that sorted set; this has the same result as checking every source. `idle(i)`: increment the idle counter; at `FLUID_SETTLE_STEPS` mark settled and remove from the active set. Any `TilesChanged` event from 03 or a building state change from 14/19 touches the changed tiles and their neighbors, and wakes the bodies they join. Activation is idempotent.
+
+**Waking a body.** A settled full tile does not run rule 3, so a change that joins its body to a higher one wakes it: a floodgate opened, a bridge lowered, a wall or floor dug, or a tile filled. The tiles a `TilesChanged` or a building state change names are searched from when the event is handled, and the tiles a move of rules 1 to 3 filled to `FLUID_MAX_LEVEL` during a step are searched from at the end of that step (a source's refill is not a move). From each such tile that fluid of the type can enter, a breadth-first search runs over the full tiles of the type joined to it, with rule 3's joining (a vertical neighbour only through the upper tile's open bottom), passing through the tile itself whatever its level, at most `PRESSURE_SEARCH_LIMIT` tiles from each start. Searches of one event, or of one step, that meet are one body. A settled tile of the body is activated when rule 3 could move it: a cardinal neighbour on its level can take fluid and the body holds a full tile above its level, or only the tile above it can take fluid and the body holds a full tile above that one. Every other tile stays asleep, so a still body with nothing above its own level is not woken, and a gate shut (which opens no way) only touches. So a floodgate opened between a brook's full feed and a full, settled cistern lifts the water under the well's open column, however long the cistern has stood still.
 
 Iteration direction alternates between ascending and descending tile index per step, which removes the bias a single direction would give to flow along +x/+y.
 
@@ -97,7 +99,7 @@ When a step ends with water at level ≥ 1 on a tile whose kind is `floor` and w
 ### Performance
 
 - The active set is per chunk (`activeTiles: Uint32Array` with a count) so that a resting river costs nothing.
-- Pressure searches are bounded per step and per search.
+- Pressure searches are bounded per step and per search. Waking searches start only from changed and newly filled tiles, and activate only settled tiles that rule 3 could move.
 - `FluidsChanged` is emitted per chunk, not per tile; the compositor redraws touched chunks.
 - Expected steady state on the reference fortress: 800–2,000 active tiles per water step (a waterfall channel and a mist garden), under the 1.5 ms budget.
 
@@ -128,7 +130,7 @@ None directly. Channels, floodgates and bridges are 03 and 14 commands.
 
 ### Events consumed
 
-`EntitiesMoved` (destination entity checks), `TilesChanged` (touch), `BuildingStateChanged` (floodgate, bridge, hatch: touch), `TemperatureTick` (from 05: freeze and thaw list processing).
+`EntitiesMoved` (destination entity checks), `TilesChanged` (touch, and waking the bodies the tiles join), `BuildingStateChanged` (floodgate, bridge, hatch: touch, and waking the bodies its footprint joins once open), `TemperatureTick` (from 05: freeze and thaw list processing).
 
 ### Events emitted
 
@@ -143,7 +145,7 @@ Overlay `fluid levels` (digits 1–7 on fluid tiles); inspector section `tile �
 - Water renders as `≈` in four blue shades by level band (1–2, 3–4, 5–6, 7), magma in four orange-red shades. Falling fluid (an `open` tile with fluid) uses `≈` too; mist tiles get a pale cyan background tint.
 - The fluid overlay shows level digits. Sources are marked in the look cursor ("river source").
 - Announcements: `ObsidianFormed` as a note; a creature drowning or burning as an alert naming the creature; `MistProduced` once per mist area as a note.
-- Design implications the hints mention: channels carry water downhill; a floodgate holds a channel; water rises to the level of its source; magma stays at the sea's level. Water rises however it arrived: a cistern fed through a level tunnel from a shaft that the brook keeps full fills, and so does a well's open column over it, up to one level below the brook's water, so a floodgate left open floods the hall the column opens into.
+- Design implications the hints mention: channels carry water downhill; a floodgate holds a channel; water rises to the level of its source; magma stays at the sea's level. Water rises however it arrived: a cistern fed through a level tunnel from a shaft that the brook keeps full fills, and so does a well's open column over it, up to one level below the brook's water, so a floodgate left open floods the hall the column opens into, whenever it is opened: however long the cistern has stood full and still, opening the gate wakes the water under the column.
 
 ## Tuning constants
 

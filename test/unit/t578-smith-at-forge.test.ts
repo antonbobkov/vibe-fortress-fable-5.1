@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest';
 import { TileFlag, TileKind } from '@core/map3d';
 import type { CombatReader } from '@systems/combat';
 import type { JobsReader } from '@systems/jobs';
-import { SQUAD_SIZE, type EconomyState } from '../scenarios/three_years_economy';
+import { keepWoodcutter, specialistCandidates, SQUAD_SIZE, type EconomyState } from '../scenarios/three_years_economy';
 import { Z, type FortressState } from '../scenarios/three_years_fortress';
 import { checkDefenceSquad, keepNamedWorkersAtTheirShops, keepToolLaborsOffTheSquad, type DefenceYearState } from '../scenarios/defence_year_fortress';
 import { scriptRecord } from '../scenarios/script-commands';
@@ -126,5 +126,50 @@ describe('T-578 the forge\'s worker does not drill', () => {
     w.game.world.fortress.alert = 'calm';
     checkDefenceSquad(w, state);
     expect(membersOf(w, squadId)).not.toContain(founders[6]);
+  });
+});
+
+describe("T-733 a soldier at drill is nobody's specialist", () => {
+  it("the squad's members are the soldiers the economy passes over, so the woodcutter is a civilian", () => {
+    const w = ground('t733-woodcutter');
+    // The founding woodcutter and a miner drill with an immigrant; ten adults, enough for the specialists.
+    const { state, founders, arrived, squadId } = fort(w, 3, (f) => [f[2]!, f[0]!]);
+    expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: [founders[2]!, founders[0]!, arrived[0]!] }).ok).toBe(true);
+    checkDefenceSquad(w, state);
+    // The founders' trades are the fixture's: they are not among them.
+    expect(state.fortress.strong?.trained).toEqual([arrived[0]!]);
+    expect(specialistCandidates(w, state.fortress)).not.toContain(arrived[0]);
+    // With no log in stock the founder's trade is given to another dwarf (T-656): one outside the squad.
+    keepWoodcutter(w, state.fortress);
+    const woodcutter = state.fortress.economy.specialists['woodcutter'];
+    expect(woodcutter).toBeDefined();
+    expect(membersOf(w, squadId)).not.toContain(woodcutter);
+  });
+
+  it('a soldier who leaves the squad is a candidate again', () => {
+    const w = ground('t733-leaves');
+    const { state, founders, arrived, squadId } = fort(w, 3, (f) => [f[2]!, f[0]!]);
+    expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: [founders[2]!, founders[0]!, arrived[0]!] }).ok).toBe(true);
+    checkDefenceSquad(w, state);
+    expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: [founders[2]!, founders[0]!, arrived[1]!] }).ok).toBe(true);
+    checkDefenceSquad(w, state);
+    const candidates = specialistCandidates(w, state.fortress);
+    expect(candidates).toContain(arrived[0]);
+    expect(candidates).not.toContain(arrived[1]);
+  });
+
+  it("a named worker's replacement comes in by the refill's rules, a specialist leaving its role", () => {
+    const w = ground('t733-named-refill');
+    const { state, founders, arrived, squadId } = fort(w, 2, (f) => [f[6]!, f[0]!]);
+    // Every adult outside the squad holds a role but the newest immigrant, the woodcutter, whom no workshop names.
+    const specialists = state.fortress.economy.specialists as Record<string, number>;
+    specialists['fuel'] = founders[1]!;
+    specialists['charcoal'] = founders[2]!;
+    specialists['woodcutter'] = arrived[1]!;
+    state.fortress.economy.brewer = arrived[0]!;
+    keepNamedWorkersAtTheirShops(w, state, membersOf(w, squadId));
+    expect(membersOf(w, squadId)).toEqual([founders[0]!, arrived[1]!]);
+    expect(specialists['woodcutter'], 'the woodcutter left the role for the squad').toBeUndefined();
+    expect(Object.values(specialists)).not.toContain(founders[0]);
   });
 });

@@ -25,6 +25,26 @@ step(type):
       contactCheck(T)
   for S in drained sources[type] (ascending): if not frozen(S) and level(S) < 7: setLevel(S, 7)
   for K in sinks: if level(K) > 0: setLevel(K, 0)
+  wake(filled, type); filled = []          // tiles a move filled to 7 this step
+
+on TilesChanged{tiles} or BuildingStateChanged (footprint as tiles): for T in tiles: touch(T); wake(tiles, WATER); wake(tiles, MAGMA)
+
+wake(starts, type): searches = []          // union-find over the searches of one call
+           for T in starts: if seen(T) in this call or not passable(T, type): continue
+             s = new search; top[s] = level(T)==7 and type matches ? z(T) : -1
+             queue=[T]; n=0
+             while queue and n < PRESSURE_SEARCH_LIMIT:
+               X = queue.shift(); n++
+               if X != T or level(T)==7: top[s] = max(top[s], z(X)); if X not active: asleep.push((X, s))
+               for Y in 6-neighbors(X): if level(Y)==7 and same type and not frozen(Y) and passable(Y) and (not vertical or not solidBottomed(upper(X,Y))):
+                 if Y seen by this search: continue
+                 if Y seen by an earlier search r of this call: union(r, s), top = max of both; continue
+                 mark Y seen by s; queue.push(Y)
+           for (X, s) in asleep: H = top[find(s)]
+             if exists cardinal S of X with passable(S, type) and level(S) < 7: need = z(X)
+             else if A = above(X) not solidBottomed and passable(A, type) and level(A) < 7: need = z(X) + 1
+             else: continue
+             if H > need: activate(X)
 
 passable(i, type): kind in {Open, Floor, Ramp, Stairs*, Sapling, Shrub, Fortification} and not buildings.blocksFluidAt(i) and (fluid[i]==0 or isMagma(fluid[i]) == (type==MAGMA))
 fall(T): B = below(T); if solidBottomed(T) or not passable(B, type) or buildings.blocksFallAt(T): return false
@@ -45,7 +65,7 @@ pressure(T): A = above(T)
            if budget <= 0: return retry
            H = bfsHead(T, targetZ = z(T)); if H == retry: return retry; if H == none: return false
            give(H, S); return true
-give(H, X): if source(H): setLevel(X, level(X)+1) else move(H, X, 1)
+give(H, X): if source(H): setLevel(X, level(X)+1); if level(X) reached 7: filled.push(X) else move(H, X, 1)
 bfsHead(T, targetZ): queue=[T]; seen={T}; n=0
            while queue and n < PRESSURE_SEARCH_LIMIT:
              if budget <= 0: return retry
@@ -57,7 +77,7 @@ evaporate(T): if level(T)==1 and not source(T) and no 6-neighbor has liquid wate
              if rng.chance(WATER_EVAPORATE_PERMILLE): setLevel(T,0); return moved
              return retry   // no idle increment
            return idle
-move(a, b, n): setLevel(a, level(a)-n); if level(b)==0: setType(b, type); setLevel(b, level(b)+n); if level(b) >= 1 and kind(b)==Floor: mud(b)
+move(a, b, n): setLevel(a, level(a)-n); if level(b)==0: setType(b, type); setLevel(b, level(b)+n); if level(b) reached 7: filled.push(b); if level(b) >= 1 and kind(b)==Floor: mud(b)
 touch(i): if holds unfrozen fluid: idle[i]=0; activate(i)
            for Y in 6-neighbors(i): if Y holds unfrozen fluid: activate(Y)
            touchedChunks.add(chunk(i))
