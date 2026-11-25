@@ -144,6 +144,12 @@ export class FluidSim {
   private searchStamp = 0;
   private readonly queue: number[] = [];
   private readonly scratch: number[] = [];
+  /** {@link wakeJoined}'s scratch: each search's body (merged searches point at one), its highest full tile's z, and the sleeping tiles found (tile, search). */
+  private readonly wakeRoot: number[] = [];
+  private readonly wakeTop: number[] = [];
+  private readonly wakeFound: number[] = [];
+  /** Tiles a move filled during the step; their bodies are woken when the step ends. */
+  private readonly filled: TileIndex[] = [];
   /** `04` § Mist: `mistTiles`, tile → the tick its mist expires. */
   readonly mist = new Map<TileIndex, number>();
   /** The tick of the step running (set by {@link run}). */
@@ -321,6 +327,125 @@ export class FluidSim {
     this.stepTouched.push(i);
   }
 
+  /**
+   * A change that may have opened a way for fluid (`TilesChanged`, a floodgate or bridge changing
+   * state): each tile is touched, and the bodies each one joins are woken (`04` § Step algorithm,
+   * waking a body).
+   */
+  opened(tiles: readonly TileIndex[]): void {
+    for (let k = 0; k < tiles.length; k += 1) this.touch(tiles[k] as TileIndex);
+    this.wakeJoined(tiles, false);
+    this.wakeJoined(tiles, true);
+  }
+
+  /** Whether `y`, a neighbour of `x`, belongs to a body of the type with `x` (the body search's test, D-088). */
+  private joins(x: TileIndex, y: TileIndex, magma: boolean): boolean {
+    if (this.level(y) !== FLUID_MAX_LEVEL || this.isMagma(y) !== magma || this.isFrozen(y) || !this.passable(y, magma)) return false;
+    const map = this.map;
+    if (y === map.above(x)) return !isSolidBottomed(map.kindAt(y));
+    if (y === map.below(x)) return !isSolidBottomed(map.kindAt(x));
+    return true;
+  }
+
+  /**
+   * The level below which a full tile `t` could move by pressure (rule 3): its own z when a
+   * cardinal neighbour can take fluid (the sideways push needs a head above `t`), `z + 1` when only
+   * the tile above can (the lift needs a head above that), or -1 when neither.
+   */
+  private pressureNeed(t: TileIndex, magma: boolean): number {
+    const map = this.map;
+    const x = map.xOf(t);
+    const y = map.yOf(t);
+    const z = map.zOf(t);
+    for (let k = 0; k < 4; k += 1) {
+      const d = CARDINALS[k] as readonly [number, number];
+      if (!map.inBounds(x + d[0], y + d[1], z)) continue;
+      const n = map.index(x + d[0], y + d[1], z);
+      if (this.passable(n, magma) && this.level(n) < FLUID_MAX_LEVEL) return z;
+    }
+    const a = map.above(t);
+    if (a >= 0 && !isSolidBottomed(map.kindAt(a)) && this.passable(a, magma) && this.level(a) < FLUID_MAX_LEVEL) return z + 1;
+    return -1;
+  }
+
+  /**
+   * Waking a body: from each of `tiles` that fluid of the type may stand in, a breadth-first
+   * search over the full tiles joined to it (the body search's joins, at most
+   * `PRESSURE_SEARCH_LIMIT` tiles from each), through the tile itself whatever its level. The
+   * searches that meet are one body. Every full tile of a body that could move by pressure, a tile
+   * that has a neighbour to fill and a tile of the body higher than that move needs, is activated;
+   * the rest stay asleep, so a still body with nothing above its own level is left alone.
+   */
+  wakeJoined(tiles: readonly TileIndex[], magma: boolean): void {
+    const map = this.map;
+    if (this.searchStamp + tiles.length + 1 > 0x7fffffff) {
+      this.seen.fill(0);
+      this.searchStamp = 0;
+    }
+    const base = this.searchStamp + 1;
+    const seen = this.seen;
+    const queue = this.queue;
+    const root = this.wakeRoot;
+    const top = this.wakeTop;
+    const found = this.wakeFound;
+    root.length = 0;
+    top.length = 0;
+    found.length = 0;
+    const find = (s: number): number => {
+      let r = s;
+      while ((root[r] as number) !== r) r = root[r] as number;
+      return r;
+    };
+    for (let k = 0; k < tiles.length; k += 1) {
+      const t = tiles[k] as TileIndex;
+      if (t < 0 || (seen[t] as number) >= base || !this.passable(t, magma)) continue;
+      const s = root.length;
+      const stamp = base + s;
+      root.push(s);
+      top.push(this.level(t) === FLUID_MAX_LEVEL && this.isMagma(t) === magma ? map.zOf(t) : -1);
+      queue.length = 0;
+      queue.push(t);
+      seen[t] = stamp;
+      let head = 0;
+      while (head < queue.length && head < PRESSURE_SEARCH_LIMIT) {
+        const x = queue[head] as number;
+        head += 1;
+        if (x !== t || (top[s] as number) >= 0) {
+          if (map.zOf(x) > (top[s] as number)) top[s] = map.zOf(x);
+          // An active tile runs rule 3 by itself.
+          if (this.isActive[x] !== 1) found.push(x, s);
+        }
+        const ns = map.neighbors6(x, this.scratch);
+        for (let j = 0; j < ns.length; j += 1) {
+          const y = ns[j] as number;
+          const was = seen[y] as number;
+          if (was === stamp || !this.joins(x, y, magma)) continue;
+          if (was >= base) {
+            // A body an earlier search of this call reached: one body with it.
+            const a = find(was - base);
+            const b = find(s);
+            if (a !== b) {
+              root[a] = b;
+              top[b] = Math.max(top[a] as number, top[b] as number);
+            }
+            continue;
+          }
+          seen[y] = stamp;
+          queue.push(y);
+        }
+        this.scratch.length = 0;
+      }
+    }
+    this.searchStamp = base + root.length;
+    for (let k = 0; k < found.length; k += 2) {
+      const x = found[k] as number;
+      const head = top[find(found[k + 1] as number)] as number;
+      if (map.zOf(x) >= head) continue;
+      const need = this.pressureNeed(x, magma);
+      if (need >= 0 && head > need) this.activate(x);
+    }
+  }
+
   /** `idle(i)`: one more idle step; at `FLUID_SETTLE_STEPS` the tile settles. */
   private idleStep(i: TileIndex): void {
     const n = ((this.idle[i] ?? 0) as number) + 1;
@@ -354,8 +479,15 @@ export class FluidSim {
   /** `move(a, b, n)`: units from `a` to `b`; water arriving on a soil or stone floor makes mud. */
   protected move(a: TileIndex, b: TileIndex, n: number, magma: boolean): void {
     this.setLevel(a, this.level(a) - n, magma);
-    this.setLevel(b, this.level(b) + n, magma);
+    this.give(b, n, magma);
     if (!magma) this.mud(b);
+  }
+
+  /** `n` units into `b` by a move; a tile they fill is remembered for the step's wake. */
+  private give(b: TileIndex, n: number, magma: boolean): void {
+    const before = this.level(b);
+    this.setLevel(b, before + n, magma);
+    if (before < FLUID_MAX_LEVEL && before + n >= FLUID_MAX_LEVEL) this.filled.push(b);
   }
 
   /** `04` § Mud: water at level ≥ 1 on a `floor` of soil or stone sets `mud` (through the terrain API). */
@@ -523,7 +655,7 @@ export class FluidSim {
   private pressed(h: TileIndex, to: TileIndex, magma: boolean): void {
     if (this.isSource(h)) {
       this.sourcedUnits += 1;
-      this.setLevel(to, this.level(to) + 1, magma);
+      this.give(to, 1, magma);
       if (!magma) this.mud(to);
     } else {
       this.move(h, to, 1, magma);
@@ -732,6 +864,11 @@ export class FluidSim {
         this.drainedUnits += l;
         this.setLevel(s, 0, this.isMagma(s));
       }
+    }
+    // A tile filled this step may have joined its body to another, asleep, that it can now lift.
+    if (this.filled.length > 0) {
+      this.wakeJoined(this.filled, magma);
+      this.filled.length = 0;
     }
     this.endStep(this.stepTouched);
   }
