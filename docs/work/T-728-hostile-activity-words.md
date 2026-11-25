@@ -13,5 +13,5 @@ A party member with no target takes its party's state as its behaviour (`H.behav
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a loitering raider's activity reads `Waiting`, a retreating one's `Leaving`, an engaged one with no target `Attacking`; Units All agrees.
-- [ ] UI only: world hashes unchanged.
+- [x] Tests (`describe` with the task id): a loitering raider's activity reads `Waiting`, a retreating one's `Leaving`, an engaged one with no target `Attacking`; Units All agrees (`test/unit/ui/t726-species-name-not-id.test.ts`, done with T-726).
+- [x] UI only: world hashes unchanged.
