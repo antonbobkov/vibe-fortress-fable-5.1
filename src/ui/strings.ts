@@ -254,6 +254,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.worldmap.filter': 'filter',
   'ui.worldmap.legend': 'legend',
   'ui.worldmap.embark': 'Embark here',
+  'ui.worldmap.no_embark_move': 'No embark here: move to land',
+  'ui.worldmap.move': '←→↑↓ move (Shift: 8) · click map',
   'ui.worldmap.filter_title': 'Filter',
   'ui.worldmap.filter_river': 'River',
   'ui.worldmap.filter_volcano': 'Volcano',

@@ -6,7 +6,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { generateWorld, screenOf, textOf, type Hook } from './helpers';
+import { generateWorld, moveCursorTo, screenOf, textOf, type Hook } from './helpers';
 
 interface RegionLike {
   id: number;
@@ -31,24 +31,12 @@ test('embark-site-summary', async ({ page }) => {
   const target = await page.evaluate(() => {
     const world = (window as unknown as { __deepholm: MapHook }).__deepholm.readers.world;
     if (world === null) throw new Error('no world');
-    const size = world.size();
     const r = world.regions().find((x) => x.biome === 'alpine' && x.river === null && !x.lake && !x.traits.includes('glasslands'));
     if (r === undefined) throw new Error('no alpine region');
-    return { x: r.id % size, y: Math.floor(r.id / size), mid: Math.floor(size / 2) };
+    return r.id;
   });
 
-  // The cursor starts at the centre; walk it there, eight at a time with Shift.
-  const walk = async (delta: number, plus: string, minus: string): Promise<void> => {
-    const key = delta > 0 ? plus : minus;
-    let left = Math.abs(delta);
-    while (left >= 8) {
-      await page.keyboard.press(`Shift+${key}`);
-      left -= 8;
-    }
-    for (; left > 0; left -= 1) await page.keyboard.press(key);
-  };
-  await walk(target.x - target.mid, 'ArrowRight', 'ArrowLeft');
-  await walk(target.y - target.mid, 'ArrowDown', 'ArrowUp');
+  await moveCursorTo(page, target);
 
   await expect.poll(() => textOf(page)).toContain('Alpine');
   const text = await textOf(page);
