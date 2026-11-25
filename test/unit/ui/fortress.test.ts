@@ -306,6 +306,7 @@ describe('T-M1-14 announcements', () => {
       CreatureUnconscious: 'alert',
       PatientAdmitted: 'note',
       InfectionStarted: 'alert',
+      NoDressing: 'alert',
       LimbLost: 'alert',
       // T-M6-02: 16 § Registrations (announcements for combat)
       AlertChanged: 'note',

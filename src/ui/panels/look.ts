@@ -240,15 +240,21 @@ function hospitalBedFree(buildings: BuildingsReader, hospitals: readonly EntityI
 }
 
 /**
- * The first of eight facts that applies to a patient, read from 14 (hospital, beds), 11 (the labor,
- * the job board) and 13 (stock): no hospital, no free bed, no one with Medicine on, waiting to be
- * carried, a treatment under way, a treatment short of a supply, waiting for a medic, resting.
+ * The first of nine facts that applies to a patient, read from 14 (hospital, beds), 11 (the labor,
+ * the job board) and 13 (stock): bleeding with no bandage or cloth, no hospital, no free bed, no one
+ * with Medicine on, waiting to be carried, a treatment under way, a treatment short of a supply,
+ * waiting for a medic, resting.
  * Null for a creature that is not a patient.
  */
 export function careLine(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): CareLine | null {
   const patient = readers.entities.get(id, C.Patient);
   if (patient === undefined) return null;
   const say = (key: string, args: Record<string, string | number> = {}, urgent = false): CareLine => ({ text: strings.get(key, args), urgent });
+  if (has(readers, '11')) {
+    // Its bandaging waits for a dressing the fortress does not have: the one fact that kills by itself.
+    const bandaging = readers.of<JobsReader>('11').byKey(`stop_bleeding:${id}`);
+    if (bandaging?.state === 'blocked' && bandaging.blockedReason === 'missing_input') return say('ui.look.care.no_dressing', {}, true);
+  }
   if (has(readers, '14')) {
     const buildings = readers.of<BuildingsReader>('14');
     const hospitals = buildings.zonesOfType('hospital');

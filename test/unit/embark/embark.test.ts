@@ -156,7 +156,7 @@ describe('T-M1-04 embark: LocalMapSpec', () => {
 
 describe('T-M1-04 embark: presets and the budget', () => {
   it('the four presets price out to the documented totals, within the base budget', () => {
-    const documented: Record<string, number> = { balanced: 1480, miner_s_guild: 1490, farmstead: 1466, warband: 1495 };
+    const documented: Record<string, number> = { balanced: 1480, miner_s_guild: 1490, farmstead: 1460, warband: 1453 };
     for (const id of Object.keys(documented)) {
       const party = generateParty(new RngStream(3), registry);
       const supplies = applyPreset(registry, party, id);
@@ -205,7 +205,7 @@ describe('T-M1-04 embark: the session', () => {
     expect(s.fortressName.length).toBeGreaterThan(0);
     expect(s.budget()).toBe(EMBARK_BUDGET_BASE + EMBARK_BUDGET_PER_PERIL);
     expect(s.apply({ type: 'ApplyPreset', preset: 'warband' })).toEqual({ ok: true });
-    expect(s.total()).toBe(1495);
+    expect(s.total()).toBe(1453);
     expect(s.apply({ type: 'ApplyPreset', preset: 'nope' }).ok).toBe(false);
     expect(s.apply({ type: 'SetSkill', dwarf: 0, skill: 'mining', level: 6 })).toEqual({ ok: false, reason: 'invalid' });
     expect(s.apply({ type: 'SetSkill', dwarf: 0, skill: 'mining', level: 5 })).toEqual({ ok: true });
@@ -222,7 +222,7 @@ describe('T-M1-04 embark: the session', () => {
     expect(s.apply({ type: 'RenameDwarf', dwarf: 1, name: 'Urist' })).toEqual({ ok: true });
     expect(s.apply({ type: 'SetSupply', entry: 'e_cat', count: 5 }).ok).toBe(false);
     expect(s.apply({ type: 'SetSupply', entry: 'e_cat', count: 1 })).toEqual({ ok: true });
-    expect(s.total()).toBe(1495 + 12);
+    expect(s.total()).toBe(1453 + 12);
     expect(s.apply({ type: 'SetFortressName', name: 'Stonehearth' })).toEqual({ ok: true });
     expect(s.apply({ type: 'ConfirmEmbark' })).toEqual({ ok: true });
     expect(s.apply({ type: 'SetFortressName', name: 'Later' }).ok).toBe(false);

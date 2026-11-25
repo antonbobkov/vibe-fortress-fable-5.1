@@ -134,17 +134,17 @@ Skills: three dwarves mining 5 + pick 3 + building 2; one smelting 5 + weaponsmi
 
 Supplies: 3 iron picks (324), 1 copper axe (96), 1 iron anvil (270), 5 iron bars (90), 5 charcoal (18), 10 easy meals (120), 20 dimcaps (24), 20 turnips (24), 3 barrels of dimcap ale (165), 2 empty barrels (16), dimcap seeds ×2 (30), cavewheat seeds (15), sweetroot seeds (27), 5 pine logs (12), 5 leather (36), 5 linen (48), 5 brightleaf (24), 4 splints (10), 1 bucket (5), 2 linen bags (40), 1 mechanism (12), 2 dogs (72), 1 cat (12); **total 1,490**.
 
-### Farmstead (1,466)
+### Farmstead (1,460)
 
 Skills: two farming 5 + animal_care 3 + herbalism 2; one herbalism 5 + fishing 3 + hunting 2; one cooking 5 + brewing 5; one brewing 5 + carpentry 3 + farming 2; one carpentry 5 + woodcutting 5; one mining 5 + building 3 + masonry 2.
 
-Supplies: 1 iron pick (108), 1 iron axe (144), 1 crossbow (36), 25 copper bolts (60), 10 easy meals (120), 20 turnips (24), 20 cabbages (24), 20 dimcaps (24), 5 cheese (30), 2 barrels of ale (110), 1 barrel of dimcap ale (55), 2 empty barrels (16), seeds: dimcap (15), cavewheat (15), sweetroot (27), barley (15), turnip (15), cabbage (15), strawberry (27), flax (27), pumpkin (27), hops (27), 2 cows (144), 2 sheep (72), 2 goats (60), 3 chickens and a rooster (29), 2 dogs (72), 1 cat (12), 5 pine logs (12), 3 linen bags (60), 4 splints (10), 5 brightleaf (24), 2 buckets (10); **total 1,466**.
+Supplies: 1 iron pick (108), 1 iron axe (144), 1 crossbow (36), 25 copper bolts (60), 10 easy meals (120), 20 turnips (24), 20 cabbages (24), 20 dimcaps (24), 5 cheese (30), 2 barrels of ale (110), 1 barrel of dimcap ale (55), 2 empty barrels (16), seeds: dimcap (15), cavewheat (15), sweetroot (27), barley (15), turnip (15), cabbage (15), strawberry (27), flax (27), 2 cows (144), 2 sheep (72), 2 goats (60), 3 chickens and a rooster (29), 2 dogs (72), 1 cat (12), 5 pine logs (12), 3 linen bags (60), 5 linen (48), 4 splints (10), 5 brightleaf (24), 2 buckets (10); **total 1,460**.
 
-### Warband (1,495)
+### Warband (1,453)
 
 Skills: two axe 5 + shield 3 + dodge 2; one crossbow 5 + hunting 3 + dodge 2; one armorsmithing 5 + smelting 3 + weaponsmithing 2; one mining 5 + building 3 + mechanics 2; one farming 5 + brewing 3 + cooking 2; one medicine 5 + herbalism 3 + animal_care 2.
 
-Supplies: 2 iron axes (288), 2 iron helms (216), 2 leather jerkins (88), 2 wooden shields (44), 1 crossbow (36), 50 iron bolts (180), 1 quiver (22), 1 iron pick (108), 10 easy meals (120), 20 dimcaps (24), 20 turnips (24), 2 barrels of dimcap ale (110), dimcap seeds ×2 (30), turnip seeds (15), 2 war dogs (144), 5 brightleaf (24), 4 splints (10), 5 pine logs (12); **total 1,495**.
+Supplies: 2 iron axes (288), 2 iron helms (216), 2 leather jerkins (88), 2 wooden shields (44), 1 crossbow (36), 25 iron bolts (90), 1 quiver (22), 1 iron pick (108), 10 easy meals (120), 20 dimcaps (24), 20 turnips (24), 2 barrels of dimcap ale (110), dimcap seeds ×2 (30), turnip seeds (15), 2 war dogs (144), 5 linen (48), 5 brightleaf (24), 4 splints (10), 5 pine logs (12); **total 1,453**.
 
 Peril budget bonus (`EMBARK_BUDGET_PER_PERIL` × peril) stays unspent for the player in every preset.
 
@@ -153,4 +153,5 @@ Peril budget bonus (`EMBARK_BUDGET_PER_PERIL` × peril) stays unspent for the pl
 - Two picks and one axe are the minimum for a working start.
 - A season of food and drink for seven dwarves is about 100 food units and 150 drink units; the presets carry roughly half and expect farming and hunting to cover the rest by autumn.
 - Seeds of at least one cave crop keep the fortress fed through winter.
+- Bring linen: without cloth or bandages no wound can be bandaged, and a serious cut bleeds until it is (17 § Patients and hospitals). Every preset carries five.
 - Two dogs spot thieves; a cat controls nothing (there is no vermin in version 1) but everyone loves it.
