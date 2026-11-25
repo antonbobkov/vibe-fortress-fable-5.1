@@ -105,14 +105,7 @@ export class AnimalsPanel {
     if (id === undefined || r === null || b === null) return null;
     const options = [0, ...b.zonesOfType('pasture')];
     const at = options.indexOf(r.pastureOf(id));
-    const zoneId = options[(at + 1) % options.length] ?? 0;
-    const animals = groupWords(ctx, r, ids);
-    const feed = zoneId === 0 ? null : pastureFeed(ctx.readers, zoneId, ids);
-    if (zoneId === 0) ctx.notice?.(ctx.strings.get('ui.animals.unpastured', { animals }));
-    else if (feed !== null && overGrazed(feed) && ids.some((a) => r.def(ctx.readers.entities.get(a, C.Creature)?.species ?? 0)?.diet === 'grazer')) {
-      ctx.notice?.(ctx.strings.get('ui.animals.pastured_over', { animals, pasture: zoneName(ctx, zoneId), fed: feed.supported, n: feed.grazers }), true);
-    } else ctx.notice?.(ctx.strings.get('ui.animals.pastured', { animals, pasture: zoneName(ctx, zoneId) }));
-    return ids.map((animalId) => ({ type: 'AssignPasture', animalId, zoneId }));
+    return assignPasture(ctx, ids, options[(at + 1) % options.length] ?? 0);
   }
   slaughter(ctx: PanelContext): Command | null {
     const id = this.selected(ctx); if (id === 0) return null;
@@ -213,6 +206,24 @@ export class AnimalsPanel {
     const kind: 'war' | 'hunting' = selected === 0 ? 'war' : 'hunting';
     return { type: 'TrainAnimal', animalId, kind };
   }
+}
+
+/**
+ * `AssignPasture` for `ids`, every animal of a group together, with the status row's line for it: "2
+ * cows to Pasture #1.", "2 cows off the pasture.", and in the alert colour when the pasture's grass
+ * feeds fewer grazers than it will hold ("2 cows to Pasture #1: it feeds 0 of 6 grazers."). The
+ * Animals panel's `[p]` and the pasture picker of a tame grazer's view in Look both say it so.
+ */
+export function assignPasture(ctx: PanelContext, ids: readonly EntityId[], zoneId: EntityId): Command[] {
+  const r = ctx.readers.has('08') ? ctx.readers.of<AnimalsReader>('08') : null;
+  if (r === null || ids.length === 0) return [];
+  const animals = groupWords(ctx, r, ids);
+  const feed = zoneId === 0 ? null : pastureFeed(ctx.readers, zoneId, ids);
+  if (zoneId === 0) ctx.notice?.(ctx.strings.get('ui.animals.unpastured', { animals }));
+  else if (feed !== null && overGrazed(feed) && ids.some((a) => r.def(ctx.readers.entities.get(a, C.Creature)?.species ?? 0)?.diet === 'grazer')) {
+    ctx.notice?.(ctx.strings.get('ui.animals.pastured_over', { animals, pasture: zoneName(ctx, zoneId), fed: feed.supported, n: feed.grazers }), true);
+  } else ctx.notice?.(ctx.strings.get('ui.animals.pastured', { animals, pasture: zoneName(ctx, zoneId) }));
+  return ids.map((animalId) => ({ type: 'AssignPasture', animalId, zoneId }));
 }
 
 /**
