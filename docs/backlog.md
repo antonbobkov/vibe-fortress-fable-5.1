@@ -11,8 +11,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-732 | [The defence script and the fortress script's look before the all-clear flap the north door](work/T-732-defence-north-door-flaps-on-the-look.md) | [T-724](archive/tasks/T-724-defence-squad-refill-remnant.md) | — | open |
-| T-733 | [The defence fortress's economy makes a soldier at drill its woodcutter](work/T-733-defence-economy-names-a-soldier.md) | [T-724](archive/tasks/T-724-defence-squad-refill-remnant.md) | — | open |
 | T-752 | [UI words still written in code: quality words, aged names, tag items, the legend's own lines](work/T-752-ui-words-still-in-code.md) | [T-744](archive/tasks/T-744-ui-words-left.md) | — | open |
 | T-753 | [A civilian already in the only room behind a door finds no shelter there](work/T-753-shelter-from-inside.md) | [T-745](archive/tasks/T-745-locked-in-thirst.md) | — | open |
 | T-754 | [The Population panel's last skip shows a raw reason code, and Year 1's guaranteed wave reads "Eligible: no"](work/T-754-population-skip-words.md) | [T-750](archive/tasks/T-750-immigration-wealth-bar.md) | — | open |
