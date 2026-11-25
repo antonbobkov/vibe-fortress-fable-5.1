@@ -22,6 +22,8 @@ const scenario: Scenario = {
   timeoutMs: 1_200_000,
   run: () => {
     const soldiers = new Set<number>();
+    // T-715: the squad's members who died, as the last look saw the squad.
+    const fallenSoldiers = new Set<number>();
     const soldierKills: { killer: number; victim: string }[] = [];
     // The tick of each creature's last blow and of its death (events carry no tick).
     const lastBlow = new Map<number, number>();
@@ -38,7 +40,10 @@ const scenario: Scenario = {
             if (e.type === 'LightningStrike') strikeTick = tw.tick;
             else if (e.type === 'WoundInflicted' && e['woundType'] === 'burn' && strikeTick >= 0 && tw.tick - strikeTick <= 1) struck.add(e['id'] as number);
             if (e.type === 'DamageDealt') lastBlow.set(e['defenderId'] as number, tw.tick);
-            else if (e.type === 'CreatureDied') diedAt.set(e['id'] as number, tw.tick);
+            else if (e.type === 'CreatureDied') {
+              diedAt.set(e['id'] as number, tw.tick);
+              if (soldiers.has(e['id'] as number)) fallenSoldiers.add(e['id'] as number);
+            }
             if (e.type === 'KillRecorded' && e['hostile'] === true && soldiers.has(e['killerId'] as number)) {
               soldierKills.push({ killer: e['killerId'] as number, victim: String(e['victimName']) });
             }
@@ -68,7 +73,7 @@ const scenario: Scenario = {
     // dwarf burned by lightning outdoors in a storm is the weather's (T-522: it moved onto one by the timeline).
     const dwarfDeaths = w.events('CreatureDied').filter((e) => e['species'] === dwarf).map((e) => {
       const id = e['id'] as number;
-      return { name: String(e['name']), cause: String(e['cause']), killer: Number(e['killerId'] ?? 0),
+      return { id, name: String(e['name']), cause: String(e['cause']), killer: Number(e['killerId'] ?? 0),
         afterBlow: (diedAt.get(id) ?? 0) - (lastBlow.get(id) ?? -Infinity), lightning: struck.has(id) };
     });
     const inFight = (d: (typeof dwarfDeaths)[number]): boolean => d.killer !== 0 &&
@@ -101,8 +106,11 @@ const scenario: Scenario = {
     const squad = combat.squads().find((s) => s.id === state.fortress.squadId);
     // T-580: a run that ends under an ambush's alert has its soldiers stood down from the squad
     // (T-575), to be put back once the alert is down: they count as the squad's.
+    // T-715: a soldier who fell in a fight counts too: a death in a fight is printed, not asserted, and
+    // on one timeline an ambush killed two of the three and the fortress had no adult free to replace them.
+    const fallen = dwarfDeaths.filter((d) => inFight(d) && fallenSoldiers.has(d.id)).map((d) => d.id);
     const standing = [...(squad?.members ?? []), ...(state.fortress.stoodDown ?? [])];
-    expect(standing.length).toBeGreaterThanOrEqual(3);
+    expect(new Set([...standing, ...fallen]).size).toBeGreaterThanOrEqual(3);
     if ((squad?.members.length ?? 0) > 0) expect(squad?.members).toContain(squad?.leaderId);
     expect(buildings.zone(state.barracksZoneId)?.settings['squad']).toBe(squad?.id);
     expect(w.events('TrainingSession').length).toBeGreaterThan(0);

@@ -12,7 +12,7 @@ function embark() {
   return new EmbarkScreen(registry, 't244-layout', { name: 'Greenhollow', peril: 0, tempC: 12 }, { embark: () => {}, back: () => {} }, keymap, strings);
 }
 function trade() {
-  const reader = { activeCaravan: () => ({ civ: 'hillfolk' }), session: () => ({ traderId: 1 }), merchantItems: () => [], depotItems: () => [], reputation: () => 12, marginPercent: () => 15 };
+  const reader = { activeCaravan: () => ({ civ: 'hillfolk' }), session: () => ({ traderId: 1 }), merchantItems: () => [], depotItems: () => [], depotHauls: () => 0, reputation: () => 12, marginPercent: () => 15 };
   const readers = { entities: { get: () => ({ name: 'Rannveig Copperhammer' }) }, has: (id: string) => id === '10', of: (id: string) => id === '10' ? { skill: () => 12 } : reader } as unknown as ReaderSet;
   return new TradeSessionScreen({ registry, readers, strings, submit: () => {}, commandTick: () => {}, back: () => {} });
 }

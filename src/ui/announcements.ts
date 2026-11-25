@@ -201,13 +201,13 @@ export class AnnouncementLog {
       const name = this.registry.table<NamedRow>('civilizations').byId(civ)?.name ?? civ;
       out['civ'] = capitalize(name.replace(/^the /, ''));
     }
-    // 20 § Movement: a caravan's lines name its depot ("Trade depot #1") and its edge ("west").
-    if ((event.type === 'CaravanWaiting' || event.type === 'CaravanAtDepot') && typeof e['depotId'] === 'number') {
+    // 20 § Movement: a caravan's lines name its depot ("Trade depot #1") and its edge ("west"); so does the goods' return.
+    if ((event.type === 'CaravanWaiting' || event.type === 'CaravanAtDepot' || event.type === 'DepotGoodsReturned') && typeof e['depotId'] === 'number') {
       out['depot'] = buildingName({ readers, registry: this.registry }, e['depotId']) || this.strings.get('ui.depot.a_depot');
     }
     // 20 § The session: a caravan leaving with a trade request unserved says why, as the depot's line would.
     if (event.type === 'TradeMissed' && readers.has('10') && readers.has('11')) {
-      out['why'] = tradeWaitFor({ readers, registry: this.registry, strings: this.strings }, 0, Number(e['traderId'] ?? 0), -1, true);
+      out['why'] = tradeWaitFor({ readers, registry: this.registry, strings: this.strings }, 0, Number(e['traderId'] ?? 0), -1, true, Number(e['depotId'] ?? 0));
     }
     const edge = e['edge'];
     if ((event.type === 'CaravanWaiting' || event.type === 'RaidArrived') && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);
