@@ -45,13 +45,13 @@ describe('T-709 panel texts are in the strings table', () => {
     }
   });
 
-  it('fails on a literal planted in a panel, and leaves the skipped views alone', () => {
+  it('fails on a literal planted in a panel, the creature view too (it skips no file)', () => {
     const dir = mkdtempSync(join(tmpdir(), 't709-'));
     try {
       mkdirSync(join(dir, 'src/ui/panels'), { recursive: true });
       writeFileSync(join(dir, 'src/ui/panels/planted.ts'), "label(s, 0, 0, strings.get('ui.depot.none'));\nlabel(s, 0, 1, 'No depot here.');\n");
       writeFileSync(join(dir, 'src/ui/panels/look.ts'), "label(s, 0, 0, 'Not yet moved');\n");
-      expect(panelLiterals(dir)).toEqual(['src/ui/panels/planted.ts:2: "No depot here."']);
+      expect(panelLiterals(dir).sort()).toEqual(['src/ui/panels/look.ts:1: "Not yet moved"', 'src/ui/panels/planted.ts:2: "No depot here."']);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

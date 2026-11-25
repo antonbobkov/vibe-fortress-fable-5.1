@@ -119,6 +119,35 @@ The activity line is never empty, and the tile list's row and the hover line's s
 
 The health section lists each part on a line of its own, with a bar and its hit points, named as the creature's body plan names it (17's `health.partNames`): a dwarf's `left arm` and `right leg`, a wolf's `left foreleg` and `right hindleg`, a chicken's `left wing`, a fish's `tail` twice (its tail fills both leg slots, each with its own hit points). A slot the plan gives no part (a fish's arms, the Hollow Maw's limbs) is not listed. The `Permanent:` line names its slots the same way: `lost left foreleg`. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour.
 
+An animal's view (08's `creature › animal`) has, under the rule, a dim label and a value a row, in the Animals panel's words:
+
+```
+│ cow                                  [x] │
+│ Activity: Keeping to Pasture #1           │
+│ At (34, 31, z27)                          │
+│ ───────────────────────────────────────── │
+│ Species   cow                             │
+│ State     tame, pregnant                  │
+│ Owner     the fortress                    │
+│ Pasture   Pasture #1                      │
+│ Hunger    70 (very hungry)                │
+│ Training  cannot be trained               │
+│ Health: Blood 100%, Pain 0                │
+│   Conscious                               │
+│   head ▓▓▓▓▓ 45/45 hp                     │
+│   torso ▓▓▓▓▓ 90/90 hp                    │
+│   left foreleg ▓▓▓▓▓ 45/45 hp             │
+│   right foreleg ▓▓▓▓▓ 45/45 hp            │
+│   left hindleg ▓▓▓▓▓ 45/45 hp             │
+│   right hindleg ▓▓▓▓▓ 45/45 hp            │
+│ ───────────────────────────────────────── │
+│ [c] center  [f] follow off                │
+│ [h] here  [Bksp] back  [Tab] link         │
+│ [p] pasture: Pasture #1                   │
+```
+
+A tame animal's rows are `Species`; `State`: `tame`, then `young`, `pregnant` and `marked for slaughter` while they hold; `Owner`: the dwarf it adopted as a pet, else `the fortress`; `With`: the dwarf it is assigned to, while it is; a grazer's `Pasture` (`none` off pasture) and `Hunger`, 08's condition as a whole number with the Animals panel's words for it (`70 (very hungry)`), in the alert colour when very hungry and the bad colour when starving; and `Training`: `in training`, `trained for war`, `trained for hunting`, `untrained`, or `cannot be trained` for a species that cannot be. A wild animal's are `Species`, `State` (`wild`, then `dangerous` for a dangerous species and `hungry` for a predator while its hunger lasts) and `Hunted` (`yes` or `no`, 09's huntable mark that the Animals panel's `[h]` turns), and a heavy sleeper has `A heavy sleeper.` under them in the dim colour. The owner, the dwarf it is with and the pasture are links. Under them come the health lines and, when it holds something, `Equipment`; an animal has no needs, skills or mood (15 gives moods to dwarves) and none of a dwarf's other lines. A value too long for its row wraps under the value column.
+
 A tame grazer's view has a third key row, its pasture (`[p] pasture: none` off pasture). `[p]` or a click on the row opens the pasture picker in place of the sections, the animal's pasture now chosen; each pasture's verdict is what its grass will feed with the animal on it, in the alert colour when it is too small, dim otherwise (24 § Inspection):
 
 ```
@@ -243,7 +272,7 @@ A long line wraps under its text. Another creature has the `Equipment` line when
 
 Either view scrolls under its pinned lines, which stay (24 § Inspection): `PageUp` and `PageDown` move it a page less one row, and the wheel over the panel three rows a notch. While rows lie above, a dim `▲` is drawn at the right edge of its first scrolled row, and while rows lie below, a dim `▼` at the right edge of its last. It starts at its top again when Look shows another creature, another item, another tile, or another view.
 
-Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training (animal); party, role, state (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
+Sections come from the inspector registry in this order: identity, activity, needs, skills, attributes, personality, productivity, thoughts, health, equipment, relationships, title (dwarf); species, state, owner, pasture, condition, training, health, equipment (tame animal); species, state, huntable, health, equipment (wild animal); party, role, state (hostile); type, material, quality, count, value, rot, maker, owner, flags, reserving job, contents (item); type, state, mode, links, owner, workshop orders (building); type, tiles, settings, room tier with breakdown (zone).
 
 ## Designate tool
 

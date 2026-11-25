@@ -12,7 +12,14 @@
 - Decide whether an animal shows a mood line at all (15 gives moods to dwarves; a fortress animal shows `Mood: Fine (55)` today); if not, keep it to dwarves.
 - Update `fortress-screen.md` with a wireframe of a tame animal's view.
 
+Decided while doing it:
+
+- The sections are rows of a dim label and a value, as the item view's fields: `Species`, `State` (`tame`, `young`, `pregnant`, `marked for slaughter`), `Owner` (the dwarf whose pet it is, else `the fortress`), `With` (the assigned dwarf), a grazer's `Pasture` and `Hunger` (`70 (very hungry)`: 08's condition with the Animals panel's fed words, alert when very hungry, bad when starving), `Training` (`in training`, `trained for war`, `trained for hunting`, `untrained`, `cannot be trained`); a wild animal's `Species`, `State` (`wild`, `dangerous`, `hungry` for a predator's hunger) and `Hunted` (`yes`/`no`). Owner, With and Pasture are links.
+- No mood line for any creature but a dwarf (fortress-screen.md already said the mood is a dwarf's line; the code drew it for every fortress creature).
+- `look.ts`'s ten literals (mood, health, wound flags) moved to `ui.look.*` keys, so `LITERAL_FILES_SKIPPED` is empty (T-711's first bullet).
+- The pinned activity line of a dog following a long-named dwarf ends in `»` (a name, allowed by T-703's rule); the `With` row gives the name whole.
+
 ## Done
 
-- [ ] Tests: a tame cow's view names its species, hunger and training; a wild deer's its state and whether it is hunted.
-- [ ] `fortress-screen.md` has the animal's wireframe, and its section list matches what is drawn.
+- [x] Tests: a tame cow's view names its species, hunger and training; a wild deer's its state and whether it is hunted (`test/unit/ui/t710-animal-view-sections.test.ts`: also a starving calf pregnant and marked for slaughter, a war dog with its dwarf, a pet's owner, a hungry wolf, a dwarf's view unchanged, no Mood line on an animal, nothing cut at 36 columns).
+- [x] `fortress-screen.md` has the animal's wireframe, and its section list matches what is drawn.
