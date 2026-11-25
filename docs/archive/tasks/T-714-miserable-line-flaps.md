@@ -1,6 +1,8 @@
 # T-714 — "X is miserable." repeats several times a day and buries the alerts
 
-**Source:** playtest 2026-11-24 (second) ([report](../../reports/data/2026-11-24-playtest-2.md), finding 1) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in fa8f907a,82f9b1ff,4fced7eb,6b655369.
+
+**Source:** playtest 2026-11-24 (second) ([report](../../../reports/data/2026-11-24-playtest-2.md), finding 1) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -24,6 +26,11 @@ Spec: 15 § Tiers and effects (the margin), § Registrations (the line, once a d
 
 ## Done
 
-- [ ] Tests: a dwarf whose mood moves 19, 21, 19, 22 stays Miserable and is announced once; one that rises to 25 leaves it; the line names its three strongest negatives; a second fall the same day is not announced.
-- [ ] A run of the reproduction above: at most one miserable line per dwarf per day in the log.
-- [ ] World hashes: the tier now holds longer, so productivity and sulks move; the commit says which scenario hashes moved and why.
+- [x] Tests: a dwarf whose mood moves 19, 21, 19, 22 through a day is announced once; the line names its three strongest negatives; a second fall the same day is not announced.
+- [x] A run of the reproduction above: at most one miserable line per dwarf per day in the log. (A headless probe: `deep-2346-1` region (11,30), Warband, no orders, 40 days: 59 falls to Miserable under the plain bands, up to 3 a dwarf a day; the day's line names each dwarf once.)
+- [x] World hashes: unchanged (the simulation is master's; see the decision below).
+- [x] Added by the orchestrator: the restless dead's dawn line says they fall to dust ("A restless dead has fallen to dust."), logged as kept in `docs/fun-features.md`.
+
+**Decision after the sweep: no margin in the simulation.** The tier margin (`MOOD_TIER_HYSTERESIS` = 5) was built and measured: sweep 45580317774 pooled 1097 living / 122.75 deaths, and on the branch merged with master sweep 45594520147 pooled 1060 / 120.25 ("worth tracing: 66.63 under best"), against master's recent 1124 to 1170. A dwarf held in the lower tier works slower, sulks, is dosed and holds hall spirit down longer, and that cost lives. So the decisions on the margin and on hall spirit's margin above are withdrawn: the tier is the plain band at each hourly recomputation, as before, and the damping is the announcer's alone (the day's line names a dwarf once). The world is byte-identical to master.
+
+Choices made while working (now in the spec): the reasons are the thoughts' own texts quoted ('… is miserable: "I am hungry. Slept on the floor. …"'), since lower-cased texts read "i am hungry" and the thought rows have no short name; a day's miserable lines are one line naming each dwarf once, as the starving line is, so many miserable dwarves cannot bury a death or a departure.

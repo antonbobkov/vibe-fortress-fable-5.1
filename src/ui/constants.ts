@@ -30,6 +30,9 @@ export const LOG_ENGAGEMENT_TICKS = 300;
 /** The immigrants line names each newcomer, with their best skill, in a wave of at most this many; a larger wave is counted. */
 export const LOG_IMMIGRANT_NAMES = 4;
 
+/** The miserable line gives this many reasons: a dwarf's strongest negative thoughts, the day's line the ones weighing most over its dwarves. */
+export const LOG_MISERABLE_REASONS = 3;
+
 /** The day's line of animals bleeding with no dressing (17) names at most this many; more are counted. */
 export const LOG_BLEEDING_NAMES = 3;
 

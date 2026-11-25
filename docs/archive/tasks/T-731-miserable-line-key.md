@@ -1,6 +1,8 @@
 # T-731 — The miserable line keeps its string key
 
-**Source:** T-725 ([work file](../archive/tasks/T-725-log-line-string-key.md)) · **Size:** S · **Needs:** T-714 · **Status:** open
+**Closed:** 2026-11-25, in fa8f907a,82f9b1ff,4fced7eb,6b655369.
+
+**Source:** T-725 ([work file](T-725-log-line-string-key.md)) · **Size:** S · **Needs:** T-714 · **Status:** open
 
 ## Why
 
@@ -17,5 +19,5 @@ Spec: none beyond 24 § Announcements and the log (every line the announcer writ
 
 ## Done
 
-- [ ] Test (`describe` with the task id): a miserable line's key is `announce.mood_tier_why` for one dwarf and `announce.mood_tier_many_why` once a second dwarf joins it.
-- [ ] UI only: world hashes unchanged.
+- [x] Test (`describe` with the task id): a miserable line's key is `announce.mood_tier_why` for one dwarf and `announce.mood_tier_many_why` once a second dwarf joins it.
+- [x] UI only: world hashes unchanged.

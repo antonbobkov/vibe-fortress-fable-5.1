@@ -30,4 +30,4 @@ Decisions taken while doing it:
 - [x] Tests (`describe` with the task id, `test/unit/ui/t725-log-keys.test.ts`): a line's key, written by the announcer and changed when the line grows, survives a save and load; a dwarf and a cow both named Modi starving on two days make two last-words lines by key, where the text alone folds them into one; keyed lines and the same lines from an older save (keys stripped) fold alike, per creature, deaths never folded.
 - [x] UI only: world hashes unchanged (`test/golden/world-hashes.test.ts` passes, no golden moved).
 - [x] Spec: 24 § Announcements and the log (the line's key), § The legend record (folding by it, the text as the fallback), § State; `save-format.md` (`ui` row); `schemas/system-state.md` (`UiState.logTail[].key`).
-- [x] Follow-up for T-714 (not merged when this was done): [T-731-miserable-line-key](../../work/T-731-miserable-line-key.md).
+- [x] Follow-up for T-714 (not merged when this was done): [T-731-miserable-line-key](T-731-miserable-line-key.md).

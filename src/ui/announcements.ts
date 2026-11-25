@@ -22,8 +22,9 @@ import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
-import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
+import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
+import type { MoraleReader } from '@systems/morale';
 import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText } from './messages';
 import { moodTierName } from './panels/mood';
@@ -99,6 +100,12 @@ interface Engagement {
   last: number;
 }
 
+/** A reason on the miserable line: a negative thought's text and its weight (its value, made positive). */
+interface Reason {
+  readonly text: string;
+  readonly weight: number;
+}
+
 /** What announcing one event produced. */
 export interface Announced {
   readonly line: LogLine;
@@ -120,6 +127,8 @@ export class AnnouncementLog {
   private readonly theftLines = new Map<number, { line: LogLine; stolen: Stolen[] }>();
   /** The day's starving line and the dwarves it names (`announceStarving`). */
   private starving: { line: LogLine; ids: number[]; names: string[] } | null = null;
+  /** The day's miserable line, the dwarves it names and the reasons each gave (`announceMiserable`). */
+  private miserable: { line: LogLine; ids: number[]; names: string[]; reasons: Reason[][] } | null = null;
   /** The day's line of fortress animals bleeding with no dressing and the animals it names (`announceBleedingAnimal`). */
   private bleeding: { line: LogLine; ids: number[]; names: string[] } | null = null;
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
@@ -477,6 +486,7 @@ export class AnnouncementLog {
     if (spec === undefined) return null;
     if (event.type === 'CropDied') return this.announceFrost(fields, readers, tick, spec);
     if (event.type === 'Starving') return this.announceStarving(event, readers, tick, spec);
+    if (event.type === 'MoodTierChanged') return this.announceMiserable(event, readers, tick, spec);
     if (event.type === 'NoDressing' && typeof fields['id'] === 'number' && !readers.entities.has(fields['id'], C.Attributes)) {
       return this.announceBleedingAnimal(event, fields['id'], readers, tick, spec);
     }
@@ -726,6 +736,53 @@ export class AnnouncementLog {
     const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
     this.starving = { line, ids: [id], names: [name] };
     return { line, severity: spec.severity, focus };
+  }
+
+  /**
+   * 15 § Registrations: a dwarf who falls to Miserable is told once a day, with its reasons, its three
+   * strongest negative thoughts in their own words: 'Asa Forgehall is miserable: "I am hungry. Slept
+   * on the floor. I have no room of my own."'. A day's are one line, as the starving line is, which
+   * names each dwarf once: '3 dwarves are miserable: Asa, Njal, Liv. "I am hungry. …"', the reasons
+   * weighing most over the dwarves named. A dwarf already named today makes no line. Its focus is the
+   * first dwarf's tile; a new day starts a new line.
+   */
+  private announceMiserable(event: GameEvent, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const id = Number((event as unknown as Record<string, unknown>)['id']);
+    const name = String(this.params(event, readers)['dwarf'] ?? '');
+    const thoughts = readers.has('15') ? readers.of<MoraleReader>('15').thoughts(id) : [];
+    const reasons = thoughts.filter((t) => t.value < 0).slice(0, LOG_MISERABLE_REASONS).map((t) => ({ text: t.text, weight: -t.value }));
+    const open = this.miserable;
+    if (open !== null && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
+      if (open.ids.includes(id)) return null;
+      open.ids.push(id);
+      open.names.push(name);
+      open.reasons.push(reasons);
+      const said = this.miserableText(open.names, open.reasons, spec);
+      open.line.text = said.text;
+      open.line.key = said.key;
+      open.line.tick = tick;
+      return { line: open.line, severity: open.line.severity, focus: open.line.focus };
+    }
+    const focus = focusOf(event, readers);
+    const said = this.miserableText([name], [reasons], spec);
+    const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
+    this.miserable = { line, ids: [id], names: [name], reasons: [reasons] };
+    return { line, severity: spec.severity, focus };
+  }
+
+  /** The miserable line's text and its key (T-731): `announce.mood_tier[_why]` for one dwarf, `announce.mood_tier_many[_why]` for more. */
+  private miserableText(names: readonly string[], reasons: readonly (readonly Reason[])[], spec: AnnouncementSpec): Said {
+    // The reasons weighing most over everyone named, the first named first on a tie.
+    const weights = new Map<string, number>();
+    for (const list of reasons) for (const r of list) weights.set(r.text, (weights.get(r.text) ?? 0) + r.weight);
+    const why = Array.from(weights).sort((a, b) => b[1] - a[1]).slice(0, LOG_MISERABLE_REASONS).map(([text]) => text).join(' ');
+    if (names.length === 1) {
+      const dwarf = names[0] ?? '';
+      const said = why === '' ? this.say(spec.stringKey, { dwarf }) : this.say('announce.mood_tier_why', { dwarf, why });
+      return { key: said.key, text: capitalize(said.text) };
+    }
+    const first = names.map((n) => n.split(' ')[0] ?? n).join(', ');
+    return this.say(why === '' ? 'announce.mood_tier_many' : 'announce.mood_tier_many_why', { n: names.length, names: first, why });
   }
 
   /**

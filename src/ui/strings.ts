@@ -2343,7 +2343,11 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.masterwork': '{crafter} has created a masterwork {item}.',
   'announce.workshop_blocked': 'A workshop needs magma power.',
   'announce.workshop_no_container': 'A workshop is waiting for an empty {container}: every one holds something.',
+  // 15 § Registrations: the day's miserable line, with the reasons in the dwarves' own words.
   'announce.mood_tier': '{dwarf} is miserable.',
+  'announce.mood_tier_why': '{dwarf} is miserable: "{why}"',
+  'announce.mood_tier_many': '{n} dwarves are miserable: {names}.',
+  'announce.mood_tier_many_why': '{n} dwarves are miserable: {names}. "{why}"',
   'announce.sulk.day_off': '{dwarf} is taking the day off.',
   'announce.sulk.argue': '{dwarf} has picked a quarrel.',
   'announce.sulk.weep': '{dwarf} is weeping at the hearth.',
