@@ -1265,7 +1265,8 @@ export function trade(w: TestWorld, state: FortressState): void {
   if (!reader.sessionOpen()) {
     command(w, { type: 'TradeOpen', depotId: depot });
     const job = w.readers.of<JobsReader>('11').byKey(`trade:${depot}`);
-    if (job && reprioritised(job)) command(w, { type: 'SetJobPriority', jobId: job.id, priority: DEADLINE });
+    // T-715: the trade job comes above the depot's hauls (20 § The session); the deadline step only ever raises it.
+    if (job && reprioritised(job) && job.priority > DEADLINE) command(w, { type: 'SetJobPriority', jobId: job.id, priority: DEADLINE });
     return;
   }
   const give = reader.depotItems().filter((id) => {

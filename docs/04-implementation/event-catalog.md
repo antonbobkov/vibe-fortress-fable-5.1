@@ -156,6 +156,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `CaravanDeparted` / `CaravanLost` / `CaravanAttacked` | `civ[, …]` | 20 | 18 (attacked → nothing; reputation in 20), ui |
 | `TradeCompleted` / `TradeRefused` / `GiftGiven` | `civ, givenValue, receivedValue` / `shortfall` / `civ, value` | 20 | 10 (xp), ui |
 | `TradeMissed` | `civ, depotId, traderId` | 20 | ui (an alert: the stay ended with a trade request waiting) |
+| `DepotGoodsReturned` | `depotId, count` | 20 | ui (a note: a caravan's departure took the goods left at a depot back to stock) |
 | `ReputationChanged` | `civ, delta, reason` | 20 | 21 (Mountainhome), ui |
 | `ImmigrantsArrived` | `ids[], count, children, guaranteed` | 21 | 11, 15, 18 (renown), ui |
 | `ImmigrationSkipped` | `reason` | 21 | ui |

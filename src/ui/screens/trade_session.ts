@@ -239,13 +239,20 @@ export class TradeSessionScreen implements Screen {
     };
     heading(2, 'ui.trade.heading.merchant', 'ui.trade.heading.price');
     heading(right, 'ui.trade.heading.fortress', 'ui.trade.heading.value', 'ui.trade.heading.value_short');
+    // Goods still being carried to the depot: a line under our column, which keeps a row for it.
+    const hauls = trade.depotHauls(trade.session()?.depotId ?? 0);
     const sides = ['merchant', 'fortress'] as const;
     for (const side of sides) {
       const rows = this.goods(side);
       const state = side === 'merchant' ? this.left : this.right;
       const col = side === 'merchant' ? 2 : right;
-      clampList(state, rows.length, visible);
-      for (let i = state.scroll; i < Math.min(rows.length, state.scroll + visible); i += 1) {
+      const shown = side === 'fortress' && hauls > 0 ? Math.max(1, Math.floor((footer - 5) / 2)) : visible;
+      clampList(state, rows.length, shown);
+      if (side === 'fortress' && hauls > 0) {
+        const below = 4 + Math.min(shown, rows.length - state.scroll) * 2;
+        label(surface, col, below, this.strings.get('ui.trade.more_on_way', { n: hauls }), { fg: t.dim, width });
+      }
+      for (let i = state.scroll; i < Math.min(rows.length, state.scroll + shown); i += 1) {
         const row = rows[i] as GoodsRow;
         const y = 4 + (i - state.scroll) * 2;
         const selected = state.selected === i && this.side === side;

@@ -24,6 +24,8 @@ export const CARAVAN_STAY_DAYS = 5;
 export const CARAVAN_LEAVE_DAYS = 2;
 export const CARAVAN_GUARD_FIGHT_DAYS = 1;
 export const DEPOT_HAUL_PRIORITY = 3;
+/** The `trade` job's priority, above the depot's hauls, so the trader does not wait behind the goods (20 § The session). */
+export const TRADE_JOB_PRIORITY = 2;
 export const MERCHANT_MARKUP = 120;
 /** Percent: a merchant good whose material the site lacks costs this much more (20 § The scarcity price). */
 export const SCARCITY_MARKUP = 250;

@@ -667,10 +667,11 @@ export function brokerOnWay(env: MessageEnv, depotId: EntityId, paused: boolean)
  * Who a waiting trade request waits for and why (`panels.md` § Depot, 20 § The session): the
  * depot's `trade` job's worker on the way, else the Broker it is for and what keeps them (asleep,
  * eating, at another job, a patient, sheltering, out of reach), else why no Broker holds it (on duty
- * with a squad, the trading labor off, none appointed) and whether any other dwarf can trade.
- * `null` when no request waits at the depot (no job, or the session is open). With `prospective`,
- * a request about to be sent is read as its job will be: for the Broker unless the Broker is on
- * duty or has the labor off.
+ * with a squad, the trading labor off, none appointed) and whether any other dwarf can trade; with
+ * no dwarf on the way and nothing else to say, that no one has taken the trade yet, and how many
+ * goods are still being carried to the depot. `null` when no request waits at the depot (no job,
+ * or the session is open). With `prospective`, a request about to be sent is read as its job will
+ * be: for the Broker unless the Broker is on duty or has the labor off, who is then on the way.
  */
 export function tradeWait(env: MessageEnv, depotId: EntityId, prospective = false): string | null {
   if (!env.readers.has('11') || !env.readers.has('20') || !env.readers.has('10')) return null;
@@ -678,16 +679,22 @@ export function tradeWait(env: MessageEnv, depotId: EntityId, prospective = fals
   const job = env.readers.of<JobsReader>('11').byKey(`trade:${depotId}`);
   if (job === undefined && !prospective) return null;
   const assigned = job === undefined ? brokerFor(env) : typeof job.data['assignedWorker'] === 'number' ? job.data['assignedWorker'] : 0;
-  return tradeWaitFor(env, job?.workerId ?? 0, assigned, typeof job?.workTile === 'number' ? job.workTile : -1, false);
+  return tradeWaitFor(env, job?.workerId ?? 0, assigned, typeof job?.workTile === 'number' ? job.workTile : -1, false, depotId, job === undefined);
 }
 
 /**
  * The words of {@link tradeWait} for a worker on the way (`workerId`), else the dwarf the job is
  * for (`assigned`, 0 for any trading dwarf). `late` reads them as the caravan leaves (20,
- * `TradeMissed`): a dwarf that was coming "did not reach the depot in time".
+ * `TradeMissed`): a dwarf that was coming "did not reach the depot in time". `depotId` counts the
+ * goods still being carried there; `prospective` reads a request not yet sent ({@link tradeWait}).
  */
-export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: EntityId, workTile: TileIndex, late: boolean): string {
+export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: EntityId, workTile: TileIndex, late: boolean, depotId = 0, prospective = false): string {
   const s = env.strings;
+  const hauls = depotId !== 0 && env.readers.has('20') ? env.readers.of<TradeReader>('20').depotHauls(depotId) : 0;
+  // No dwarf has taken the trade: said so, with the goods still on their way to the depot.
+  const notTaken = (): string => late
+    ? s.get(hauls === 0 ? 'ui.trade.wait.late_any' : 'ui.trade.wait.late_hauls', { n: hauls })
+    : s.get(hauls === 0 ? 'ui.trade.wait.not_taken' : 'ui.trade.wait.not_taken_hauls', { n: hauls });
   const dwarves = env.readers.of<DwarvesReader>('10');
   const broker = dwarves.holder('broker');
   const who = (id: EntityId): string => {
@@ -698,23 +705,26 @@ export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: Enti
     if (late) return s.get('ui.trade.wait.late', { who: who(workerId) });
     return s.get(broker !== 0 && broker !== workerId ? 'ui.trade.wait.stand_in_on_way' : 'ui.trade.wait.on_way', { who: who(workerId) });
   }
-  if (assigned !== 0 && env.readers.entities.alive(assigned)) return dwarfWait(env, assigned, who(assigned), workTile, late);
+  if (assigned !== 0 && env.readers.entities.alive(assigned)) return dwarfWait(env, assigned, who(assigned), workTile, late, prospective ? null : notTaken);
   // No Broker holds the job: why not, and whether another dwarf can trade.
   const combat = env.readers.has('16') ? env.readers.of<CombatReader>('16') : null;
   const free = (id: EntityId): boolean => id !== broker && combat?.onDuty(id) !== true && !dwarves.isChild(id);
   const others = env.readers.of<JobsReader>('11').workersWithLabor('trading').some(free);
-  if (late && others) return s.get('ui.trade.wait.late_any');
+  if (late && others) return notTaken();
   if (broker !== 0 && env.readers.entities.alive(broker)) {
     const squad = combat?.onDuty(broker) === true ? combat.squadOf(broker) : undefined;
     if (squad !== undefined) return s.get(others ? 'ui.trade.wait.on_duty_stand_in' : 'ui.trade.wait.on_duty_nobody', { who: who(broker), squad: squad.name });
     if (!env.readers.of<JobsReader>('11').laborEnabled(broker, 'trading')) return s.get(others ? 'ui.trade.wait.labor_off_stand_in' : 'ui.trade.wait.labor_off_nobody', { who: who(broker) });
   }
   if (!others) return s.get('ui.trade.wait.nobody');
-  return s.get(broker !== 0 ? 'ui.trade.wait.stand_in' : 'ui.trade.wait.no_broker');
+  return broker !== 0 ? notTaken() : `${notTaken()} ${s.get('ui.trade.wait.no_broker')}`;
 }
 
-/** What keeps the dwarf a trade job is for from the depot, from its brain and health. */
-function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileIndex, late: boolean): string {
+/**
+ * What keeps the dwarf a trade job is for from the depot, from its brain and health; with nothing
+ * keeping them, `notTaken` (they have not taken it yet), or, for a request not yet sent, on the way.
+ */
+function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileIndex, late: boolean, notTaken: (() => string) | null): string {
   const s = env.strings;
   const dwarves = env.readers.of<DwarvesReader>('10');
   const health = env.readers.has('17') ? env.readers.of<HealthReader>('17') : null;
@@ -733,7 +743,7 @@ function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileInd
   }
   if (late) return s.get('ui.trade.wait.late', { who });
   if (behavior === 'work' && env.readers.has('11') && env.readers.of<JobsReader>('11').forWorker(id) !== undefined) return s.get('ui.trade.wait.job', { who });
-  return s.get('ui.trade.wait.on_way', { who });
+  return notTaken === null ? s.get('ui.trade.wait.on_way', { who }) : notTaken();
 }
 
 /** The Broker a trade job would be for now (20 § The session): alive, trading on, not on duty; else 0. */

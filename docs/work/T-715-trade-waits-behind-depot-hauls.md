@@ -25,7 +25,7 @@ Spec: 20 § Moving goods to the depot, § The session, § Movement step 4; `ui-s
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): with 60 goods being hauled and one trading dwarf, the session opens within a day of `TradeOpen`; the depot line names the hauling while no one holds the job; goods still at the depot when the caravan departs are usable again and the note says how many.
-- [ ] The trade screen shows goods that arrive while it is open.
-- [ ] The `TradeMissed` line in a 36-column sidebar shows its whole reason.
-- [ ] World hashes of scenarios with caravans move (trades now happen); the commit says which.
+- [x] Tests (`describe` with the task id): with 60 goods being hauled and one trading dwarf, the session opens within a day of `TradeOpen`; the depot line names the hauling while no one holds the job; goods still at the depot when the caravan departs are usable again and the note says how many.
+- [x] The trade screen shows goods that arrive while it is open.
+- [x] The `TradeMissed` line in a 36-column sidebar shows its whole reason.
+- [x] World hashes of scenarios with caravans move (trades now happen); the commit says which.
