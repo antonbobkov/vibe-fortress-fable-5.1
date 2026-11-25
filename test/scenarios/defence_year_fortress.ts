@@ -401,7 +401,7 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
   }
   const want = w.game.world.fortress.alert !== 'calm' ? 'active' : state.barracksZoneId ? 'train' : 'off';
   if (want === 'train') keepACarpenter(w, state, squad.members);
-  const members = want === 'active' ? squad.members : keepNamedWorkersAtTheirShops(w, state, squad.members);
+  const members = want === 'active' ? squad.members : refillTheSquad(w, state, keepNamedWorkersAtTheirShops(w, state, squad.members));
   if (squad.mode !== want) command(w, { type: 'SetSquadMode', squadId: squad.id, mode: want });
   if (want !== 'off') keepToolLaborsOffTheSquad(w, state, members);
 }
@@ -438,8 +438,79 @@ export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearSta
   return next;
 }
 
+/**
+ * T-724: the specialists' roles a refill of the squad may take, the least needed first: the gems and
+ * the stone crafts are goods for the caravans, a woodcutter's felling is the founder's too
+ * (`keepWoodcutter`), and the builder's and the carpenter's work goes on more slowly in other hands.
+ * Never the metal chain (forge, smelter, fuel, charcoal), which arms the squad.
+ */
+const DRAFTED_ROLES: readonly string[] = ['jeweler', 'craftdwarf', 'woodcutter', 'builder', 'carpenter'];
+
+/**
+ * T-724: the fallen are replaced from the specialists when nobody else is free. The fortress
+ * script's refill (`three_years_fortress.ts`, T-387) takes no specialist, brewer, farmer or cook, and
+ * `keepNamedWorkersAtTheirShops` fills the squad only when it takes a named worker out, so on
+ * `defence-year` at cadence 20 a Gloam ambush on day 153 killed two of the three soldiers and four
+ * civilians, and the squad trained with one from day 158 to the end: of the nine adults left, six
+ * held a role or a workshop, one the still and one the watch. As a player does, while the alert is
+ * down and the squad (with those stood down) is under SQUAD_SIZE, the script fills it: first from the
+ * adults outside it whom no role holds and no workshop names, the newest first; then from the
+ * specialists of DRAFTED_ROLES, in its order (the newest first within a role). The brewer, the
+ * broker, the founding farmer and cook and the watchman are kept, as the fortress script keeps
+ * them. A specialist taken in leaves its role and its workshop, and is counted among the soldiers
+ * whom training keeps from any craft (the strong squad's `trained`, which the economy's choices of a
+ * specialist pass over), so that the economy, choosing again, does not name it back to a bench and
+ * so out of the squad. Returns the squad's members after it.
+ */
+export function refillTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): readonly number[] {
+  if (w.game.world.fortress.alert !== 'calm') return members;
+  const fortress = state.fortress;
+  const ent = w.game.world.entities;
+  const living = members.filter((id) => ent.alive(id));
+  const down = (fortress.stoodDown ?? []).filter((id) => ent.alive(id) && !living.includes(id));
+  const short = SQUAD_SIZE - living.length - down.length;
+  if (short <= 0) return members;
+  const { economy } = fortress;
+  const roleOf = new Map(Object.entries(economy.specialists).map(([role, id]) => [id, role] as const));
+  const founders = w.game.arrival?.dwarves ?? [];
+  const kept = new Set([founders[FOUNDING_FARMER], founders[FOUNDING_COOK], economy.brewer, economy.broker?.id]);
+  const named = new Map<number, number[]>();
+  for (const shop of ent.with(C.Workshop)) {
+    const worker = ent.get(shop, C.Workshop)?.assignedWorker ?? 0;
+    if (worker !== 0) named.set(worker, [...(named.get(worker) ?? []), shop]);
+  }
+  const onWatch = new Set((fortress.watch ?? []).map((post) => post.dwarfId));
+  // 0: no role and no workshop; 1 + its place in DRAFTED_ROLES: a specialist the refill may take; -1: none.
+  const rank = (id: number): number => {
+    const role = roleOf.get(id);
+    if (role === undefined) return named.has(id) ? -1 : 0;
+    const at = DRAFTED_ROLES.indexOf(role);
+    return at < 0 ? -1 : 1 + at;
+  };
+  const recruits = w.readers.of<DwarvesReader>('10').adults()
+    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id) && !down.includes(id) &&
+      !onWatch.has(id) && !kept.has(id) && rank(id) >= 0)
+    .sort((a, b) => rank(a) - rank(b) || b - a).slice(0, short);
+  if (recruits.length === 0) return members;
+  const released: string[] = [];
+  for (const id of recruits) {
+    const role = roleOf.get(id);
+    if (role === undefined) continue;
+    released.push(`${id} (${role})`);
+    delete economy.specialists[role];
+    for (const shop of named.get(id) ?? []) command(w, { type: 'SetWorkshopWorker', workshopId: shop, dwarfId: 0 });
+    (fortress.strong ??= { marksSquadId: 0, trained: [], day: -1 }).trained.push(id);
+  }
+  const next = [...living, ...recruits];
+  command(w, { type: 'SetSquadMembers', squadId: fortress.squadId, members: next });
+  note(state, w, `${recruits.join(', ')} join a squad of ${living.length + down.length}${released.length ? `, leaving their roles: ${released.join(', ')}` : ''}`);
+  return next;
+}
+
 /** T-660: the founder the fortress script makes its farmer (`three_years_fortress.ts`, the professions). */
 const FOUNDING_FARMER = 4;
+/** T-724: and its cook, whom its squad's refill keeps a civilian with the farmer. */
+const FOUNDING_COOK = 5;
 
 /** The labors whose tool a worker keeps while the labor is on (11 § Assignment). */
 const TOOL_LABORS = ['mining', 'woodcutting'] as const;
