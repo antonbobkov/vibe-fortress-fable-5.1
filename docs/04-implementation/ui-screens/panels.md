@@ -191,6 +191,8 @@ The Dwarves tab, the list of the fortress's dwarves with their marks, titles, sq
 │ Mining 2 · Hauling 7                  │
 ```
 
+A job blocked for its inputs names the input that is short: the first whose available units (13 `countAvailable`) are fewer than it still needs beyond the units reserved for it and delivered (`waiting: 1 stone`), never an input that is to be had while another is not. When every input is to be had, it names the first not yet delivered, which waits to be brought (`waiting: 1 barrel to be brought`). The selected job's line adds where the short item comes from, as the build tool's out-of-stock line does (`fortress-screen.md` § Build tool): the workshops that make it, leaving out one whose own building takes it unless it is built or the stock can build it (`— order at a carpenter's workshop`), or, for stone or blocks that no workshop at hand can make, where the rock is (`— dig down to rock: the soil here is 4 levels deep`). The building panel, a workshop's job and a work order waiting for an input (Orders, `Waiting for stone (0 available) — dig down to rock: …`) say the same.
+
 Below the job list, "Orders waiting (n) [Tab]" lists the work orders that no job serves, three rows at a time, one row each with the reason the Orders panel shows ("x1 Mail shirt · no forge", "x3 Door · waiting for log (0)", "x1 Make steel · charcoal out of reach"); the Jobs text filter applies to those rows, and a click on a row opens Orders with that order selected. By keyboard, `Tab` moves the cursor (`►`) between the job list and these rows when there are any (with none it is the sidebar key); `↑` `↓` move over them, scrolling the rest into view, and `Enter` opens Orders with the order selected, as the click does.
 
 Jobs names a building target by its type (Build bed, Build carpenter's workshop), a trade by its depot's number (Trade, depot #1), an item target by its item name (Haul log), and a creature target by its own name or else its species (Hunt wild horse, Carry patient Liv Hammerfall). A job type with no name of its own in the strings reads as its id in words with a capital (Plant, Carry patient). Only bare-tile jobs show coordinates. Click the job name or press Enter to centre its target. A batch is one row: two or more jobs next to each other in the list, of one type and priority, each on a bare tile, all open or all blocked for the same reason, show as the job's name and their count (`Dig ×19`, `Plant ×16`) with the reason. While it is selected, the line under the list gives the box their tiles span and the level or levels (`19 jobs over (59,51)–(63,53), z27. [Enter] list them.`) before the reason's long text. `Enter` on it opens it to its rows and centres the first; the opened rows stay open while their jobs last (presentation state, not saved). `[p]` and `[x]` on the batch's row act on every job of it. With no rows, the first table body rows say "No jobs. Designate [d], build [b] or order [o].", wrapped.
@@ -380,7 +382,7 @@ Opened by a click on any building that is not a finished workshop or the depot (
 
 The panel is a list: `↑` `↓` move the cursor over the lines that act, `Enter` or a click activates one, and the last three rows explain the cursor's line. The first two lines are the name with its ordinal and the material and state (`built`, `planned`, `being built`, `to be taken apart`). What follows depends on the building:
 
-- **Planned or being built**: why it waits, in the words of the Jobs panel (`Waiting: 1 door — order at a carpenter's workshop`); `Priority 5 · set 1 2 3 4 5 6 7 8 9` (`1`–`9` or a click on a digit, planned only: `SetBuildingPriority`); `[x] cancel the plan` (`CancelBuilding`). Nothing else is offered until it is built.
+- **Planned or being built**: why it waits, in the words of the Jobs panel (`Waiting: 1 door — order at a carpenter's workshop`, `Waiting: 1 stone — dig down to rock: the soil here is 4 levels deep`); `Priority 5 · set 1 2 3 4 5 6 7 8 9` (`1`–`9` or a click on a digit, planned only: `SetBuildingPriority`); `[x] cancel the plan` (`CancelBuilding`). Nothing else is offered until it is built.
 - **Door, hatch**: the modes as a list with the current one marked `●` (`SetDoorMode`: Open, Locked, No pets, Lock on alert; `SetHatchMode`: Open, Locked). A door set to lock on alert says whether it is locked now.
 - **Trap**: `Trap: armed` (or spent, jammed) and the modes Enemies only / Everyone (`SetTrapMode`).
 - **Lever**: `Lever: off`, `[y] pull` (`PullLever`), then the links.
@@ -420,6 +422,7 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 │   ▸ plant/raw        210     240 ☼  │
 │ ▸ drink              184     420 ☼  │
 │ ▸ stone            1,340     560 ☼  │
+│ ▸ soil                19       0 ☼  │
 │ ▸ bar                 38     870 ☼  │
 │   ▸ metal  iron 30 · copper 8       │
 │ ▸ weapon               9   1,120 ☼  │
@@ -432,6 +435,8 @@ Every action that cannot be done says why on the status row (an empty cage, a co
 │ [f] forbid  [S-d] dump            │
 │ [S-m] melt  [t] to depot          │
 ```
+
+The tree is 13's category tree with one change: soil loads (13's `stone/soil`) are a row of their own at the top level, `soil`, right after `stone`, so the stone row counts only what a mason can cut. Its actions and its usable line act on the loads as on any category. Stockpile filters keep 13's tree.
 
 Each row gives its units and their value, both with thousands separators (`8,570  43,928 ☼`), in a column of 15 cells that holds six-character counts and five-digit values with `☼`; a longer value takes its cells from the row's name, which is cut with `»`, never the value. The wealth line, `Wealth 18,450 ☼   (buildings 3,200 ☼)`, puts the buildings' part on a second row, indented two cells, when it does not fit one.
 

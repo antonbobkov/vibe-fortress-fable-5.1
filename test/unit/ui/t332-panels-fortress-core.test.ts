@@ -46,9 +46,9 @@ async function fixedGame(): Promise<Game> {
   return g;
 }
 
-function render(name: PanelName): string[] {
-  const s: Surface = surface(36, 40);
-  const rect = { col: 0, row: 0, cols: 36, rows: 40 };
+function render(name: PanelName, height = 40): string[] {
+  const s: Surface = surface(36, height);
+  const rect = { col: 0, row: 0, cols: 36, rows: height };
   const f = game.fortress;
   const ctx = f.ctx;
   if (name === 'build') drawBuildPanel(s, rect, f.build, ctx);
@@ -66,7 +66,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
   });
 
   it('Build offers the category keys, lists the chosen category with its cost and stock, and names the keys that place', () => {
-    const rows = render('build');
+    // Tall enough for every workshop row: a building with an input not in stock wraps "(no stone)" under it.
+    const rows = render('build', 50);
     // Each caption is whole: the first column is as wide as its longest caption (T-703).
     expect(rows[0]).toMatch(/^\[c\] Constructions +\[f\] Furniture$/);
     expect(rows[1]).toMatch(/^\[w\] Workshops +\[m\] Mechanisms/);
@@ -75,23 +76,24 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     // The 21 workshops of version 1 and the magma kiln (T-553), by name; the later rows follow.
     // A row whose inputs do not fit beside its name wraps them under it, indented (T-703): an entry is its rows joined.
     const listed: string[] = [];
-    for (const row of rows.slice(4, 36)) {
+    for (const row of rows.slice(4, 46)) {
       if (row.startsWith('  ')) listed[listed.length - 1] += ` ${row.trim()}`;
       else if (row !== '') listed.push(row);
     }
     listed.splice(21);
     expect(listed).toHaveLength(21);
-    for (const row of listed) expect(row).toMatch(/\(\d+\)$/);
+    for (const row of listed) expect(row).toMatch(/\((\d+|no [a-z ]+)\)$/);
     const names = listed.map((row) => row.replace(/ {2,}.*$/, '').replace(/ 1 .*$/, ''));
     expect(names[0]).toMatch(/^Bowyer's workshop/);
     expect(names[names.length - 1]).toMatch(/^Wood furnace/);
-    // The figure in brackets is how many of the first input the fortress holds, every alternative of it named and counted.
-    expect(listed.find((row) => row.startsWith('Carpenter'))).toBe("Carpenter's workshop   2 logs (5)");
-    expect(listed.find((row) => row.startsWith('Smelter'))).toMatch(/^Smelter +3 stone or block \(\d+\)$/);
-    expect(rows[36]).toMatch(/^Material: \[x\] any \(\d+\)$/);
+    // The figure in brackets is how many of the building the stock allows, every input and every alternative
+    // counted (T-717): five logs make two carpenter's workshops; an input with none in stock is named.
+    expect(listed.find((row) => row.startsWith('Carpenter'))).toBe("Carpenter's workshop   2 logs (2)");
+    expect(listed.find((row) => row.startsWith('Smelter'))).toMatch(/^Smelter +3 stone or block \((\d+|no stone or block)\)$/);
+    expect(rows[46]).toMatch(/^Material: \[x\] any \(\d+\)$/);
     // The bowyer may be built of blocks (T-549): the line says how it is built, where `[r] rotate` was.
-    expect(rows[37]).toBe('Of logs: 2 logs, 200 ticks');
-    expect(rows.slice(38).join(' ')).toMatch(/choose, Enter picks the\s+building to place\./);
+    expect(rows[47]).toBe('Of logs: 2 logs, 200 ticks');
+    expect(rows.slice(48).join(' ')).toMatch(/choose, Enter picks the\s+building to place\./);
   });
 
   it('Zones names the selected stockpile, its preset, one ticked category and the keys that change it', () => {

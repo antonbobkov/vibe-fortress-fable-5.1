@@ -20,7 +20,7 @@ import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
 import { workshopHasWork } from '@core/workshop-use';
 import { acceleratorLabel } from '../keymap';
-import { alternativesName, blockedText, capitalize, itemName, whereMade } from '../messages';
+import { alternativesName, blockedText, capitalize, itemName, sourceOf } from '../messages';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { drawnCols, label, separator, type ListState } from '../widgets';
@@ -79,12 +79,12 @@ export function buildRowText(name: string, inputs: string, count: string, width:
 /**
  * A row of the build list: one row laid out by {@link buildRowText} when the name, the inputs and the
  * count fit `width` cells; otherwise the whole text, to be wrapped under the name, each input kept
- * with its number and the count with the last input (no-break spaces).
+ * with its number and the count whole with the last input (no-break spaces): "(no stone)" is not cut.
  */
 export function buildRowLines(name: string, inputs: string, count: string, width: number): string {
   if (Array.from(`${name} ${inputs}${count}`).length <= width) return buildRowText(name, inputs, count, width);
   const kept = inputs.replace(/(^|\+)(\d+|n) /g, '$1$2\u00a0');
-  return `${name} ${kept}${count.replace(/^ /, '\u00a0')}`;
+  return `${name} ${kept}${count.replace(/ /g, '\u00a0')}`;
 }
 
 /**
@@ -129,6 +129,8 @@ export interface StockOffer {
   readonly recipeId: string | null;
   /** The workshops that make it, as words: "a carpenter's workshop or a mason's workshop". */
   readonly workshops: string;
+  /** For stone or blocks no workshop at hand can make: where the rock is ("dig down to rock: …"), else ''. */
+  readonly advice?: string;
 }
 
 export class BuildTool {
@@ -147,6 +149,8 @@ export class BuildTool {
   end: TilePoint | null = null;
   /** Units of the first input that buildings placed with this tool wait for (D-U6). */
   private short: number | null = null;
+  /** The input `short` and `tally` count units of: the scarcest when they began. */
+  private shortMatch: string | null = null;
   /** Successful placement feedback, until the pointer leaves the placed footprint. */
   private placement: { tiles: ReadonlySet<TileIndex>; text: string | null } | null = null;
 
@@ -211,6 +215,7 @@ export class BuildTool {
     this.anchor = null;
     this.end = null;
     this.short = null;
+    this.shortMatch = null;
     this.tally = null;
     this.orientation = 0;
     this.width = 1;
@@ -285,21 +290,63 @@ export class BuildTool {
     return b === null || first === undefined ? [] : b.inputTypes(first.match);
   }
 
-  /** Units of the first input available now (the menu's "(14)"). */
+  /** Units of the first input available now, every alternative counted. */
   available(ctx: PanelContext, row: BuildingRow): number {
+    const inputs = this.inputsFor(ctx, row);
+    const first = row.id === 'magma_forge' ? inputs.find((input) => input.match === 'stone_block') : inputs[0];
+    return first === undefined ? 0 : this.units(ctx, first.match);
+  }
+
+  /** Units of one input available now (13 `countAvailable`), every alternative counted; taken once a tick. */
+  units(ctx: PanelContext, match: string): number {
     const tick = ctx.readers.calendar.tick;
     if (this.counts.tick !== tick) {
       this.counts.tick = tick;
       this.counts.byRow.clear();
     }
-    const key = this.ofBlocks(ctx, row) ? `${row.id}:blocks` : row.id;
-    const known = this.counts.byRow.get(key);
+    const known = this.counts.byRow.get(match);
     if (known !== undefined) return known;
     const it = items(ctx);
-    const types = this.inputTypes(ctx, row);
+    const types = buildings(ctx)?.inputTypes(match) ?? [];
     const n = it === null || types.length === 0 ? 0 : it.countAvailable({ types });
-    this.counts.byRow.set(key, n);
+    this.counts.byRow.set(match, n);
     return n;
+  }
+
+  /**
+   * The input the stock covers least: the fewest buildings' worth of it in stock, the first of
+   * equals; undefined for a building with no counted input (none, or one per tile).
+   */
+  private scarceInput(ctx: PanelContext, row: BuildingRow): { match: string; count: number } | undefined {
+    let best: { match: string; count: number } | undefined;
+    let fewest = Infinity;
+    for (const input of this.inputsFor(ctx, row)) {
+      if (input.count === 'tiles' || input.count <= 0) continue;
+      const n = Math.floor(this.units(ctx, input.match) / input.count);
+      if (n < fewest) {
+        fewest = n;
+        best = { match: input.match, count: input.count };
+      }
+    }
+    return best;
+  }
+
+  /**
+   * The build list's figure (`fortress-screen.md` § Build tool): "no stone" for the first input
+   * with none in stock, else how many of the building the stock allows, every input counted
+   * ("3"); '' for a building with no inputs.
+   */
+  countText(ctx: PanelContext, row: BuildingRow): string {
+    const inputs = this.inputsFor(ctx, row);
+    if (inputs.length === 0) return '';
+    let fewest = Infinity;
+    for (const input of inputs) {
+      const have = this.units(ctx, input.match);
+      if (have === 0) return ctx.strings.get('ui.build.count_none', { item: alternativesName(ctx.registry, input.match, 1) });
+      const per = input.count === 'tiles' ? 1 : Math.max(1, input.count);
+      fewest = Math.min(fewest, Math.floor(have / per));
+    }
+    return String(fewest);
   }
 
   /**
@@ -443,10 +490,16 @@ export class BuildTool {
     return { type: 'PlaceBuilding', buildingType: row.id, origin, orientation: this.orientation, materialChoice: this.choice(ctx), priority: this.priority };
   }
 
-  /** Units of the first input one building takes; 0 when it has none or takes one per tile. */
-  private perBuilding(ctx: PanelContext, row: BuildingRow): number {
-    const first = this.inputsFor(ctx, row)[0];
-    return first === undefined || first.count === 'tiles' ? 0 : first.count;
+  /**
+   * The input the out-of-stock line counts: the one it began with, while placements of this type
+   * go on; else the scarcest ({@link scarceInput}).
+   */
+  private offerInput(ctx: PanelContext, row: BuildingRow): { match: string; count: number } | undefined {
+    if (this.shortMatch !== null) {
+      const kept = this.inputsFor(ctx, row).find((input) => input.match === this.shortMatch);
+      if (kept !== undefined && kept.count !== 'tiles') return { match: kept.match, count: kept.count };
+    }
+    return this.scarceInput(ctx, row);
   }
 
   /** Units placed on this tick that the stock covers. */
@@ -454,21 +507,26 @@ export class BuildTool {
     return this.tally !== null && this.tally.tick === ctx.readers.calendar.tick ? this.tally.covered : 0;
   }
 
-  /** Units of the first input the stock cannot give `n` more buildings of the current type. */
-  private shortFor(ctx: PanelContext, row: BuildingRow, n: number): number {
-    const per = this.perBuilding(ctx, row);
-    if (per === 0 || n <= 0) return 0;
-    return Math.max(0, n * per - Math.max(0, this.available(ctx, row) - this.covered(ctx)));
+  /** Units of `input` the stock cannot give `n` more buildings of the current type. */
+  private shortFor(ctx: PanelContext, input: { match: string; count: number }, n: number): number {
+    if (input.count <= 0 || n <= 0) return 0;
+    return Math.max(0, n * input.count - Math.max(0, this.units(ctx, input.match) - this.covered(ctx)));
   }
 
   /** Record `n` buildings of the current type as placed: those the stock cannot supply wait (D-U6). */
   placed(ctx: PanelContext, n: number): void {
     const row = this.current(ctx);
     if (row === undefined || n <= 0) return;
-    const per = this.perBuilding(ctx, row);
-    if (per === 0) return;
-    const short = this.shortFor(ctx, row, n);
-    this.tally = { tick: ctx.readers.calendar.tick, covered: this.covered(ctx) + n * per - short };
+    const input = this.offerInput(ctx, row);
+    if (input === undefined) return;
+    if (input.match !== this.shortMatch) {
+      // The first placement of the type: the tallies count units of its scarcest input from now on.
+      this.shortMatch = input.match;
+      this.short = null;
+      this.tally = null;
+    }
+    const short = this.shortFor(ctx, input, n);
+    this.tally = { tick: ctx.readers.calendar.tick, covered: this.covered(ctx) + n * input.count - short };
     if (short > 0) this.short = (this.short ?? 0) + short;
   }
 
@@ -480,10 +538,10 @@ export class BuildTool {
     const row = this.current(ctx);
     const reader = buildings(ctx);
     if (row === undefined || reader === null) return null;
-    const per = this.perBuilding(ctx, row);
-    const first = this.inputsFor(ctx, row)[0];
-    if (per === 0 || first === undefined) return null;
-    const units = (this.short ?? 0) + this.shortFor(ctx, row, extra);
+    const first = this.offerInput(ctx, row);
+    if (first === undefined) return null;
+    const per = first.count;
+    const units = (first.match === this.shortMatch ? this.short ?? 0 : 0) + this.shortFor(ctx, first, extra);
     if (units <= 0) return null;
     // The item an order makes: the first alternative of the input that some recipe produces.
     const items = ctx.registry.table<{ id: string }>('items');
@@ -505,8 +563,11 @@ export class BuildTool {
         }
       }
     }
-    const workshops = itemId === null ? '' : whereMade(ctx.registry, [itemId]) || ctx.strings.get('ui.build.stock.a_workshop');
-    return { match: first.match, have: this.available(ctx, row), waiting: Math.ceil(units / per), itemId, recipeId, workshops };
+    // Where the item can come from: the workshops that make it and do not take it themselves; for
+    // stone or blocks with none of those at hand, where the rock is (no recipe makes raw stone).
+    const source = sourceOf(ctx, itemId !== null ? [itemId] : first.match.split('|'));
+    const workshops = source.where || (source.count > 0 ? ctx.strings.get('ui.build.stock.a_workshop') : '');
+    return { match: first.match, have: this.units(ctx, first.match), waiting: Math.ceil(units / per), itemId, recipeId, workshops, advice: source.advice };
   }
 
   /** The offer was taken (`[o] order N`): nothing placed so far waits for an order any more. */
@@ -518,8 +579,9 @@ export class BuildTool {
   offerText(ctx: PanelContext, offer: StockOffer, key: string): { stock: string; action: string } {
     const s = ctx.strings;
     const stock = s.get('ui.build.stock.short', { have: offer.have, items: alternativesName(ctx.registry, offer.match, offer.have), n: offer.waiting });
-    if (offer.itemId === null) return { stock, action: '' };
     if (offer.recipeId !== null) return { stock, action: s.get('ui.build.stock.order', { key, n: offer.waiting }) };
+    if (offer.advice !== undefined && offer.advice !== '') return { stock, action: offer.advice };
+    if (offer.itemId === null || offer.workshops === '') return { stock, action: '' };
     // An input with alternatives says which of them the workshop would make: "build a farmer's workshop to make fiber".
     if (offer.match.includes('|')) return { stock, action: s.get('ui.build.stock.needs_workshop_item', { workshop: offer.workshops, item: itemName(ctx.registry, offer.itemId) }) };
     return { stock, action: s.get('ui.build.stock.needs_workshop', { workshop: offer.workshops }) };
@@ -570,7 +632,8 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
     { col: rect.col + 1, row, cols: rect.cols - 2, rows: height },
     rows.map((r): GroupRow => ({ text: () => {
       const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
-      const count = r.inputs.length === 0 ? '' : ` (${tool.available(ctx, r)})`;
+      const figure = tool.countText(ctx, r);
+      const count = figure === '' ? '' : ` (${figure})`;
       return buildRowLines(name, inputText(r, ctx.registry), count, rect.cols - 3);
     } })),
     tool.list,
