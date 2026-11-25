@@ -1,5 +1,5 @@
 /** The permanent record of a finished fortress (24 § The legend record). */
-import { formatDate } from '@core/calendar';
+import { dayIndexOf, formatDate } from '@core/calendar';
 import { TICKS_PER_DAY, TICKS_PER_YEAR } from '@core/constants';
 import type { Registry } from '@core/registry';
 import type { StorageAdapter } from '@platform/storage';
@@ -76,11 +76,100 @@ export function composeLegend(
     })),
     killsOfNote: journal.kills().filter((entry) => entry.count > 0)
       .slice(0, LEGEND_NOTABLE_KILLS).map((entry) => `${entry.name} slew ${entry.count} ${entry.count === 1 ? 'enemy' : 'enemies'}.`),
-    lastWords: log.filter((line) => line.severity === 'alert' || line.severity === 'danger')
-      .slice(-LEGEND_LOG_LINES).map(lineText),
+    lastWords: lastWords(log, new Strings(registry)),
     cause: endText(tick, population, reason, new Strings(registry)),
     ...(fortress.testing === true ? { testing: true } : {}),
   };
+}
+
+/** A placeholder as `fill` reads it: `{name}` or `{n|day|days}`. */
+const PLACEHOLDER = /\{(\w+)(?:\|[^|}]+\|[^|}]+)?\}/g;
+/** The placeholders that name the one creature a line is about: its lines fold per creature. */
+const SUBJECT_FIELDS: ReadonlySet<string> = new Set(['dwarf', 'name', 'animal']);
+/** The lines of a death (`CreatureDied`): never folded. */
+const DEATH_KEY = /^announce\.(died\.|dwarf_died$|creature_died$|pet_died$)/;
+
+interface LineKind { readonly key: string; readonly re: RegExp; readonly fields: readonly string[]; readonly literal: number }
+
+/**
+ * The announcement templates a line's text can be read back from, the most literal first: a whole
+ * sentence with at least four letters of its own, so a fragment ("{n} raiders") or a bare
+ * placeholder never claims a line.
+ */
+function lineKinds(strings: Strings): LineKind[] {
+  const kinds: LineKind[] = [];
+  for (const [key, template] of strings.templates('announce.')) {
+    const literal = template.replace(PLACEHOLDER, '').replace(/\s/g, '').length;
+    if (literal < 4 || !/[.!?"]$/.test(template)) continue;
+    const fields: string[] = [];
+    let source = '';
+    let at = 0;
+    for (const match of template.matchAll(PLACEHOLDER)) {
+      source += `${escapeRegExp(template.slice(at, match.index))}(.+?)`;
+      fields.push(match[1] as string);
+      at = match.index + match[0].length;
+    }
+    source += escapeRegExp(template.slice(at));
+    kinds.push({ key, re: new RegExp(`^${source}$`, 's'), fields, literal });
+  }
+  return kinds.sort((a, b) => b.literal - a.literal || a.key.localeCompare(b.key));
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+/**
+ * What a line folds by (T-720): its string key and, for a line about one creature, that creature;
+ * a line no template reads back folds only with its own text. Null for a death, never folded.
+ */
+function foldKey(text: string, kinds: readonly LineKind[], deaths: readonly LineKind[]): string | null {
+  if (deaths.some((kind) => kind.re.test(text))) return null;
+  for (const kind of kinds) {
+    const match = kind.re.exec(text);
+    if (match === null) continue;
+    const who = kind.fields.map((field, i) => SUBJECT_FIELDS.has(field) ? match[i + 1] : '').join('|');
+    return `${kind.key}|${who}`;
+  }
+  return `text|${text}`;
+}
+
+/**
+ * 24 § The legend record: the last words, from the alert and danger lines of the log (T-720). Lines
+ * of one kind (one string key, and one creature for a line about one) fold into the newest, marked
+ * with how many days they came ("! The restless dead rise. (14 days)"); a death is never folded.
+ * Up to `LEGEND_LOG_LINES` lines, newest first; when there are more, deaths and danger lines are
+ * kept before the other alerts.
+ */
+export function lastWords(log: readonly LogLine[], strings: Strings = new Strings()): string[] {
+  const all = lineKinds(strings);
+  const deaths = all.filter((kind) => DEATH_KEY.test(kind.key));
+  const kinds = all.filter((kind) => !DEATH_KEY.test(kind.key));
+  const groups = new Map<string, { lines: LogLine[]; order: number }>();
+  const entries: { lines: LogLine[]; order: number }[] = [];
+  log.forEach((line, order) => {
+    if (line.severity !== 'alert' && line.severity !== 'danger') return;
+    const key = foldKey(line.text, kinds, deaths);
+    const open = key === null ? undefined : groups.get(key);
+    if (open !== undefined) { open.lines.push(line); open.order = order; return; }
+    const entry = { lines: [line], order };
+    if (key !== null) groups.set(key, entry);
+    entries.push(entry);
+  });
+  const newest = entries.sort((a, b) => b.order - a.order);
+  const kept = new Set(newest.filter((entry) => isKeptFirst(entry.lines[0] as LogLine, deaths)).slice(0, LEGEND_LOG_LINES));
+  for (const entry of newest) if (kept.size < LEGEND_LOG_LINES) kept.add(entry);
+  return newest.filter((entry) => kept.has(entry)).map((entry) => {
+    const last = entry.lines[entry.lines.length - 1] as LogLine;
+    const days = new Set(entry.lines.map((line) => dayIndexOf(line.tick))).size;
+    if (days > 1) return strings.get('ui.legend.folded', { line: lineText({ ...last, count: 1 }), n: days });
+    return lineText({ ...last, count: entry.lines.reduce((sum, line) => sum + line.count, 0) });
+  });
+}
+
+/** A death or a danger line: kept before the other alerts when the last words are full. */
+function isKeptFirst(line: LogLine, deaths: readonly LineKind[]): boolean {
+  return line.severity === 'danger' || deaths.some((kind) => kind.re.test(line.text));
 }
 
 function biomeName(registry: Registry, id: string | undefined): string {

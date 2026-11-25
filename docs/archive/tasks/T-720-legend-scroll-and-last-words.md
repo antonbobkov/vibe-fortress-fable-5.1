@@ -1,6 +1,8 @@
 # T-720 — The legend scrolls past its end, and its last words are thirty starving lines
 
-**Source:** playtest 2026-11-24 (second) ([report](../../reports/data/2026-11-24-playtest-2.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in a1f43ef9,abec5ba6,a43b5621.
+
+**Source:** playtest 2026-11-24 (second) ([report](../../../reports/data/2026-11-24-playtest-2.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -20,5 +22,5 @@ Spec: 24 § Legends ("the last 50 alert or danger announcements"), `ui-screens/m
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): the legend screen's offset stops at its last page and `End` reaches it; a record whose log has 30 daily starving lines and 3 deaths shows one starving line with its day count and all 3 deaths.
-- [ ] UI and the legend record only: world hashes unchanged.
+- [x] Tests (`describe` with the task id): the legend screen's offset stops at its last page and `End` reaches it; a record whose log has 30 daily starving lines and 3 deaths shows one starving line with its day count and all 3 deaths.
+- [x] UI and the legend record only: world hashes unchanged (no system, event or save field changes; no sweep).

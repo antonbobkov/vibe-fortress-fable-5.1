@@ -59,6 +59,11 @@ export function legendLines(record: LegendRecord, strings: Strings = DEFAULT_STR
   ];
 }
 
+/** The record's rows on a surface of `rows`: below the title, above the scroll line and the buttons. */
+function legendRows(rows: number): number {
+  return Math.max(0, rows - 5);
+}
+
 export interface LegendHost {
   back(): void;
   /** A fortress's end: `Enter` goes to the world map of its world for a new embark (T-672). */
@@ -99,7 +104,8 @@ export class LegendScreen implements Screen {
       const record = this.records[this.selected];
       if (record !== undefined) {
         const lines = legendLines(record, strings);
-        const visible = Math.max(0, surface.rows - 5);
+        const visible = legendRows(surface.rows);
+        this.scroll = Math.min(this.scroll, Math.max(0, lines.length - visible));
         for (let i = 0; i < visible && i + this.scroll < lines.length; i += 1) {
           const line = lines[i + this.scroll] as string;
           surface.text(2, 3 + i, Array.from(line).slice(0, Math.max(0, surface.cols - 4)).join(''), text);
@@ -131,15 +137,33 @@ export class LegendScreen implements Screen {
       return true;
     }
     if (press.key === 'ArrowDown' || press.key === '↓') {
-      if (this.detail) this.scroll += 1;
+      if (this.detail) this.scrollBy(1);
       else this.selected = Math.min(this.records.length - 1, this.selected + 1);
       return true;
     }
+    // T-720: a page at a time, and to either end, as the help and log panels do.
+    if (this.detail && (press.key === 'PageUp' || press.key === 'PageDown')) {
+      const page = Math.max(1, legendRows(this.last?.rows ?? 0) - 1);
+      this.scrollBy(press.key === 'PageUp' ? -page : page);
+      return true;
+    }
+    if (this.detail && (press.key === 'Home' || press.key === 'End')) { this.scrollBy(press.key === 'Home' ? -Infinity : Infinity); return true; }
     if (press.key === 'Enter' && !this.detail && this.records.length > 0) { this.detail = true; return true; }
     if (press.key === 'Enter' && this.detail && this.host.embarkAgain !== undefined) { this.host.embarkAgain(); return true; }
     return false;
   }
 
   pointerDown(p: CellPointer): void { clickHit(this.last, p); }
-  wheel(w: CellWheel): void { if (this.detail) this.scroll = Math.max(0, this.scroll + Math.sign(w.dy)); }
+  wheel(w: CellWheel): void { if (this.detail) this.scrollBy(Math.sign(w.dy)); }
+
+  /** The record's last scroll offset: its last page starts there, so `↓` stops at the last line (T-720). */
+  maxScroll(): number {
+    const record = this.records[this.selected];
+    if (record === undefined || this.last === null) return 0;
+    return Math.max(0, legendLines(record, this.host.strings ?? DEFAULT_STRINGS).length - legendRows(this.last.rows));
+  }
+
+  private scrollBy(delta: number): void {
+    this.scroll = Math.max(0, Math.min(this.maxScroll(), this.scroll + delta));
+  }
 }
