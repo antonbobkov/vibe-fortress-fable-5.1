@@ -24,3 +24,6 @@ Bandages are taken, first, and nothing else about them changes (17 § Patients a
 ## Done
 
 - [x] Tests: a medic bandages a bleeding dwarf with a bandage when there is no cloth (`test/unit/health/t696-bandages.test.ts`; also: a bandage before cloth, cloth when there is no bandage, a waiting job takes a bandage that comes to be had, a serious burn dressed with bandages, T-693's reserve with a bandage counted with the cloth and with the `bandages` setting, an animal bandaged with a bandage, the hospital wants none by default and stocks them when asked). The hospital panel test (`t332`) shows the `Bandages` row.
+- [x] Sweep (measure run 45497350527, on 5fa17dc8): pooled living 1123.75, deaths 118.25, alive 20, grown 7, extinct 0, need deaths 0; verdict pass, no seed worth tracing (master 1130.25 / 109.75; bounds living ≥ 1046.63, deaths ≤ 132.5). CI run 45497356242 green, e2e 46 passed.
+- [x] Follow-up: `T-NEW-hospital-honey-and-raised-supplies.md` (a hospital never stocks honey; raising a supply from 0 does not call goods lying loose).
+- No fun-features row: nothing characterful, a bandage only does what a cloth did.
