@@ -1,0 +1,391 @@
+year length 112
+d7 pop 7 ents 165 items 179 ms/day 615
+d14 pop 7 ents 189 items 213 ms/day 555
+d21 pop 7 ents 280 items 306 ms/day 835
+d28 pop 7 ents 322 items 353 ms/day 782
+d35 pop 11 ents 348 items 409 ms/day 1067
+d42 pop 11 ents 386 items 472 ms/day 863
+d49 pop 11 ents 396 items 778 ms/day 2286
+d56 pop 11 ents 428 items 507 ms/day 2505
+d63 pop 15 ents 442 items 532 ms/day 2616
+d70 pop 13 ents 496 items 829 ms/day 2395
+d77 pop 13 ents 534 items 874 ms/day 2968
+d84 pop 13 ents 547 items 891 ms/day 2392
+d91 pop 13 ents 506 items 853 ms/day 2716
+d98 pop 13 ents 521 items 873 ms/day 3273
+d105 pop 13 ents 521 items 892 ms/day 1763
+d112 pop 13 ents 509 items 896 ms/day 1874
+d119 pop 22 ents 540 items 1023 ms/day 1954
+d126 pop 22 ents 545 items 899 ms/day 4643
+d133 pop 22 ents 531 items 885 ms/day 3865
+d140 pop 22 ents 586 items 940 ms/day 4471
+d147 pop 34 ents 666 items 1114 ms/day 5271
+d154 pop 34 ents 709 items 1578 ms/day 6277
+d161 pop 32 ents 737 items 1194 ms/day 6105
+d168 pop 32 ents 711 items 1206 ms/day 3016
+d175 pop 41 ents 711 items 1542 ms/day 3208
+d182 pop 41 ents 720 items 1284 ms/day 3066
+d189 pop 41 ents 761 items 1367 ms/day 3331
+d196 pop 41 ents 853 items 1496 ms/day 3096
+d203 pop 41 ents 839 items 1509 ms/day 5117
+d210 pop 41 ents 877 items 1535 ms/day 3814
+d217 pop 41 ents 870 items 1463 ms/day 3618
+d224 pop 40 ents 908 items 1431 ms/day 3172
+d231 pop 40 ents 803 items 1326 ms/day 2777
+d238 pop 40 ents 766 items 1258 ms/day 3007
+d245 pop 40 ents 698 items 1295 ms/day 2880
+d252 pop 40 ents 707 items 1366 ms/day 4142
+d259 pop 52 ents 841 items 1510 ms/day 5378
+d266 pop 52 ents 938 items 1548 ms/day 6698
+d273 pop 52 ents 1037 items 1641 ms/day 5513
+d280 pop 52 ents 1013 items 1662 ms/day 5532
+d287 pop 48 ents 1131 items 1754 ms/day 4240
+d294 pop 48 ents 1195 items 1875 ms/day 3054
+d301 pop 48 ents 1249 items 1893 ms/day 3442
+d308 pop 48 ents 1205 items 1903 ms/day 3383
+d315 pop 54 ents 1196 items 1963 ms/day 4447
+d322 pop 54 ents 1166 items 1883 ms/day 4617
+d329 pop 54 ents 1050 items 1786 ms/day 4795
+d336 pop 54 ents 1033 items 1796 ms/day 4177
+
+d1 TitleAssigned {"dwarfId":16777283,"title":"broker","previousId":0}
+d7 FireStarted {"tile":73897}
+d8 FireOut {"tiles":[73897]}
+d17 CavernBreached {"cavern":1,"tile":51535}
+d29 ImmigrantsArrived {"ids":[50331920,16777713,16777717,16777721],"count":4,"children":0,"guaranteed":true}
+d29 FireStarted {"tile":74249}
+d29 FireOut {"tiles":[74249]}
+d37 RaidArrived {"partyId":117440926,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d37 ThiefSpotted {"id":16777792}
+d37 RaidEnded {"partyId":117440926,"outcome":"withdrew"}
+d41 FireStarted {"tile":74255}
+d41 FireOut {"tiles":[74255]}
+d45 CaravanArrived {"civ":"hillfolk","merchants":[419430532,117440613,83886633],"guards":[83886635,16777874,16777879,16777884],"animals":[16777889,16777890,16777891,16777892,16777893],"partyId":285213255}
+d45 CaravanAtDepot {"civ":"hillfolk","partyId":285213255,"depotId":16777458}
+d47 FireStarted {"tile":74595}
+d47 FireOut {"tiles":[74595]}
+d47 FireStarted {"tile":74201}
+d47 FireOut {"tiles":[74201]}
+d47 FireStarted {"tile":74582}
+d47 FireOut {"tiles":[74582]}
+d50 CaravanDeparted {"civ":"hillfolk","boughtValue":43.2,"soldValue":50,"reason":"completed"}
+d52 FireStarted {"tile":75700}
+d52 FireOut {"tiles":[75700]}
+d52 FireStarted {"tile":75606}
+d52 FireOut {"tiles":[75606]}
+d57 ImmigrantsArrived {"ids":[50331741,83886748,83887046,50331852],"count":4,"children":0,"guaranteed":true}
+d61 RaidArrived {"partyId":83886988,"kind":"bandits","size":3,"tile":71424,"edge":"n"}
+d61 CreatureDied {"id":16777277,"cause":"bled_out","killerId":285213092,"killerName":"hillfolk_bandit","killerSpecies":28,"tile":73944,"species":14,"name":"dog","faction":"fortress","petOf":0,"ageTicks":0,"wornItems":[]}
+d61 CreatureDied {"id":16778177,"cause":"killed","killerId":285213092,"killerName":"hillfolk_bandit","killerSpecies":28,"tile":73944,"species":14,"name":"dog","faction":"fortress","petOf":0,"ageTicks":0,"wornItems":[]}
+d61 ThiefEscaped {"id":251658688,"partyId":83886988,"itemId":16777247,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d61 ThiefEscaped {"id":50332553,"partyId":83886988,"itemId":16777245,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d61 RaidEnded {"partyId":83886988,"outcome":"looted"}
+d64 CaravanArrived {"civ":"wildwood","merchants":[184549794,218104480,117440688],"guards":[83887047,150995388,50332185,83886984],"animals":[318767524,83886987,218104217,83886986,50332548],"partyId":184549682}
+d64 CaravanAtDepot {"civ":"wildwood","partyId":184549682,"depotId":16777458}
+d67 FireStarted {"tile":75304}
+d67 FireOut {"tiles":[75304]}
+d68 AmbushSprung {"partyId":150995386}
+d68 CaravanAttacked {"civ":"wildwood","partyId":184549682}
+d68 CreatureDied {"id":50331920,"cause":"bled_out","killerId":16778216,"killerName":"gloam_warrior","killerSpecies":25,"tile":73984,"species":15,"name":"Signe Stormgate","faction":"fortress","petOf":0,"ageTicks":8467200,"wornItems":[8388
+d68 CreatureDied {"id":50332548,"cause":"bled_out","killerId":16778202,"killerName":"gloam_archer","killerSpecies":22,"tile":71424,"species":48,"name":"wildwood_bearer","faction":"trader:wildwood","petOf":0,"ageTicks":0,"wornItems":[]}
+d68 CreatureDied {"id":318767524,"cause":"bled_out","killerId":83886984,"killerName":"elf","killerSpecies":16,"tile":71424,"species":48,"name":"wildwood_bearer","faction":"trader:wildwood","petOf":0,"ageTicks":0,"wornItems":[]}
+d68 CreatureDied {"id":16777278,"cause":"killed","killerId":16778216,"killerName":"gloam_warrior","killerSpecies":25,"tile":73992,"species":14,"name":"dog","faction":"fortress","petOf":0,"ageTicks":0,"wornItems":[]}
+d68 CreatureDied {"id":83886662,"cause":"bled_out","killerId":50332185,"killerName":"elf","killerSpecies":16,"tile":73940,"species":22,"name":"gloam_archer","faction":"hostile:gloam","petOf":0,"ageTicks":0,"wornItems":[184549814,21810409
+d68 CreatureDied {"id":150995210,"cause":"killed","killerId":16778216,"killerName":"gloam_warrior","killerSpecies":25,"tile":73992,"species":14,"name":"dog","faction":"fortress","petOf":0,"ageTicks":0,"wornItems":[]}
+d68 CreatureDied {"id":117440688,"cause":"bled_out","killerId":83887047,"killerName":"elf","killerSpecies":16,"tile":71424,"species":16,"name":"elf","faction":"trader:wildwood","petOf":0,"ageTicks":0,"wornItems":[]}
+d68 CaravanLost {"civ":"wildwood","partyId":184549682}
+d68 CreatureDied {"id":16778202,"cause":"bled_out","killerId":150995388,"killerName":"elf","killerSpecies":16,"tile":74138,"species":22,"name":"gloam_archer","faction":"hostile:gloam","petOf":0,"ageTicks":0,"wornItems":[16778203,16778206
+d68 CreatureDied {"id":83886986,"cause":"bled_out","killerId":83886662,"killerName":"","tile":71424,"species":48,"name":"wildwood_bearer","faction":"trader:wildwood","petOf":0,"ageTicks":0,"wornItems":[]}
+d68 RaidEnded {"partyId":150995386,"outcome":"repelled"}
+d68 CreatureDied {"id":50331741,"cause":"bled_out","killerId":16778202,"killerName":"","tile":73823,"species":15,"name":"Hallveig Boareye","faction":"fortress","petOf":0,"ageTicks":8064000,"wornItems":[184549602,150995517,83886753]}
+d68 CaravanDeparted {"civ":"wildwood","boughtValue":18,"soldValue":21.799999999999997,"reason":"lost"}
+d85 ImmigrationSkipped {"reason":"luck"}
+d87 RaidArrived {"partyId":83886575,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d87 ThiefEscaped {"id":184549953,"partyId":83886575,"itemId":50332278,"ownerId":0,"itemType":"amulet","material":"slate","count":3}
+d87 RaidEnded {"partyId":83886575,"outcome":"looted"}
+d113 ImmigrantsArrived {"ids":[251659147,184549491,16778355,251659237,16778363,16778367,16778372,16778376,16778380],"count":9,"children":1,"guaranteed":false}
+d119 CaravanArrived {"civ":"mountainhome","merchants":[117441044,50332883],"guards":[184549994,16778459,16778464,16778469],"animals":[16778474,16778475,16778476,16778477,16778478,16778479,16778480],"partyId":150995069}
+d119 CaravanAtDepot {"civ":"mountainhome","partyId":150995069,"depotId":16777458}
+d124 CaravanDeparted {"civ":"mountainhome","boughtValue":147.6,"soldValue":170.29999999999998,"reason":"completed"}
+d127 RaidArrived {"partyId":318768184,"kind":"raid","size":11,"tile":71426,"edge":"n"}
+d127 CreatureDied {"id":16778178,"cause":"killed","killerId":50332964,"killerName":"gloam_warrior","killerSpecies":25,"tile":73759,"species":14,"name":"dog","faction":"fortress","petOf":0,"ageTicks":0,"wornItems":[]}
+d129 ThiefEscaped {"id":50332982,"partyId":318768184,"itemId":16777239,"ownerId":0,"itemType":"barrel","material":"pine","count":1}
+d129 ThiefEscaped {"id":50332900,"partyId":318768184,"itemId":16777253,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d129 ThiefEscaped {"id":150996317,"partyId":318768184,"itemId":16778206,"ownerId":0,"itemType":"cap","material":"leather","count":1}
+d129 ThiefEscaped {"id":50332890,"partyId":318768184,"itemId":16777269,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d129 ThiefEscaped {"id":50332895,"partyId":318768184,"itemId":16777262,"ownerId":0,"itemType":"mechanism","material":"granite","count":1}
+d129 ThiefEscaped {"id":218103907,"partyId":318768184,"itemId":16778205,"ownerId":0,"itemType":"dagger","material":"bronze","count":1}
+d129 ThiefEscaped {"id":83886867,"partyId":318768184,"itemId":16778204,"ownerId":0,"itemType":"arrow","material":"bronze","count":16}
+d129 ThiefEscaped {"id":50332959,"partyId":318768184,"itemId":16777237,"ownerId":0,"itemType":"barrel","material":"pine","count":1}
+d129 ThiefEscaped {"id":50332964,"partyId":318768184,"itemId":16778203,"ownerId":0,"itemType":"bow","material":"oak","count":1}
+d129 ThiefEscaped {"id":50332969,"partyId":318768184,"itemId":16777249,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d129 ThiefEscaped {"id":150995476,"partyId":318768184,"itemId":16777270,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d129 ThiefEscaped {"id":50332976,"partyId":318768184,"itemId":16777251,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d129 RaidEnded {"partyId":318768184,"outcome":"looted"}
+d131 FireStarted {"tile":73810}
+d131 FireOut {"tiles":[73810]}
+d134 RaidArrived {"partyId":184550481,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d134 ThiefSpotted {"id":318768423}
+d134 RaidEnded {"partyId":184550481,"outcome":"withdrew"}
+d135 FireStarted {"tile":74618}
+d135 FireOut {"tiles":[74618]}
+d135 FireStarted {"tile":75866}
+d135 FireOut {"tiles":[75866]}
+d135 FireStarted {"tile":75965}
+d135 FireOut {"tiles":[75965]}
+d135 FireStarted {"tile":74565}
+d135 FireOut {"tiles":[74565]}
+d141 ImmigrantsArrived {"ids":[218105035,150996332,50331701,50332638,520094269,83887418,83887329,83887414,822084691,218105110,251658349,50332946],"count":12,"children":1,"guaranteed":false}
+d141 FireStarted {"tile":75536}
+d141 FireOut {"tiles":[75536]}
+d141 FireStarted {"tile":75063}
+d141 FireOut {"tiles":[75063]}
+d142 TitleAssigned {"dwarfId":16778372,"title":"warden","previousId":0}
+d150 FireStarted {"tile":75976}
+d150 FireOut {"tiles":[75976]}
+d151 FireStarted {"tile":75416}
+d151 FireOut {"tiles":[75416]}
+d151 FireStarted {"tile":74292}
+d151 FireOut {"tiles":[74292]}
+d152 CaravanArrived {"civ":"hillfolk","merchants":[16778719,16778720],"guards":[16778721,16778726,16778731,16778736],"animals":[16778741,16778742,16778743,16778744,16778745,16778746,16778747,16778748],"partyId":184550836}
+d152 CaravanAtDepot {"civ":"hillfolk","partyId":184550836,"depotId":16777458}
+d156 AmbushSprung {"partyId":218105784}
+d156 CaravanAttacked {"civ":"hillfolk","partyId":184550836}
+d156 CreatureDied {"id":50333638,"cause":"bled_out","killerId":16778731,"killerName":"human","killerSpecies":33,"tile":73842,"species":22,"name":"gloam_archer","faction":"hostile:gloam","petOf":0,"ageTicks":0,"wornItems":[50333635]}
+d156 CaravanDeparted {"civ":"hillfolk","boughtValue":653.76,"soldValue":752,"reason":"completed"}
+d156 CreatureDied {"id":16777717,"cause":"bled_out","killerId":50333638,"killerName":"","tile":69584,"species":15,"name":"Bergthor Flinthammer","faction":"fortress","petOf":0,"ageTicks":8198400,"wornItems":[16777718,16777719,16777720]}
+d156 CreatureDied {"id":16777282,"cause":"bled_out","killerId":16779220,"killerName":"gloam_archer","killerSpecies":22,"tile":60612,"species":15,"name":"Dagny Grimeye","faction":"fortress","petOf":0,"ageTicks":2822400,"wornItems":[1174407
+d156 CreatureDied {"id":16777279,"cause":"killed","killerId":16779220,"killerName":"gloam_archer","killerSpecies":22,"tile":74573,"species":6,"name":"cat","faction":"fortress","petOf":16777284,"ageTicks":0,"wornItems":[]}
+d158 ThiefEscaped {"id":16779225,"partyId":218105784,"itemId":16777241,"ownerId":0,"itemType":"barrel","material":"pine","count":1}
+d158 ThiefEscaped {"id":16779220,"partyId":218105784,"itemId":16777268,"ownerId":0,"itemType":"bucket","material":"pine","count":1}
+d158 ThiefEscaped {"id":16779233,"partyId":218105784,"itemId":16777267,"ownerId":0,"itemType":"bucket","material":"pine","count":1}
+d158 ThiefEscaped {"id":16779241,"partyId":218105784,"itemId":83887080,"ownerId":0,"itemType":"skeleton","material":"skull_bone","count":1}
+d158 RaidEnded {"partyId":218105784,"outcome":"looted"}
+d169 ImmigrantsArrived {"ids":[251659316,184550655,419430890,117440729,50333608,50333604,50333598,553648577,50333589],"count":9,"children":2,"guaranteed":false}
+d173 CaravanArrived {"civ":"wildwood","merchants":[50333513,50333512],"guards":[50333511,50333506,50333501,50333496],"animals":[50333488,50333487,50333486,50333485,50333484,50333483,50333482],"partyId":83887581}
+d173 CaravanAtDepot {"civ":"wildwood","partyId":83887581,"depotId":16777458}
+d178 CaravanDeparted {"civ":"wildwood","boughtValue":371.99999999999994,"soldValue":435.59999999999997,"reason":"completed"}
+d185 RaidArrived {"partyId":486540376,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d185 ThiefSpotted {"id":150995854}
+d185 RaidEnded {"partyId":486540376,"outcome":"withdrew"}
+d195 FireStarted {"tile":74775}
+d195 FireOut {"tiles":[74775]}
+d195 FireStarted {"tile":74490}
+d195 FireOut {"tiles":[74490]}
+d197 ImmigrationSkipped {"reason":"luck"}
+d221 AmbushSprung {"partyId":218104526}
+d221 CreatureDied {"id":50332946,"cause":"bled_out","killerId":855639218,"killerName":"gloam_archer","killerSpecies":22,"tile":60598,"species":15,"name":"Ulfhild Flinthand","faction":"fortress","petOf":0,"ageTicks":4838400,"wornItems":[50
+d223 ThiefEscaped {"id":855639218,"partyId":218104526,"itemId":16778223,"ownerId":0,"itemType":"arrow","material":"bronze","count":14}
+d223 ThiefEscaped {"id":318769130,"partyId":218104526,"itemId":16778639,"ownerId":0,"itemType":"seed","material":"barley","count":44}
+d223 ThiefEscaped {"id":150995601,"partyId":218104526,"itemId":16778694,"ownerId":0,"itemType":"seed","material":"strawberry","count":43}
+d223 ThiefEscaped {"id":452985132,"partyId":218104526,"itemId":16778516,"ownerId":0,"itemType":"bar","material":"copper","count":2}
+d223 ThiefEscaped {"id":285214296,"partyId":218104526,"itemId":16778691,"ownerId":0,"itemType":"seed","material":"strawberry","count":35}
+d223 ThiefEscaped {"id":285214524,"partyId":218104526,"itemId":16778515,"ownerId":0,"itemType":"bar","material":"copper","count":5}
+d223 RaidEnded {"partyId":218104526,"outcome":"looted"}
+d225 ImmigrationSkipped {"reason":"luck"}
+d227 FireStarted {"tile":75080}
+d227 FireOut {"tiles":[75080]}
+d227 FireStarted {"tile":74766}
+d227 FireOut {"tiles":[74766]}
+d231 RaidArrived {"partyId":318768991,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d231 ThiefSpotted {"id":486540539}
+d231 RaidEnded {"partyId":318768991,"outcome":"withdrew"}
+d232 CaravanArrived {"civ":"mountainhome","merchants":[721420433,822083714],"guards":[285213901,452986738,352322008,352322741],"animals":[385877350,218105003,150996236,83887068,251660151,218105215,285214168,486539296,285213132,251659270],"p
+d232 CaravanAtDepot {"civ":"mountainhome","partyId":419431790,"depotId":16777458}
+d236 FireStarted {"tile":73942}
+d236 FireOut {"tiles":[73942]}
+d237 CaravanDeparted {"civ":"mountainhome","boughtValue":816.0000000000001,"soldValue":939.8999999999999,"reason":"completed"}
+d253 ImmigrantsArrived {"ids":[318767324,285214282,587204031,553649555,117442256,788530230,822084060,117442245,117442234,117442230,452986407,486539635],"count":12,"children":1,"guaranteed":false}
+d255 FireStarted {"tile":75963}
+d255 FireOut {"tiles":[75963]}
+d255 FireStarted {"tile":74884}
+d255 FireOut {"tiles":[74884]}
+d264 RaidArrived {"partyId":553649747,"kind":"raid","size":16,"tile":71426,"edge":"n"}
+d266 ThiefEscaped {"id":16779425,"partyId":553649747,"itemId":989855782,"ownerId":0,"itemType":"plant_food","material":"strawberry","count":5}
+d266 ThiefEscaped {"id":16779432,"partyId":553649747,"itemId":218104999,"ownerId":0,"itemType":"plant_food","material":"strawberry","count":5}
+d266 ThiefEscaped {"id":16779438,"partyId":553649747,"itemId":385876719,"ownerId":0,"itemType":"plant_food","material":"strawberry","count":5}
+d266 ThiefEscaped {"id":16779444,"partyId":553649747,"itemId":385877030,"ownerId":0,"itemType":"plant_food","material":"strawberry","count":5}
+d266 ThiefEscaped {"id":520093930,"partyId":553649747,"itemId":16778207,"ownerId":0,"itemType":"arrow","material":"bronze","count":27}
+d266 ThiefEscaped {"id":385877329,"partyId":553649747,"itemId":50331742,"ownerId":0,"itemType":"barrel","material":"birch","count":1}
+d266 ThiefEscaped {"id":16779384,"partyId":553649747,"itemId":16778670,"ownerId":0,"itemType":"stone_block","material":"slate","count":3}
+d266 ThiefEscaped {"id":16779404,"partyId":553649747,"itemId":16779133,"ownerId":0,"itemType":"bandage","material":"flax_cloth","count":6}
+d266 ThiefEscaped {"id":385876692,"partyId":553649747,"itemId":50332478,"ownerId":0,"itemType":"seed","material":"strawberry","count":47}
+d266 ThiefEscaped {"id":150996482,"partyId":553649747,"itemId":16779252,"ownerId":0,"itemType":"bandage","material":"flax_cloth","count":1}
+d266 ThiefEscaped {"id":16779418,"partyId":553649747,"itemId":83887601,"ownerId":0,"itemType":"arrow","material":"bronze","count":7}
+d266 ThiefEscaped {"id":117442394,"partyId":553649747,"itemId":16778227,"ownerId":0,"itemType":"arrow","material":"bronze","count":3}
+d266 ThiefEscaped {"id":16779370,"partyId":553649747,"itemId":16778229,"ownerId":0,"itemType":"arrow","material":"bronze","count":3}
+d266 ThiefEscaped {"id":16779379,"partyId":553649747,"itemId":50332480,"ownerId":0,"itemType":"seed","material":"strawberry","count":30}
+d266 ThiefEscaped {"id":16779391,"partyId":553649747,"itemId":16777244,"ownerId":0,"itemType":"barrel","material":"pine","count":1}
+d266 ThiefEscaped {"id":16779397,"partyId":553649747,"itemId":16778256,"ownerId":0,"itemType":"arrow","material":"bronze","count":3}
+d266 ThiefEscaped {"id":16779411,"partyId":553649747,"itemId":16778666,"ownerId":0,"itemType":"seed","material":"strawberry","count":47}
+d266 RaidEnded {"partyId":553649747,"outcome":"looted"}
+d267 CaravanArrived {"civ":"hillfolk","merchants":[754975924,83888261,385876975],"guards":[83888203,83888277,251659575,117442053],"animals":[50333827,50333826,50333825,50333824,50333811,50333815,50333814,50333813,50333812,50333803],"partyId
+d267 CaravanAtDepot {"civ":"hillfolk","partyId":83888280,"depotId":16777458}
+d271 FireStarted {"tile":74343}
+d272 FireOut {"tiles":[74343]}
+d272 CaravanDeparted {"civ":"hillfolk","boughtValue":295.2,"soldValue":339,"reason":"completed"}
+d281 RaidArrived {"partyId":419432396,"kind":"bandits","size":5,"tile":71426,"edge":"n"}
+d281 ImmigrationSkipped {"reason":"luck"}
+d281 CreatureDied {"id":83886431,"cause":"killed","killerId":352323063,"killerName":"hillfolk_bandit","killerSpecies":28,"tile":74096,"species":6,"name":"cat","faction":"fortress","petOf":16777283,"ageTicks":0,"wornItems":[]}
+d281 CreatureDied {"id":50331854,"cause":"killed","killerId":150997605,"killerName":"hillfolk_bandit","killerSpecies":28,"tile":74096,"species":6,"name":"cat","faction":"fortress","petOf":83887046,"ageTicks":0,"wornItems":[]}
+d281 CreatureDied {"id":50332018,"cause":"killed","killerId":150997605,"killerName":"hillfolk_bandit","killerSpecies":28,"tile":74096,"species":6,"name":"cat","faction":"fortress","petOf":83887046,"ageTicks":0,"wornItems":[]}
+d281 ThiefEscaped {"id":754975709,"partyId":419432396,"itemId":16778359,"ownerId":0,"itemType":"crossbow","material":"ash","count":1}
+d281 ThiefEscaped {"id":150997605,"partyId":419432396,"itemId":16778635,"ownerId":0,"itemType":"seed","material":"nettle","count":8}
+d281 ThiefEscaped {"id":50334331,"partyId":419432396,"itemId":50332498,"ownerId":0,"itemType":"seed","material":"strawberry","count":10}
+d281 ThiefEscaped {"id":419430421,"partyId":419432396,"itemId":285213467,"ownerId":0,"itemType":"bandage","material":"flax_cloth","count":1}
+d281 ThiefEscaped {"id":352323063,"partyId":419432396,"itemId":184549503,"ownerId":0,"itemType":"arrow","material":"bronze","count":26}
+d281 RaidEnded {"partyId":419432396,"outcome":"looted"}
+d282 AmbushSprung {"partyId":452986399}
+d282 CreatureDied {"id":184549812,"cause":"bled_out","killerId":117443168,"killerName":"gloam_archer","killerSpecies":22,"tile":74382,"species":6,"name":"cat","faction":"fortress","petOf":16777281,"ageTicks":0,"wornItems":[]}
+d282 CreatureDied {"id":16777285,"cause":"bled_out","killerId":117443168,"killerName":"gloam_archer","killerSpecies":22,"tile":60653,"species":15,"name":"Borin Wolfborn","faction":"fortress","petOf":0,"ageTicks":5644800,"wornItems":[16777
+d282 CreatureDied {"id":83886748,"cause":"bled_out","killerId":117443168,"killerName":"gloam_archer","killerSpecies":22,"tile":60612,"species":15,"name":"Ingrid Stormcrown","faction":"fortress","petOf":0,"ageTicks":8467200,"wornItems":[11
+d282 CreatureDied {"id":16777286,"cause":"bled_out","killerId":117443168,"killerName":"gloam_archer","killerSpecies":22,"tile":60598,"species":15,"name":"Ylva Hearthcloak","faction":"fortress","petOf":0,"ageTicks":4166400,"wornItems":[117
+d282 CreatureDied {"id":184549491,"cause":"bled_out","killerId":587203490,"killerName":"gloam_archer","killerSpecies":22,"tile":60642,"species":15,"name":"Dalla Runemantle","faction":"fortress","petOf":0,"ageTicks":3628800,"wornItems":[16
+d284 ThiefEscaped {"id":117443168,"partyId":452986399,"itemId":50331990,"ownerId":0,"itemType":"stone_block","material":"slate","count":2}
+d284 ThiefEscaped {"id":654311453,"partyId":452986399,"itemId":117442338,"ownerId":0,"itemType":"rotten","material":"pale_bell","count":2}
+d284 ThiefEscaped {"id":150997041,"partyId":452986399,"itemId":218105835,"ownerId":0,"itemType":"seed","material":"strawberry","count":3}
+d284 ThiefEscaped {"id":117442611,"partyId":452986399,"itemId":83887608,"ownerId":0,"itemType":"arrow","material":"bronze","count":1}
+d284 ThiefEscaped {"id":587203490,"partyId":452986399,"itemId":16779307,"ownerId":0,"itemType":"seed","material":"strawberry","count":4}
+d284 ThiefEscaped {"id":419432094,"partyId":452986399,"itemId":150995964,"ownerId":0,"itemType":"arrow","material":"bronze","count":2}
+d284 RaidEnded {"partyId":452986399,"outcome":"looted"}
+d291 RaidArrived {"partyId":385877483,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d291 ThiefSpotted {"id":486540477}
+d291 RaidEnded {"partyId":385877483,"outcome":"withdrew"}
+d295 CaravanArrived {"civ":"wildwood","merchants":[687866137,184550974],"guards":[352321824,50334232,50334227,50334222],"animals":[50334217,50334216,50334215,50334214,50334212,50334213,50334210,50334211],"partyId":587204002}
+d295 CaravanAtDepot {"civ":"wildwood","partyId":587204002,"depotId":16777458}
+d297 FireStarted {"tile":74933}
+d297 FireOut {"tiles":[74933]}
+d300 CaravanDeparted {"civ":"wildwood","boughtValue":176.39999999999998,"soldValue":205.1999999999999,"reason":"completed"}
+d305 FireStarted {"tile":74370}
+d305 FireOut {"tiles":[74370]}
+d309 ImmigrantsArrived {"ids":[352323417,989856253,184551526,385877869,587204225,587204525],"count":6,"children":0,"guaranteed":false}
+d332 RaidArrived {"partyId":1124073901,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d332 ThiefSpotted {"id":385876673}
+d332 RaidEnded {"partyId":1124073901,"outcome":"withdrew"}
+
+{
+ "ZoneChanged": 85,
+ "FluidsChanged": 13257,
+ "JobCreated": 14815,
+ "EntitiesMoved": 357180,
+ "StocksChanged": 27045,
+ "TemperatureTick": 40231,
+ "HourPassed": 8046,
+ "TitleAssigned": 2,
+ "JobCancelled": 1929,
+ "TilesChanged": 3594,
+ "StockpileFull": 447,
+ "ItemReleased": 6099,
+ "ToolEquipped": 11,
+ "BuildingPlaced": 119,
+ "JobBlocked": 2159,
+ "PlotNeedsSeeds": 67,
+ "JobStarted": 13813,
+ "JobCompleted": 13200,
+ "JobUnblocked": 2199,
+ "Slept": 11875,
+ "ItemReserved": 10657,
+ "JobClaimed": 15091,
+ "DayPassed": 335,
+ "WebSpun": 983,
+ "TilesDiscovered": 1023,
+ "CropPlanted": 2198,
+ "ItemDestroyed": 18627,
+ "DrankAlcohol": 6031,
+ "BuildingCompleted": 118,
+ "ItemCreated": 10459,
+ "Talked": 6681,
+ "TreeFelled": 165,
+ "MoodTierChanged": 30962,
+ "MealEaten": 3856,
+ "AnimalSpawned": 196,
+ "AnimalLeft": 175,
+ "DwarfIdle": 1331,
+ "WeatherChanged": 410,
+ "DwarfOutdoorsIn": 8566,
+ "GrassRegrown": 148,
+ "SkillLevelUp": 515,
+ "NeedCritical": 3534,
+ "ItemCrafted": 2284,
+ "WorkshopBlocked": 255,
+ "HallSpiritChanged": 648,
+ "WorkOrderSkipped": 16,
+ "RoomQualityChanged": 45,
+ "WealthChanged": 1207,
+ "WorkOrderCompleted": 49,
+ "LightningStrike": 34,
+ "FireStarted": 29,
+ "FireOut": 29,
+ "ItemMerged": 245,
+ "RoomAssigned": 43,
+ "Starving": 87,
+ "CavernBreached": 1,
+ "CropHarvested": 1995,
+ "BuildingStateChanged": 246,
+ "CreatureFled": 1587,
+ "GrassGrazed": 518,
+ "MonsterSpawned": 4,
+ "SeasonChanged": 11,
+ "SeasonEffectsChanged": 11,
+ "WhimSet": 11,
+ "ImmigrantsArrived": 7,
+ "ItemRotStage": 5008,
+ "Stung": 4,
+ "MineralMined": 102,
+ "VeinFound": 6,
+ "RaidArrived": 11,
+ "HostileSpawned": 65,
+ "ThiefSpotted": 6,
+ "ThreatNearby": 1757,
+ "RaidEnded": 15,
+ "ItemRotted": 1522,
+ "HearthLit": 1,
+ "ThoughtGained": 25,
+ "MiasmaSpread": 1625,
+ "Sat": 8765,
+ "HearthVisited": 5797,
+ "CaravanArrived": 8,
+ "ProductReady": 2,
+ "CaravanAtDepot": 8,
+ "AnimalTrained": 5,
+ "ReputationChanged": 28,
+ "TradeCompleted": 8,
+ "AnimalStarving": 14,
+ "AnimalBorn": 15,
+ "CaravanDeparted": 8,
+ "DepotGoodsReturned": 8,
+ "BuildingRemoved": 9,
+ "WhimJudged": 10,
+ "PetAdopted": 10,
+ "AlertChanged": 16,
+ "SquadOrderIssued": 66,
+ "AttackResolved": 228,
+ "DamageDealt": 95,
+ "WoundInflicted": 87,
+ "LimbLost": 15,
+ "CreatureUnconscious": 23,
+ "CreatureDied": 26,
+ "CorpseCreated": 26,
+ "KillRecorded": 23,
+ "HostileFled": 3,
+ "ThiefEscaped": 53,
+ "ShrubRegrown": 216,
+ "AmbushSprung": 4,
+ "PatientAdmitted": 9,
+ "CaravanAttacked": 2,
+ "CaravanLost": 1,
+ "Buried": 9,
+ "ImmigrationSkipped": 4,
+ "TileFrozen": 4335,
+ "SnowCoverChanged": 136,
+ "TileThawed": 4284,
+ "YearPassed": 2,
+ "ThreatWarning": 2,
+ "TrainingSession": 784,
+ "SaplingGrew": 8,
+ "TreatmentDone": 8,
+ "ToolDropped": 3,
+ "WorkshopIdle": 4,
+ "DwarfBecameAdult": 1,
+ "FossilFound": 1
+}
