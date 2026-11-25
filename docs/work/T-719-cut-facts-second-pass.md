@@ -31,8 +31,20 @@ Decisions:
 
 Spec: `ui-screens/panels.md` (Zones room line, Building, Log, Mood, Orders, Jobs), `ui-screens/fortress-screen.md` § Status bar.
 
+Decided while doing it:
+
+- **The priority row drops "set"**, `Priority 5 · 1 2 3 4 5 6 7 8 9` (30 cells), rather than `[1]-[9] set`: it keeps every digit a button, as the spec's "a click on a digit" promises, and the help line under the panel says what the digits do.
+- **Every filtered title puts its count first** (`Units · 3 of 80 · filter: xxx`, Jobs, Log, Civilizations), one string for all: when a title is still too long, what it cuts is the typed filter, which the `/filter` field under it shows whole.
+- **A log entry the panel cannot hold whole is not drawn**; the scrollbar shows there is more. Only an entry taller than the whole list is shown from its top, cut.
+- **Mood**: the name and tier on one row, the three thoughts under it, one to a row, each wrapped under itself; the "Top thoughts" column head is gone.
+- **Order rows wrap** in Orders (its list is now the wrapping list Add order and the Workshop recipes use), in Jobs' "Orders waiting" (three orders, each over as many rows as it needs) and in the Workshop panel's three order rows (an order that the rows left cannot hold is not shown; `[o]` lists them all). A count in brackets stays with its word (`plant (0)`).
+- **The Jobs table**: the columns are 4, 16 and the rest (13 cells, 12 beside the scrollbar), so `open 41 days` fits; the table widget now lays its rows out in the cells the list leaves beside its scrollbar (the cause of `open 2 day»`: a row built one cell too wide). A job too long for its column shows its kind (`Plant`, `Haul to depot`) and a reason too long its first word (`waiting`), each with the whole text as the cell's tooltip; the selected job's line under the list gives the reason in full as before. A dwarf's name may still end in `»`.
+- **The status bar**: a message too long for row 2 wraps onto row 3, the hover line's, while it shows; one longer than two rows still ends with `…` and its tooltip. The newest hint in the log strip takes as many of the strip's rows as the newer lines leave it, so of two hints the older is the one cut.
+- **The scan** (`test/unit/ui/t703-sidebar-fit.test.ts`) now also reads the three status rows, and lets a dwarf's name end in `»` (the rule); the Mood thoughts are no longer on its list of allowed marks.
+
 ## Done
 
-- [ ] T-703's test (or its successor) draws each state above at 36 columns and finds no fact after a "»".
-- [ ] A status-bar test: a 120-character message shows whole over two rows.
-- [ ] UI only: world hashes unchanged; render goldens of the affected panels updated with a `golden:` paragraph.
+- [x] T-703's test (or its successor) draws each state above at 36 columns and finds no fact after a "»": `T-719 the second pass` in `test/unit/ui/t703-sidebar-fit.test.ts` scans a dining hall not enclosed, a planned still, the log (All, Alerts with the missed trade at the foot, filtered), Mood with long thoughts, Orders and Jobs with a brewing order waiting for plants, a dwarf hauling to the depot at priority 3, and the status rows; one test per case besides (room, priority, log, Mood, orders, Jobs' kind and scrollbar column, the log strip's hint, activity).
+- [x] A status-bar test: a 120-character message shows whole over two rows.
+- [x] UI only: world hashes unchanged; no render golden moved (none draws these states).
+- [x] Spec: `panels.md` § Zones (room lines), § Jobs (columns, waiting orders), § Orders, § Workshop, § Building, § Mood, § Log and the filtered titles; `fortress-screen.md` § Sidebar closed (status row 2, the log strip), § Inspection panel (activity); 24 § Rules (status row text).
