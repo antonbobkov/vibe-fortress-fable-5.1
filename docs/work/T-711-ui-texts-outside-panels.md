@@ -14,11 +14,11 @@ T-709 moved the fortress panels' texts into `UI_STRINGS` and taught `strings:che
 
 ## What to do
 
-- After T-705 and T-707 merge, move `look.ts`'s literals to `ui.look.*` keys and remove its line from `LITERAL_FILES_SKIPPED`.
+- `look.ts`'s literals are done: T-710 moved them to `ui.look.*` keys, drew the tier with `moodTierName` and emptied `LITERAL_FILES_SKIPPED`.
 - Move the screens' and shared modules' texts to `UI_STRINGS` under `ui.<screen>.*` keys, keeping the words; the trade screen reads `ui.civ.name.*`.
 - Decide whether the keymap wording becomes `ui.keymap.*` keys or stays as the keymap table's canonical copy (then: allow-list `keymap.ts` with that reason).
 - Extend `LITERAL_DIRS` to `src/ui/screens` and `src/ui`, so the scan covers them.
-- `status.ts`, `announcements.ts` and `look.ts` draw the tier with `moodTierName`; `MOOD_TIER_NAMES` goes.
+- `status.ts` and `announcements.ts` draw the tier with `moodTierName`; `MOOD_TIER_NAMES` goes.
 
 ## Done
 
