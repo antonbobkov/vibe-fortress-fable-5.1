@@ -42,6 +42,8 @@ async function renderPanel(name: PanelName): Promise<PanelGolden> {
     devicePixelRatio: 1,
     width: name === 'fortress_wide' ? 1600 : 1280,
     height: name === 'fortress_wide' ? 900 : 800,
+    // The map cursor blinks on the wall clock; a test build draws it steady (23 § Animation).
+    reducedMotion: true,
   });
   await game.start({ embark: 'default' });
   game.fortress.tool.choose('d');

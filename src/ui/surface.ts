@@ -150,6 +150,11 @@ export class Surface {
    * `contexts` replaces those for one caption. `null` draws captions as they are written.
    */
   keyNames: ((text: string, contexts?: readonly KeyContext[]) => string) | null = null;
+  /**
+   * The cell the compositor drew the map cursor on this frame, or null. A box drawn over the map
+   * keeps its own colours everywhere else and leaves this cell to the cursor (23 § Compositor step 10).
+   */
+  mapCursor: { readonly col: number; readonly row: number } | null = null;
 
   constructor(
     readonly cells: CellBuffer,
@@ -222,6 +227,20 @@ export class Surface {
         else this.cells.set(col, row, cell.glyph, cell.bg, cell.fg);
       }
     }
+  }
+
+  /** Whether a cell is the map cursor's (see {@link mapCursor}). */
+  isMapCursor(col: number, row: number): boolean {
+    return this.mapCursor !== null && this.mapCursor.col === col && this.mapCursor.row === row;
+  }
+
+  /** {@link invert} a box on the map, made visible everywhere, leaving the map cursor's cell as it is. */
+  invertMap(rect: Rect): void {
+    const at = this.mapCursor;
+    const inside = at !== null && at.col >= rect.col && at.col < rect.col + rect.cols && at.row >= rect.row && at.row < rect.row + rect.rows;
+    const keep = inside ? this.cells.get(at.col, at.row) : null;
+    this.invert(rect, true);
+    if (keep !== null && at !== null) this.cells.setCell(at.col, at.row, keep);
   }
 
   /** Record a clickable region. */
