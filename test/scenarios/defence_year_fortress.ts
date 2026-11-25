@@ -392,7 +392,10 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
   const combat = w.readers.of<CombatReader>('16');
   const buildings = w.readers.of<BuildingsReader>('14');
   const squad = combat.squads().find((s) => s.id === fortress.squadId);
-  if (!squad || squad.members.length === 0) return;
+  if (!squad || squad.members.length === 0) {
+    keepTheSquadOffTheBenches(w, state, []);
+    return;
+  }
   // T-522: a soldier who has just died is still on the roll until 16 drops it; the leader is a living one.
   const living = squad.members.find((id) => w.game.world.entities.alive(id));
   if (!squad.members.includes(squad.leaderId) && living !== undefined) command(w, { type: 'SetSquadLeader', squadId: squad.id, leaderId: living });
@@ -404,6 +407,30 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
   const members = want === 'active' ? squad.members : refillTheSquad(w, state, keepNamedWorkersAtTheirShops(w, state, squad.members));
   if (squad.mode !== want) command(w, { type: 'SetSquadMode', squadId: squad.id, mode: want });
   if (want !== 'off') keepToolLaborsOffTheSquad(w, state, members);
+  keepTheSquadOffTheBenches(w, state, members);
+}
+
+/**
+ * T-733: a soldier at drill is nobody's specialist. The economy's choices of a specialist (the
+ * builder, the furnaces' workers, the bench specialists, the woodcutter) pass over the founders, the
+ * roles already held, the watch and the strong squad's `trained`, but not this squad, which trains
+ * full time and does no civilian work (16). On `defence-year` at cadence 20 the founding woodcutter
+ * died on day 153, and to the end the economy's woodcutter was an immigrant at drill: dedicated to
+ * felling, his woodcutting taken off him again (`keepToolLaborsOffTheSquad`), and nobody kept on the
+ * chops; a bench specialist chosen so is named to its workshop and taken out of the squad
+ * (`keepNamedWorkersAtTheirShops`), which keeps the squad short. As a player does not make a full-time
+ * soldier the woodcutter, the script keeps the squad's living members and those stood down as the
+ * strong squad's `trained` (the defence fortress has no strong squad, `strongSquad = false`, so
+ * nothing else reads it here). So the founding woodcutter at drill, who keeps no axe, counts as gone
+ * from felling (`keepWoodcutter`), the carpenter is never a member (`keepACarpenter`), a specialist the
+ * refill takes in (`refillTheSquad`) is not named back to a bench, and a member leaving the squad for
+ * its workshop is a candidate again.
+ */
+function keepTheSquadOffTheBenches(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
+  const fortress = state.fortress;
+  const ent = w.game.world.entities;
+  const trained = [...new Set([...members, ...(fortress.stoodDown ?? [])])].filter((id) => ent.alive(id));
+  (fortress.strong ??= { marksSquadId: 0, trained: [], day: -1 }).trained = trained;
 }
 
 /**
@@ -416,26 +443,18 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
  * mason, then named to the craftdwarf's workshop for the stone crafts, left its jobs open for weeks
  * at a time in turn. As a player does, the script takes every workshop's named worker out of the
  * squad while the alert is down (never in a fight), and, if that leaves the squad under SQUAD_SIZE,
- * puts in the newest adults outside it whom no workshop names, those no role holds first, so that
- * the fixture's own refill never puts one back. Returns the squad's members after it.
+ * fills it as `refillTheSquad` does, never with one it has just taken out, so that the fixture's own
+ * refill never puts one back. Returns the squad's members after it.
  */
 export function keepNamedWorkersAtTheirShops(w: TestWorld, state: DefenceYearState, members: readonly number[]): readonly number[] {
   const ent = w.game.world.entities;
   const named = new Set(ent.with(C.Workshop).map((id) => ent.get(id, C.Workshop)?.assignedWorker ?? 0).filter((id) => id !== 0));
   const out = members.filter((id) => named.has(id));
   if (out.length === 0) return members;
-  const fortress = state.fortress;
   const kept = members.filter((id) => !named.has(id));
-  // T-580: nor the gate's watchman, who stands in a squad of his own.
-  const onWatch = new Set((fortress.watch ?? []).map((post) => post.dwarfId));
-  const adults = w.readers.of<DwarvesReader>('10').adults()
-    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !named.has(id) && !members.includes(id) && !onWatch.has(id));
-  const free = new Set(specialistCandidates(w, fortress));
-  const recruits = adults.sort((a, b) => Number(free.has(b)) - Number(free.has(a)) || b - a).slice(0, Math.max(0, SQUAD_SIZE - kept.length));
-  const next = [...kept, ...recruits];
-  command(w, { type: 'SetSquadMembers', squadId: fortress.squadId, members: next });
-  note(state, w, `${out.join(', ')} leave the squad for their workshops${recruits.length ? `; ${recruits.join(', ')} join it` : ''}`);
-  return next;
+  command(w, { type: 'SetSquadMembers', squadId: state.fortress.squadId, members: kept });
+  note(state, w, `${out.join(', ')} leave the squad for their workshops`);
+  return refillTheSquad(w, state, kept, out);
 }
 
 /**
@@ -449,7 +468,7 @@ const DRAFTED_ROLES: readonly string[] = ['jeweler', 'craftdwarf', 'woodcutter',
 /**
  * T-724: the fallen are replaced from the specialists when nobody else is free. The fortress
  * script's refill (`three_years_fortress.ts`, T-387) takes no specialist, brewer, farmer or cook, and
- * `keepNamedWorkersAtTheirShops` fills the squad only when it takes a named worker out, so on
+ * the defence script filled the squad only when it took a named worker out, so on
  * `defence-year` at cadence 20 a Gloam ambush on day 153 killed two of the three soldiers and four
  * civilians, and the squad trained with one from day 158 to the end: of the nine adults left, six
  * held a role or a workshop, one the still and one the watch. As a player does, while the alert is
@@ -457,12 +476,14 @@ const DRAFTED_ROLES: readonly string[] = ['jeweler', 'craftdwarf', 'woodcutter',
  * adults outside it whom no role holds and no workshop names, the newest first; then from the
  * specialists of DRAFTED_ROLES, in its order (the newest first within a role). The brewer, the
  * broker, the founding farmer and cook and the watchman are kept, as the fortress script keeps
- * them. A specialist taken in leaves its role and its workshop, and is counted among the soldiers
- * whom training keeps from any craft (the strong squad's `trained`, which the economy's choices of a
- * specialist pass over), so that the economy, choosing again, does not name it back to a bench and
- * so out of the squad. Returns the squad's members after it.
+ * them, and so are those in `leaving`, whom `keepNamedWorkersAtTheirShops` has just taken out for
+ * their workshops. A specialist taken in leaves its role and its workshop, and as a soldier is one
+ * the economy's choices of a specialist pass over (`keepTheSquadOffTheBenches`, T-733), so that the
+ * economy, choosing again, does not name it back to a bench and so out of the squad. T-733: the
+ * named workers' replacements are found by these rules too, so no soldier comes into the squad
+ * holding a role. Returns the squad's members after it.
  */
-export function refillTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[]): readonly number[] {
+export function refillTheSquad(w: TestWorld, state: DefenceYearState, members: readonly number[], leaving: readonly number[] = []): readonly number[] {
   if (w.game.world.fortress.alert !== 'calm') return members;
   const fortress = state.fortress;
   const ent = w.game.world.entities;
@@ -488,7 +509,7 @@ export function refillTheSquad(w: TestWorld, state: DefenceYearState, members: r
     return at < 0 ? -1 : 1 + at;
   };
   const recruits = w.readers.of<DwarvesReader>('10').adults()
-    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id) && !down.includes(id) &&
+    .filter((id) => ent.alive(id) && ent.get(id, C.Creature)?.faction === 'fortress' && !members.includes(id) && !leaving.includes(id) && !down.includes(id) &&
       !onWatch.has(id) && !kept.has(id) && rank(id) >= 0)
     .sort((a, b) => rank(a) - rank(b) || b - a).slice(0, short);
   if (recruits.length === 0) return members;
@@ -499,7 +520,6 @@ export function refillTheSquad(w: TestWorld, state: DefenceYearState, members: r
     released.push(`${id} (${role})`);
     delete economy.specialists[role];
     for (const shop of named.get(id) ?? []) command(w, { type: 'SetWorkshopWorker', workshopId: shop, dwarfId: 0 });
-    (fortress.strong ??= { marksSquadId: 0, trained: [], day: -1 }).trained.push(id);
   }
   const next = [...living, ...recruits];
   command(w, { type: 'SetSquadMembers', squadId: fortress.squadId, members: next });
