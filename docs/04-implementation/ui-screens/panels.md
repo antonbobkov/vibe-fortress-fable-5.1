@@ -631,9 +631,9 @@ Depot panel (from a selected depot): items at the depot with values, `[m] move` 
 │ Waves so far: 3                     │
 ```
 
-The eligibility line wraps under itself, indented two cells, when the reason does not fit ("Eligible: no · hall spirit below" / "Content"), as does the last skip.
+The eligibility line answers for the evaluation to come (`immigration.eligibility()`, 21 § Reader), the one the line above names: before Year 1's guaranteed summer and autumn waves it reads `Eligible: yes · the cousins are coming` (`ui.population.eligible_guaranteed`), or `Immigration paused by cap` when the cap holds them back. It wraps under itself, indented two cells, when the reason does not fit ("Eligible: no · hall spirit below" / "Content"), as does the last skip. The last skip names its reason in words (`ui.population.skip.<code>`): `Last skip: no one set out` (the season's roll), `hall spirit below Content`, `population cap reached`, `winter pass closed`, `a raid was under way`; a code with no row shows as it is.
 
-While the fortress's wealth is below what the evaluation to come asks (`immigration.wealthBar()`, 21 § Reader), whatever the eligibility line's reason, a line under it names the bar and the wealth Stocks shows: `Next wave asks 6,000 ☼ of wealth (now 4,100 ☼)` (`ui.population.wealth_bar`, wrapping as the eligibility line does). The last skip, when it was for wealth, carries the figures it was made with: `Last skip: wealth (4,100 of 6,000 ☼)` (`ui.population.last_skip_wealth`); without them (an older save) it reads `Last skip: wealth`.
+While the fortress's wealth is below what the evaluation to come asks (`immigration.wealthBar()`, 21 § Reader), whatever the eligibility line's reason, a line under it names the bar and the wealth Stocks shows: `Next wave asks 6,000 ☼ of wealth (now 4,100 ☼)` (`ui.population.wealth_bar`, wrapping as the eligibility line does). The last skip, when it was for wealth, carries the figures it was made with: `Last skip: wealth (4,100 of 6,000 ☼)` (`ui.population.last_skip_wealth`); without them (an older save) it reads `Last skip: wealth too low`.
 
 ## Mood (e)
 
