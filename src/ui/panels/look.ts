@@ -250,7 +250,7 @@ function hospitalBedFree(buildings: BuildingsReader, hospitals: readonly EntityI
  */
 export function careLine(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): CareLine | null {
   const patient = readers.entities.get(id, C.Patient);
-  if (patient === undefined) return null;
+  if (patient === undefined) return animalCareLine(readers, strings, id);
   const say = (key: string, args: Record<string, string | number> = {}, urgent = false): CareLine => ({ text: strings.get(key, args), urgent });
   if (has(readers, '11')) {
     // Its bandaging waits for a dressing the fortress does not have: the one fact that kills by itself.
@@ -289,6 +289,28 @@ export function careLine(readers: ReaderSet, registry: Registry, strings: String
     }
   }
   return say(patient.needs.length === 0 ? 'ui.look.care.resting' : 'ui.look.care.waiting');
+}
+
+/**
+ * A tame animal's Care line while its `bandage_animal` job is open (17 § Animals), the first that
+ * holds: bleeding with no bandage or cloth to bandage it (the job blocked for a missing input), no one
+ * with the job's labor on, the bandaging under way and who does it, waiting to be bandaged. Null for
+ * an animal with no such job, and for any other creature.
+ */
+function animalCareLine(readers: ReaderSet, strings: Strings, id: EntityId): CareLine | null {
+  if (!has(readers, '11') || !readers.entities.has(id, C.Tame) || readers.entities.has(id, C.Attributes)) return null;
+  const jobs = readers.of<JobsReader>('11');
+  const job = jobs.byKey(`bandage_animal:${id}`);
+  if (job === undefined || job.state === 'done' || job.state === 'cancelled') return null;
+  const say = (key: string, args: Record<string, string | number> = {}, urgent = false): CareLine => ({ text: strings.get(key, args), urgent });
+  if (job.state === 'blocked' && job.blockedReason === 'missing_input') return say('ui.look.care.no_dressing', {}, true);
+  if (job.workerId !== 0) {
+    const name = readers.entities.get(job.workerId, C.Creature)?.name ?? '';
+    return say('ui.look.care.treating', { job: strings.get('ui.look.care.job.bandage_animal'), name });
+  }
+  const labor = job.data['labor'];
+  if (typeof labor === 'string' && jobs.workersWithLabor(labor).length === 0) return say('ui.look.care.no_animal_care', {}, true);
+  return say('ui.look.care.bandage_waiting');
 }
 
 /** A line broken at spaces to `width` cells, the continuation rows indented under the text after the first word. */
@@ -797,9 +819,11 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
           const bar = `${'▓'.repeat(filled)}${'░'.repeat(HEALTH_PART_BAR_CELLS - filled)}`;
           line(`  ${strings.get('ui.look.health.part', { part: pName, bar, hp: Math.round(part.hp), max: Math.round(part.maxHp) })}`);
           for (const w of part.wounds) {
-            const flags = WOUND_FLAGS.filter((flag) => w[flag]).map((flag) => strings.get(`ui.look.wound.${flag}`));
+            // A wound that bleeds unbandaged says so first, in the alert colour; a long line wraps, never cut.
+            const bleeding = w.bleed > 0 && !w.bandaged;
+            const flags = [...(bleeding ? ['bleeding'] : []), ...WOUND_FLAGS.filter((flag) => w[flag])].map((flag) => strings.get(`ui.look.wound.${flag}`));
             const flagStr = flags.length > 0 ? ` (${flags.join(', ')})` : '';
-            line(`    ${w.severity} ${w.type}${flagStr}`);
+            wrapped('    ', `${w.severity} ${w.type}${flagStr}`, bleeding ? t.alert : t.text);
           }
         }
       }

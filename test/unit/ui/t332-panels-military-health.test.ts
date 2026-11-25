@@ -210,8 +210,9 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows[22]).toMatch(/^ {2}head ▓+ 30\/30 hp$/);
     expect(rows[23]).toMatch(/^ {2}torso ▓+ 60\/60 hp$/);
     expect(rows[24]).toMatch(/^ {2}left arm ▓+ 36\/36 hp$/);
-    // The wound is listed under the part it is on, with its dressing and its infection.
-    expect(rows[25]).toBe('    serious cut (bandaged, infect»');
+    // The wound is listed under the part it is on, with its dressing and its infection, wrapped and never cut.
+    expect(rows[25]).toBe('    serious cut (bandaged,');
+    expect(rows[26]).toBe('      infected)');
   });
 
   it('the combat log names the tabs and shows a blow with its sender, damage and kind', () => {

@@ -33,6 +33,16 @@ export function fedBar(level: number | null): string {
   return level === null ? '—' : `${'▓'.repeat(level)}${'░'.repeat(3 - level)}`;
 }
 
+/**
+ * How hurt a tame animal is, as the Animals panel marks it (17's `Body`): 2 while a wound bleeds
+ * unbandaged, 1 while it has any other wound, 0 unhurt.
+ */
+export function hurtLevel(readers: PanelContext['readers'], id: EntityId): 0 | 1 | 2 {
+  const wounds = readers.entities.get(id, C.Body)?.parts.flatMap((p) => p.wounds) ?? [];
+  if (wounds.some((w) => w.bleed > 0 && !w.bandaged)) return 2;
+  return wounds.length > 0 ? 1 : 0;
+}
+
 /** Whether a creature carries a name of its own (not its species' name or id). */
 function named(name: string, species: { readonly id: string; readonly name: string } | undefined): boolean {
   return name !== '' && name !== species?.name && name !== species?.id;
@@ -48,7 +58,7 @@ export class AnimalsPanel {
 
   /**
    * The list's rows, each the animals it stands for (`panels.md` § Animals). Tame: unnamed animals
-   * of one species, pasture, hunger, training, owner and slaughter mark are one row ("cow ×6"); a
+   * of one species, pasture, hunger, training, owner, slaughter mark and wounds are one row ("cow ×6"); a
    * named animal is a row of its own; by species, then the groups before the named, then pasture,
    * the best fed first. Wild: one row per species, in the order they were first seen.
    */
@@ -76,7 +86,7 @@ export class AnimalsPanel {
       const fed = fedLevel(r, id, species) ?? 4;
       const own = named(creature?.name ?? '', def);
       const status = trainStatus(ctx, id, tame?.trained ?? 'none');
-      const key = own ? `id:${id}` : [species, pasture, fed, status, tame?.assignedTo ?? 0, tame?.slaughter === true ? 1 : 0].join(':');
+      const key = own ? `id:${id}` : [species, pasture, fed, status, tame?.assignedTo ?? 0, tame?.slaughter === true ? 1 : 0, hurtLevel(ctx.readers, id)].join(':');
       const row = byKey.get(key);
       if (row !== undefined) row.ids.push(id);
       else byKey.set(key, { ids: [id], sort: [speciesName, own ? 1 : 0, own ? creature?.name ?? '' : '', pasture === 0 ? Infinity : pasture, -fed, id] });
@@ -253,9 +263,9 @@ export function trainStatus(ctx: Pick<PanelContext, 'readers' | 'strings'>, id: 
 }
 
 /**
- * A tame row in words (`panels.md` § Animals): how many and of what, the pasture, how fed, how many
- * are pregnant, the training, the dwarf they are with and the slaughter mark ("6 cows · pasture #1 ·
- * fed · 2 pregnant").
+ * A tame row in words (`panels.md` § Animals): how many and of what, bleeding or wounded, the
+ * pasture, how fed, how many are pregnant, the training, the dwarf they are with and the slaughter
+ * mark ("6 cows · pasture #1 · fed · 2 pregnant", "Bramble the dog · bleeding · no pasture").
  */
 export function tameDetail(ctx: PanelContext, r: AnimalsReader, ids: readonly EntityId[]): string {
   const s = ctx.strings;
@@ -268,6 +278,9 @@ export function tameDetail(ctx: PanelContext, r: AnimalsReader, ids: readonly En
   const species = def?.name ?? '?';
   const parts: string[] = [];
   parts.push(named(creature.name, def) ? s.get('ui.animals.detail.named', { name: creature.name, species }) : groupWords(ctx, r, ids));
+  // Its wounds next, where the two rows never cut them (17's `Body`).
+  const hurt = hurtLevel(ctx.readers, id);
+  if (hurt > 0) parts.push(s.get(hurt === 2 ? 'ui.animals.detail.bleeding' : 'ui.animals.detail.wounded'));
   const pasture = r.pastureOf(id);
   parts.push(pasture === 0 ? s.get('ui.animals.detail.no_pasture')
     : s.get('ui.animals.detail.pasture', { n: (buildings(ctx)?.zonesOfType('pasture') ?? []).indexOf(pasture) + 1 }));
@@ -294,6 +307,8 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
   // The selected tame row in words, under the list: what the columns say, and what they do not.
   const chosen = panel.tab === 0 ? groups[Math.min(panel.list.selected, groups.length - 1)] : undefined;
   const detail = chosen === undefined ? [] : wrapText(tameDetail(ctx, r, chosen), width, 2);
+  // A bleeding row's words are drawn in the alert colour.
+  const detailFg = chosen !== undefined && hurtLevel(ctx.readers, chosen[0] ?? 0) === 2 ? s.theme.alert : s.theme.dim;
   const height = Math.max(2, rect.rows - (panel.tab === 0 ? 8 : 7) - detail.length);
   table(s, { col, row: rect.row + 1, cols: width, rows: height },
     panel.tab === 0
@@ -310,11 +325,13 @@ export function drawAnimalsPanel(s: Surface, rect: Rect, panel: AnimalsPanel, ct
         const hunt = ctx.readers.has('09') && ctx.readers.of<ForagingReader>('09').isHuntable(creature?.species ?? 0);
         return [`${species} ×${count}`, str.get(hunt ? 'ui.animals.hunt_on' : 'ui.animals.hunt_off'), r.state(id)];
       }
-      const animal = named(creature?.name ?? '', def) ? `${species} ${creature?.name ?? ''}` : ids.length > 1 ? `${species} ×${ids.length}` : species;
+      // A wounded row starts with the status bar's wounded mark, where no cut reaches it.
+      const mark = hurtLevel(ctx.readers, id) > 0 ? str.get('ui.animals.hurt_mark') : '';
+      const animal = mark + (named(creature?.name ?? '', def) ? `${species} ${creature?.name ?? ''}` : ids.length > 1 ? `${species} ×${ids.length}` : species);
       return [animal, pastureText(id), fedBar(fedLevel(r, id, creature?.species ?? 0)), trainStatus(ctx, id, tame.trained)];
     }), panel.list, (i) => { panel.list.selected = i; });
   let row = rect.row + height + 1;
-  for (const line of detail) { label(s, col, row, line, { fg: s.theme.dim, width, keys: false }); row += 1; }
+  for (const line of detail) { label(s, col, row, line, { fg: detailFg, width, keys: false }); row += 1; }
   separator(s, col, row, width); row += 1;
   if (panel.tab === 0) {
     if (panel.capEditor !== null) {
