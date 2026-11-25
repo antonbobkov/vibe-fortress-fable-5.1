@@ -166,13 +166,14 @@ Never in any list or request: star steel, aged and vintage goods, silk cloth, gi
 | Trade completed | +clamp(1, 5, value / 500) | trading civ |
 | Gift | +value / 100, max +10 per caravan | trading civ |
 | Wooden item offered to the Wildwood | −2 per item | Wildwood |
-| Caravan member killed by a fortress creature | −50, ban 2 years | that civ |
-| Caravan member killed by hostiles or animals on the map | −3 | that civ |
+| Caravan member killed by the fortress (a fortress creature or a trap) | −50, ban 2 years | that civ |
 | Caravan left without a depot | −2 | that civ |
-| Caravan lost (merchant died) | −10 | that civ |
+| Caravan lost (a merchant killed by the fortress) | −10 | that civ |
 | Hillfolk bandit killed | −1 | Hillfolk |
 | Hillfolk bandit caged (alive when the caravan next arrives; the caravan takes them) | +3 | Hillfolk |
 | Yearly drift | ±5 toward 0 | all |
+
+A caravan member's death the fortress did not cause (a comrade's stray arrow, a raider, a wild or deep creature, no killer) changes no reputation, and a caravan lost to it costs nothing (20 § Movement step 5, Blame).
 
 ## Immigration bonus
 

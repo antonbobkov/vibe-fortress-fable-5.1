@@ -1,6 +1,8 @@
 # T-740 — The Wildwood blame the fortress when their own guards shoot their bearers, and the log lists every log offered
 
-**Source:** playtest 2026-11-25 (mid game) ([report](../../reports/data/2026-11-25-playtest-3.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 510f040e,44b364e3,f94777fd.
+
+**Source:** playtest 2026-11-25 (mid game) ([report](../../../reports/data/2026-11-25-playtest-3.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

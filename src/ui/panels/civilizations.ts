@@ -1,5 +1,6 @@
 /** Trade relationships and next-caravan requests (T-M7-03, panels.md § Civilizations). */
 import { logDate } from './log';
+import { TICKS_PER_DAY } from '@core/constants';
 import type { Civ } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
@@ -15,10 +16,37 @@ import { drawPanelFilter, PanelFilter } from './filter';
 export const TRADE_CIVILIZATIONS: readonly Civ[] = ['mountainhome', 'hillfolk', 'wildwood'];
 
 /** A reputation log row: the change, its reason in words and its date as the log writes it ("+3 trade (Su 1)"). */
-export function reputationEntryText(ctx: PanelContext, entry: { readonly delta: number; readonly reason: string; readonly tick: number }): string {
+export function reputationEntryText(ctx: PanelContext, entry: ReputationRow): string {
   const key = ctx.strings.has(`ui.civ.rep_reason.${entry.reason}`) ? `ui.civ.rep_reason.${entry.reason}` : 'ui.civ.rep_reason.other';
   const date = logDate(ctx.strings, entry.tick, ctx.readers.calendar.tick);
-  return `${entry.delta >= 0 ? '+' : ''}${entry.delta} ${ctx.strings.get(key)} (${date})`;
+  const reason = (entry.count ?? 1) > 1 ? ctx.strings.get('ui.civ.rep_count', { reason: ctx.strings.get(key), n: entry.count ?? 1 }) : ctx.strings.get(key);
+  return `${entry.delta >= 0 ? '+' : ''}${entry.delta} ${reason} (${date})`;
+}
+
+/** A reputation log row: one change, or `count` changes of one reason on one day folded into one (`panels.md` § Civilizations). */
+export interface ReputationRow { readonly delta: number; readonly reason: string; readonly tick: number; readonly count?: number }
+
+/**
+ * The reputation log as the panel lists it, newest first: the changes of one reason on one day fold
+ * into one row, at the newest one's place, with their total, their count and the newest one's date
+ * ("-20 offered wood ×10 (Au 3)"). The saved history keeps every change.
+ */
+export function foldReputationLog(entries: readonly { readonly delta: number; readonly reason: string; readonly tick: number }[]): ReputationRow[] {
+  const rows: { delta: number; reason: string; tick: number; count: number }[] = [];
+  const byDay = new Map<string, { delta: number; reason: string; tick: number; count: number }>();
+  for (const entry of [...entries].reverse()) {
+    const key = `${entry.reason} ${Math.floor(entry.tick / TICKS_PER_DAY)}`;
+    const row = byDay.get(key);
+    if (row !== undefined) {
+      row.delta += entry.delta;
+      row.count += 1;
+    } else {
+      const fresh = { delta: entry.delta, reason: entry.reason, tick: entry.tick, count: 1 };
+      byDay.set(key, fresh);
+      rows.push(fresh);
+    }
+  }
+  return rows;
 }
 /** A civilization's name as the panel writes it ("Mountainhome"). */
 function civName(ctx: PanelContext, civ: Civ): string {
@@ -274,8 +302,8 @@ export function drawCivilizationsPanel(s: Surface, rect: Rect, panel: Civilizati
   }
   if (row < rect.row + rect.rows - 4) label(s, col, row++, ctx.strings.get('ui.civ.request_keys'), { fg: s.theme.dim, width });
   if (row < rect.row + rect.rows - 3) label(s, col, row++, ctx.strings.get('ui.civ.reputation_log'), { fg: s.theme.key, width });
-  // Newest first, as many as fit above the footer, each reason in words ("−50 caravan member killed (Au 3)").
-  for (const entry of [...trade.reputationLog(civ)].reverse()) {
+  // Newest first, one reason's changes on one day folded, as many as fit above the footer, each reason in words ("−50 caravan member killed (Au 3)").
+  for (const entry of foldReputationLog(trade.reputationLog(civ))) {
     if (row >= rect.row + rect.rows - 2) break;
     label(s, col, row++, reputationEntryText(ctx, entry), { width });
   }

@@ -49,7 +49,6 @@ export const CARAVAN_THINK_TICKS = 50;
 /** `caravan-goods.md` § Reputation events. */
 export const REP_NO_DEPOT = -2;
 export const REP_FORTRESS_KILL = -50;
-export const REP_OTHER_KILL = -3;
 export const REP_CARAVAN_LOST = -10;
 export const REP_BANDIT_KILLED = -1;
 export const REP_BANDIT_CAGED = 3;

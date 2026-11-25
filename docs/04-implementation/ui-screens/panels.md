@@ -610,7 +610,7 @@ With no party in view, a hostile creature in view makes the Active line name wha
 │ [d] depot  [t] trade now        │
 ```
 
-The reputation log lists the civilization's changes newest first, as many as fit above the footer, each with its reason in words and its date as the log writes it: `-50 caravan member killed (Sp 3)`, `+5 a year passed (Sp 1)`, `+3 trade (Su 2)`, `-2 offered wood`, `no depot`, `gift`, `bandit killed`, `bandit caged`, `caravan lost`; a reason with no words reads `other`.
+The reputation log lists the civilization's changes newest first, as many as fit above the footer, each with its reason in words and its date as the log writes it: `-50 caravan member killed (Sp 3)`, `+5 a year passed (Sp 1)`, `+3 trade (Su 2)`, `-2 offered wood`, `no depot`, `gift`, `bandit killed`, `bandit caged`, `caravan lost`; a reason with no words reads `other`. The changes of one reason on one day fold into one line, in the newest one's place, with their total, their count and the newest one's date: ten wooden items offered on one day read `-20 offered wood ×10 (Au 3)`. The saved history keeps every change; only the panel folds.
 
 Under the civilization's header, while its caravan is here and a trade request waits, the depot's waiting line (§ Depot) says who the trade waits for and why, wrapped over at most `DEPOT_WARNING_ROWS` rows.
 

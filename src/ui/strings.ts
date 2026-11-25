@@ -661,6 +661,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.civ.rep_reason.caravan_member_killed': 'caravan member killed',
   'ui.civ.rep_reason.caravan_lost': 'caravan lost',
   'ui.civ.rep_reason.other': 'other',
+  'ui.civ.rep_count': '{reason} ×{n}',
   // A request's priority as a word, and the requests editor (`panels.md` § Civilizations).
   'ui.civ.priority.1': 'low',
   'ui.civ.priority.2': 'medium',
