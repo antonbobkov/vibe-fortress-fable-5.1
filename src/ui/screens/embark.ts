@@ -23,6 +23,7 @@ import {
   skillPoints,
   suppliesTotal,
   type EmbarkCommand,
+  type EmbarkHistory,
   type EmbarkPresetRow,
 } from '@systems/embark';
 import { DRAFT_ROWS, TestingDraft, testingStep } from './embark-testing';
@@ -132,6 +133,8 @@ export interface EmbarkHost {
   preset?: string;
   /** On Embark, the preset to remember for the next embark: the testing preset in testing mode. */
   rememberPreset?(id: string): void;
+  /** The fortresses that have ended on the world (`02` § Party generation); without it, none. */
+  history?: EmbarkHistory;
 }
 
 /** The presets menu's last option, which opens the saved loadouts panel. */
@@ -203,7 +206,7 @@ export class EmbarkScreen implements Screen {
     private readonly keymap: Keymap,
     private readonly strings: Strings,
   ) {
-    this.session = new EmbarkSession(registry, worldSeed, region.peril);
+    this.session = new EmbarkSession(registry, worldSeed, region.peril, host.history);
     this.fortressName = { value: this.session.fortressName, focused: false, maxLength: FORTRESS_NAME_MAX };
     const catalog = registry.table<CatalogRow>('embarkCatalog');
     this.catalog = catalog.ids().map((id) => catalog.byId(id) as CatalogRow);

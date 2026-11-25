@@ -157,7 +157,7 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
     it('Help lists the training entry, choice/cancel keys and fortress rename', () => {
       const text = helpKeyRows(keymap, strings).map(row => row.text).join('\n');
       expect(text).toContain('[t]  train the animal'); expect(text).toContain('War'); expect(text).toContain('Hunting');
-      expect(text).toContain('Esc'); expect(text).toContain('n  Rename fortress'); expect(text).toContain('The name is typed in a field');
+      expect(text).toContain('Esc'); expect(text).toContain('[S-n]  Rename fortress'); expect(text).toContain('The name is typed in a field');
     });
 
     it('the real game reports a missing kennel through the ordinary rejection path', async () => {
@@ -179,7 +179,7 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
   });
 
   describe('Rename fortress in game menu', () => {
-    it('Game menu includes [n] Rename fortress and n invokes rename', () => {
+    it('Game menu includes [S-n] Rename fortress and Shift+N invokes rename', () => {
       const calls: string[] = [];
       const host: GameMenuHost = {
         fortressName: () => 'Emberhall',
@@ -196,17 +196,17 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
       const items = menu.items();
       const renameItem = items.find((i) => i.id === 'rename');
       expect(renameItem).toBeDefined();
-      expect(renameItem?.key).toBe('n');
+      expect(renameItem?.key).toBe('S-n');
       expect(renameItem?.label).toBe('Rename fortress');
 
       const s = surface(60, 24);
       menu.draw(s);
-      expect(s.lines().join('\n')).toContain('[n] Rename fortress');
+      expect(s.lines().join('\n')).toContain('[S-n] Rename fortress');
 
-      expect(menu.key(press('n'))).toBe(true);
+      expect(menu.key(press('N', { shift: true }))).toBe(true);
       expect(calls).toEqual(['rename']);
-      const row = s.lines().findIndex(line => line.includes('[n] Rename fortress'));
-      const col = s.lines()[row]!.indexOf('[n]');
+      const row = s.lines().findIndex(line => line.includes('[S-n] Rename fortress'));
+      const col = s.lines()[row]!.indexOf('[S-n]');
       menu.pointerDown({ col, row, button: 0, shift: false, ctrl: false, alt: false, meta: false });
       expect(calls).toEqual(['rename', 'rename']);
     });
@@ -215,7 +215,7 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
       const game = new Game({ canvas: new MockCanvas(), seed: 't246-long-rename', registry,
         createCanvas: mockCanvasFactory(), width: 1280, height: 800, saves: new SaveManager(new MemoryStorage()) });
       await game.start({ embark: 'default' }); const original = game.host.world.fortress.name;
-      game.openGameMenu(); game.handleKey(press('n'));
+      game.openGameMenu(); game.handleKey(press('N', { shift: true }));
       const dialog = game.topScreen as TextInputScreen;
       // Also cover a restored/IME field exceeding its ordinary typing cap.
       dialog.field.value = 'x'.repeat(33); game.handleKey(press('Enter'));
@@ -230,7 +230,7 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
       const game = new Game({ canvas: new MockCanvas(), seed: 't246-empty-rename', registry,
         createCanvas: mockCanvasFactory(), width: 1280, height: 800, saves: new SaveManager(new MemoryStorage()) });
       await game.start({ embark: 'default' });
-      game.openGameMenu(); game.handleKey(press('n'));
+      game.openGameMenu(); game.handleKey(press('N', { shift: true }));
       const dialog = game.topScreen as TextInputScreen; dialog.field.value = ''; game.handleKey(press('Enter'));
       expect(game.topScreen).toBe(dialog); expect(dialog.message).toContain('1');
       expect(game.host.world.commandLog.all().some(entry => entry.command.type === 'RenameFortress')).toBe(false);
@@ -253,8 +253,8 @@ describe('T-246 training an animal and renaming the fortress have a UI', () => {
       game.openGameMenu();
       expect(game.screen).toBe('game_menu');
 
-      // Press 'n' to open Rename fortress text input dialog
-      game.handleKey(press('n'));
+      // Shift+N opens the Rename fortress text input dialog
+      game.handleKey(press('N', { shift: true }));
       expect(game.screen).toBe('text_input');
       const dialog = game.topScreen as TextInputScreen;
       expect(dialog.title).toContain(game.host.world.fortress.name);

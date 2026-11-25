@@ -51,13 +51,13 @@ Stockpile inspector: `[i] link` or its button starts choosing a source stockpile
 
 Animals, Tame tab: `[c] cap` or click cap opens its inline number field: digits type, `+`/`-` step by one (Shift by ten), Enter or Set submits, Esc or Cancel discards; 0–100, no wrapping. Panel letters remain available.
 
-Animals, Tame tab: `[t] train` or its button opens War/Hunting; arrows and Enter, or click a choice; Esc cancels. Panel letters still switch panels inside the choice. Help lists this action and `Esc` then `[n] Rename fortress` from the game menu, also available by clicking its row and entering a name in the text input.
+Animals, Tame tab: `[t] train` or its button opens War/Hunting; arrows and Enter, or click a choice; Esc cancels. Panel letters still switch panels inside the choice. Help lists this action and `Esc` then `[S-n] Rename fortress` from the game menu, also available by clicking its row and entering a name in the text input.
 
 ## Keymap (defaults)
 
 Every row of the tables below is a binding that Settings › Keybindings can change; the keys of § Fixed keys are the only keys the game reacts to that are not here. Each table is one context: the screen, panel or panel state in which its keys act, named by its heading in the editor and in Help.
 
-Key notation: `Ctrl+S` and `Shift+Tab` are a key with modifiers; `arrows` are the four arrow keys; `1`–`9` binds every digit between its two ends; `[w]` is an accelerator letter of a panel, bound to the letter, which also takes it with `Shift`; `[d]` is an accelerator kept on `Shift`+letter, which the bare letter does not reach (§ Panels). A key written without `Shift` also takes a shifted press (arrows with `Shift` move ten, `+` with `Shift` changes ten), unless the context binds the shifted key itself (`Shift+Tab`).
+Key notation: `Ctrl+S` and `Shift+Tab` are a key with modifiers; `arrows` are the four arrow keys; `1`–`9` binds every digit between its two ends; `[w]` is an accelerator letter of a panel, bound to the letter, which also takes it with `Shift`; `[S-d]` is an accelerator kept on `Shift`+letter, which the bare letter does not reach (§ Panels). A key written without `Shift` also takes a shifted press (arrows with `Shift` move ten, `+` with `Shift` changes ten), unless the context binds the shifted key itself (`Shift+Tab`).
 
 ### Global
 
@@ -113,7 +113,7 @@ The keys every list, menu and chooser shares: the fortress panels and their choo
 | `Backspace` | back within nested menus |
 | `←` `→` | move across, or change the focused value |
 
-The open panel's own letters come first (D-253, which replaces D-U2's "panel hotkeys always win"). While a panel is open, a letter that the panel binds (in its current state: the zone inspector before the zone types, a map selection's keys) does the panel's action, even when the action does nothing at that moment; any other letter of § Fortress panels opens its panel, and the open panel's own letter closes it unless the panel binds that letter (Designate binds `d`: `d d` chooses Dig). `Esc` backs out one step, so `Esc` and then a letter reaches any panel; the sidebar's panel strip and the mouse always do. No panel binds bare `k`, so Look is one key from anywhere. When a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). `Shift` is kept for the actions that destroy or are hard to undo (set a fire, dump, melt, slaughter, suspend, kill), for the compost heap (so that `k` stays Look), and for a key's second variant (`Shift+Tab`, `Shift+↑` `Shift+↓` in Orders, `Shift+F1`, `Shift` held for ten); every other panel key is a bare letter, and a bare letter also takes its press with `Shift`. A letter with `Shift` never opens a panel. The first time a panel's letter acts where it is also a panel letter, the hint `hint_panel_letters` says so. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text.
+The open panel's own letters come first (D-253, which replaces D-U2's "panel hotkeys always win"). While a panel is open, a letter that the panel binds (in its current state: the zone inspector before the zone types, a map selection's keys) does the panel's action, even when the action does nothing at that moment; any other letter of § Fortress panels opens its panel, and the open panel's own letter closes it unless the panel binds that letter (Designate binds `d`: `d d` chooses Dig). `Esc` backs out one step, so `Esc` and then a letter reaches any panel; the sidebar's panel strip and the mouse always do. No panel binds bare `k`, so Look is one key from anywhere. When a panel closes while one of its tools was armed, the status row shows a notice ("Designate closed · [d] opens it again", naming the panel and its key; also for Build and Zones). `Shift` is kept for the actions that destroy or are hard to undo (set a fire, dump, melt, slaughter, suspend, kill, and the game menu's rows but Resume), for the compost heap (so that `k` stays Look), and for a key's second variant (`Shift+Tab`, `Shift+↑` `Shift+↓` in Orders, `Shift+F1`, `Shift` held for ten); every other panel key is a bare letter, and a bare letter also takes its press with `Shift`. A letter with `Shift` never opens a panel. The first time a panel's letter acts where it is also a panel letter, the hint `hint_panel_letters` says so. Only a focused text field (a filter, a name, the order picker's `Find`) takes letters as text.
 
 A caption that names a key (`[t] train`, `[x] cancel`, a hint's `[d]`) shows the key its binding has now.
 
@@ -479,13 +479,15 @@ The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 | Key | Action |
 |---|---|
 | `r` | Resume |
-| `s` | Save |
-| `l` | Load |
-| `o` | Settings |
-| `n` | Rename fortress |
-| `x` | Retire fortress (confirm) |
-| `a` | Abandon fortress (confirm) |
-| `m` | Main menu |
+| `[S-s]` | Save |
+| `[S-l]` | Load |
+| `[S-o]` | Settings |
+| `[S-n]` | Rename fortress |
+| `[S-x]` | Retire fortress (confirm) |
+| `[S-a]` | Abandon fortress (confirm) |
+| `[S-m]` | Main menu |
+
+`Esc` with nothing open opens the game menu, so one `Esc` too many and then a panel letter lands in it. Every row but Resume therefore keeps its letter on `Shift`, as the panels keep theirs for the actions that end or are hard to undo (§ Panels), and the bare letter of a fortress panel (`a` Log, `m` Military, `s` Stocks, `l` Labors, `o` Orders, `n` Animals and the rest of § Fortress panels) closes the menu, restores the speed it paused, and opens its panel as it would have on the fortress screen. A rebinding of a menu row keeps it on `Shift`. A bare letter that is neither the menu's nor a panel's does nothing, and so does a `Shift` letter the menu does not bind. The arrows, `Enter` and a click choose a row as in any menu, and the rows that end the fortress still ask first.
 
 ### Confirmation
 
@@ -646,6 +648,15 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.miasma_advice` | "A refuse stockpile outdoors, or a dump, takes rotten food away." |
 | `announce.rot_soon` | "{n} food will rot within {days\|day\|days}; the largest stack is {stack} in {place}." |
 | `announce.starving_many` | "{n} dwarves are starving: {names}." |
+| `ui.starving_hint.slaughter` | "{animals} to slaughter ([n] then [S-s])" |
+| `ui.starving_hint.slaughter_shop` | "{animals} to slaughter ([n] then [S-s]) at a butcher's shop [b > Workshops]" |
+| `ui.starving_hint.fish` | "a {water} to fish (a fishing zone, [z] then [i])" |
+| `ui.starving_hint.river` | "river" |
+| `ui.starving_hint.lake` | "lake" |
+| `ui.starving_hint.gather` | "{n\|ripe shrub\|ripe shrubs} to gather ([d] then [g])" |
+| `ui.starving_hint.caravan_depot` | "the {civ} caravan sells food: build a trade depot [b > Special]" |
+| `ui.starving_hint.caravan_trade` | "the {civ} caravan sells food: trade at the depot [c]" |
+| `ui.starving_hint.none` | "Dwarves are starving, and nothing to eat is at hand: dig down to a cavern, or trade with the next caravan." |
 | `announce.died.bled_out` | "{name} has bled to death." |
 | `announce.died.starvation` | "{name} has starved to death." |
 | `announce.died.infection` | "{name} has died of an infection." |
@@ -682,7 +693,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Hints
 
-Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed). Ids and triggers:
+Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed and `hint_starving` on its `Starving` event). Ids and triggers:
 
 | id | Trigger | Text |
 |---|---|---|
@@ -713,6 +724,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_predator` | first `AnimalSpawned` of a dangerous species while the fortress has a shelter (a hearth hall, a built door or a bedroom zone) | "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is." |
 | `hint_predator_open` | first `AnimalSpawned` of a dangerous species while the fortress has no shelter | "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert once your hall has a door: before that there is nowhere to shelter, and the dwarves work on in the open. [n] then [2] shows where it is." |
 | `hint_food` | edible items in stock fall below `HINT_FOOD_DAYS` days for the population, hourly | "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]." |
+| `hint_starving` | the first `Starving` of the fortress for hunger, after that day's starving line | "Dwarves are starving, and there is food at hand: {food}." |
 | `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
 | `hint_glowcap` | glowcap seeds in stock | "Glowcap grows in the dark under a glowstone lamp." |
 | `hint_runeforge` | a runeforge is placed | "The runeforge burns vials, not coal." |
@@ -731,6 +743,15 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_rot` | the first food item of the fortress turns stale | "Food rots: meals and raw food keep two or three weeks. Barrels in a food stockpile slow it four times; smoked or salted meat keeps. Cook, farm and fish for more." |
 | `hint_breach` | first cavern breach | "A cavern lies open to the fortress, and what lives there can walk in. Wall the opening off [b > Constructions] or hang a door in it set to Lock on alert." |
 | `hint_panel_letters` | a panel's own letter acts where that letter also opens a panel (§ Panels) | "Inside a panel its own letters come first. Esc, then a letter, opens another panel." |
+
+`hint_starving`'s `{food}` is what the fortress could eat now, read when the hint shows, as clauses joined by "; " in this order and only those that hold (`ui.starving_hint.*`, § Announcement strings):
+
+1. **Animals to slaughter**: the living tame animals of a butcherable species with meat that a slaughter mark would take (not marked already, not war- or hunting-trained, not assigned to a dwarf; 08 § Slaughter), counted by species in name order ("2 cows, 2 goats and 4 chickens"); `slaughter_shop` in place of `slaughter` while no butcher's shop is built.
+2. **Water to fish**: no fishing zone exists, and a body of open water (09 § Fishing's bodies, not a cavern's) of at least `MIN_FISHING_TILES` tiles has a bank a fishing zone could take; the largest names its kind, `river` or `lake`.
+3. **Shrubs to gather**: the mature shrubs with an edible yield (`plants.md`) that no gather designation covers.
+4. **A caravan**: a caravan on the map, not packing or leaving, whose merchant goods hold an edible item; `caravan_depot` while no trade depot exists, else `caravan_trade`.
+
+With none of them the hint is `ui.starving_hint.none`. Its keys follow the live bindings as every hint's do.
 
 ## Tutorial
 
@@ -778,8 +799,8 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | id | Text | Default |
 |---|---|---|
 | `c_deepsilver` | "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?" | No |
-| `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed." | No |
-| `c_abandon` | "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends and cannot be resumed." | No |
+| `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends. Saves made before now can still be loaded." | No |
+| `c_abandon` | "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends. Saves made before now can still be loaded." | No |
 | `c_quickload` | "Load the quick save? Unsaved progress will be lost." | No |
 | `c_remove_zone_crops` | "This plot has {n} growing crops. Remove it?" | No |
 | `c_remove_stockpile_items` | "This stockpile holds {n} items. They will stay where they are. Remove it?" | No |

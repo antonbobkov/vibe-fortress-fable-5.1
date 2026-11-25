@@ -6,12 +6,12 @@
   },
   {
     "id": "c_retire",
-    "text": "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed.",
+    "text": "Retire {fortress}? The hall will be recorded in the Legends. Saves made before now can still be loaded.",
     "default": "no"
   },
   {
     "id": "c_abandon",
-    "text": "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends and cannot be resumed.",
+    "text": "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends. Saves made before now can still be loaded.",
     "default": "no"
   },
   {

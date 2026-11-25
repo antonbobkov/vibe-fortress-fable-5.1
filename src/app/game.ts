@@ -65,7 +65,7 @@ import { GameMenuScreen } from '@ui/screens/game_menu';
 import { killerWords } from '@ui/announcements';
 import { composeLegend, LegendStore, type EndReason } from '@app/legend';
 import { composeRuin } from '@app/ruins';
-import { withRuin } from '@systems/terrain/generate/ruins';
+import { ruinsOf, withRuin } from '@systems/terrain/generate/ruins';
 import type { LegendReader } from '@systems/legend';
 import { SettingsStore } from '@app/settings-store';
 import { LoadoutStore } from '@app/loadout-store';
@@ -81,7 +81,7 @@ import { createStorage, StorageQuotaError } from '@platform/storage';
 import type { Command } from '@core/commands';
 import { EventListeners, type EventListener, type Unsubscribe } from '@core/events';
 import type { Registry } from '@core/registry';
-import { localMapSpec } from '@systems/embark';
+import { localMapSpec, type EmbarkHistory } from '@systems/embark';
 import { generate, worldGeneratedEvent, worldReader, type WorldMap, type WorldgenReader, type WorldgenStage } from '@systems/worldgen';
 import { Keymap, type KeymapRow } from '@ui/keymap';
 import { Strings } from '@ui/strings';
@@ -544,6 +544,14 @@ export class Game {
       abandon: () => this.abandonFortress(),
       canAbandon: () => this.host.worldMap !== null,
       mainMenu: () => this.leaveToMainMenu(),
+      // A panel letter closes the menu and acts on the fortress, as it would have without the menu.
+      panelLetter: (key) => {
+        if (this.keymap.resolve('fortress_panel', key) === null) return false;
+        this.popScreen();
+        this.host.setSpeed(this.menuSpeed);
+        this.handleKey(key);
+        return true;
+      },
       viewOnly: () => this.host.viewOnly,
       now: () => Date.now(),
     }, this.strings);
@@ -719,6 +727,20 @@ export class Game {
       byRegion.set(record.regionId, list);
     }
     this.ruins = { seed, byRegion };
+  }
+
+  /**
+   * The fortresses that have ended on a world, for the next embark's party and name (02 § Party
+   * generation): its ruins, or the Legends' records of it when they are more (a world generated
+   * again from its seed, or a fortress played on from an earlier save), and all of their names.
+   */
+  private embarkHistory(world: WorldMap): EmbarkHistory {
+    const ruins = world.ruins ?? [];
+    const legends = this.ruins.seed === world.seed ? [...this.ruins.byRegion.values()].flat() : [];
+    return {
+      ended: Math.max(ruins.length, legends.length),
+      names: [...ruins.map((ruin) => ruin.fortress), ...legends.map((record) => record.fortress)],
+    };
   }
 
   /** The world map of a finished fortress's world, on its site, with the main menu behind it (T-672). */
@@ -1329,6 +1351,7 @@ export class Game {
             this.userSettings.embarkPreset = id;
             this.persistSettings();
           },
+          history: this.embarkHistory(world),
           loadouts: {
             list: () => this.loadouts.list(),
             put: (loadout) => void this.track(this.loadouts.put(loadout)),
@@ -1359,6 +1382,9 @@ export class Game {
       this.busy = null;
     }
     this.enterFortress();
+    // A site where a fortress ended: the log's first line names the last one's ruin.
+    const ruin = ruinsOf(world, regionId).at(-1);
+    if (ruin !== undefined) this.note('note', this.strings.get('ui.embark.ruin_here', { fortress: ruin.fortress }));
   }
 
   /** Switch to the fortress screen, paused, centered on the wagon (arrival step 8). */

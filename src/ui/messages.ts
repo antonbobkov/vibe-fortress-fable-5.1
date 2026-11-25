@@ -755,6 +755,11 @@ export function pluralName(name: string): string {
   return [...words.slice(0, -1), plural].join(' ');
 }
 
+/** A species' plural: its creature row's own (`creatures.md` § Plurals: "sheep", "deer"), else {@link pluralName} of its name. */
+export function speciesPlural(row: { readonly name: string; readonly plural?: string } | undefined): string {
+  return row?.plural ?? pluralName((row?.name ?? 'creature').toLowerCase());
+}
+
 /**
  * 13 § Rot as the stocks panel and Look say it: the stage and the days left at the speed the item
  * rots now ("stale, rots in 4 days", "rotten, gone in 2 days", "fresh, not rotting here" when it

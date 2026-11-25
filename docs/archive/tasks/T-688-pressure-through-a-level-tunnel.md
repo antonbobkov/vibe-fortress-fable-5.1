@@ -41,7 +41,7 @@ So the push costs nothing measurable and does not make ordinary water spread wid
 
 **`bd_cistern_well` keeps its floodgate shut**, but the lever's timing had to change: with the push, the floodgate standing open about 300 ticks (one pull to open, a dwarf walking 180 ticks to pull it shut once the water stood under the well, and the gate following each pull 100 ticks later) filled the cistern and lifted the brook up the well's column onto the hall's floor. `cistern-well.ts` now pulls the lever shut as soon as the opening pull is done, so the gate stands open only for the time between the two pulls (about 20 to 40 ticks in the scenario), and opens it again, once both pulls have reached the gate, only while the well's tile is dry. The cistern takes a level or two a tile; the well works and the hall stays dry. The three-year script shares the code and has its cistern off by default.
 
-The three-year script's `HALL_TUNNEL_MAX` (20) was set because water stopped some thirty tiles down a tunnel; that reason is gone, and whether the hall plan should now reach the twenty maps' 25 to 50 tile tunnels is a follow-up ([T-NEW](../../work/T-694-cistern-under-the-hall.md)).
+The three-year script's `HALL_TUNNEL_MAX` (20) was set because water stopped some thirty tiles down a tunnel; that reason is gone, and whether the hall plan should now reach the twenty maps' 25 to 50 tile tunnels is a follow-up ([T-NEW](T-694-cistern-under-the-hall.md)).
 
 ## Done
 

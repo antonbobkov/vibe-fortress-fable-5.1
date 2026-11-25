@@ -2,12 +2,13 @@
  * The fortress's Esc menu: `02-systems/24-ui-and-input.md` § Game menu ("`Resume`, `Save`, `Load`,
  * `Settings`, `Retire fortress` (confirm), `Main menu` (confirm if unsaved changes since the last
  * save)") laid out as `ui-screens/fortress-screen.md` § Game menu draws it, with the fortress name
- * in the title row and `[x]` on Retire (T-M7-09). `Abandon fortress` (confirm) ends the fortress and
- * goes back to the world map of the same world for a new embark (T-672).
+ * in the title row (T-M7-09). `Abandon fortress` (confirm) ends the fortress and
+ * goes back to the world map of the same world for a new embark (T-672). Every row but Resume keeps
+ * its letter on `Shift`, and a bare panel letter opens its panel (`ui-keymap-and-screens.md` § Game menu).
  */
 import type { KeyPress } from '@platform/input';
 import { clickHit, type CellPointer, type Screen } from '../screen';
-import type { KeyContext } from '../keymap';
+import { acceleratorOf, type KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { UI_STRINGS, type Strings } from '../strings';
 import { label, menu, moveSelection, type MenuItem } from '../widgets';
@@ -27,10 +28,22 @@ export interface GameMenuHost {
   /** Whether the running fortress has a world map to go back to. */
   canAbandon?(): boolean;
   mainMenu(): void;
+  /**
+   * A bare letter that is none of the menu's own: a fortress panel letter closes the menu and opens
+   * its panel, as on the fortress screen. Returns whether the letter did; absent: nothing does.
+   */
+  panelLetter?(press: KeyPress): boolean;
   viewOnly(): boolean;
   /** The clock of the three seconds a message stays up; absent in a bare test host. */
   now?(): number;
 }
+
+/**
+ * The letters of the menu's actions that are kept on `Shift` (`[S-a]`): every one but Resume's, so a
+ * bare letter pressed after one `Esc` too many opens its panel and never saves, loads or ends the
+ * fortress (`ui-keymap-and-screens.md` § Game menu).
+ */
+const SHIFT_ONLY: ReadonlySet<string> = new Set(['s', 'l', 'o', 'n', 'x', 'a', 'm']);
 
 export class GameMenuScreen implements Screen {
   readonly id = 'game_menu' as const;
@@ -57,13 +70,13 @@ export class GameMenuScreen implements Screen {
     const enabled = !this.host.viewOnly();
     return [
       { id: 'resume', key: 'r', label: 'Resume' },
-      { id: 'save', key: 's', label: 'Save', enabled },
-      { id: 'load', key: 'l', label: 'Load' },
-      { id: 'settings', key: 'o', label: 'Settings' },
-      { id: 'rename', key: 'n', label: this.strings?.get('ui.menu.rename') ?? UI_STRINGS['ui.menu.rename'] ?? '', enabled },
-      { id: 'retire', key: 'x', label: 'Retire fortress', enabled },
-      { id: 'abandon', key: 'a', label: this.strings?.get('ui.menu.abandon') ?? UI_STRINGS['ui.menu.abandon'] ?? '', enabled: enabled && this.host.abandon !== undefined && this.host.canAbandon?.() !== false },
-      { id: 'main_menu', key: 'm', label: 'Main menu' },
+      { id: 'save', key: 'S-s', label: 'Save', enabled },
+      { id: 'load', key: 'S-l', label: 'Load' },
+      { id: 'settings', key: 'S-o', label: 'Settings' },
+      { id: 'rename', key: 'S-n', label: this.strings?.get('ui.menu.rename') ?? UI_STRINGS['ui.menu.rename'] ?? '', enabled },
+      { id: 'retire', key: 'S-x', label: 'Retire fortress', enabled },
+      { id: 'abandon', key: 'S-a', label: this.strings?.get('ui.menu.abandon') ?? UI_STRINGS['ui.menu.abandon'] ?? '', enabled: enabled && this.host.abandon !== undefined && this.host.canAbandon?.() !== false },
+      { id: 'main_menu', key: 'S-m', label: 'Main menu' },
     ];
   }
 
@@ -99,9 +112,12 @@ export class GameMenuScreen implements Screen {
     if (press.key === 'ArrowUp' || press.key === '↑') { this.selected = moveSelection(this.items(), this.selected, -1); return true; }
     if (press.key === 'ArrowDown' || press.key === '↓') { this.selected = moveSelection(this.items(), this.selected, 1); return true; }
     if (press.key === 'Enter') { this.choose(this.selected); return true; }
-    const item = this.items().find((row) => row.key === press.key.toLowerCase());
-    if (item !== undefined) { this.choose(item.id); return true; }
-    return false;
+    // The menu's own letters first; then a bare letter goes on to the panels (D-253).
+    const letter = acceleratorOf(press, SHIFT_ONLY);
+    const own = letter === '' ? undefined : this.items().find((row) => row.key === (SHIFT_ONLY.has(letter) ? `S-${letter}` : letter));
+    if (own !== undefined) { this.choose(own.id); return true; }
+    if (press.shift || acceleratorOf(press) === '') return false;
+    return this.host.panelLetter?.(press) ?? false;
   }
 
   pointerDown(p: CellPointer): void { clickHit(this.last, p); }

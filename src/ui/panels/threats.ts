@@ -15,7 +15,7 @@ import type { PanelContext } from './context';
 import type { KeyPress } from '@platform/input';
 import type { EntityId } from '@core/types';
 import { visibleHostileIds } from '../status';
-import { pluralName } from '../messages';
+import { speciesPlural } from '../messages';
 import { comingText, partyActiveText } from '../raid-lines';
 
 export function deepQuote(level: number): string {
@@ -69,7 +69,7 @@ const ACTIVE_KINDS_NAMED = 3;
  * crabs", "2 gloam warriors and a blind stalker", "… and 2 more".
  */
 export function hostilesText(ctx: PanelContext, ids: readonly EntityId[]): string {
-  const creatures = ctx.registry.table<{ id: string; name: string }>('creatures');
+  const creatures = ctx.registry.table<{ id: string; name: string; plural?: string }>('creatures');
   const groups = new Map<number, number>();
   for (const id of ids) {
     const species = ctx.readers.entities.get(id, C.Creature)?.species ?? -1;
@@ -77,7 +77,7 @@ export function hostilesText(ctx: PanelContext, ids: readonly EntityId[]): strin
   }
   const parts = [...groups].map(([species, n]) => {
     const name = (creatures.byIndex(species)?.name ?? 'creature').toLowerCase();
-    return n === 1 ? `${/^[aeiou]/.test(name) ? 'an' : 'a'} ${name}` : `${n} ${pluralName(name)}`;
+    return n === 1 ? `${/^[aeiou]/.test(name) ? 'an' : 'a'} ${name}` : `${n} ${speciesPlural(creatures.byIndex(species))}`;
   });
   const shown = parts.slice(0, ACTIVE_KINDS_NAMED);
   const rest = parts.length - shown.length;

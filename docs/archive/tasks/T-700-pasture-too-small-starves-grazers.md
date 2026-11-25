@@ -1,6 +1,8 @@
 # T-700 — A pasture too small for its grazers starves them, and nothing says so
 
-**Source:** playtest 2026-11-24 ([report](../../reports/data/2026-11-24-playtest.md), finding 2) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in 0056d8fb,a8f919d2.
+
+**Source:** playtest 2026-11-24 ([report](../../../reports/data/2026-11-24-playtest.md), finding 2) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -25,7 +27,16 @@ Decisions (UI and text only; the grazing rule stays as it is, a too-small pastur
 
 Spec: `ui-screens/panels.md` (zone inspector, pasture; Animals tame tab), 08 § Player-facing behavior (the alert text), `creatures.md` (the plural column), `ui-keymap-and-screens.md` if a string row is listed there.
 
+Decided while doing it:
+
+- "Feeds 0 of 6 grazers (35 grass; 48 a grazer)" is 44 cells, more than the panel's 34, so the verdict is a line of its own and the grass a dim line under it ("35 grass; 48 a grazer", wrapped over two rows when it names shrubs). With no grazer assigned the verdict reads "Feeds 2 grazers" (what it would feed). The fed count is the grazers it feeds, at most those assigned.
+- "Put animals here: Animals [n], [p]." is 35 cells; it reads "Add animals: Animals [n], [p]." and shows while no animal of any diet is assigned.
+- `[p]`'s count of grazers is the ones already on the pasture plus the group moved; a group of animals that do not graze (chickens) gets the plain line. One unnamed animal reads "1 cow", a named one by its name.
+- A named animal's alert reads "Bramble is starving."; the line's subject and focus were already the animal (`AnimalStarving { id }`).
+- Creature plurals are a `§ Plurals` table in `creatures.md` (as `items.md` has), exported to the rows' `plural`: sheep, deer, reindeer, elk, cave oxen, blind fish, trollkin, restless dead. Every place that counts a species (the Animals summary, the hostiles line of Threats, the engagement line, "3 wolves have come to the valley") uses it.
+- The status row draws a notice in the alert colour when the notice says so (24 § Announcements and the log).
+
 ## Done
 
-- [ ] Tests: the capacity line of a 35-grass pasture with six grazers reads "Feeds 0 of 6 grazers" in the alert colour and fits the sidebar; `[p]` onto it says so; the starving alert of a cow on that pasture names it and the pasture; "2 sheep", "3 deer" in the Animals summary.
-- [ ] Content check passes with the new plural column; no world hash moves.
+- [x] Tests: the capacity line of a 35-grass pasture with six grazers reads "Feeds 0 of 6 grazers" in the alert colour and fits the sidebar; `[p]` onto it says so; the starving alert of a cow on that pasture names it and the pasture; "2 sheep", "3 deer" in the Animals summary (`test/unit/ui/t700-pasture-capacity.test.ts`; "3 deer" in the Threats hostiles line, since the Animals summary counts only tame animals).
+- [x] Content check passes with the new plural column; no world hash moves (`test/golden/world-hashes.test.ts` passes unchanged).

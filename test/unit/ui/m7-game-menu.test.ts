@@ -259,10 +259,10 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       menu.draw(s);
       const text = s.lines().join('\n');
       expect(text).toContain('Deepholm · Emberhall');
-      for (const entry of ['[r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[n] Rename fortress', '[x] Retire fortress', '[a] Abandon fortress', '[m] Main menu']) {
+      for (const entry of ['[r] Resume', '[S-s] Save', '[S-l] Load', '[S-o] Settings', '[S-n] Rename fortress', '[S-x] Retire fortress', '[S-a] Abandon fortress', '[S-m] Main menu']) {
         expect(text).toContain(entry);
       }
-      for (const key of ['r', 's', 'l', 'o', 'n', 'x', 'a', 'm']) expect(menu.key(press(key))).toBe(true);
+      for (const key of ['r', 'S', 'L', 'O', 'N', 'X', 'A', 'M']) expect(menu.key(press(key, { shift: key !== 'r' }))).toBe(true);
       expect(calls).toEqual(['resume', 'save', 'load', 'settings', 'rename', 'retire', 'abandon', 'main_menu']);
       // Esc resumes; a view-only (final) save disables Save, Rename, Retire and Abandon.
       expect(menu.key(press('Esc'))).toBe(true);
@@ -281,7 +281,7 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       expect(game.unsavedSince()).toBe(true);
 
       game.openGameMenu();
-      game.handleKey(press('m'));
+      game.handleKey(press('M', { shift: true }));
       expect(game.screen).toBe('confirm');
       const dialog = game.topScreen as ConfirmScreen;
       expect(dialog.confirmId).toBe('c_main_menu');
@@ -289,10 +289,10 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       game.handleKey(press('n'));
       expect(game.screen).toBe('game_menu');
 
-      game.handleKey(press('s'));
+      game.handleKey(press('S', { shift: true }));
       await game.settled();
       expect(game.unsavedSince()).toBe(false);
-      game.handleKey(press('m'));
+      game.handleKey(press('M', { shift: true }));
       await vi.waitFor(() => expect(game.screen).toBe('main_menu'), { timeout: 2000 });
     }, 30_000);
 
@@ -311,16 +311,16 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       expect(game.unsavedSince()).toBe(true);
 
       game.openGameMenu();
-      game.handleKey(press('m'));
+      game.handleKey(press('M', { shift: true }));
       expect(game.screen).toBe('confirm');
       expect((game.topScreen as ConfirmScreen).confirmId).toBe('c_main_menu');
       game.handleKey(press('n'));
       expect(game.screen).toBe('game_menu');
 
-      game.handleKey(press('s'));
+      game.handleKey(press('S', { shift: true }));
       await game.settled();
       expect(game.unsavedSince()).toBe(false);
-      game.handleKey(press('m'));
+      game.handleKey(press('M', { shift: true }));
       await vi.waitFor(() => expect(game.screen).toBe('main_menu'), { timeout: 2000 });
     }, 30_000);
 

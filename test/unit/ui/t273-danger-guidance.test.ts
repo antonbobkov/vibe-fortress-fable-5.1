@@ -143,14 +143,14 @@ describe('T-273 hints', () => {
     expect(ui2.hintsShown).toContain('hint_shelter');
   });
 
-  it('hint_food fires when the edible stock is below two days for the population', () => {
+  it('hint_food fires when the edible stock is below HINT_FOOD_DAYS days for the population', () => {
     const f = setup('t273-food', 8);
     const ui = defaultUiState(z);
     const hints = new HintEngine(f.w.game.registry, ui, log(f));
     hints.onEvents([{ type: 'HourPassed', hour: 0 }], f.w.readers);
     expect(ui.hintsShown).toContain('hint_food');
     const g = setup('t273-food-ok', 8);
-    g.w.spawnItem('easy_meal', 'granite', g.w.index(12, 12, z), 6);
+    g.w.spawnItem('easy_meal', 'granite', g.w.index(12, 12, z), 10);
     const ui2 = defaultUiState(z);
     new HintEngine(g.w.game.registry, ui2, log(g)).onEvents([{ type: 'HourPassed', hour: 0 }], g.w.readers);
     expect(ui2.hintsShown).not.toContain('hint_food');

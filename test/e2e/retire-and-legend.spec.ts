@@ -49,10 +49,10 @@ test('retire-and-legend', async ({ page }) => {
   // Open game menu with Escape.
   await page.keyboard.press('Escape');
   await expect.poll(() => screenOf(page)).toBe('game_menu');
-  expect(await textOf(page)).toContain('[x] Retire fortress');
+  expect(await textOf(page)).toContain('[S-x] Retire fortress');
 
   // Choose Retire fortress.
-  await page.keyboard.press('x');
+  await page.keyboard.press('Shift+X');
   await expect.poll(() => screenOf(page)).toBe('confirm');
   expect(await textOf(page)).toContain(`Retire ${fortressName}?`);
 

@@ -214,14 +214,14 @@ describe('T-332 screens: what each outside screen says', () => {
     const r = rows('game_menu');
     expect(r[7]).toBe('Deepholm · Emberhall');
     expect(r.slice(9, 17)).toEqual([
-      '► [r] Resume', '[s] Save', '[l] Load', '[o] Settings', '[n] Rename fortress', '[x] Retire fortress', '[a] Abandon fortress', '[m] Main menu',
+      '► [r] Resume', '[S-s] Save', '[S-l] Load', '[S-o] Settings', '[S-n] Rename fortress', '[S-x] Retire fortress', '[S-a] Abandon fortress', '[S-m] Main menu',
     ]);
   });
 
   it('the retire dialog names the fortress, says what happens to it, and offers Yes and No', () => {
     const r = rows('confirm');
     expect(r[10]).toBe('Retire Emberhall? The hall will be recorded in the');
-    expect(r[11]).toBe('Legends and cannot be resumed.');
+    expect(r[11]).toBe('Legends. Saves made before now can still be loaded.');
     expect(r[13]).toBe('[y] Yes  [n] No');
   });
 });

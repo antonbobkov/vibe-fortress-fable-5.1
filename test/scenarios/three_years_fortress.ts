@@ -345,7 +345,7 @@ export interface FortressState {
   forgeBuiltDay?: number;
   /** T-663: the cistern under the hearth hall and its well (null where the brook is too far; undefined until planned). */
   cistern?: CisternWork | null;
-  /** T-663: true where the script brings water inside; off by default (it cost the twenty-seed sweep more than it saved). */
+  /** T-663: false where the script does not bring water inside (the defence fortress); on by default. */
   waterInside?: boolean;
 }
 
@@ -1732,6 +1732,7 @@ function watchThirst(w: TestWorld, state: FortressState, events: readonly { type
     const feed = state.cistern?.plan.s;
     const nearFeed = feed !== undefined && at >= 0 && Math.max(Math.abs(w.map.xOf(at) - feed.x), Math.abs(w.map.yOf(at) - feed.y)) <= 8;
     note('three_years_thirst_death', { tick: w.tick, day: Math.floor(w.tick / TICKS_PER_DAY) + 1, cause: String(e['cause'] ?? ''), thirst: seen.thirst.get(id) ?? -1, nearFeed,
+      ...(at >= 0 ? { at: [w.map.xOf(at), w.map.yOf(at), w.map.zOf(at)], kind: w.map.kindAt(at) } : {}),
       outdoors: seen.outdoors.has(id), alert: w.game.world.fortress.alert, ...(state.calmTick !== undefined ? { sinceCalm: w.tick - state.calmTick } : {}),
       drink: w.readers.of<ItemsReader>('13').available('drink') });
   }

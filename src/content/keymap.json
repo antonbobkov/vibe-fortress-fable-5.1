@@ -1251,37 +1251,37 @@
   },
   {
     "context": "game_menu",
-    "key": "s",
+    "key": "[S-s]",
     "action": "Save"
   },
   {
     "context": "game_menu",
-    "key": "l",
+    "key": "[S-l]",
     "action": "Load"
   },
   {
     "context": "game_menu",
-    "key": "o",
+    "key": "[S-o]",
     "action": "Settings"
   },
   {
     "context": "game_menu",
-    "key": "n",
+    "key": "[S-n]",
     "action": "Rename fortress"
   },
   {
     "context": "game_menu",
-    "key": "x",
+    "key": "[S-x]",
     "action": "Retire fortress (confirm)"
   },
   {
     "context": "game_menu",
-    "key": "a",
+    "key": "[S-a]",
     "action": "Abandon fortress (confirm)"
   },
   {
     "context": "game_menu",
-    "key": "m",
+    "key": "[S-m]",
     "action": "Main menu"
   },
   {

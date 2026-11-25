@@ -1810,5 +1810,9 @@
   {
     "table": "confirmations",
     "id": "c_abandon"
+  },
+  {
+    "table": "hints",
+    "id": "hint_starving"
   }
 ]

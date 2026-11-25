@@ -18,6 +18,8 @@ Take the chosen region and the player's spending decisions and produce the start
 
 ### Party generation
 
+The party and the default fortress name are drawn from the embark's party stream, made afresh for the embark screen from the world seed and the number of fortresses that have ended on the world: `RngStream.forStream(worldSeed, 'embark.party')` for the first embark of a world, and `'embark.party.<n>'` when `n` fortresses have ended on it. The app counts them as the world map's ruins (`WorldMap.ruins`, § Ruins) or the Legends' records of the world's seed, whichever are more (a world generated again from its seed has no ruins, and a fortress played on from a save made before another ended adds a record the world map lacks). So every embark on a world brings its own seven, and the first is the world seed's. An embark made without the embark screen (the scenarios' and tests' preset embark) draws as a first embark. Below, "the `embark.party` stream" is this stream.
+
 For each of `EMBARK_DWARF_COUNT` dwarves, from the `embark.party` rng stream:
 
 - Name: given name and hall-name from the names table; sex random; age uniform in `EMBARK_AGE_MIN..EMBARK_AGE_MAX` years.
@@ -69,7 +71,7 @@ The player can save the current loadout under a name and load it on a later emba
 
 ### Fortress name
 
-Text field with a generated default from the names table. Used in announcements, saves and the legend.
+Text field with a generated default from the names table, drawn from the `embark.party` stream after the party (§ Party generation). A default that names a fortress of the world, one of its ruins or of the Legends' records of its seed (in any case), is drawn again, at most once for each name the table can make, so a new embark on a world does not repeat an old fortress's name. Used in announcements, saves and the legend.
 
 ### Local map specification
 

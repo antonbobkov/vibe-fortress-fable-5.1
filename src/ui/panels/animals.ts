@@ -14,7 +14,8 @@ import { asWritten, button, captionButtons, label, normalizeName, numberField, s
 import { buildings, confirmThen, type PanelContext } from './context';
 import { dwarvesOf } from './units';
 import { acceleratorLabel } from '../keymap';
-import { pluralName, rejectionText, wrapText } from '../messages';
+import { rejectionText, speciesPlural, wrapText, zoneName } from '../messages';
+import { overGrazed, pastureFeed } from '../pasture';
 
 /**
  * How fed a tame grazer is, from its condition (08: hunger, 0 fed to 100 starving): 3 (fed) to 0
@@ -93,7 +94,11 @@ export class AnimalsPanel {
   selectedGroup(ctx: PanelContext): EntityId[] { return this.groups(ctx)[this.list.selected] ?? []; }
   selected(ctx: PanelContext): EntityId { return this.rows(ctx)[this.list.selected] ?? 0; }
   move(delta: number, ctx: PanelContext): void { this.list.selected = Math.max(0, Math.min(Math.max(0, this.rows(ctx).length - 1), this.list.selected + delta)); }
-  /** `[S-p]`: the row's animals to the next pasture, every animal of a group together. */
+  /**
+   * `[p]`: the row's animals to the next pasture, every animal of a group together. The status row
+   * says what it did, and in the alert colour when the pasture's grass feeds fewer grazers than it
+   * will hold ("2 cows to Pasture #1: it feeds 0 of 6 grazers.").
+   */
   pasture(ctx: PanelContext): Command[] | null {
     const ids = this.selectedGroup(ctx); const r = this.reader(ctx); const b = ctx.readers.has('14') ? ctx.readers.of<BuildingsReader>('14') : null;
     const id = ids[0];
@@ -101,6 +106,12 @@ export class AnimalsPanel {
     const options = [0, ...b.zonesOfType('pasture')];
     const at = options.indexOf(r.pastureOf(id));
     const zoneId = options[(at + 1) % options.length] ?? 0;
+    const animals = groupWords(ctx, r, ids);
+    const feed = zoneId === 0 ? null : pastureFeed(ctx.readers, zoneId, ids);
+    if (zoneId === 0) ctx.notice?.(ctx.strings.get('ui.animals.unpastured', { animals }));
+    else if (feed !== null && overGrazed(feed) && ids.some((a) => r.def(ctx.readers.entities.get(a, C.Creature)?.species ?? 0)?.diet === 'grazer')) {
+      ctx.notice?.(ctx.strings.get('ui.animals.pastured_over', { animals, pasture: zoneName(ctx, zoneId), fed: feed.supported, n: feed.grazers }), true);
+    } else ctx.notice?.(ctx.strings.get('ui.animals.pastured', { animals, pasture: zoneName(ctx, zoneId) }));
     return ids.map((animalId) => ({ type: 'AssignPasture', animalId, zoneId }));
   }
   slaughter(ctx: PanelContext): Command | null {
@@ -204,6 +215,18 @@ export class AnimalsPanel {
   }
 }
 
+/**
+ * A tame row's animals counted, as the line under the list and `[p]`'s notice say them: "2 sheep",
+ * "8 cows", "1 cow" (the species' plural from `creatures.md` § Plurals), or an animal's own name.
+ */
+function groupWords(ctx: PanelContext, r: AnimalsReader, ids: readonly EntityId[]): string {
+  const creature = ctx.readers.entities.get(ids[0] ?? 0, C.Creature);
+  const def = r.def(creature?.species ?? 0);
+  if (creature !== undefined && named(creature.name, def)) return creature.name;
+  const row = ctx.registry.table<{ id: string; name: string; plural?: string }>('creatures').byIndex(creature?.species ?? 0);
+  return ids.length === 1 ? `1 ${def?.name ?? '?'}` : `${ids.length} ${speciesPlural(row)}`;
+}
+
 function trainStatus(ctx: PanelContext, id: EntityId, trained: string): string {
   if (ctx.readers.has('11')) {
     const job = ctx.readers.of<JobsReader>('11').byKey(trainKey(id));
@@ -229,8 +252,7 @@ export function tameDetail(ctx: PanelContext, r: AnimalsReader, ids: readonly En
   const def = r.def(creature.species);
   const species = def?.name ?? '?';
   const parts: string[] = [];
-  parts.push(named(creature.name, def) ? s.get('ui.animals.detail.named', { name: creature.name, species })
-    : ids.length > 1 ? `${ids.length} ${pluralName(species)}` : `1 ${species}`);
+  parts.push(named(creature.name, def) ? s.get('ui.animals.detail.named', { name: creature.name, species }) : groupWords(ctx, r, ids));
   const pasture = r.pastureOf(id);
   parts.push(pasture === 0 ? s.get('ui.animals.detail.no_pasture')
     : s.get('ui.animals.detail.pasture', { n: (buildings(ctx)?.zonesOfType('pasture') ?? []).indexOf(pasture) + 1 }));

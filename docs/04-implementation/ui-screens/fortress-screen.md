@@ -113,7 +113,11 @@ Look shows a tile list, one creature's view or one item's view (24 § Inspection
 │ [h] here  [Bksp] back  [Tab] link         │
 ```
 
-The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour. A click on one loose item opens the item's view:
+The identity, activity and `At` lines stay at the top and the keys at the foot; the sections between them scroll.
+
+The activity line is never empty. A dwarf's is its activity (10 § Player-facing behavior). Any other creature says what its behaviour is: `Caged` in a cage; a wild or hostile creature its state in the Units All tab's words, capitalized (`Activity: Grazing`, `Asleep`, `Hunting`, `Fleeing`, `Attacking`); a tame animal, the first that holds of `Curled up in the pets' heap`, `Starving` (a grazer at full hunger), `Waiting for the butcher` (marked for slaughter), `Following Ketil Ironvein` (its assigned dwarf) and `Keeping to Pasture #1`; and with none of these, `Wandering` while it walks and `Standing about` while it stands.
+
+The health section lists each part on a line of its own, with a bar and its hit points, named as the creature's body plan names it (17's `health.partNames`): a dwarf's `left arm` and `right leg`, a wolf's `left foreleg` and `right hindleg`, a chicken's `left wing`, a fish's `tail` twice (its tail fills both leg slots, each with its own hit points). A slot the plan gives no part (a fish's arms, the Hollow Maw's limbs) is not listed. The `Permanent:` line names its slots the same way: `lost left foreleg`. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour. A click on one loose item opens the item's view:
 
 ```
 │ pine bed                             [x] │
@@ -283,17 +287,17 @@ The count records units of the first input not covered at each placement; placem
 ## Game menu (Esc with nothing open)
 
 ```
-        ┌──────────────────────┐
-        │  Deepholm · Emberhall│
-        │  [r] Resume          │
-        │  [s] Save            │
-        │  [l] Load            │
-        │  [o] Settings        │
-        │  [n] Rename fortress │
-        │  [x] Retire fortress │
-        │  [a] Abandon fortress│
-        │  [m] Main menu       │
-        └──────────────────────┘
+        ┌────────────────────────┐
+        │  Deepholm · Emberhall  │
+        │  [r] Resume            │
+        │  [S-s] Save            │
+        │  [S-l] Load            │
+        │  [S-o] Settings        │
+        │  [S-n] Rename fortress │
+        │  [S-x] Retire fortress │
+        │  [S-a] Abandon fortress│
+        │  [S-m] Main menu       │
+        └────────────────────────┘
 ```
 
 Strings: `ui.status.date`, `ui.status.pop`, `ui.panel.units.title`, `ui.tool.designate.*`, `ui.build.category.*`, `ui.menu.*`; every label above is a key.

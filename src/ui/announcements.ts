@@ -18,14 +18,16 @@ import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
 import type { AnnouncementSpec } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
+import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
 import { TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { WorkshopsReader } from '@systems/workshops';
-import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, pluralName, stackName, tradeWaitFor, whimProgressText } from './messages';
+import { capitalize, enchantedName, itemName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText } from './messages';
 import { MOOD_TIER_NAMES } from './panels/mood';
+import { overGrazed, pastureFeed } from './pasture';
 import { raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
 import type { Strings } from './strings';
 
@@ -317,6 +319,25 @@ export class AnnouncementLog {
     return out;
   }
 
+  /**
+   * 08 § Player-facing behavior: a starving animal by its own name or as "The cow", and, on a pasture
+   * whose grass feeds fewer grazers than it holds, that pasture and its count ("The cow is starving:
+   * Pasture #1 feeds 0 of 6 grazers."). Sets `{animal}` (and the pasture's placeholders) in `params`.
+   */
+  private animalStarvingKey(id: unknown, readers: ReaderSet, params: Record<string, string | number>): string {
+    const creature = typeof id === 'number' ? readers.entities.get(id, C.Creature) : undefined;
+    const row = creature === undefined ? undefined : this.registry.table<NamedRow>('creatures').byIndex(creature.species);
+    const own = creature !== undefined && creature.name !== '' && creature.name !== row?.name && creature.name !== row?.id;
+    params['animal'] = own ? creature.name : capitalize(`the ${(row?.name ?? 'animal').toLowerCase()}`);
+    const pasture = typeof id === 'number' && readers.has('08') ? readers.of<AnimalsReader>('08').pastureOf(id) : 0;
+    const feed = pasture === 0 ? null : pastureFeed(readers, pasture);
+    if (feed === null || !overGrazed(feed)) return 'announce.animal_starving';
+    params['pasture'] = zoneName({ readers, strings: this.strings }, pasture);
+    params['fed'] = feed.supported;
+    params['n'] = feed.grazers;
+    return 'announce.animal_starving.pasture';
+  }
+
   /** A creature in a line: {@link creatureWords}, its own name's first word when `short`, "a creature" when it is gone. */
   private creatureLabel(readers: ReaderSet, id: number, short: boolean): string {
     const creature = readers.entities.get(id, C.Creature);
@@ -470,6 +491,7 @@ export class AnnouncementLog {
     const killTold = dwarfDeath && key === 'announce.died.killed_by' && typeof creatureId === 'number';
     if (killTold) this.killsTold.add(creatureId);
     if (event.type === 'ImmigrantsArrived') key = this.immigrantsLine(fields, readers, params) ?? key;
+    if (event.type === 'AnimalStarving') key = this.animalStarvingKey(creatureId, readers, params);
     const text = this.strings.get(key, params);
     const focus = focusOf(event, readers) ?? (event.type === 'StockpileFull' ? zoneFocus(readers, fields['id']) : undefined);
     const category = killTold ? 'combat' : spec.category;
@@ -570,12 +592,11 @@ export class AnnouncementLog {
   private fightersText(fighters: readonly Fighter[]): string {
     const groups = new Map<number, Fighter[]>();
     for (const f of fighters) groups.set(f.species, [...groups.get(f.species) ?? [], f]);
-    const table = this.registry.table<NamedRow>('creatures');
+    const table = this.registry.table<NamedRow & { plural?: string }>('creatures');
     const parts = [...groups.values()].map((group) => {
       const first = group[0] as Fighter;
       if (group.length === 1) return creatureWords(this.registry, first.name, first.species);
-      const species = (table.byIndex(first.species)?.name ?? 'creature').toLowerCase();
-      return `${group.length} ${pluralName(species)}`;
+      return `${group.length} ${speciesPlural(table.byIndex(first.species))}`;
     });
     if (parts.length <= 1) return parts[0] ?? '';
     return this.strings.get('announce.list_and', { list: parts.slice(0, -1).join(', '), last: parts[parts.length - 1] as string });

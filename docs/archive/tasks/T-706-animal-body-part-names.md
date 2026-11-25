@@ -1,6 +1,8 @@
 # T-706 — A wolf has arms: the creature view names every body by the dwarf's parts
 
-**Source:** playtest 2026-11-24 ([report](../../reports/data/2026-11-24-playtest.md), finding 8) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in 123c0474,7f3eb749.
+
+**Source:** playtest 2026-11-24 ([report](../../../reports/data/2026-11-24-playtest.md), finding 8) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -20,5 +22,13 @@ Spec: `ui-screens/fortress-screen.md` § Inspection panel (the creature view's h
 
 ## Done
 
-- [ ] Tests: a wolf's view lists "left foreleg" and "right foreleg"; a chicken's "left wing"; a fish has no arm rows; a cow wounded in a foreleg is "bleeding from the left foreleg"; a wild animal's view has an activity.
-- [ ] UI and text only: no world hash moves.
+- [x] Tests: a wolf's view lists "left foreleg" and "right foreleg"; a chicken's "left wing"; a fish has no arm rows; a cow wounded in a foreleg is "bleeding from the left foreleg"; a wild animal's view has an activity (`test/unit/ui/t706-body-part-names.test.ts`, which also covers the Hollow Maw, a dwarf's unchanged parts, the `Permanent:` line and a tame animal's activities).
+- [x] UI and text only: no world hash moves (`world-hashes.test.ts` passes unchanged; no sweep).
+
+Decisions made in the work:
+
+- A quadruped's leg slots are named "left hindleg" and "right hindleg" in `creatures.md` § Body plans, beside its forelegs (the names are read only by the view and `summaryText`).
+- 17 gains a reader, `health.partNames(id)`, which the view and `summaryText` share; the `Permanent:` line names its slots by it too ("lost left foreleg").
+- A tame animal's activity is the first that holds of: curled in the pets' heap, starving, waiting for the butcher, following its assigned dwarf, keeping to its pasture; otherwise "Wandering" while it walks and "Standing about"; a caged creature is "Caged" (`fortress-screen.md` § Inspection panel).
+- The two-tailed fish (a fish's and a serpent's "tail" twice, a crawler's "front legs" twice) is kept and logged in `docs/fun-features.md`.
+- The tile list's fact and the status bar's creature summary still read 10's activity alone, empty for an animal: follow-up `T-708-animal-activity-in-tile-list.md`.

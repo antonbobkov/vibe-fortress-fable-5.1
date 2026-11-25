@@ -29,8 +29,8 @@ export interface PanelContext {
   inspect?(id: EntityId): void;
   /** Whether the pointer's `Shift` was down for the click being handled. */
   shiftClick(): boolean;
-  /** A message on the status row: why an action did nothing (D-U4). Absent outside the fortress screen. */
-  notice?(text: string): void;
+  /** A message on the status row: why an action did nothing (D-U4), or what it did; `alert` draws it in the alert colour. Absent outside the fortress screen. */
+  notice?(text: string, alert?: boolean): void;
   /** An interactive pick prompt replaces an earlier status notice. */
   clearNotice?(): void;
   /** The letters the open panel's accelerators keep on `Shift` (`[S-d]` dump, D-253), by their default keys. None when absent. */

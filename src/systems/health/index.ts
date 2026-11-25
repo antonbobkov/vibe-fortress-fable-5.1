@@ -37,6 +37,7 @@ import {
 } from './tick';
 
 export type { HealthReader } from './reader';
+export { bodyPartNames, permanentText } from './reader';
 export * from './constants';
 export * from './wounds';
 export * from './state';
@@ -136,6 +137,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
           ...zoneComp,
           settings: { ...zoneComp.settings, 'desired supplies': { ...wants } },
         });
+        // As 14's `SetZoneSetting` does: 13 looks again at the goods with no home, which a raised supply may now take.
+        ctx.emit({ type: 'ZoneChanged', zoneId, zoneType: z.type, change: 'settings', tiles: z.tiles.slice() });
       }
       return OK;
     }

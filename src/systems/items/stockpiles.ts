@@ -117,7 +117,7 @@ export const STOCKPILE_PRESETS: Readonly<Record<string, { categories: readonly s
 export const COMPOST_CATEGORIES: readonly string[] = Object.freeze(['refuse/rotten', 'farm/dung']);
 
 /** 17 § Patients and hospitals: supplies a hospital's chests take whatever filter its record was made with. */
-const HOSPITAL_EXTRA_CATEGORIES: readonly string[] = Object.freeze(['medical/soap', 'medical/bandage']);
+const HOSPITAL_EXTRA_CATEGORIES: readonly string[] = Object.freeze(['medical/soap', 'medical/bandage', 'food/honey']);
 
 /** A new stockpile's filter: nothing selected until the player picks (D-071). */
 export function emptyFilter(): StockpileFilter {
