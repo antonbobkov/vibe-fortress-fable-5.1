@@ -32,8 +32,11 @@ export function speedText(speed: Speed): string {
   return `${arrows} ${speed}×`;
 }
 
-/** The fields of row 1, left to right, without the right-aligned help. */
-export function statusFields(readers: ReaderSet, strings: Strings, z: number, speed: Speed, loadShedding = false): string[] {
+/**
+ * The fields of row 1, left to right, without the right-aligned help. A view-only final save never
+ * runs, so it has no speed field.
+ */
+export function statusFields(readers: ReaderSet, strings: Strings, z: number, speed: Speed, loadShedding = false, viewOnly = false): string[] {
   const cal = readers.calendar;
   const season = cal.seasonName.charAt(0).toUpperCase() + cal.seasonName.slice(1);
   const fields = [strings.get('ui.status.date', { day: cal.dayOfSeason, season, year: cal.year })];
@@ -55,7 +58,7 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
   }
   if (readers.has('20') && readers.of<TradeReader>('20').activeCaravan() !== null) fields.push('$');
   fields.push(strings.get('ui.status.z', { z }));
-  fields.push(loadShedding ? `${speedText(speed)} ${strings.get('ui.status.slow')}` : speedText(speed));
+  if (!viewOnly) fields.push(loadShedding ? `${speedText(speed)} ${strings.get('ui.status.slow')}` : speedText(speed));
   return fields;
 }
 
@@ -96,8 +99,8 @@ export function statusRight(strings: Strings, leftLength: number, cols: number):
 }
 
 /** Row 1 as one line of `cols` cells: the fields three spaces apart, `[Esc] menu  [?] help` at the right edge. */
-export function statusRow1(readers: ReaderSet, strings: Strings, z: number, speed: Speed, cols: number, loadShedding = false): string {
-  const fields = statusFields(readers, strings, z, speed, loadShedding);
+export function statusRow1(readers: ReaderSet, strings: Strings, z: number, speed: Speed, cols: number, loadShedding = false, viewOnly = false): string {
+  const fields = statusFields(readers, strings, z, speed, loadShedding, viewOnly);
   const left = ` ${fields.join(' '.repeat(statusFieldSpacing(fields, strings, cols)))}`;
   const right = statusRight(strings, Array.from(left).length, cols).text;
   const pad = Math.max(1, cols - Array.from(left).length - Array.from(right).length);

@@ -40,6 +40,7 @@ import {
   type ContentCheck,
   type LoadedSave,
   type SaveHeader,
+  type SaveEnd,
   type SaveKind,
   type SaveSection,
   type SaveThumbnail,
@@ -89,6 +90,8 @@ export interface QueuesSection {
 
 export interface SaveOptions {
   readonly kind: SaveKind;
+  /** A final save's end: how the fortress ended (the header's `end`). */
+  readonly end?: SaveEnd;
   /** The generated world of the running game, if any (`world` section). */
   readonly worldMap?: WorldMap | null;
   /** The `ui` section (`Game.uiSection()`); a headless save has none. */
@@ -199,7 +202,7 @@ export function gameSections(game: HeadlessGame, options: Pick<SaveOptions, 'wor
 export function gameHeader(
   game: HeadlessGame,
   kind: SaveKind,
-  extras: { playTimeSeconds?: number; thumbnail?: SaveThumbnail } = {},
+  extras: { playTimeSeconds?: number; thumbnail?: SaveThumbnail; end?: SaveEnd } = {},
 ): Omit<SaveHeader, 'formatVersion' | 'compressed'> {
   const world = game.world;
   const calendar = world.calendar;
@@ -218,6 +221,7 @@ export function gameHeader(
     ...(extras.thumbnail === undefined ? {} : { thumbnail: extras.thumbnail }),
     kind,
     ...(world.fortress.testing === true ? { testing: true } : {}),
+    ...(kind === 'final' && extras.end !== undefined ? { end: extras.end } : {}),
   };
 }
 
@@ -227,6 +231,7 @@ export async function saveGame(game: HeadlessGame, options: SaveOptions): Promis
   const header = gameHeader(game, options.kind, {
     ...(options.playTimeSeconds === undefined ? {} : { playTimeSeconds: options.playTimeSeconds }),
     ...(options.thumbnail === undefined ? {} : { thumbnail: options.thumbnail }),
+    ...(options.end === undefined ? {} : { end: options.end }),
   });
   return options.compress === undefined ? writeSave(header, sections) : writeSave(header, sections, options.compress);
 }

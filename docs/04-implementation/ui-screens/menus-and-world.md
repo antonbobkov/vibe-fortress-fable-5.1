@@ -73,7 +73,7 @@ It plays at launch, before the main menu, when the Intro at launch setting is `a
 └────────────────────────────────────────────────────────────────┘
 ```
 
-`Continue` loads the newest save of any kind; hidden when none exists. `About` is hidden until the app has an About screen. `Tutorial` starts the tutorial (§ Tutorial). The first time `New world` is chosen, before any tutorial has been offered, it asks first with the `c_tutorial` confirmation ("Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?"): `Yes` starts the tutorial, `No` (the default) opens world generation. That it was offered is saved with the settings, as whether the intro has played is, and Reset to defaults keeps it. A test build makes no offer unless the page is opened with `?tutorial=offer`.
+`Continue` loads the newest save that is not a final one (an ended fortress's view-only record, § Load), and its line names that save's fortress and year; it is hidden when no such save exists, so a fortress that has just fallen is never reopened by `Continue`. `About` is hidden until the app has an About screen. `Tutorial` starts the tutorial (§ Tutorial). The first time `New world` is chosen, before any tutorial has been offered, it asks first with the `c_tutorial` confirmation ("Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?"): `Yes` starts the tutorial, `No` (the default) opens world generation. That it was offered is saved with the settings, as whether the intro has played is, and Reset to defaults keeps it. A test build makes no offer unless the page is opened with `?tutorial=offer`.
 
 ## Tutorial
 
@@ -271,6 +271,10 @@ Strings: `ui.settings.title`, `ui.settings.title_keybindings`, `ui.settings.row.
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
+A Finished row is an ended fortress's final save. It says how the fortress ended and that it is a view-only record, not its date and counts: "{fortress} · fell in Year {n} (view only)" (`ui.load.end.fell`), "retired in Year {n}" and "abandoned in Year {n}" (`ui.load.end.retired`, `ui.load.end.abandoned`). The end is the save header's `end` (`save-format.md` § Header JSON); a final save written before the header kept it reads "fell" when no dwarf was living and "retired" otherwise.
+
+After a successful `Import` the imported save is selected, with its thumbnail, so `Enter` loads it; a failed import leaves the selection where it was and says why under the list.
+
 ## Legend
 
 ```
@@ -300,7 +304,9 @@ Strings: `ui.settings.title`, `ui.settings.title_keybindings`, `ui.settings.row.
 
 Strings: `ui.legend.*`: the list's title and rows (`ui.legend.row`, `ui.legend.row_testing`), `ui.legend.none`, the record's lines (`ui.legend.founded`, `ui.legend.stats`, `ui.legend.milestones`, `ui.legend.notable`, `ui.legend.last_words`, and `ui.legend.folded` for a folded last word, "{line} ({n} days)"), a testing fortress's mark and note, the scroll line and the two buttons.
 
-Keys: `↑` `↓` and the wheel scroll the record a line, `PageUp` `PageDown` a page less one line, `Home` `End` to its ends. The scroll stops at the last page, with the last line on the last row, so the scroll line ("↑↓ Scroll 43/62") never shows a number above its total.
+Every line of the record wraps at the screen's width, at word boundaries, so no word is cut at the edge. A continuation row is indented two cells under its line's own text: a last word's lines up after its `!!` or `!` mark, and a milestone's after its date. The cause's first sentence, the date of the fall, is a line of its own, and the last dwarf's sentence starts the next, as the picture shows. The Legends list keeps one row per fortress, cut with "»" when it is longer than the row.
+
+Keys: `↑` `↓` and the wheel scroll the record a row, `PageUp` `PageDown` a page less one row, `Home` `End` to its ends. The scroll counts wrapped rows and stops at the last page, with the last row on the page's last row, so the scroll line ("↑↓ Scroll 43/62") never shows a number above its total.
 
 ## A new embark on the same world
 

@@ -1,6 +1,8 @@
 # T-747 — The legend cuts its lines at the screen's edge: "The last dwarf, Gunnar Cop"
 
-**Source:** playtest 2026-11-25 (peril 4) ([report](../../reports/data/2026-11-25-playtest-4.md), finding 3) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 89a60644,52e923b8,351d2098.
+
+**Source:** playtest 2026-11-25 (peril 4) ([report](../../../reports/data/2026-11-25-playtest-4.md), finding 3) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

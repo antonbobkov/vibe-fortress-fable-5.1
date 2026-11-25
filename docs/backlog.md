@@ -14,11 +14,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-732 | [The defence script and the fortress script's look before the all-clear flap the north door](work/T-732-defence-north-door-flaps-on-the-look.md) | [T-724](archive/tasks/T-724-defence-squad-refill-remnant.md) | — | open |
 | T-733 | [The defence fortress's economy makes a soldier at drill its woodcutter](work/T-733-defence-economy-names-a-soldier.md) | [T-724](archive/tasks/T-724-defence-squad-refill-remnant.md) | — | open |
 | T-746 | [Reopening a full cistern's floodgate does nothing: the water never climbs the well's column](work/T-746-floodgate-wakes-body.md) | [the peril-4 playtest of 2026-11-25](../reports/data/2026-11-25-playtest-4.md) | — | open |
-| T-747 | [The legend cuts its lines at the screen's edge: "The last dwarf, Gunnar Cop"](work/T-747-legend-lines-wrap.md) | [the peril-4 playtest of 2026-11-25](../reports/data/2026-11-25-playtest-4.md) | — | open |
-| T-748 | [Continue reopens a fallen fortress, and nothing on screen says it has ended](work/T-748-continue-skips-final-save.md) | [the peril-4 playtest of 2026-11-25](../reports/data/2026-11-25-playtest-4.md) | — | open |
 | T-749 | [A raid's end line and its escape line count the goods differently (27 and 51)](work/T-749-raid-end-goods-count.md) | [the peril-4 playtest of 2026-11-25](../reports/data/2026-11-25-playtest-4.md) | — | open |
 | T-750 | [A raided fortress is told it is "not yet wealthy enough", with no figure](work/T-750-immigration-wealth-bar.md) | [the peril-4 playtest of 2026-11-25](../reports/data/2026-11-25-playtest-4.md) | — | open |
-| T-751 | [Import leaves the Load cursor on the old save, so Enter loads the wrong fortress](work/T-751-import-selects-imported.md) | [the peril-4 playtest of 2026-11-25](../reports/data/2026-11-25-playtest-4.md) | — | open |
 | T-752 | [UI words still written in code: quality words, aged names, tag items, the legend's own lines](work/T-752-ui-words-still-in-code.md) | [T-744](archive/tasks/T-744-ui-words-left.md) | — | open |
 | T-753 | [A civilian already in the only room behind a door finds no shelter there](work/T-753-shelter-from-inside.md) | [T-745](archive/tasks/T-745-locked-in-thirst.md) | — | open |
 

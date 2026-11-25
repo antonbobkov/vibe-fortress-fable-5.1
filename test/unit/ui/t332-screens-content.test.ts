@@ -135,7 +135,7 @@ describe('T-332 screens: what each outside screen says', () => {
     }
   });
 
-  it('Load groups the saves under Manual, Autosaves, Snapshots and Finished, each with its date, population and wealth, and the cursor on the first', () => {
+  it('Load groups the saves under Manual, Autosaves, Snapshots and Finished, each with its date, population and wealth (a finished one with its end), and the cursor on the first', () => {
     const r = rows('load');
     expect(r[1]).toBe('Load');
     expect(r[2]).toBe('Manual');
@@ -145,7 +145,7 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[6]).toBe('Snapshots');
     expect(r[7]).toBe('Emberhall · Day 9 of Spring, Year 1 · 14 dwarves · 8,900 ☼');
     expect(r[8]).toBe('Finished');
-    expect(r[9]).toBe('Coldvein Hold · Day 13 of Summer, Year 1 · 0 dwarves · 52,300 ☼');
+    expect(r[9]).toBe('Coldvein Hold · fell in Year 1 (view only)');
     expect(r[24]).toBe('[Enter] Load  [x] Delete  [e] Export  [i] Import  [Esc] Back');
   });
 
@@ -199,14 +199,15 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(r[1]).toBe('Legend');
     expect(r[3]).toBe('Coldvein Hold');
     expect(r[4]).toBe('Founded Spring, Year 1 at Ashfell (mountain, wealth 3, peril 3)');
-    expect(r[5]).toMatch(/^Fell on Day 4 of Winter, Year 4\. The last dwarf, Solveig Deephand, died of h/);
-    expect(r[6]).toBe('Years 3 · Days 336 · Peak population 41 · Deepest level 6 · Wealth 52,300 ☼');
-    expect(r[7]).toBe('Milestones');
-    expect(r.slice(8, 11)).toEqual(['Spring 1  The hearth was lit.', 'Summer 1  The first bar was smelted.', 'Autumn 2  The first cavern was breached.']);
-    expect(r[11]).toBe('Notable');
-    expect(r.slice(12, 14)).toEqual(['Orm Ashbrow slew 14 enemies.', 'Gnashvein the captain returned twice.']);
-    expect(r[14]).toBe('Last words (log)');
-    expect(r.slice(15, 17)).toEqual(['!! The Hollow opens its mouth.', '!  Brynja Coldhammer has bled to death.']);
+    expect(r[5]).toBe('Fell on Day 4 of Winter, Year 4.');
+    expect(r[6]).toBe('The last dwarf, Solveig Deephand, died of her wounds.');
+    expect(r[7]).toBe('Years 3 · Days 336 · Peak population 41 · Deepest level 6 · Wealth 52,300 ☼');
+    expect(r[8]).toBe('Milestones');
+    expect(r.slice(9, 12)).toEqual(['Spring 1  The hearth was lit.', 'Summer 1  The first bar was smelted.', 'Autumn 2  The first cavern was breached.']);
+    expect(r[12]).toBe('Notable');
+    expect(r.slice(13, 15)).toEqual(['Orm Ashbrow slew 14 enemies.', 'Gnashvein the captain returned twice.']);
+    expect(r[15]).toBe('Last words (log)');
+    expect(r.slice(16, 18)).toEqual(['!! The Hollow opens its mouth.', '!  Brynja Coldhammer has bled to death.']);
     expect(r[24]).toBe('[Esc] Back');
   });
 

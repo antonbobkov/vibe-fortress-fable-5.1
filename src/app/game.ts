@@ -45,6 +45,7 @@ import {
   rollSnapshots,
   SNAPSHOTS_KEPT,
   finalSaveId,
+  type SaveEnd,
   type SaveHeader,
   type SaveKind,
   type SaveThumbnail,
@@ -203,6 +204,8 @@ export class Game {
   /** A fortress death is checked once after its event tick, when removals are complete. */
   private lastDwarfDeath: { name: string; cause: string; killer: string } | null = null;
   private finished = false;
+  /** How the fortress shown view-only ended (24 § The legend record); null while one plays. */
+  private finalEnd: SaveEnd | null = null;
   private menuSpeed: Speed = 0;
   /** The Load screen's list, refreshed from the headers after every change. */
   private listing: SaveListing[] = [];
@@ -318,6 +321,7 @@ export class Game {
       confirm: (id, params, answer) => this.confirm(id, params as Readonly<Record<string, string | number>>, answer),
       laborManager: (open) => this.openLaborManager(open),
       prompt: (spec, answer) => this.prompt(spec, answer),
+      viewOnlyLine: () => this.viewOnlyLine(),
     };
   }
 
@@ -681,6 +685,18 @@ export class Game {
   }
 
   /**
+   * While a final save is open (view only), the status bar's line that says so: "Emberstair fell on
+   * Day 24 of Autumn, Year 1. View only: [Esc] menu."; null while the fortress plays.
+   */
+  viewOnlyLine(): string | null {
+    if (!this.host.started || !this.host.viewOnly) return null;
+    return this.strings.get(`ui.final_view.${this.finalEnd ?? 'fell'}`, {
+      fortress: this.host.world.fortress.name,
+      date: formatDate(this.host.readers.calendar.tick),
+    });
+  }
+
+  /**
    * The end of a fortress: its legend record and final save, then the legend screen (`Enter` a new
    * embark on the same world, `Esc` the main menu), or for an abandoned fortress the world map.
    */
@@ -692,7 +708,8 @@ export class Game {
     const world = this.host.worldMap;
     const regionId = this.host.world.fortress.regionId;
     const record = composeLegend(this.host.headless, world, this.registry, journal, this.fortress.log.lines, reason);
-    void this.saveAs('final', finalSaveId(record.name));
+    this.finalEnd = endOf(reason);
+    void this.saveAs('final', finalSaveId(record.name), this.finalEnd);
     if (this.legends !== null) void this.track(this.legends.write(record));
     this.host.setViewOnly(true);
     // 02 § Ruins (T-686): the world the next embark finds keeps this fortress's ruin on its site.
@@ -801,10 +818,10 @@ export class Game {
    * Save the running game under `id`. The sections are taken now, between ticks; compression and
    * storage follow. An autosave keeps the four most recent autosaves (`persistence.md`).
    */
-  saveAs(kind: SaveKind, id: string): Promise<void> {
+  saveAs(kind: SaveKind, id: string, end?: SaveEnd): Promise<void> {
     const saves = this.saves;
     if (saves === null || !this.host.started) return Promise.resolve();
-    const blob = this.host.save({ kind, ui: this.uiSection(), playTimeSeconds: this.playTimeSeconds(), thumbnail: this.thumbnail() });
+    const blob = this.host.save({ kind, ui: this.uiSection(), playTimeSeconds: this.playTimeSeconds(), thumbnail: this.thumbnail(), ...(end === undefined ? {} : { end }) });
     const savedAt = this.host.readers.calendar.tick;
     const savedCommands = this.host.commandCount;
     return this.track(
@@ -937,6 +954,7 @@ export class Game {
     this.widenedCamera = null;
     this.subscribe();
     this.finished = loaded.header.kind === 'final';
+    this.finalEnd = loaded.header.kind === 'final' ? finalEndOf(loaded.header) : null;
     this.autosaveDue = null;
     this.fortress.resetSession();
     if (loaded.ui !== null) {
@@ -1019,7 +1037,14 @@ export class Game {
     const blob = await this.files.pick('.deepholm');
     if (blob === null) return;
     try {
-      await this.importBlob(blob);
+      const id = await this.importBlob(blob);
+      // The save just imported is the one to open: the Load screen's cursor moves to it.
+      const top = this.top();
+      if (top instanceof LoadScreen) {
+        top.selected = id;
+        top.setMessage(null);
+        this.render();
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       this.note('alert', this.strings.get('ui.load.import_failed', { reason: message }));
@@ -1041,12 +1066,11 @@ export class Game {
     return id;
   }
 
-  /** `Continue`: "loads the newest save of any kind". */
+  /** `Continue`: loads the newest save that is not a final one (an ended fortress's view-only save). */
   async continueNewest(): Promise<void> {
     if (this.saves === null) return;
-    const all = await this.saves.list();
-    if (all.length === 0) return;
-    const newest = all.reduce((a, b) => (b.header.calendar.tick > a.header.calendar.tick ? b : a));
+    const newest = newestPlayable(await this.saves.list());
+    if (newest === null) return;
     await this.loadSave(newest.id);
   }
 
@@ -1175,9 +1199,8 @@ export class Game {
   private async newestSaveSummary(): Promise<string | null> {
     if (this.saves === null) return null;
     try {
-      const all = await this.saves.list();
-      if (all.length === 0) return null;
-      const newest = all.reduce((a, b) => (b.header.calendar.tick > a.header.calendar.tick ? b : a));
+      const newest = newestPlayable(await this.saves.list());
+      if (newest === null) return null;
       return `${newest.header.fortress} · Year ${newest.header.calendar.year}`;
     } catch {
       return null;
@@ -1941,5 +1964,29 @@ export function listingOf(id: string, header: SaveHeader): SaveListing {
     wealth: header.wealth,
     ...(header.thumbnail === undefined ? {} : { thumbnail: header.thumbnail }),
     ...(header.testing === true ? { testing: true } : {}),
+    ...(header.kind === 'final' ? { end: finalEndOf(header) } : {}),
   };
+}
+
+/**
+ * How a final save's fortress ended: its header's `end`, or for a final save written before the
+ * header kept it, fell when no dwarf was living and retired otherwise.
+ */
+export function finalEndOf(header: SaveHeader): SaveEnd {
+  return header.end ?? (header.population === 0 ? 'fell' : 'retired');
+}
+
+/** The end a final save's header records for an end reason. */
+function endOf(reason: EndReason): SaveEnd {
+  return reason.kind === 'all_dead' ? 'fell' : reason.kind;
+}
+
+/** The save `Continue` loads: the newest by tick that is not a final save, or null when there is none. */
+export function newestPlayable<T extends { readonly header: SaveHeader }>(saves: readonly T[]): T | null {
+  let newest: T | null = null;
+  for (const save of saves) {
+    if (save.header.kind === 'final') continue;
+    if (newest === null || save.header.calendar.tick > newest.header.calendar.tick) newest = save;
+  }
+  return newest;
 }

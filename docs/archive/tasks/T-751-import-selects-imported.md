@@ -1,6 +1,8 @@
 # T-751 — Import leaves the Load cursor on the old save, so Enter loads the wrong fortress
 
-**Source:** playtest 2026-11-25 (peril 4) ([report](../../reports/data/2026-11-25-playtest-4.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 89a60644,52e923b8,351d2098.
+
+**Source:** playtest 2026-11-25 (peril 4) ([report](../../../reports/data/2026-11-25-playtest-4.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

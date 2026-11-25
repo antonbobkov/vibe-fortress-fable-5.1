@@ -1,6 +1,8 @@
 # T-748 — Continue reopens a fallen fortress, and nothing on screen says it has ended
 
-**Source:** playtest 2026-11-25 (peril 4) ([report](../../reports/data/2026-11-25-playtest-4.md), finding 4) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 89a60644,52e923b8,351d2098.
+
+**Source:** playtest 2026-11-25 (peril 4) ([report](../../../reports/data/2026-11-25-playtest-4.md), finding 4) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
