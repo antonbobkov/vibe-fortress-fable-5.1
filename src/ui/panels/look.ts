@@ -33,7 +33,6 @@ import { captionButtons, label, separator } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
 import { creatureActivity } from './look-activity';
-import { activityLabel } from './units';
 import { attributeRows, equipmentSpans, identityLine, isDwarf, needCells, needCellWidth, personalityText, productivityText, relationsSpans, skillBar, titleText, wearingSpans } from './look-dwarf';
 import { drawSpanRow, stringSpans, wrapSpans, type LinkSink, type LookTarget, type Span } from './look-links';
 import { creatureGone, drawGoneView, drawLookFoot, footRows, itemGone, type LookFoot } from './look-gone';
@@ -170,10 +169,10 @@ export function clickRung(readers: ReaderSet, i: TileIndex): LookRung {
   return { kind: 'tile' };
 }
 
-/** "Ketil Ironvein, Digging": a creature's summary for the status bar. */
+/** "Ketil Ironvein, Digging", "wolf, Asleep": a creature's summary for the status bar, its activity never empty. */
 export function creatureSummary(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string {
   const name = readers.entities.get(id, C.Creature)?.name ?? '';
-  const activity = activityLabel({ readers, registry, strings }, id);
+  const activity = creatureActivity({ readers, registry, strings }, id);
   return activity.length > 0 ? `${name}, ${activity}` : name;
 }
 
@@ -485,7 +484,7 @@ export function tileListRows(readers: ReaderSet, registry: Registry, strings: St
       target: { kind: 'creature', id },
       glyph: firstGlyph(species.byIndex(c?.species ?? -1)?.glyph),
       name: c?.name ?? '',
-      fact: activityLabel({ readers, registry, strings }, id),
+      fact: creatureActivity({ readers, registry, strings }, id),
       inner: false,
       notes: [],
     });

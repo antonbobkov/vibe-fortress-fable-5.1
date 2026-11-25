@@ -20,5 +20,5 @@ Spec: `ui-screens/fortress-screen.md` § Inspection panel (the tile list's rows;
 
 ## Done
 
-- [ ] Tests: the wagon's tile list numbers its stacks and the digit of one opens its item view ("In Wagon #1"); `Backspace` from that item view and from the wagon's Building panel opened with its digit returns to the tile list; the `[v]` help text.
-- [ ] UI only: no world hash moves.
+- [x] Tests: the wagon's tile list numbers its stacks and the digit of one opens its item view ("In Wagon #1"); `Backspace` from that item view and from the wagon's Building panel opened with its digit returns to the tile list; the `[v]` help text.
+- [x] UI only: no world hash moves.

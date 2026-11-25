@@ -17,5 +17,5 @@ Spec: `ui-screens/fortress-screen.md` § Inspection panel (the tile list) and 24
 
 ## Done
 
-- [ ] Tests: a tile with a sleeping wolf lists it with "Asleep"; the status bar's summary of a grazing deer is "deer, Grazing"; a dwarf's row is unchanged.
-- [ ] UI and text only: no world hash moves.
+- [x] Tests: a tile with a sleeping wolf lists it with "Asleep"; the status bar's summary of a grazing deer is "deer, Grazing"; a dwarf's row is unchanged.
+- [x] UI and text only: no world hash moves.
