@@ -26,7 +26,7 @@ Examples: Ironvein, Coldhammer, Ashbrow, Deephand, Grimshield, Emberheart, Raven
 
 ## Fortress names (default suggestion at embark)
 
-`prefix + suffix`; the player may overwrite.
+`prefix + suffix`; the player may overwrite. A name a fortress of the same world already bore is drawn again (`02-systems/02-embark-and-loadout.md` § Fortress name).
 
 **Prefix (30):** Ember, Cold, Deep, Stone, Iron, Grim, Gold, Ash, Silver, Storm, Oak, Flint, Frost, Bright, Dark, Steel, Moss, Rune, Thunder, Hearth, Marble, Pine, Raven, Wolf, Boar, Hawk, Crag, Hollow, Vein, Forge.
 

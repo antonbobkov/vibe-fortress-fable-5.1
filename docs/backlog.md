@@ -13,7 +13,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-694 | [The three-year cistern under the hearth hall](work/T-694-cistern-under-the-hall.md) | [T-688](archive/tasks/T-688-pressure-through-a-level-tunnel.md) | — | open |
 | T-701 | [Snow falls at 11 °C and rain at −2 °C](work/T-701-precipitation-follows-temperature.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
-| T-702 | [A new embark on the same world brings back the same seven dwarves under the same name](work/T-702-new-embark-new-names.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-703 | [The sidebar cuts off the number or word a line is there to give](work/T-703-sidebar-cut-off-facts.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-704 | [One Esc too many, then a panel letter, asks to abandon the fortress](work/T-704-game-menu-panel-letters.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |
 | T-705 | [The wagon's goods cannot be opened, and its "see the items" help promises a tab that is gone](work/T-705-building-goods-open-from-tile-list.md) | [the playtest of 2026-11-24](../reports/data/2026-11-24-playtest.md) | — | open |

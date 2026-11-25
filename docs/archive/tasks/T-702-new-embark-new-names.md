@@ -1,6 +1,8 @@
 # T-702 — A new embark on the same world brings back the same seven dwarves under the same name
 
-**Source:** playtest 2026-11-24 ([report](../../reports/data/2026-11-24-playtest.md), finding 4) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-24, in 92f633ed,7b1e4e3b.
+
+**Source:** playtest 2026-11-24 ([report](../../../reports/data/2026-11-24-playtest.md), finding 4) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -23,5 +25,6 @@ Spec: 02 § Ruins or § State (the party stream's seed), `ui-screens/menus-and-w
 
 ## Done
 
-- [ ] Tests: the first embark of a world has today's party and name; after one fortress has ended on it, the next embark's party and name differ, and its name is not one the world's Legends hold; the abandon confirmation's text.
-- [ ] e2e `retire-and-legend` or the T-672 spec still passes.
+- [x] Tests: the first embark of a world has today's party and name; after one fortress has ended on it, the next embark's party and name differ, and its name is not one the world's Legends hold; the abandon confirmation's text (`test/unit/embark/t702-new-founders.test.ts`: it also abandons a fortress with a quick save, finds the save still listed, embarks again on the ruin with seven new dwarves and a new name, and loads the quick save back into a playable fortress). The world-hash goldens are unchanged.
+- [x] e2e `retire-and-legend` or the T-672 spec still passes (`t672-sticky-preset.test.ts`, and the e2e suite on CI).
+- Decisions taken: the count of ended fortresses is the world map's ruins or the Legends' records of the world's seed, whichever are more (so a world generated again from its seed, or a fortress played on from an older save, still gets new founders); the stream is `embark.party` for the first embark and `embark.party.<n>` after; a used name is drawn again, at most once per name the table can make. The headless preset embark (scenarios, tests) always draws as a first embark. The saves are not removed on abandon or retire: the text was made true (`c_retire` too), and 24 § Game menu says so. The playtest's "founders return" fun item is resolved as new founders, with a nod kept: the new fortress's log opens with "The ruins of {fortress} lie somewhere on this site." (logged in `docs/fun-features.md`).

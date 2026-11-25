@@ -22,6 +22,7 @@ import {
   rerollDwarf,
   suppliesTotal,
   type EmbarkEntryRow,
+  type EmbarkHistory,
   type SupplyLine,
 } from './party';
 import { TESTING_PRESET, TESTING_PRESET_ID, testingItemProblem, type TestingItemLine } from './testing';
@@ -78,14 +79,19 @@ export class EmbarkSession {
   private rerollSpend = 0;
   private readonly rng: RngStream;
 
+  /**
+   * `history`: the fortresses that have ended on the world (`02` § Party generation). With none,
+   * the world seed's first party and name; after them, a party and a name of their own.
+   */
   constructor(
     private readonly registry: Registry,
     worldSeed: string,
     readonly peril: number,
+    history: EmbarkHistory = { ended: 0, names: [] },
   ) {
-    this.rng = partyStream(worldSeed);
+    this.rng = partyStream(worldSeed, history.ended);
     this.party = generateParty(this.rng, registry);
-    this.fortressName = defaultFortressName(this.rng, registry);
+    this.fortressName = defaultFortressName(this.rng, registry, history.names);
   }
 
   get testing(): boolean {

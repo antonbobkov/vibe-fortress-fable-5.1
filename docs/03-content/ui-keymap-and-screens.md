@@ -797,8 +797,8 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | id | Text | Default |
 |---|---|---|
 | `c_deepsilver` | "Deepsilver is the finest metal in the world. Taking it wakes the Hollow: creatures will come up through the rock where it was mined. Working it at the runeforge or the laboratory wakes the Hollow too. Mine it?" | No |
-| `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends and cannot be resumed." | No |
-| `c_abandon` | "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends and cannot be resumed." | No |
+| `c_retire` | "Retire {fortress}? The hall will be recorded in the Legends. Saves made before now can still be loaded." | No |
+| `c_abandon` | "Abandon {fortress} and choose a new site on this world? The hall will be recorded in the Legends. Saves made before now can still be loaded." | No |
 | `c_quickload` | "Load the quick save? Unsaved progress will be lost." | No |
 | `c_remove_zone_crops` | "This plot has {n} growing crops. Remove it?" | No |
 | `c_remove_stockpile_items` | "This stockpile holds {n} items. They will stay where they are. Remove it?" | No |

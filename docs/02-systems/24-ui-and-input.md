@@ -219,6 +219,8 @@ A rebinding takes effect at once and is saved with the preferences in the settin
 
 `Abandon fortress` ends the fortress for a new embark on the same world (T-672): after the `c_abandon` confirmation (default No) the fortress ends as a retired one does (its legend record, cause "Abandoned in Year {n} by {count} dwarves.", and its `final-` save), and the world map of the world it was founded on opens with the cursor on its site and the main menu behind it, ready for a new embark (`ui-screens/menus-and-world.md` § A new embark on the same world). The world is the one the fortress's save holds, as generated, with its history, and the fortress's ruin on its site (02 § Ruins: its dug halls, the constructions still standing and some of its items, weathered); the civilizations' standing is not carried over. The row is disabled in a view-only final save and when the fortress has no world map (a flat test world).
 
+Retiring or abandoning removes no save: the fortress's manual, quick and autosaves stay in Load and resume it as it was then, playable, beside its view-only `final-` save, so `c_retire` and `c_abandon` say "Saves made before now can still be loaded." A fortress resumed that way and ended again leaves a second legend record.
+
 Unsaved changes are ticks elapsed or commands applied since the last save. A command given while the game is paused takes effect at once without the calendar advancing, so it counts as an unsaved change too; the count of applied commands is kept beside the last-save tick and is not saved.
 
 ### Music
