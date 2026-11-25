@@ -117,7 +117,7 @@ The identity, activity and `At` lines stay at the top and the keys at the foot; 
 
 The activity line is never empty; too long for its row (`Activity: Haul to depot (priority 3)`), it wraps under itself, indented two cells, the priority kept whole. The tile list's row and the hover line's summary of a creature use the same words (`wolf  Asleep`, `deer, Grazing`). A dwarf's is its activity (10 § Player-facing behavior). Any other creature says what its behaviour is: `Caged` in a cage; a wild or hostile creature its state in the Units All tab's words, capitalized (`Activity: Grazing`, `Asleep`, `Hunting`, `Fleeing`, `Attacking`), a raider with no target of its own its party's state in the Threats panel's words (`Attacking`, `Waiting`, `Leaving`); a tame animal, the first that holds of `Curled up in the pets' heap`, `Starving` (a grazer at full hunger), `Waiting for the butcher` (marked for slaughter), `Following Ketil Ironvein` (its assigned dwarf) and `Keeping to Pasture #1`; and with none of these, `Wandering` while it walks and `Standing about` while it stands.
 
-The health section lists each part on a line of its own, with a bar and its hit points, named as the creature's body plan names it (17's `health.partNames`): a dwarf's `left arm` and `right leg`, a wolf's `left foreleg` and `right hindleg`, a chicken's `left wing`, a fish's `tail` twice (its tail fills both leg slots, each with its own hit points). A slot the plan gives no part (a fish's arms, the Hollow Maw's limbs) is not listed. The `Permanent:` line names its slots the same way: `lost left foreleg`. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour.
+The health section lists each part on a line of its own, with a bar and its hit points, named as the creature's body plan names it (17's `health.partNames`): a dwarf's `left arm` and `right leg`, a wolf's `left foreleg` and `right hindleg`, a chicken's `left wing`, a fish's `tail` twice (its tail fills both leg slots, each with its own hit points). A slot the plan gives no part (a fish's arms, the Hollow Maw's limbs) is not listed. Under each part a line of its own gives each wound by its severity and type, then, in brackets, `bleeding` while it bleeds unbandaged and its treatments and infection (`serious cut (bleeding)`, `serious cut (bandaged, infected)`); a bleeding wound's line is in the alert colour, and a line too long for the panel wraps under itself, never cut. The `Permanent:` line names its slots the same way: `lost left foreleg`. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour.
 
 An animal's view (08's `creature › animal`) has, under the rule, a dim label and a value a row, in the Animals panel's words:
 
@@ -278,7 +278,16 @@ A dwarf who is a patient has a `Care:` line under the Health line, on top of the
 8. otherwise, while a need remains: `Care: waiting for a medic.`
 9. with no need left: `Care: resting until healed.`
 
-The line reads 14's hospital zones and beds, 11's labor and job readers and 13's stock; it is broken at spaces to the panel width, the continuation rows indented under the text. A creature that is not a patient has no such line.
+The line reads 14's hospital zones and beds, 11's labor and job readers and 13's stock; it is broken at spaces to the panel width, the continuation rows indented under the text.
+
+A tame animal has a `Care:` line in the same place while its `bandage_animal` job (17 § Animals) is open, the first of these that applies, the first two in the alert colour:
+
+1. the job is blocked for a missing input: `Care: bleeding, and no bandage or cloth to bandage it. Buy them from a caravan, or weave cloth at a loom.`, the dwarf's words, so the `[v]` of the `NoDressing` line about an animal opens a view that says why it is dying;
+2. no living dwarf has the job's labor (`animal_care`) on: `Care: no one has Animal care enabled ([l] Labors).`;
+3. a dwarf has the job: `Care: bandaging by Sigrun Ashbrook.`;
+4. otherwise: `Care: waiting to be bandaged.`
+
+Any other creature, and an animal with no such job (unhurt, or its wounds bandaged), has no `Care:` line.
 
 A dwarf's view (10's `creature › dwarf`) has, under the creature's rule:
 
