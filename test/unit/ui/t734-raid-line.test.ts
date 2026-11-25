@@ -18,7 +18,7 @@ import type { Speed } from '@ui/status';
 import { FortressScreen, type FortressHost } from '@ui/screens/fortress';
 import { defaultUiState, fromSaved, toSaved } from '@ui/ui-state';
 import { TestWorld } from '../../scenarios/test-world';
-import { keymap, strings } from './ui-fixture';
+import { keymap, strings, surface } from './ui-fixture';
 
 const z = FLAT_TEST_SURFACE_Z;
 const RAID = 'A Gloam raid has come from the north!';
@@ -193,5 +193,11 @@ describe('T-734 the alert hint shows again for a raid at a Calm fortress', () =>
     expect(danger).toBeGreaterThanOrEqual(0);
     expect(texts.findIndex((t) => t.startsWith(HINT))).toBeGreaterThan(danger);
     expect(state.speed).toBe(0);
+    // The strip keeps the pinned danger line in view: the long hint wraps under it, not over it.
+    const s = surface(80, 42);
+    screen.draw(s);
+    const strip = s.lines().slice(layout.log.row, layout.log.row + layout.log.rows);
+    expect(strip.some((row) => row.includes('!! A Gloam raid has come from the north!'))).toBe(true);
+    expect(strip.some((row) => row.includes('☼ Click a door'))).toBe(true);
   });
 });
