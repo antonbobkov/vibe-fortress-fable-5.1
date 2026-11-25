@@ -131,6 +131,8 @@ export class AnnouncementLog {
   private miserable: { line: LogLine; ids: number[]; names: string[]; reasons: Reason[][] } | null = null;
   /** The day's line of fortress animals bleeding with no dressing and the animals it names (`announceBleedingAnimal`). */
   private bleeding: { line: LogLine; ids: number[]; names: string[] } | null = null;
+  /** The open line of each announced thought this tick and the dwarves it names (`announceThought`; not saved). */
+  private readonly thoughtLines = new Map<string, { line: LogLine; tick: number; ids: number[]; names: string[] }>();
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
   private readonly partyTiles = new Map<number, TileIndex>();
 
@@ -487,6 +489,7 @@ export class AnnouncementLog {
     if (event.type === 'CropDied') return this.announceFrost(fields, readers, tick, spec);
     if (event.type === 'Starving') return this.announceStarving(event, readers, tick, spec);
     if (event.type === 'MoodTierChanged') return this.announceMiserable(event, readers, tick, spec);
+    if (event.type === 'ThoughtGained') return this.announceThought(event, readers, tick, spec);
     if (event.type === 'NoDressing' && typeof fields['id'] === 'number' && !readers.entities.has(fields['id'], C.Attributes)) {
       return this.announceBleedingAnimal(event, fields['id'], readers, tick, spec);
     }
@@ -835,6 +838,52 @@ export class AnnouncementLog {
     const trained = readers.entities.get(id, C.Tame)?.trained;
     const key = trained === 'war' ? 'announce.no_dressing.the_war' : trained === 'hunting' ? 'announce.no_dressing.the_hunting' : 'ui.creature.the_species';
     return this.strings.get(key, { species });
+  }
+
+  /**
+   * 15 § Registrations: a thought many dwarves gain from one event (`raid_repelled`, `hearth_lit`, an
+   * argument's pair) is one line. The `ThoughtGained` events of one thought in one tick grow one line:
+   * one dwarf reads 'Asa Forgehall: "We drove them off."', two are named ('Asa Forgehall and Njal
+   * Coaleye: "Had an argument."'), more are counted ('13 dwarves: "We drove them off."'). The line
+   * keeps its place and the first dwarf's focus; once it names more than one it has no subject. A
+   * later event of the line returns null: it changes the line in place.
+   */
+  private announceThought(event: GameEvent, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const fields = event as unknown as Record<string, unknown>;
+    const id = Number(fields['id']);
+    const thoughtId = String(fields['thoughtId'] ?? '');
+    const params = this.params(event, readers);
+    const name = String(params['dwarf'] ?? '');
+    const thought = String(params['thought'] ?? '');
+    const open = this.thoughtLines.get(thoughtId);
+    if (open !== undefined && open.tick === tick && this.lines.includes(open.line)) {
+      if (open.ids.includes(id)) return null;
+      open.ids.push(id);
+      open.names.push(name);
+      const said = this.thoughtText(open.names, thought, spec);
+      if (open.line.count > 1) {
+        // The first dwarf's words had merged into an earlier identical line: that line keeps its own, less one.
+        open.line.count -= 1;
+        open.line = this.append(spec.severity, said.text, tick, open.line.focus, spec.category, said.key);
+      } else {
+        open.line.text = said.text;
+        open.line.key = said.key;
+      }
+      delete open.line.subject;
+      return null;
+    }
+    const focus = focusOf(event, readers);
+    const said = this.thoughtText([name], thought, spec);
+    const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
+    this.thoughtLines.set(thoughtId, { line, tick, ids: [id], names: [name] });
+    return { line, severity: spec.severity, focus };
+  }
+
+  /** The thought line's words and key: `announce.thought` for one dwarf, `announce.thought_pair` for two, `announce.thought_many` for more. */
+  private thoughtText(names: readonly string[], thought: string, spec: AnnouncementSpec): Said {
+    if (names.length === 1) return this.say(spec.stringKey, { dwarf: names[0] ?? '', thought });
+    if (names.length === 2) return this.say('announce.thought_pair', { dwarf: names[0] ?? '', other: names[1] ?? '', thought });
+    return this.say('announce.thought_many', { n: names.length, thought });
   }
 
   private starvingText(names: readonly string[], spec: AnnouncementSpec): Said {

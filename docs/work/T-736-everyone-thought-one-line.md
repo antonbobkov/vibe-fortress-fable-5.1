@@ -19,5 +19,13 @@ Spec: 24 § Announcements and the log (the merge), 15 § Registrations (`Thought
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): `raid_repelled` given to 13 dwarves in one tick makes one log line with the count; one dwarf makes the named line; an argument names both dwarves; `hearth_lit` in a fortress of 7 makes one line.
-- [ ] `strings:check` passes. UI only: no world hash moves.
+- [x] Tests (`describe` with the task id, `test/unit/ui/t736-shared-thought.test.ts`): `raid_repelled` given to 13 dwarves in one tick makes one log line with the count, keyed `announce.thought_many`, the first dwarf's focus and no subject, keeping its place before a death of that tick; one dwarf makes the named line (`announce.thought`); an argument names both dwarves (`announce.thought_pair`); another thought or a later tick is a line of its own; `hearth_lit` in a fortress of 7 (a real hearth) makes one line.
+- [x] `strings:check` passes. UI only: no world hash moves (`test/golden/world-hashes.test.ts` passes).
+- [x] Spec: 15 § Registrations (`ThoughtGained`'s line), 24 § Announcements and the log (shared thoughts), `ui-keymap-and-screens.md` § Announcements (the keys).
+
+Decisions taken while doing it:
+
+- **The burst thoughts are `raid_repelled`, `hearth_lit` and `argued`.** The announced thoughts are those five and `made_masterwork` and `legendary`, which come to one dwarf; sulks are `SulkHappened` lines, not thoughts. The rule is the announcer's for every announced thought, so a thought later flagged `announce` that comes to many folds too.
+- **A later event of the line returns no announcement** (as the bleeding-animal line does): the line changes in place, and its subject is cleared once it names two.
+- **A first dwarf whose words merged into an identical earlier line of the day** (a second raid repelled that day in a fortress of one) leaves that line its own count less one, and the grown line is appended as a line of its own; otherwise the line keeps its place.
+- **The new strings live in `src/ui/strings.ts`** beside `announce.thought`, not in the exported strings table.
