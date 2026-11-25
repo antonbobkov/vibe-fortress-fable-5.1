@@ -407,7 +407,7 @@ function scrolled(s: Surface, region: Rect, view: LookScroll | undefined, key: s
 
 /** One row of the tile list: a thing on the tile, with what it holds and its notes under it. */
 export interface TileListRow {
-  /** What the row opens; null for a thing inside another (a barrel's drink, a building's goods). */
+  /** What the row opens; null for a thing inside an item (a barrel's drink). A building's goods open. */
   readonly target: LookTarget | null;
   /** The glyph the map draws for it, or '' for a thing inside another. */
   readonly glyph: string;
@@ -438,8 +438,12 @@ function buildingGlyph(readers: ReaderSet, registry: Registry, id: EntityId, i: 
   return patternCell(pattern, b.orientation, at.x - Math.min(...cells.map((c) => c.x)), at.y - Math.min(...cells.map((c) => c.y)));
 }
 
-/** An item's row of the tile list (13's `item` section: name and quality, count, value, flags, rot, spell, enchantment). */
-function itemRow(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, inner: boolean): TileListRow {
+/**
+ * An item's row of the tile list (13's `item` section: name and quality, count, value, flags, rot,
+ * spell, enchantment). An `inner` row is indented under what holds it; it opens when `opens` (a
+ * building's goods), not when an item holds it.
+ */
+function itemRow(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId, inner: boolean, opens = !inner): TileListRow {
   const it = readers.of<ItemsReaderLike>('13');
   const rec = it.get(id);
   const def = rec === undefined ? undefined : it.def(rec.type);
@@ -456,7 +460,7 @@ function itemRow(readers: ReaderSet, registry: Registry, strings: Strings, id: E
   if (enchant !== null) notes.push({ text: enchant, tone: 'dim' });
   const items = registry.table<{ id: string; glyph?: string }>('items');
   return {
-    target: inner ? null : { kind: 'item', id },
+    target: opens ? { kind: 'item', id } : null,
     glyph: inner ? '' : firstGlyph(rec === undefined ? undefined : items.byIndex(rec.type)?.glyph),
     name: inner ? `${rec?.count ?? 0} ${name}` : name,
     fact: strings.get('ui.look.item_fact', { n: rec?.count ?? 0, value: rec === undefined ? 0 : it.value(id) }),
@@ -468,8 +472,8 @@ function itemRow(readers: ReaderSet, registry: Registry, strings: Strings, id: E
 /**
  * The rows of a tile's list (24 § Inspection), in the click ladder's order: the creatures the map
  * shows (dwarves, animals, the rest) with their activity, the loose items with what each holds
- * indented under it, the building with the goods it holds on this tile under it, the zone. An
- * undiscovered tile has none.
+ * indented under it, the building with the goods it holds on this tile under it (each stack opens),
+ * the zone. An undiscovered tile has none.
  */
 export function tileListRows(readers: ReaderSet, registry: Registry, strings: Strings, i: TileIndex): TileListRow[] {
   if (!discovered(readers, i)) return [];
@@ -488,7 +492,7 @@ export function tileListRows(readers: ReaderSet, registry: Registry, strings: St
   }
   const it = has(readers, '13') ? readers.of<ItemsReaderLike>('13') : null;
   const withContents = (id: EntityId, inner: boolean): void => {
-    rows.push(itemRow(readers, registry, strings, id, inner));
+    rows.push(itemRow(readers, registry, strings, id, inner, true));
     for (const held of it?.inContainer(id) ?? []) if (it?.get(held) !== undefined) rows.push(itemRow(readers, registry, strings, held, true));
   };
   for (const id of looseItemsAt(readers, i)) withContents(id, false);
@@ -580,13 +584,13 @@ export function drawTileList(
         const can = target !== null && opens(target);
         const digit = can && numbered.length < 9 ? String(numbered.length + 1) : '';
         if (digit !== '') numbered.push(target as LookTarget);
-        const lead = row.inner ? '      ' : `${digit.padEnd(1)} ${row.glyph} `;
+        const lead = row.inner ? `${digit.padEnd(1)}     ` : `${digit.padEnd(1)} ${row.glyph} `;
         const fact = row.inner ? '' : row.fact;
         const factCols = Array.from(fact).length;
         const nameCols = Math.max(1, width - Array.from(lead).length - (factCols > 0 ? factCols + 1 : 0));
         label(s, rect.col + 1, r, digit, { fg: t.key, keys: false });
         label(s, rect.col + 3, r, row.inner ? '' : row.glyph, { keys: false });
-        label(s, rect.col + 1 + Array.from(lead).length, r, row.name, { fg: row.inner ? t.dim : t.text, width: nameCols, keys: false });
+        label(s, rect.col + 1 + Array.from(lead).length, r, row.name, { fg: row.inner && !can ? t.dim : t.text, width: nameCols, keys: false });
         if (factCols > 0) label(s, rect.col + 1 + width - factCols, r, fact, { fg: t.dim, keys: false });
         if (can && open !== undefined) s.hit({ col: rect.col + 1, row: r, cols: width, rows: 1 }, () => open(target as LookTarget));
       });

@@ -1252,7 +1252,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.building.contents_one': '{category} {n}',
   'ui.building.contents_type': '{name} ×{n}',
   'ui.building.see_items': 'see the items',
-  'ui.building.see_items_help': 'Opens Look at the Items tab on the tile where they lie: each stack with its value and flags.',
+  'ui.building.see_items_help': "Opens Look's tile list on the tile where they lie: each stack opens with its digit.",
   'ui.building.wait_help': 'Why the goods still wait: place a stockpile that takes the categories named, make room in the full ones, turn Hauling on for someone, or open a way to them.',
   // Why a container building's goods still wait in it (the wagon's, T-681): units by reason.
   'ui.goods_wait.line': '{n|good waits|goods wait}: {reasons}',
@@ -1753,6 +1753,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.follow_off': 'off',
   'ui.look.gone_keys': '[c] center  [h] that tile',
   'ui.look.gone_keys2': '[Bksp] back  [Tab] link',
+  'ui.look.panel_back': '[Bksp] back',
   'ui.look.item_fact': '×{n} · {value} ☼',
   'ui.look.zone_fact': '{n} tiles',
   'ui.look.inside': ' · {n} inside',
