@@ -18,6 +18,12 @@ Decisions:
 
 Spec: `ui-screens/panels.md` § Stocks, 24 § Panels if it names the stack row.
 
+Decided while doing it:
+
+- **The tier comes first and the plain one goes unnamed**: `poor steel`, `masterwork steel ×1`, and `steel` for common, the tier of an ordinary make (`STOCKS_PLAIN_QUALITY`, 24's constants). Naming common on every row filled a Year 3 meal list with "common »", and a tier after the material (`steel (poor)`) does not fit three levels down, where the greaves' rows are. With the tier first, a name too long is cut in its material, a name; only the three long tiers are cut themselves, four or more levels down (`superio»` under a meal type), where the tooltip and the line under the tree give them.
+- **The tree takes a short name** (`TreeNode.short`): a stack row whose name does not fit with its units draws the name without them; one still too long is cut with `»` as before.
+- **The line under the tree names any selected stack whole** (`masterwork steel ×1`), not only a perishable one; a row of like stacks puts their tier first (`fine · 2 stacks`). The line wraps under itself when it is longer than its row (`masterwork · 4 stacks · 52 rot within 3 days`), the tree giving up a row, as Jobs' line under its list does.
+
 ## Done
 
-- [ ] Tests (`describe` with the task id): a single stack five levels down shows no `»` in its units; two greaves of two qualities read apart; the scan covers an opened deep type.
+- [x] Tests (`describe` with the task id): `test/unit/ui/t742-stocks-stack-rows.test.ts`: a single barley stack five levels down reads `barley` with no `»`, two levels down `barley ×1`, and the line under the tree `barley ×1 · …`; greaves of two qualities read `poor steel` and `steel`, their lines `poor · 2 stacks` and `3 stacks`, a masterwork one `masterwork steel ×1`; a long line under the tree wraps. T-703's scan (`T-742 the scan opens Stocks to its stacks`) opens a deep type to its single stack and the greaves to their stacks.

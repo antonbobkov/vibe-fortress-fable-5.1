@@ -74,6 +74,8 @@ export const HINT_FOOD_DAYS_PER_ITEM = 4;
 export const ROT_ALERT_DAYS = 3;
 /** Rows under the stocks tree for the selected row's usable line (`panels.md` § Stocks). */
 export const STOCKS_USE_ROWS = 2;
+/** The quality tier (12's common, the ordinary make) that a Stocks row does not name (`panels.md` § Stocks). */
+export const STOCKS_PLAIN_QUALITY = 1;
 
 /** The Mood panel's summary: how many of the thoughts held by most dwarves it lists (`panels.md` § Mood). */
 export const MOOD_SUMMARY_THOUGHTS = 5;
