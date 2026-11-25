@@ -12,7 +12,14 @@
 - Keep the view within the 36-column sidebar under the rule that a fact is never cut.
 - Update `fortress-screen.md`'s section list to what is drawn.
 
+Decided while doing it:
+
+- The rows are `Party` (the Threats panel's words without `Active:`: `Gloam raid, 7 of 10, attacking`), `Morale` (the party's morale word while it has one and has not broken), `Role` (`thief`, `warrior`, `archer`, `captain`, `hexer`, `cavern monster`, `Hollow-born`, `restless dead`; `, leads the party` for the leader), `Leader` (a link to the leader, when it is another creature the map shows) and `State` (`hostile`, then `breaking a door`, `carrying loot`, `lost its nerve`), in `src/ui/panels/look-hostile.ts`. A hostile without a party has `Role` and `State` only.
+- The values share the animal rows' column (the widest label of both sets, plus two).
+- A hostile the map hides is not given away: its own view is the existing `Out of sight.` view, and the `Party` count leaves out members stealthed and not spotted (a thief pair with one spotted reads `thief, 1, coming`); the hidden leader is not named.
+- The `Leader` link names a creature called by its species by its species's name (`gloam captain`), not by the id spawn stores as its name. The view's title still shows the id (follow-up).
+
 ## Done
 
-- [ ] Tests: a raider's view names its party, role and state; a dwarf's and an animal's views are unchanged.
-- [ ] UI only: no world hash moves.
+- [x] Tests: a raider's view names its party, role and state; a dwarf's and an animal's views are unchanged (`test/unit/ui/t713-hostile-view-sections.test.ts`: a raider with its leader, a captain breaking a door with loot, a spotted thief, a siege's trollkin that lost its nerve, a sprung ambusher before and after its party turns to leave, a cavern monster, a stealthed thief out of sight, a spotted thief whose hidden partner leads; nothing cut at 36 columns; T-710's dwarf and animal tests unchanged).
+- [x] UI only: no world hash moves.
