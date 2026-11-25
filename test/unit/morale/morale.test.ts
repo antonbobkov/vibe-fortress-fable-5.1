@@ -129,8 +129,8 @@ describe('T-M4-13 morale thoughts and mood', () => {
     expect(moodValue([], 2, 0)).toBe(59);
   });
 
-  it('F-02: only hungry, thirsty, tired and lonely are need pressure', () => {
-    expect(Array.from(NEED_PRESSURE_THOUGHTS).sort()).toEqual(['hungry', 'lonely', 'thirsty', 'tired']);
+  it('F-02, T-763: only hungry, thirsty and tired are need pressure', () => {
+    expect(Array.from(NEED_PRESSURE_THOUGHTS).sort()).toEqual(['hungry', 'thirsty', 'tired']);
     for (const id of NEED_PRESSURE_THOUGHTS) {
       const def = thoughts.byId(id);
       expect(def).toBeDefined();
