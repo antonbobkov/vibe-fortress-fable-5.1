@@ -136,9 +136,10 @@ describe("T-733 a soldier at drill is nobody's specialist", () => {
     const { state, founders, arrived, squadId } = fort(w, 3, (f) => [f[2]!, f[0]!]);
     expect(w.game.world.applyCommand({ type: 'SetSquadMembers', squadId, members: [founders[2]!, founders[0]!, arrived[0]!] }).ok).toBe(true);
     checkDefenceSquad(w, state);
-    expect([...(state.fortress.strong?.trained ?? [])].sort()).toEqual([...membersOf(w, squadId)].sort());
+    // The founders' trades are the fixture's: they are not among them.
+    expect(state.fortress.strong?.trained).toEqual([arrived[0]!]);
     expect(specialistCandidates(w, state.fortress)).not.toContain(arrived[0]);
-    // The founder at drill keeps no axe: his trade goes to a dwarf outside the squad.
+    // With no log in stock the founder's trade is given to another dwarf (T-656): one outside the squad.
     keepWoodcutter(w, state.fortress);
     const woodcutter = state.fortress.economy.specialists['woodcutter'];
     expect(woodcutter).toBeDefined();

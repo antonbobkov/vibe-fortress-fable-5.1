@@ -419,17 +419,20 @@ export function checkDefenceSquad(w: TestWorld, state: DefenceYearState): void {
  * felling, his woodcutting taken off him again (`keepToolLaborsOffTheSquad`), and nobody kept on the
  * chops; a bench specialist chosen so is named to its workshop and taken out of the squad
  * (`keepNamedWorkersAtTheirShops`), which keeps the squad short. As a player does not make a full-time
- * soldier the woodcutter, the script keeps the squad's living members and those stood down as the
- * strong squad's `trained` (the defence fortress has no strong squad, `strongSquad = false`, so
- * nothing else reads it here). So the founding woodcutter at drill, who keeps no axe, counts as gone
- * from felling (`keepWoodcutter`), the carpenter is never a member (`keepACarpenter`), a specialist the
- * refill takes in (`refillTheSquad`) is not named back to a bench, and a member leaving the squad for
- * its workshop is a candidate again.
+ * soldier the woodcutter, the script keeps the squad's living members and those stood down, but the
+ * founders, as the strong squad's `trained` (the defence fortress has no strong squad,
+ * `strongSquad = false`, so nothing else reads it here). So the carpenter is never a member
+ * (`keepACarpenter`), a specialist the refill takes in (`refillTheSquad`) is not named back to a
+ * bench, and a member leaving the squad for its workshop is a candidate again. The founders' trades
+ * are the fixture's: the founding woodcutter at drill stays the fortress's feller (`keepWoodcutter`
+ * counts a founder in `trained` gone, and would name a dedicated feller from nine adults), and a
+ * founder named to a bench leaves the squad for it (`keepNamedWorkersAtTheirShops`).
  */
 function keepTheSquadOffTheBenches(w: TestWorld, state: DefenceYearState, members: readonly number[]): void {
   const fortress = state.fortress;
   const ent = w.game.world.entities;
-  const trained = [...new Set([...members, ...(fortress.stoodDown ?? [])])].filter((id) => ent.alive(id));
+  const founders = w.game.arrival?.dwarves ?? [];
+  const trained = [...new Set([...members, ...(fortress.stoodDown ?? [])])].filter((id) => ent.alive(id) && !founders.includes(id));
   (fortress.strong ??= { marksSquadId: 0, trained: [], day: -1 }).trained = trained;
 }
 
