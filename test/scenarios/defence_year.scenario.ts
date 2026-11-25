@@ -108,6 +108,8 @@ const scenario: Scenario = {
     // (T-575), to be put back once the alert is down: they count as the squad's.
     // T-715: a soldier who fell in a fight counts too: a death in a fight is printed, not asserted, and
     // on one timeline an ambush killed two of the three and the fortress had no adult free to replace them.
+    // T-724: the script now refills the squad from the specialists, but only once the alert is down and
+    // only from those it may take, so a fight in the run's last days still leaves it short: the fallen count.
     const fallen = dwarfDeaths.filter((d) => inFight(d) && fallenSoldiers.has(d.id)).map((d) => d.id);
     const standing = [...(squad?.members ?? []), ...(state.fortress.stoodDown ?? [])];
     expect(new Set([...standing, ...fallen]).size).toBeGreaterThanOrEqual(3);

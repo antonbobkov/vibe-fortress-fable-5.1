@@ -15,7 +15,11 @@ Decisions:
 - **While the alert is down and the squad (with those stood down) is under `SQUAD_SIZE`, the defence script fills it from the adults whom no workshop names, those no role holds first, then specialists other than the brewer and the metal chain**, newest first; a specialist taken into the squad is released from its role.
 - Measure with `defence_seeds` (both verdict rules, and living and deaths a seed against master's), since the change moves every defence timeline.
 
+Taken (T-724): on master's timeline of `defence-year` at cadence 20 the nine adults left on day 158 were the lone soldier, the brewer, the watchman and six with a workshop (fuel, jeweler, craftdwarf and broker, forge, carpenter, builder at the mason's workshop): the rule above, which passes over every named worker, found nobody. So the refill also takes a named specialist, the least needed role first: **those no role holds and no workshop names (newest first), then the jeweler, the craftdwarf, the woodcutter, the builder and the carpenter, in that order (newest first within a role); never the metal chain (forge, smelter, fuel, charcoal), the brewer, the broker, the founding farmer and cook, or the watch.** A specialist taken in leaves its role and its workshop and is added to the strong squad's `trained` (state only; the defence fortress has no strong squad), which the economy's choices of a specialist pass over, so it is not named back to a bench and out of the squad. There the jeweler and the builder joined on day 158 and the squad stood at three to day 225.
+
+**The assertion keeps counting the fallen.** The refill acts only while the alert is down (a civilian put in mid-fight walks out unarmed, T-387) and only from the adults it may take: a fight in the run's last days, or one that leaves a small fortress with only its kept roles, still leaves the squad short at the end, and "at least 3 standing" would again assert a fight's deaths, which are printed and not asserted.
+
 ## Done
 
-- [ ] `defence_year_fortress.ts` refills the squad as above, with a note when it does.
+- [x] `defence_year_fortress.ts` refills the squad as above, with a note when it does.
 - [ ] `defence_seeds` verdict passes; living and deaths a seed no worse than master's, pooled.
