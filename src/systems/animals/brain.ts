@@ -512,7 +512,8 @@ export function thinkWild(host: BrainHost, ctx: TickContext, id: EntityId, w: Wi
         startFlee(host, ctx, id, next, threats);
         break;
       }
-      if (host.map.hasFlag(at, TileFlag.Grass)) {
+      // Snow may have covered the grass while the grazer walked to it: snowed grass cannot be eaten (08), so it looks again.
+      if (host.map.hasFlag(at, TileFlag.Grass) && !host.map.hasFlag(at, TileFlag.Snow)) {
         host.grazed(at);
         toIdle(host, ctx, id, next);
         break;

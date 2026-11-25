@@ -817,14 +817,13 @@ export function placeEconomyBuilding(w: TestWorld, state: FortressState, type: s
 
 /**
  * T-580: the day ambushes are first possible, as the threats panel's schedule preview gives it
- * (18: "possible from Autumn, Year 1"), or null where they never come.
+ * (18: its season and year), or null where they never come.
  */
 export function ambushFromDay(w: TestWorld): number | null {
   const preview = w.readers.of<ThreatsReader>('18').schedulePreview()['ambush'];
-  const m = preview === undefined ? null : /possible from (\w+), Year (\d+)/.exec(preview);
-  if (!m) return null;
-  const season = ['Spring', 'Summer', 'Autumn', 'Winter'].indexOf(m[1]!);
-  return (Number(m[2]) - 1) * DAYS_PER_YEAR + Math.max(0, season) * (DAYS_PER_YEAR / 4);
+  if (preview === undefined || preview === null) return null;
+  const season = ['spring', 'summer', 'autumn', 'winter'].indexOf(preview.season);
+  return (preview.year - 1) * DAYS_PER_YEAR + Math.max(0, season) * (DAYS_PER_YEAR / 4);
 }
 
 /**

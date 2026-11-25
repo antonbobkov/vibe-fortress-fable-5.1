@@ -15,7 +15,7 @@ import type { ReaderSet } from '@core/readers';
 import { weatherField } from './panels/calendar';
 import type { Strings } from './strings';
 import type { MoraleReader } from '@systems/morale';
-import { MOOD_TIER_NAMES } from './panels/mood';
+import { moodTierName } from './panels/mood';
 import { C } from '@core/components';
 import { TileFlag } from '@core/map3d';
 import type { HealthReader } from '@systems/health';
@@ -43,7 +43,7 @@ export function statusFields(readers: ReaderSet, strings: Strings, z: number, sp
   if (readers.has('10')) {
     fields.push(strings.get('ui.status.pop', { n: readers.of<{ population(): number }>('10').population() }));
   }
-  if (readers.has('15')) fields.push(`♥ ${MOOD_TIER_NAMES[readers.of<MoraleReader>('15').hallSpiritTier()]}`);
+  if (readers.has('15')) fields.push(`♥ ${moodTierName(strings, readers.of<MoraleReader>('15').hallSpiritTier())}`);
   if (readers.has('17') && readers.has('10')) {
     const health = readers.of<HealthReader>('17');
     const n = readers.of<{ list(): number[] }>('10').list().filter((id) => health.isPatient(id)).length;

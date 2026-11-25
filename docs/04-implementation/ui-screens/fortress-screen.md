@@ -352,7 +352,7 @@ The count records units of the first input not covered at each placement; placem
         └────────────────────────┘
 ```
 
-Strings: `ui.status.date`, `ui.status.pop`, `ui.panel.units.title`, `ui.tool.designate.*`, `ui.build.category.*`, `ui.menu.*`; every label above is a key.
+Strings: `ui.status.date`, `ui.status.pop`, `ui.panel.units.title`, `ui.tool.designate.*`, `ui.build.category.*`, `ui.menu.*`, `ui.game_menu.*` (the menu's title row and its entries); every label above is a key.
 
 The status bar fits 80 columns. Row 1 keeps its field order and complete numbers, reducing spaces between fields before cutting any text; the help field stays at the right edge.
 

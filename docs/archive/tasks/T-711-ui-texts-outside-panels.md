@@ -1,6 +1,8 @@
 # T-711 — The creature view, the screens and the UI's shared modules still write text in code
 
-**Source:** [T-709](../archive/tasks/T-709-panel-texts-in-strings.md), found while moving the panels' texts · **Size:** M · **Needs:** T-705, T-707 (they change the tile list, the building view and the creature view now) · **Status:** open
+**Closed:** 2026-11-24, in 24cba2d0,59f1f7f5,f5dacb36.
+
+**Source:** [T-709](T-709-panel-texts-in-strings.md), found while moving the panels' texts · **Size:** M · **Needs:** T-705, T-707 (they change the tile list, the building view and the creature view now) · **Status:** open
 
 ## Why
 
@@ -22,5 +24,5 @@ T-709 moved the fortress panels' texts into `UI_STRINGS` and taught `strings:che
 
 ## Done
 
-- [ ] `strings:check` scans `src/ui` whole; its skip list is empty and its allow-list gives a reason for each entry.
-- [ ] The screens' and panels' existing tests pass unchanged. UI only: no world hash moves.
+- [x] `strings:check` scans `src/ui` whole; its skip list is empty and its allow-list gives a reason for each entry.
+- [x] The screens' and panels' existing tests pass unchanged. UI only: no world hash moves.

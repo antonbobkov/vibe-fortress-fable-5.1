@@ -703,6 +703,7 @@ export class Game {
       return;
     }
     this.resetTo(new LegendScreen([record], {
+      strings: this.strings,
       back: () => void this.showMainMenu(),
       ...(ruined === null ? {} : { embarkAgain: () => void this.reembark(ruined, regionId) }),
     }, record.id));
@@ -755,7 +756,7 @@ export class Game {
 
   async openLegends(): Promise<void> {
     const records = await this.legends?.list() ?? [];
-    this.pushScreen(new LegendScreen(records, { back: () => { this.popScreen(); this.render(); } }));
+    this.pushScreen(new LegendScreen(records, { strings: this.strings, back: () => { this.popScreen(); this.render(); } }));
     this.render();
   }
 
