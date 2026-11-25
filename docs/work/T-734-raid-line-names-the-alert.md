@@ -22,5 +22,6 @@ Spec: 18 § Registrations (the `RaidArrived` and `AmbushSprung` lines), 24 § An
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a raid arriving under Calm with every squad off gives the line with both tails; under Hearth, the plain line; an ambush springing under Calm with an Active squad gives only the alert tail; no squads gives the "[+]" tail.
-- [ ] `strings:check` passes with the new keys. UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): a raid arriving under Calm with every squad off gives the line with both tails; under Hearth, the plain line; an ambush springing under Calm with an Active squad gives only the alert tail; no squads gives the "[+]" tail.
+- [x] `strings:check` passes with the new keys. UI only: no world hash moves.
+- [x] The alert hint (`hint_alert`) shows again, after the danger line, for a raid or an ambush while the alert is Calm, but not within `HINT_ALERT_REPEAT_DAYS` (28) of its last showing (the orchestrator's brief): tested with the warning and the next day's raid (once), a raid a season later (again), Hearth and a thief (not), an older save (again), and the screen (after the pinned line).

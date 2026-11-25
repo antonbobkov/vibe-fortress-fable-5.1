@@ -24,6 +24,8 @@ export interface UiState {
   hintPending: string[];
   hintBareSince: [number, number][];
   hintUnreachableSince: [number, number][];
+  /** The tick `hint_alert` last showed, -1 when never or not known (an older save): it shows again for a raid on Calm. */
+  hintAlertTick: number;
   workshopIdleNotes: number[];
   /** The first dangerous arrival has been announced (and paused the game, once per fortress). */
   wildlifeAlerted: boolean;
@@ -53,6 +55,7 @@ export interface SavedUiState {
   readonly hintPending: readonly string[];
   readonly hintBareSince: readonly [number, number][];
   readonly hintUnreachableSince?: readonly [number, number][];
+  readonly hintAlertTick?: number;
   readonly workshopIdleNotes?: readonly number[];
   readonly wildlifeAlerted?: boolean;
   readonly deepFound?: boolean;
@@ -63,7 +66,7 @@ export interface SavedUiState {
 
 export function defaultUiState(z: number): UiState {
   return { camX: 0, camY: 0, z, zoom: 1, panel: null, sidebar: true, overlays: ['designations', 'zones'],
-    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, miasmaAdvised: false, breaches: [], cursor: null, mark: null };
+    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], hintAlertTick: -1, workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, miasmaAdvised: false, breaches: [], cursor: null, mark: null };
 }
 
 /** The saved form: the state's persistent fields and the last `LOG_SAVED_LINES` log lines. */
@@ -80,6 +83,7 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
     hintPending: [...ui.hintPending],
     hintBareSince: ui.hintBareSince.map(([id, tick]) => [id, tick]),
     ...(ui.hintUnreachableSince.length === 0 ? {} : { hintUnreachableSince: ui.hintUnreachableSince.map(([id, tick]): [number, number] => [id, tick]) }),
+    ...(ui.hintAlertTick < 0 ? {} : { hintAlertTick: ui.hintAlertTick }),
     ...(ui.workshopIdleNotes.length === 0 ? {} : { workshopIdleNotes: [...ui.workshopIdleNotes] }),
     ...(ui.wildlifeAlerted ? { wildlifeAlerted: true } : {}),
     deepFound: ui.deepFound,
@@ -107,6 +111,7 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
   ui.hintPending = [...(saved.hintPending ?? [])];
   ui.hintBareSince = (saved.hintBareSince ?? []).map(([id, tick]) => [id, tick]);
   ui.hintUnreachableSince = (saved.hintUnreachableSince ?? []).map(([id, tick]) => [id, tick]);
+  ui.hintAlertTick = typeof saved.hintAlertTick === 'number' && Number.isInteger(saved.hintAlertTick) && saved.hintAlertTick >= 0 ? saved.hintAlertTick : -1;
   ui.workshopIdleNotes = [...(saved.workshopIdleNotes ?? [])];
   ui.wildlifeAlerted = saved.wildlifeAlerted === true;
   ui.deepFound = saved.deepFound ?? false;
