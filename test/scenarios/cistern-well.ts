@@ -206,6 +206,19 @@ export function keepOffWhole(w: TestWorld, plan: CisternPlan): boolean {
   return true;
 }
 
+/**
+ * The tiles the brook will flood on its side of the floodgate, forbidden to traffic before the
+ * breach: the tunnel up to the floodgate, and the stair from the tunnel's level up to the brook's
+ * water and no higher. The stair's levels above the water stay open: on `three-years-p2-7` the bank's
+ * ramp beside it, where the miner who opened the bank stepped off, had no other way out once the bank
+ * and the shaft were channelled, and he starved there beside full stores.
+ */
+export function feedSeal(w: TestWorld, plan: CisternPlan): TileIndex[] {
+  const tiles = plan.tunnel.slice(0, plan.gate).map((c) => tileOf(w, c, plan.cisternZ));
+  for (let z = plan.cisternZ; z <= Math.min(plan.bz, plan.tops.t - 1); z += 1) tiles.push(tileOf(w, plan.t, z));
+  return tiles;
+}
+
 /** Where the building of a cistern stands: each step is taken once, when the map allows it. */
 export interface CisternWork {
   readonly plan: CisternPlan;
@@ -359,8 +372,7 @@ export function lookAtCistern(w: TestWorld, work: CisternWork, send: (command: C
   // Before the brook comes in, nobody is to walk in the tunnel or on its stair (a hauler after the
   // tunnel's stone would drown there): their traffic is forbidden, and the breach waits for them to
   // be empty.
-  const flooded = plan.tunnel.slice(0, plan.gate).map((c) => at(c, L));
-  for (let z = L; z < plan.tops.t; z += 1) flooded.push(at(plan.t, z));
+  const flooded = feedSeal(w, plan);
   const ready = linked && bankReady && kind(plan.s, L + 1) === TileKind.Open && plan.tunnel.every((c) => dug(c, L));
   const empty = (tileList: readonly TileIndex[]): boolean => {
     const ent = w.game.world.entities;
