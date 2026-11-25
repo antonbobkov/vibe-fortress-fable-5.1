@@ -134,6 +134,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `CreatureDied` | `id, cause, killerId, tile, species, name, faction, ageTicks, wornItems` | 17 | 08, 09, 10, 11, 13, 14, 15, 16, 18, 20, ui |
 | `PatientAdmitted` / `PatientDischarged` / `PatientHealed` | `id[, hospitalTier]` | 17 | 10, 15, ui |
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
+| `NoDressing` | `id` | 17 | ui |
 | `TreatmentDone` | `patientId, medicId, kind` | 17 | 10 (xp) |
 | `ThreatWarning` | `kind, civ, sizeBand, edge` | 18 | 24 (hint), ui |
 | `RaidArrived` | `partyId, kind, size, edge` | 18 | 15, 16, 20, 21, 25, ui |
@@ -156,6 +157,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `CaravanDeparted` / `CaravanLost` / `CaravanAttacked` | `civ[, …]` | 20 | 18 (attacked → nothing; reputation in 20), ui |
 | `TradeCompleted` / `TradeRefused` / `GiftGiven` | `civ, givenValue, receivedValue` / `shortfall` / `civ, value` | 20 | 10 (xp), ui |
 | `TradeMissed` | `civ, depotId, traderId` | 20 | ui (an alert: the stay ended with a trade request waiting) |
+| `DepotGoodsReturned` | `depotId, count` | 20 | ui (a note: a caravan's departure took the goods left at a depot back to stock) |
 | `ReputationChanged` | `civ, delta, reason` | 20 | 21 (Mountainhome), ui |
 | `ImmigrantsArrived` | `ids[], count, children, guaranteed` | 21 | 11, 15, 18 (renown), ui |
 | `ImmigrationSkipped` | `reason` | 21 | ui |

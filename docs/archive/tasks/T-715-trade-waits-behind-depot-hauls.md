@@ -1,6 +1,8 @@
 # T-715 — The caravan leaves untraded while the trader hauls goods to the depot
 
-**Source:** playtest 2026-11-24 (second) ([report](../../reports/data/2026-11-24-playtest-2.md), finding 2) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 9e6aa9b7,feecd67c,e5d6d90e,b8efa9cd,87de20a6.
+
+**Source:** playtest 2026-11-24 (second) ([report](../../../reports/data/2026-11-24-playtest-2.md), finding 2) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -25,7 +27,7 @@ Spec: 20 § Moving goods to the depot, § The session, § Movement step 4; `ui-s
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): with 60 goods being hauled and one trading dwarf, the session opens within a day of `TradeOpen`; the depot line names the hauling while no one holds the job; goods still at the depot when the caravan departs are usable again and the note says how many.
-- [ ] The trade screen shows goods that arrive while it is open.
-- [ ] The `TradeMissed` line in a 36-column sidebar shows its whole reason.
-- [ ] World hashes of scenarios with caravans move (trades now happen); the commit says which.
+- [x] Tests (`describe` with the task id): with 60 goods being hauled and one trading dwarf, the session opens within a day of `TradeOpen`; the depot line names the hauling while no one holds the job; goods still at the depot when the caravan departs are usable again and the note says how many.
+- [x] The trade screen shows goods that arrive while it is open.
+- [x] The `TradeMissed` line in a 36-column sidebar shows its whole reason.
+- [x] World hashes of scenarios with caravans move (trades now happen); the commit says which.

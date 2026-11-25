@@ -28,6 +28,8 @@ import type { TickContext } from '@core/system';
 import type { BodySlot, EntityId, TileIndex } from '@core/types';
 import { BODY_SLOTS } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings/reader';
+import type { ItemsReader } from '@systems/items/reader';
+import type { JobsReader } from '@systems/jobs';
 import { createWound, exposed, severityFor, woundTreatmentNeeds, woundTypeFor } from './wounds';
 import { hasCrutchItem } from './reader';
 
@@ -117,6 +119,31 @@ function findHospitalOrFreeBed(ctx: TickContext, patientId: EntityId): { hospita
   return { hospitalZoneId: 0, bedId: buildings.freeBeds(patientId)[0] ?? 0, hospitalTier: 0 };
 }
 
+/**
+ * 17 § Player-facing behavior: a dwarf bleeding from a wound that bleeds until it is bandaged (not a
+ * light one, which clots), while no bandage or cloth is to be had and no medic is bringing one, raises
+ * `NoDressing` once; a later such wound raises it again.
+ */
+function warnNoDressing(ctx: TickContext, id: EntityId, wounds: readonly Wound[]): void {
+  const entities = ctx.world.entities;
+  const patient = entities.get(id, C.Patient);
+  if (patient === undefined || !ctx.readers.has('13')) return;
+  let newest = -1;
+  for (const w of wounds) {
+    if (w.bleed > 0 && !w.bandaged && w.severity !== 'light' && w.createdTick > newest) newest = w.createdTick;
+  }
+  if (newest < 0 || (patient.noDressingAlerted !== undefined && newest <= patient.noDressingAlerted)) return;
+  if (ctx.readers.has('11') && (ctx.readers.of<JobsReader>('11').byKey(`stop_bleeding:${id}`)?.workerId ?? 0) !== 0) return;
+  const items = ctx.readers.of<ItemsReader>('13');
+  if (items.countAvailable(DRESSING_BANDAGE) + items.countAvailable(DRESSING_CLOTH) > 0) return;
+  entities.add(id, C.Patient, { ...patient, noDressingAlerted: ctx.tick });
+  ctx.emit({ type: 'NoDressing', id });
+}
+
+/** The dressings `stop_bleeding` takes (17 § Patients and hospitals, Bandages first). */
+const DRESSING_BANDAGE = { category: 'medical/bandage' } as const;
+const DRESSING_CLOTH = { category: 'textile/cloth' } as const;
+
 export function updatePatient(
   ctx: TickContext,
   id: EntityId,
@@ -175,6 +202,7 @@ export function updatePatient(
         needs,
       });
     }
+    warnNoDressing(ctx, id, allWounds);
   }
   if (!shouldBePatient && existingPatient !== undefined) {
     // Discharge: no bleeding, no unsplinted fractures, no undressed burns, no infection, conscious, pain < PAIN_DISCHARGE

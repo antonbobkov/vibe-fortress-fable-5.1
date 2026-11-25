@@ -83,7 +83,8 @@ interface Equipment { weapon: EntityId; shield: EntityId; armor: Record<'head'|'
 interface Soldier { squadId: EntityId; onDuty: boolean; stance: 'hold' | 'pursue'; targetId: EntityId;
                     cooldownUntil: Tick; lastShiftTick: Tick }
 interface Patient { hospitalZoneId: EntityId; bedId: EntityId; needs: string[] /* job kinds */; admittedTick: Tick;
-                    washed?: true /* washed with soap this admission (17); absent: not */ }
+                    washed?: true /* washed with soap this admission (17); absent: not */;
+                    noDressingAlerted?: Tick /* the tick of its `NoDressing` alert (17); absent: none raised */ }
 const enum ItemFlag { Forbidden=1, Dump=2, Melt=4, Reserved=8, Owned=16, AtDepot=32, Merchant=64, Installed=128 }
 interface Item { type: Idx<ItemTypeDef>; material: Idx<MaterialDef>; quality: Quality; wear: number; count: number;
                  containerId: EntityId; ownerId: EntityId; flags: number; crafterId: EntityId;

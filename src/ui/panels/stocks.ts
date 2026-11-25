@@ -51,6 +51,16 @@ export function unusableReason(rec: { flags: number; carriedBy: EntityId; occupa
   return null;
 }
 
+/** 13's soil node: soil loads, which Stocks shows as a row of their own (`STOCKS_SOIL`). */
+const SOIL_NODE = 'stone/soil';
+/** The top-level row Stocks files soil loads under, so the stone row counts only what a mason can cut. */
+export const STOCKS_SOIL = 'soil';
+
+/** The row a category path files under in Stocks (`panels.md` § Stocks): 13's, with soil loads lifted out of stone. */
+export function stocksCategory(category: string): string {
+  return category === SOIL_NODE || category.startsWith(`${SOIL_NODE}/`) ? `${STOCKS_SOIL}${category.slice(SOIL_NODE.length)}` : category;
+}
+
 /** A type's row, whose stack rows are built the first time they are read and kept. */
 function lazyNode(id: string, name: string, open: boolean, build: () => TreeNode[]): TreeNode {
   let built: TreeNode[] | null = null;
@@ -67,7 +77,8 @@ export class StocksPanel {
   private forestCache: { totals: object; query: string; forest: TreeNode[] } | null = null;
 
   categories(): TreeNode[] {
-    if (this.forest === null) this.forest = buildTree(CATEGORY_TREE);
+    // The soil row comes right after stone, whose other rows its path order keeps together.
+    if (this.forest === null) this.forest = buildTree(CATEGORY_TREE.map(stocksCategory));
     return this.forest;
   }
 
@@ -93,7 +104,7 @@ export class StocksPanel {
         ids.push(id as EntityId);
         let path = pathOf.get(rec.type);
         if (path === undefined) {
-          const parts = it.categoryOf(rec.type).split('/');
+          const parts = stocksCategory(it.categoryOf(rec.type)).split('/');
           const nodes = parts.map((_, k) => parts.slice(0, k + 1).join('/'));
           path = { nodes, rotNodes: [`type:${rec.type}`, ...nodes] };
           pathOf.set(rec.type, path);
@@ -151,7 +162,7 @@ export class StocksPanel {
       nodes.filter((n) => (totals.get(n.id)?.count ?? 0) > 0).map((n) => {
         const children = keep(n.children);
         if (it !== null) for (const type of types.get(n.id) ?? []) {
-          if (it.categoryOf(type) !== n.id) continue;
+          if (stocksCategory(it.categoryOf(type)) !== n.id) continue;
           const stacks = itemIds.get(type) ?? [];
           children.push(lazyNode(`type:${type}`, it.def(type)?.name ?? String(type), stacks.length > 0, () => stacks.map((id) => {
             const rec = it.get(id);
@@ -350,7 +361,7 @@ export class StocksPanel {
       return this.typeCommands(ctx, kind, type, flag);
     }
     const types = this.totals(ctx).types.get(node) ?? [];
-    return types.filter((type) => categoryUnder(it.categoryOf(type), node)).flatMap((type) => this.typeCommands(ctx, kind, type, flag));
+    return types.filter((type) => categoryUnder(stocksCategory(it.categoryOf(type)), node)).flatMap((type) => this.typeCommands(ctx, kind, type, flag));
   }
 
   private isMetal(ctx: PanelContext, material: number): boolean {

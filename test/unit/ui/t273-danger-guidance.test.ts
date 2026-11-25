@@ -192,18 +192,21 @@ describe('T-273 panels and screens', () => {
     expect(text).toContain('Hearth: civilians stop work and');
   });
 
-  it('the embark hint alternates every five seconds of real time and on a tab change', () => {
+  it('the embark hint turns over every five seconds of real time and on a tab change', () => {
     let now = 0;
     const s = new EmbarkScreen(registry, 'embark-ui', { name: 'Greenhollow', peril: 0, tempC: 12 },
       { embark: () => {}, back: () => {}, now: () => now }, keymap, strings);
     const hint = (): string => { const surf = surface(100, 45); s.draw(surf); return surf.lines().join('\n'); };
+    // The hint's lines in the order they turn over (T-716 added the third).
+    const lines = ['Hint: two picks and one axe', 'clubs lose to boars', 'Hint: bring linen'];
+    const which = (text: string): number => lines.findIndex((l) => text.includes(l));
     s.setTab(1);
-    const first = hint();
-    const a = first.includes('Hint: two picks and one axe') ? 'picks' : 'beasts';
+    const first = which(hint());
+    expect(first).toBeGreaterThanOrEqual(0);
     now += EMBARK_HINT_SECONDS * 1000;
-    const second = hint();
-    expect(second.includes('Hint: two picks and one axe')).toBe(a !== 'picks');
-    expect(second.includes('clubs lose to boars') || first.includes('clubs lose to boars')).toBe(true);
-    expect(second).not.toBe(first);
+    expect(which(hint())).toBe((first + 1) % lines.length);
+    s.setTab(2);
+    s.setTab(1);
+    expect(which(hint())).toBe((first + 3) % lines.length);
   });
 });

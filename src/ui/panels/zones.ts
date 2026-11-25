@@ -854,6 +854,16 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
     { key: 'soap', item: 'soap' },
   ];
 
+  // 17: with no bandage or cloth to be had anywhere in the fortress, no bleeding wound can be bandaged.
+  const it = items(ctx);
+  if (it !== null && it.countAvailable({ category: 'medical/bandage' }) + it.countAvailable({ category: 'textile/cloth' }) === 0) {
+    for (const line of wrapText(ctx.strings.get('ui.zone.hospital.no_dressing'), rect.cols - 2, 2)) {
+      if (row >= bottom) break;
+      label(s, rect.col + 1, row, line, { fg: t.alert, width: rect.cols - 2 });
+      row += 1;
+    }
+  }
+
   if (row < bottom) {
     label(s, rect.col + 1, row, ctx.strings.get('ui.zone.hospital.supplies'), { fg: t.key, width: rect.cols - 2 });
     row += 1;

@@ -29,6 +29,12 @@ function wound(over: Partial<Wound> = {}): Wound {
   };
 }
 
+/**
+ * An unsplinted fracture that does not bleed: a patient whose bandaging cannot wait on a dressing,
+ * which the Care line names before the hospital (T-716).
+ */
+const FRACTURE: Partial<Wound> = { type: 'fracture', bleed: 0 };
+
 interface Scene {
   readonly w: TestWorld;
   readonly patient: EntityId;
@@ -109,7 +115,7 @@ describe('T-277 Look: the mood is a whole number', () => {
 
 describe('T-277 Look: a wounded dwarf shows what happens next', () => {
   it('names the missing hospital, in the alert colour, under the Health line', () => {
-    const { w, patient } = scene({ hospital: 'none' });
+    const { w, patient } = scene({ hospital: 'none', wound: FRACTURE });
     w.step(10);
     const { lines, s } = lookLines(w, patient);
     expect(careOf(lines)).toBe('Care: no hospital. Make one in Zones [z] > Hospital.');
@@ -128,7 +134,7 @@ describe('T-277 Look: a wounded dwarf shows what happens next', () => {
   });
 
   it('says there is no free hospital bed when the hospital has none', () => {
-    const { w, patient } = scene({ hospital: 'zone' });
+    const { w, patient } = scene({ hospital: 'zone', wound: FRACTURE });
     w.step(10);
     const { lines, s } = lookLines(w, patient);
     expect(careOf(lines)).toBe('Care: no free hospital bed.');
@@ -169,25 +175,25 @@ describe('T-277 Look: a wounded dwarf shows what happens next', () => {
   });
 
   it('names the supply a blocked treatment waits for, with the stock count', () => {
-    const { w, patient } = scene({ diagnosed: true });
+    const { w, patient } = scene({ diagnosed: true, wound: FRACTURE });
     w.step(30);
     const jobs = w.readers.of<JobsReader>('11');
-    const job = jobs.byKey(`stop_bleeding:${patient}`);
+    const job = jobs.byKey(`set_bone:${patient}`);
     expect(job?.state).toBe('blocked');
     const { lines, s } = lookLines(w, patient);
-    expect(careOf(lines)).toBe('Care: needs cloth (0 in stock).');
+    expect(careOf(lines)).toBe('Care: needs splint (0 in stock).');
     expect(careColor(s, lines)).toBe(theme.alert);
   });
 
   it('counts what is in stock when a treatment still waits for a supply', () => {
-    const { w, patient } = scene({ diagnosed: true });
+    const { w, patient } = scene({ diagnosed: true, wound: FRACTURE });
     w.step(30);
-    // The cloth is forbidden: it exists but cannot be used, so the job stays blocked.
-    const cloth = w.spawnItem('cloth', 'flax_cloth', w.index(30, 30, Z), 3);
-    w.game.world.applyCommand({ type: 'ForbidItem', itemId: cloth, on: true });
+    // The splint is forbidden: it exists but cannot be used, so the job stays blocked.
+    const splint = w.spawnItem('splint', 'pine', w.index(30, 30, Z), 3);
+    w.game.world.applyCommand({ type: 'ForbidItem', itemId: splint, on: true });
     w.step(30);
     const { lines } = lookLines(w, patient);
-    expect(careOf(lines)).toMatch(/^Care: needs cloth \(\d+ in stock\)\.$/);
+    expect(careOf(lines)).toMatch(/^Care: needs splint \(\d+ in stock\)\.$/);
   });
 
   it('says the patient waits for a medic when no one is free to treat', () => {
@@ -219,7 +225,7 @@ describe('T-277 Look: a wounded dwarf shows what happens next', () => {
   });
 
   it('wraps a long Care line in a narrow panel instead of cutting it', () => {
-    const { w, patient } = scene({ hospital: 'none' });
+    const { w, patient } = scene({ hospital: 'none', wound: FRACTURE });
     w.step(10);
     const { lines } = lookLines(w, patient, 36);
     expect(careOf(lines)).toBe('Care: no hospital. Make one in Zones [z] > Hospital.');

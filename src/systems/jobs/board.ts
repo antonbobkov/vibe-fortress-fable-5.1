@@ -30,7 +30,7 @@ import {
   STAND_POCKET_TILES,
 } from './constants';
 import { NO_ITEMS, type ItemSource, type JobSink, type JobSpec } from './producers';
-import type { Job, JobsStateV1, Tool } from './state';
+import type { Job, JobInput, JobsStateV1, Tool } from './state';
 import { stepWorker } from './steps';
 import { applySetLabor } from './commands';
 
@@ -699,31 +699,49 @@ export class JobBoard implements JobsApi, JobSink {
     }
   }
 
-  private inputsAvailable(job: Job): boolean {
+  /** Where a blocked job's retry searches for its inputs and tool: its first stand tile, else its anchor; -1 when neither is on the map. */
+  private retryOrigin(job: Job): TileIndex {
     const stands = this.standTiles(job);
     const from = stands.length > 0 ? (stands[0] as TileIndex) : this.anchorTile(job);
-    if (from < 0 || !this.world.map.validIndex(from)) return false;
+    return from < 0 || !this.world.map.validIndex(from) ? -1 : from;
+  }
+
+  /** Whether the units an input still needs are found from `from`, as a blocked job's retry searches (labels only, nothing reserved). */
+  private inputFound(job: Job, input: JobInput, from: TileIndex): boolean {
+    const units = job.data['inputUnits'] === true && input.wholeItem !== true;
+    const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
+    const needed =
+      input.count -
+      input.delivered.reduce((sum, id) => sum + count(id), 0) -
+      input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
+    if (needed <= 0) return true;
+    if (from < 0) return false;
+    const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
+    const found =
+      units && this.items.findUnits !== undefined
+        ? this.items.findUnits(filter, needed, from, false)
+        : this.items.findItems(filter, needed, from);
+    return found.reduce((sum, id) => sum + count(id), 0) >= needed;
+  }
+
+  /**
+   * `jobs.unfoundInput(id)` (§ Blocked jobs): the index of the first input a job still needs whose
+   * units its retry does not find from the job's first stand tile, or -1 when every one is found.
+   * The retry's own search, so the Jobs panel says "out of reach" exactly when the retry would leave
+   * the job blocked; labels only, no path search, and nothing is reserved or changed.
+   */
+  unfoundInput(job: Job): number {
+    const from = this.retryOrigin(job);
+    return job.inputs.findIndex((input) => !this.inputFound(job, input, from));
+  }
+
+  private inputsAvailable(job: Job): boolean {
+    const from = this.retryOrigin(job);
+    if (from < 0) return false;
 
     if (job.blockedReason === 'missing_input') {
       this.revalidateDelivered(job);
-      for (const input of job.inputs) {
-        const units = job.data['inputUnits'] === true && input.wholeItem !== true;
-        const count = (id: EntityId): number => (units ? (this.items.countOf?.(id) ?? 1) : 1);
-        const needed =
-          input.count -
-          input.delivered.reduce((sum, id) => sum + count(id), 0) -
-          input.reserved.filter((id) => !input.delivered.includes(id)).reduce((sum, id) => sum + count(id), 0);
-        if (needed <= 0) continue;
-        const filter = { ...input.filter, excludeIds: [...input.reserved, ...input.delivered] };
-        const found =
-          units && this.items.findUnits !== undefined
-            ? this.items.findUnits(filter, needed, from, false)
-            : this.items.findItems(filter, needed, from);
-        if (found.reduce((sum, id) => sum + count(id), 0) < needed) {
-          return false;
-        }
-      }
-      return true;
+      return job.inputs.every((input) => this.inputFound(job, input, from));
     }
 
     if (job.blockedReason === 'no_tool') {
@@ -1035,10 +1053,20 @@ export class JobBoard implements JobsApi, JobSink {
   }
 
   /**
-   * `11` § Assignment: an open job for a patient at `PATIENT_SUMMON_PRIORITY` does not wait for a
-   * worker to finish what it is doing. When no free worker in the queue could take it, the nearest
-   * worker to the patient at interruptible work that is not itself for a patient is interrupted,
-   * progress kept, and claims the job at once (queued for this tick if the claim fails).
+   * A job that calls a worker off its work (`11` § Assignment): a patient's at `PATIENT_SUMMON_PRIORITY`,
+   * or one its producer marks `summon` (20's `trade` job, which exists only while its caravan is at the depot).
+   */
+  private summons(job: Job): boolean {
+    return job.data['summon'] === true || (job.priority === PATIENT_SUMMON_PRIORITY && this.isPatientCare(job));
+  }
+
+  /**
+   * `11` § Assignment: an open job that calls a worker (a patient's at `PATIENT_SUMMON_PRIORITY`, or
+   * one marked `summon`) does not wait for a worker to finish what it is doing. When no free worker
+   * in the queue could take it, the nearest worker to the patient (else to the job's anchor) at
+   * interruptible work that is not itself for a patient, and, for a call that is not for a patient,
+   * less urgent than the calling job, is interrupted, progress kept, and claims the job at
+   * once (queued for this tick if the claim fails).
    */
   private summonForPatients(): void {
     const map = this.world.map;
@@ -1047,10 +1075,11 @@ export class JobBoard implements JobsApi, JobSink {
     let workers: EntityId[] | null = null;
     for (const id of this.ids) {
       const job = this.jobs.get(id);
-      if (job === undefined || job.state !== 'open' || job.priority !== PATIENT_SUMMON_PRIORITY || !this.isPatientCare(job)) continue;
+      if (job === undefined || job.state !== 'open' || !this.summons(job)) continue;
       if (this.assignQueue.some((w) => this.workerOf(w).jobId === 0 && !this.isDown(w) && this.eligible(job, w))) continue;
-      // Nearest to the patient itself (a `carry_patient` job's anchor is the bed).
-      const patientTile = job.target.kind === 'entity' ? this.workerTile(job.target.ref) : -1;
+      const patient = this.isPatientCare(job);
+      // Nearest to the patient itself (a `carry_patient` job's anchor is the bed); a call's nearest to its anchor.
+      const patientTile = patient && job.target.kind === 'entity' ? this.workerTile(job.target.ref) : -1;
       const anchor = map.unpack(patientTile >= 0 ? patientTile : this.anchorTile(job));
       let best: EntityId = 0;
       let bestD = Number.POSITIVE_INFINITY;
@@ -1058,6 +1087,8 @@ export class JobBoard implements JobsApi, JobSink {
       for (const w of workers) {
         const held = this.jobs.get(this.workerOf(w).jobId);
         if (held === undefined || held.workerId !== w || !this.typeRow(held).interruptible || this.isPatientCare(held)) continue;
+        // A call that is not for a patient takes no worker off work as urgent as itself.
+        if (!patient && held.priority <= job.priority) continue;
         if (entities.get(w, C.Brain)?.behavior !== 'work' || entities.has(w, C.Patient) || onDuty?.onDuty(w) === true) continue;
         if (!this.eligible(job, w)) continue;
         const d = estDistance(map.unpack(this.workerTile(w)), anchor);

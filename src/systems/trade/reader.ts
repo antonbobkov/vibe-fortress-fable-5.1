@@ -13,6 +13,8 @@ export interface TradeReader {
   /** A merchant good priced at the scarcity price: its material the site lacks (20 § The scarcity price). */
   isScarce(itemId: EntityId): boolean;
   depotItems(): readonly EntityId[];
+  /** Fortress goods still being carried to that depot: its `haul_to_depot` jobs (20 § Moving goods to the depot). */
+  depotHauls(depotId: EntityId): number;
   merchantItems(): readonly EntityId[];
   requests(civ: Civ): readonly TradeRequest[];
   lastBrought(civ: Civ): readonly string[];

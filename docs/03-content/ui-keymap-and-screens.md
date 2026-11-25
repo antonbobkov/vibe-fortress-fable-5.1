@@ -628,6 +628,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.title_assigned` | "{dwarf} is now the {title}." |
 | `announce.title_vacated` | "{dwarf} is no longer the {title}." |
 | `announce.trade_missed` | "The {civ} caravan is leaving without trading. {why}" |
+| `announce.depot_goods_returned` | "{count\|good\|goods} taken back from {depot}." |
 | `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children\|of them a child\|of them children}." |
 | `announce.immigration_skipped` | "No immigrants this season: {reason}." |
 | `announce.dangerous_arrived` | "A {species} has come to the valley." |

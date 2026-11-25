@@ -55,15 +55,21 @@ describe('T-521 a hunter who joins a squad and takes an axe puts the crossbow do
     // Another dwarf fetches the crossbow for a hunt (whether it then gets a shot depends on the
     // deer: on this small map a herd that flees a dwarf leaves it, T-535). Whether wild game is
     // still about after the first hunt is the timeline's; a deer comes by so that a hunt is offered,
-    // once the crossbow lies free (a hauler may first take it to the stockpile, T-676).
-    expect(playUntil(w, () => items.get(crossbow)?.carriedBy === 0 && ((items.get(crossbow)?.flags ?? 0) & 8) === 0, TICKS_PER_DAY), 'the crossbow lies free').toBe(true);
-    comesByDeer(w, cx, cy);
+    // once the crossbow lies free (a hauler may first take it to the stockpile, T-676). On some
+    // timelines another dwarf's hunt claims it the moment it is put down, before it ever lies free.
     const jobs = w.readers.of<JobsReader>('11');
     const takenForHunt = (): boolean => {
       const carrier = items.get(crossbow)?.carriedBy ?? 0;
       if (carrier === 0 || carrier === hunter) return false;
       return jobs.get(ent.get(carrier, C.Worker)?.jobId ?? 0)?.key.startsWith('hunt') === true;
     };
+    const claimedForHunt = (): boolean => {
+      const claim = jobs.get(items.get(crossbow)?.reservedBy ?? 0);
+      return claim !== undefined && claim.key.startsWith('hunt') && claim.workerId !== 0 && claim.workerId !== hunter;
+    };
+    const free = (): boolean => items.get(crossbow)?.carriedBy === 0 && ((items.get(crossbow)?.flags ?? 0) & 8) === 0;
+    expect(playUntil(w, () => free() || takenForHunt() || claimedForHunt(), TICKS_PER_DAY), 'the crossbow lies free, or another dwarf has it for a hunt').toBe(true);
+    if (free()) comesByDeer(w, cx, cy);
     expect(playUntil(w, takenForHunt, 10 * TICKS_PER_DAY), 'another dwarf takes the crossbow to hunt within ten days').toBe(true);
     expect(w.events('ProjectileFired').slice(firedBefore).some((e) => Number(e['shooterId']) === hunter), 'the soldier shoots no more').toBe(false);
   });

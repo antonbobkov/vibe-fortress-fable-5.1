@@ -19,7 +19,7 @@ import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
-import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
+import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_OTHER_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, TRADE_JOB_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
 import { edgeReaches, edgeSurface, spawnCaravan, wayGap, type WayGap } from './caravan';
 import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
@@ -56,6 +56,11 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   private gapsRevision = -1;
   /** What the site has and lacks, read once from the spec: the scarcity price's list. */
   private signature: SiteSignature | null = null;
+  /**
+   * The items with a `haul_to_depot` job and the depot each goes to, for the reader's count; derived
+   * from the job board, never saved: null until read from the board (after a load).
+   */
+  private hauls: Map<EntityId, EntityId> | null = null;
 
   constructor(private readonly spec: LocalMapSpec | null = null) { super(); }
 
@@ -106,6 +111,19 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
         }
         return gap;
       },
+      depotHauls: (depotId) => {
+        const jobs = ctx.readers.of<JobsReader>('11');
+        if (this.hauls === null) {
+          this.hauls = new Map();
+          for (const job of jobs.list()) if (job.key.startsWith('depot:')) this.hauls.set(job.target.ref, job.data['depotId'] as EntityId);
+        }
+        let n = 0;
+        for (const [item, depot] of this.hauls) {
+          if (jobs.stateByKey(`depot:${item}`) === null) this.hauls.delete(item);
+          else if (depot === depotId) n += 1;
+        }
+        return n;
+      },
       sessionOpen: () => this.sessionState !== null,
       session: () => this.sessionState && structuredClone(this.sessionState),
     };
@@ -127,6 +145,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     ctx.register.announcement('CaravanLost', { severity: 'alert', stringKey: 'announce.caravan_lost' });
     ctx.register.announcement('TradeCompleted', { severity: 'note', stringKey: 'announce.trade_completed' });
     ctx.register.announcement('TradeMissed', { severity: 'alert', stringKey: 'announce.trade_missed' });
+    ctx.register.announcement('DepotGoodsReturned', { severity: 'note', stringKey: 'announce.depot_goods_returned' });
     ctx.register.announcement('ReputationChanged', { severity: 'note', stringKey: 'announce.reputation_changed', atMost: { field: 'delta', value: 0 } });
   }
 
@@ -208,10 +227,11 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     const building = ctx.readers.of<BuildingsReader>('14').get(a.depotId);
     if (old) ctx.jobs.cancel(old.id, 'target_invalid');
     if (!building) return;
+    // § The session: above the depot's hauls, and it calls its dwarf off other work (11 § Assignment).
     ctx.jobs.create(`trade:${a.depotId}`, {
-      type: 'trade', ...(old ? { priority: old.priority } : {}),
+      type: 'trade', priority: old ? old.priority : TRADE_JOB_PRIORITY,
       target: { kind: 'building', ref: a.depotId }, workTile: building.footprint[0] ?? building.origin,
-      data: { depotId: a.depotId, assignedWorker },
+      data: { depotId: a.depotId, assignedWorker, summon: true },
     });
   }
 
@@ -372,16 +392,48 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
         if (cmd.type === 'MoveToDepot' && (item.flags & ItemFlag.AtDepot) !== 0) return reject('precondition_failed');
       }
       for (const id of ids) {
-        if (cmd.type === 'RemoveFromDepot') {
-          ctx.world.services.items?.setFlag(id, ItemFlag.AtDepot, false);
-          ctx.world.services.items?.dropAt(id, ctx.readers.of<BuildingsReader>('14').holderTile(depotId));
-        } else {
+        if (cmd.type === 'RemoveFromDepot') this.takeBack(ctx, id, depotId);
+        else {
           ctx.jobs.create(`depot:${id}`, { type: 'haul_to_depot', priority: DEPOT_HAUL_PRIORITY, target: { kind: 'entity', ref: id }, workTile: ctx.readers.of<BuildingsReader>('14').holderTile(depotId), inputs: [{ filter: { itemId: id }, count: 1, wholeItem: true }], data: { depotId } });
+          this.hauls?.set(id, depotId);
         }
       }
       return OK;
     }
     return reject('not_found');
+  }
+
+  /** `RemoveFromDepot` of one item: no longer at the depot, dropped where ordinary hauling takes it again. */
+  private takeBack(ctx: TickContext, id: EntityId, depotId: EntityId): void {
+    ctx.world.services.items?.setFlag(id, ItemFlag.AtDepot, false);
+    ctx.world.services.items?.dropAt(id, ctx.readers.of<BuildingsReader>('14').holderTile(depotId));
+  }
+
+  /**
+   * § Moving goods to the depot: a caravan's departure ends the depots' errands. The hauls still
+   * waiting are cancelled, and every fortress good at a depot goes back to ordinary stock as
+   * `RemoveFromDepot` would take it, with one `DepotGoodsReturned` for each depot that had any.
+   */
+  private returnDepotGoods(ctx: TickContext): void {
+    const jobs = ctx.readers.of<JobsReader>('11');
+    for (const job of jobs.list()) if (job.key.startsWith('depot:')) ctx.jobs.cancel(job.id, 'target_invalid');
+    const depots = ctx.readers.of<BuildingsReader>('14').depots();
+    const returned = new Map<EntityId, EntityId[]>();
+    for (const id of ctx.world.entities.with(C.Item)) {
+      const item = ctx.world.entities.get(id, C.Item);
+      if (!item || (item.flags & (ItemFlag.AtDepot | ItemFlag.Merchant)) !== ItemFlag.AtDepot) continue;
+      const depotId = item.containerId ?? 0;
+      if (!depots.includes(depotId)) continue;
+      const list = returned.get(depotId) ?? [];
+      list.push(id);
+      returned.set(depotId, list);
+    }
+    for (const depotId of depots) {
+      const ids = returned.get(depotId);
+      if (ids === undefined) continue;
+      for (const id of ids) this.takeBack(ctx, id, depotId);
+      ctx.emit({ type: 'DepotGoodsReturned', depotId, count: ids.length });
+    }
   }
 
   private depot(ctx: TickContext, edgeTile: TileIndex): EntityId {
@@ -596,6 +648,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     if (reason === 'no_depot') this.reputation(ctx, a.civ, REP_NO_DEPOT, 'no_depot');
     this.active = null;
     this.sessionState = null;
+    this.returnDepotGoods(ctx);
   }
 
   override tick(ctx: TickContext): void {
@@ -722,6 +775,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   deserialize(state: TradeStateV1, ctx: InitContext): void {
     if (!this.readerRef) this.init(ctx);
     this.retryTradeRequest = false;
+    this.hauls = null;
     this.scheduleState = structuredClone(state.schedule);
     this.active = state.activeCaravan && structuredClone(state.activeCaravan);
     this.requestsState = structuredClone(state.requests);

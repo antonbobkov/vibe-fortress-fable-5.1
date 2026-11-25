@@ -121,6 +121,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.legend.milestones_testing': 'Milestones (testing start)',
   'ui.legend.notable': 'Notable',
   'ui.legend.last_words': 'Last words (log)',
+  'ui.legend.folded': '{line} ({n|day|days})',
   // The fortress screen's own panels and the building views opened from the map.
   'ui.panel.overlays.title': 'Overlays',
   'ui.panel.calendar.title': 'Calendar',
@@ -369,6 +370,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // The log's first line on a site where a fortress ended (`ui-screens/menus-and-world.md` § A new embark on the same world).
   'ui.embark.ruin_here': 'The ruins of {fortress} lie somewhere on this site.',
   'ui.embark.hint_beasts': 'Hint: boars, wolves and bears come in the first season. Bring iron spears; clubs lose to boars.',
+  'ui.embark.hint_linen': 'Hint: bring linen. Without cloth or bandages no wound can be bandaged, and a deep cut bleeds to death.',
   'ui.embark.unavailable': 'Not offered here: {condition}.',
   'ui.embark.over_budget': 'Over budget by {n} ☼',
   'ui.embark.too_many_points': '{name} has more than {max} skill points.',
@@ -644,6 +646,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.trade.gift_takes_nothing': 'A gift takes nothing: clear their side first.',
   'ui.trade.choose_goods': 'Choose goods to offer.',
   'ui.trade.scarce': 'scarce here',
+  'ui.trade.more_on_way': '{n} more on the way',
   'ui.trade.not_traded': 'The {civ} do not trade in that.',
   'ui.civ.rep_reason.trade': 'trade',
   'ui.civ.rep_reason.gift': 'gift',
@@ -698,6 +701,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.build.stock.needs_workshop': 'build {workshop} to make them',
   'ui.build.stock.needs_workshop_item': 'build {workshop} to make {item}',
   'ui.build.stock.a_workshop': 'a workshop',
+  'ui.build.count_none': 'no {item}',
   'ui.status.zone': '{tool} · drag a rectangle · [Esc] cancel',
   'ui.status.zone_drag': '{tool} {w}×{h} ({n} tiles, {ok} qualify)',
   'ui.build.category.construction': 'Constructions',
@@ -753,6 +757,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // The hospital zone's settings (`ui-screens/panels.md` § Zones).
   'ui.zone.hospital.furniture': 'Beds: {beds}  Traction: {traction}  Chests: {chests}',
   'ui.zone.hospital.supplies': 'Supplies (current / wanted):',
+  'ui.zone.hospital.no_dressing': 'No cloth or bandages: a bleeding dwarf cannot be bandaged.',
   'ui.zone.hospital.supply': '{supply}: {current}/{wanted}',
   'ui.zone.hospital.supply.cloth': 'Cloth',
   'ui.zone.hospital.supply.bandages': 'Bandages',
@@ -1075,6 +1080,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // form, and the selected job's long form below the table.
   'ui.jobs.reason.unreachable': 'no path',
   'ui.jobs.reason.missing_input': 'waiting: {what}',
+  'ui.jobs.reason.to_be_brought': 'waiting: {what} to be brought',
+  'ui.jobs.reason.input_out_of_reach': 'waiting: {what}, out of reach',
+  'ui.jobs.reason_long.input_out_of_reach': '{text} — none in stock can be reached: open a door, unforbid a way, or move one within reach',
   'ui.jobs.reason.no_tool': 'waiting: {tool}',
   'ui.jobs.reason.no_worker': 'no worker',
   'ui.jobs.reason.workshop_suspended': 'suspended',
@@ -1568,6 +1576,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // A workshop's waiting line (`12` § Operation 3: "waiting for <input>"; D-U4).
   'ui.block.waiting_for': 'Waiting for {item} ({n} available)',
   'ui.block.order_at': '{text} — order at {where}',
+  'ui.block.advice': '{text} — {advice}',
+  'ui.advice.stone_dig': 'dig down to rock: the soil here is {n|level|levels} deep',
+  'ui.advice.stone_rock': 'dig into the rock for stone',
+  'ui.advice.stone_trade': 'trade for stone or blocks',
   'ui.block.fuel': 'Needs fuel',
   'ui.block.out_of_reach': 'Skipped: {item} out of reach. Tried again later, or when a door opens.',
   'ui.block.inputs': 'Waiting for inputs',
@@ -1680,8 +1692,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.trade.wait.on_duty_nobody': '{who} is on duty with {squad}, and no other dwarf has the trading labor: set the squad to Off [m], or turn on trading for another dwarf [l].',
   'ui.trade.wait.labor_off_stand_in': '{who} has the trading labor off: another dwarf with it trades instead.',
   'ui.trade.wait.labor_off_nobody': '{who} has the trading labor off, and no other dwarf has it: turn it on [l].',
-  'ui.trade.wait.stand_in': 'A dwarf with the trading labor is on the way to the depot.',
-  'ui.trade.wait.no_broker': 'A dwarf with the trading labor is on the way to the depot. No Broker: appoint one in Units [u].',
+  'ui.trade.wait.not_taken': 'No one has taken the trade yet.',
+  'ui.trade.wait.not_taken_hauls': 'No one has taken the trade yet: {n|good is|goods are} still being carried to the depot.',
+  'ui.trade.wait.late_hauls': 'No one took the trade: {n|good was|goods were} still being carried to the depot.',
+  'ui.trade.wait.no_broker': 'No Broker: appoint one in Units [u].',
   'ui.trade.wait.nobody': 'No dwarf free to trade has the trading labor: turn it on [l], or appoint a Broker [u].',
   'ui.depot.resume': '[Space] resumes',
   'ui.depot.a_depot': 'the depot',
@@ -2183,6 +2197,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.look.care.carry': 'Care: waiting to be carried to the hospital.',
   'ui.look.care.treating': 'Care: {job} by {name}.',
   'ui.look.care.needs': 'Care: needs {item} ({n} in stock).',
+  'ui.look.care.no_dressing': 'Care: bleeding, and no bandage or cloth to bandage it. Buy them from a caravan, or weave cloth at a loom.',
   'ui.look.care.waiting': 'Care: waiting for a medic.',
   'ui.look.care.resting': 'Care: resting until healed.',
   'ui.look.care.job.stop_bleeding': 'bandaging',
@@ -2319,6 +2334,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.creature_died': '{name} has died.',
   'announce.summon_faded': '{name} fades.',
   'announce.infection': '{dwarf} has developed an infection.',
+  'announce.no_dressing': '{dwarf} is bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',
   'announce.limb_lost': '{name} has lost a limb.',
   // 19 Defense announcements.
   'announce.trap_triggered': 'A trap has been triggered.',
@@ -2402,6 +2418,14 @@ export class Strings {
   get(key: string, params: Readonly<Record<string, string | number>> = {}): string {
     const raw = this.content[key] ?? UI_STRINGS[key] ?? key;
     return fill(raw, params);
+  }
+
+  /** Every template whose key starts with `prefix`, the content's over the UI table's (T-720: the legend reads a line's key back from its text). */
+  templates(prefix: string): [string, string][] {
+    const out = new Map<string, string>();
+    for (const [key, value] of Object.entries(UI_STRINGS)) if (key.startsWith(prefix)) out.set(key, value);
+    for (const [key, value] of Object.entries(this.content)) if (key.startsWith(prefix)) out.set(key, value);
+    return [...out];
   }
 }
 

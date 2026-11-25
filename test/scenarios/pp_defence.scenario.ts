@@ -60,12 +60,15 @@ const scenario: Scenario = {
   // two. On 'pp-defence' the first pair of boars killed a soldier and fled, and the next dangerous
   // group came on day 43, after the wagon's food had run out; on this seed a badger is met and killed
   // on day 7, with or without the spell. (T-551 moved it to 'pp-defence-6' with the floor at 50; T-572's
-  // floor at 85 meets the goal on this seed again.)
-  seed: 'pp-defence-4',
+  // floor at 85 meets the goal on this seed again.) T-716's Warband (25 bolts in place of 50, and 5
+  // linen) moves the arrivals: on 'pp-defence-4' the badger no longer comes, three boars outlast the
+  // wagon's food, and the sheltered fortress starves by day 40, as it does on master on seeds 3 and 7;
+  // on 'pp-defence-5' a soldier kills the first dangerous arrival on day 17.
+  seed: 'pp-defence-5',
   world: 'flat-test',
   timeoutMs: 300_000,
   run: () => {
-    const w = pathWorld('pp-defence-4', { preset: 'warband' }, { traits: [] });
+    const w = pathWorld('pp-defence-5', { preset: 'warband' }, { traits: [] });
     const { x: cx, y: cy } = wagon(w);
     const ent = w.game.world.entities;
     const items = w.readers.of<ItemsReader>('13');

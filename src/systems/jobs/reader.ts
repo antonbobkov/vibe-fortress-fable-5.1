@@ -23,6 +23,12 @@ export interface JobsReader {
   stateByKey(key: string): JobState | null;
   forWorker(dwarfId: EntityId): Job | undefined;
   blockedReason(id: number): string | null;
+  /**
+   * The index of the first input a job still needs whose units its blocked retry does not find from
+   * the job's first stand tile (§ Blocked jobs: labels only, no path search), or -1 when every one is
+   * found or there is no such job. An input counted available but not found is out of reach.
+   */
+  unfoundInput(id: number): number;
   counts(): JobCounts;
   /** `labor` is a labor id or registry index. */
   laborEnabled(dwarfId: EntityId, labor: string | number): boolean;
@@ -74,6 +80,10 @@ export function makeReader(board: JobBoard): JobsReader {
       return jobId === 0 ? undefined : copy(board.jobs.get(jobId));
     },
     blockedReason: (id) => board.jobs.get(id)?.blockedReason ?? null,
+    unfoundInput: (id) => {
+      const job = board.jobs.get(id);
+      return job === undefined ? -1 : board.unfoundInput(job);
+    },
     counts: () => {
       let open = 0;
       let claimed = 0;

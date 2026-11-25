@@ -31,6 +31,8 @@ import type { TradeReader } from '@systems/trade';
 import type { JobsReader } from '@systems/jobs';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { CombatReader } from '@systems/combat';
+import { siteSummary, type LocalMapSpec } from '@systems/embark';
+import type { TerrainReader } from '@systems/terrain';
 import type { HealthReader } from '@systems/health';
 import type { MagicReader } from '@systems/magic';
 import { withSuffix } from '@content/generate';
@@ -406,6 +408,74 @@ export function whereMade(registry: Registry, itemIds: readonly string[], string
   return workshopList(Array.from(new Set(itemIds.flatMap((id) => producersOf(registry, id)))), strings);
 }
 
+/** A building row's inputs as the buildings table gives them. */
+interface BuildingInputsRow {
+  readonly id: string;
+  readonly name: string;
+  readonly inputs?: readonly { readonly match: string; readonly count: number | 'tiles' }[];
+}
+
+/** Units of a building input in stock, every alternative counted (13 `countAvailable`). */
+export function inputUnits(readers: ReaderSet, match: string): number {
+  const b = buildingsOf(readers);
+  const it = readers.has('13') ? readers.of<ItemsReader>('13') : null;
+  if (b === null || it === null) return 0;
+  const types = b.inputTypes(match);
+  return types.length === 0 ? 0 : it.countAvailable({ types });
+}
+
+/** The soil depth of each site spec, from the site summary the world map shows (03 stage 3). */
+const SOIL_DEPTHS = new WeakMap<LocalMapSpec, number>();
+
+/**
+ * Where stone comes from on this site (`fortress-screen.md` § Build tool): dig down through the
+ * soil, as deep as the site panel says it is; dig into the rock where there is no soil; trade for
+ * it on a map with no site.
+ */
+export function stoneAdvice(env: MessageEnv): string {
+  const s = env.strings;
+  const spec = env.readers.has('03') ? env.readers.of<TerrainReader>('03').spec() : null;
+  if (spec === null) return s.get('ui.advice.stone_trade');
+  let depth = SOIL_DEPTHS.get(spec);
+  if (depth === undefined) {
+    depth = siteSummary(spec, env.registry).soil?.depth ?? 0;
+    SOIL_DEPTHS.set(spec, depth);
+  }
+  return depth > 0 ? s.get('ui.advice.stone_dig', { n: depth }) : s.get('ui.advice.stone_rock');
+}
+
+/**
+ * Where a short item can come from (`fortress-screen.md` § Build tool, `panels.md` § Jobs): the
+ * workshops whose recipes make it, leaving out one whose own building takes it unless it is built
+ * or the stock can build it (a mason's workshop, a kiln and a forge for blocks, on a site with no
+ * stone); `where` names them as {@link whereMade} does, `count` says how many there are. For stone
+ * or blocks, when none of them is built and the stock cannot build one, `advice` says where the
+ * rock is ({@link stoneAdvice}) and `where` is empty.
+ */
+export function sourceOf(env: MessageEnv, itemIds: readonly string[]): { where: string; count: number; advice: string } {
+  const b = buildingsOf(env.readers);
+  const items = env.registry.table<{ id: string; category?: string }>('items');
+  const buildingRows = env.registry.table<BuildingInputsRow>('buildings');
+  const recipes = env.registry.table<RecipeRow>('recipes');
+  const wanted = new Set(itemIds);
+  const makers = new Set<string>();
+  for (const id of recipes.ids()) {
+    const recipe = recipes.byId(id);
+    if (recipe !== undefined && recipe.outputs.some((o) => wanted.has(o.item))) makers.add(recipe.workshop);
+  }
+  const wantedTypes = new Set(itemIds.filter((id) => items.has(id)).map((id) => items.index(id)));
+  const takes = (row: BuildingInputsRow): boolean =>
+    b !== null && (row.inputs ?? []).some((input) => b.inputTypes(input.match).some((t) => wantedTypes.has(t)));
+  const built = (row: BuildingInputsRow): boolean => b !== null && b.byType(row.id).some((id) => b.get(id)?.state === 'built');
+  const buildable = (row: BuildingInputsRow): boolean =>
+    (row.inputs ?? []).every((input) => inputUnits(env.readers, input.match) >= (input.count === 'tiles' ? 1 : input.count));
+  const listed = buildingRows.ids().filter((id) => makers.has(id)).map((id) => buildingRows.byId(id))
+    .filter((row): row is BuildingInputsRow => row !== undefined && (!takes(row) || built(row) || buildable(row)));
+  const stone = itemIds.some((id) => /^stone\/(raw|block)$/.test(items.byId(id)?.category ?? ''));
+  if (stone && !listed.some((row) => built(row) || buildable(row))) return { where: '', count: 0, advice: stoneAdvice(env) };
+  return { where: workshopList(listed.map((row) => row.name), env.strings), count: listed.length, advice: '' };
+}
+
 /** The tile a command is about, for the log line's focus (24 § Announcements: "jumps to the focus"). */
 export function commandFocus(readers: ReaderSet, command: Command | undefined): TileIndex | undefined {
   if (command === undefined) return undefined;
@@ -564,31 +634,59 @@ function filterItemIds(registry: Registry, filter: Readonly<Record<string, unkno
   return ids.map((i) => items.byIndex(i)?.id ?? '').filter((id) => id !== '');
 }
 
+/** An item filter as 13's `countAvailable` takes it. */
+type ItemFilterLike = Parameters<ItemsReader['countAvailable']>[0];
+
 /** A job as the blocked-reason column reads it. */
 export interface BlockedJob {
+  /** The job's id, for 11's `unfoundInput` (a job without one is never read as out of reach). */
+  readonly id?: number;
   readonly type: number;
   readonly blockedReason: string | null;
   readonly tool: string | null;
-  readonly inputs: readonly { readonly filter: object; readonly count: number; readonly delivered: readonly number[] }[];
+  readonly inputs: readonly { readonly filter: object; readonly count: number; readonly reserved?: readonly number[]; readonly delivered: readonly number[] }[];
 }
 
 /**
- * A blocked job's reason: `short` for the jobs table's cell ("waiting: 1 door"), `long` for the
+ * A blocked job's reason: `short` for the jobs table's cell ("waiting: 1 stone"), `long` for the
  * selected job's line, which also says where to get the missing item ("— order at a carpenter's
- * workshop") or what to do.
+ * workshop", "— dig down to rock: …") or what to do. The input named is the first that is short:
+ * fewer units available (13 `countAvailable`) than it still needs beyond what is reserved and
+ * delivered; when none is, the first that the job's retry does not find within reach (11
+ * `unfoundInput`: "waiting: 1 barrel, out of reach"), else the first not yet delivered, which waits
+ * to be brought.
  */
 export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string; long: string } {
   const s = env.strings;
   const reason = job.blockedReason ?? '';
   if (reason === 'missing_input') {
-    const input = job.inputs.find((i) => i.count - i.delivered.length > 0) ?? job.inputs[0];
+    const it = env.readers.has('13') ? env.readers.of<ItemsReader>('13') : null;
+    const owed = (i: BlockedJob['inputs'][number]): number => i.count - i.delivered.length - (i.reserved?.length ?? 0);
+    const short = it === null ? undefined : job.inputs.find((i) => owed(i) > 0 && it.countAvailable(i.filter as ItemFilterLike) < owed(i));
+    const input = short ?? job.inputs.find((i) => i.count - i.delivered.length > 0) ?? job.inputs[0];
     if (input !== undefined) {
-      const n = Math.max(1, input.count - input.delivered.length);
       const filter = input.filter as Readonly<Record<string, unknown>>;
-      const what = filterText(env.registry, filter, n, s);
-      const where = whereMade(env.registry, filterItemIds(env.registry, filter), s);
-      const short = s.get('ui.jobs.reason.missing_input', { what });
-      return { short, long: where === '' ? short : s.get('ui.block.order_at', { text: short, where }) };
+      if (short === undefined && it !== null) {
+        // Every input is counted available: one the job's own retry cannot find lies out of reach.
+        const far = job.id !== undefined && env.readers.has('11') ? job.inputs[env.readers.of<JobsReader>('11').unfoundInput(job.id)] : undefined;
+        if (far !== undefined) {
+          const text = s.get('ui.jobs.reason.input_out_of_reach', { what: filterText(env.registry, far.filter as Readonly<Record<string, unknown>>, Math.max(1, owed(far)), s) });
+          return { short: text, long: s.get('ui.jobs.reason_long.input_out_of_reach', { text }) };
+        }
+        const text = s.get('ui.jobs.reason.to_be_brought', { what: filterText(env.registry, filter, Math.max(1, input.count - input.delivered.length), s) });
+        return { short: text, long: text };
+      }
+      const what = filterText(env.registry, filter, Math.max(1, owed(input)), s);
+      const text = s.get('ui.jobs.reason.missing_input', { what });
+      // Where it comes from is read only for the long line: the jobs table asks for the short one on every row.
+      return {
+        short: text,
+        get long(): string {
+          const source = sourceOf(env, filterItemIds(env.registry, filter));
+          return source.advice !== '' ? s.get('ui.block.advice', { text, advice: source.advice })
+            : source.where === '' ? text : s.get('ui.block.order_at', { text, where: source.where });
+        },
+      };
     }
   }
   if (reason === 'no_tool') {
@@ -648,8 +746,10 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
   const waiting = waitingFor(env, reason);
   if (waiting !== null) {
     const text = s.get('ui.block.waiting_for', { item: waiting.item, n: waiting.n });
-    const where = whereMade(env.registry, waiting.match.split('|'), s);
-    return where === '' ? text : s.get('ui.block.order_at', { text, where });
+    // Where it comes from, as a blocked job's line says it (jobBlockText): stone says where the rock is.
+    const source = sourceOf(env, waiting.match.split('|'));
+    if (source.advice !== '') return s.get('ui.block.advice', { text, advice: source.advice });
+    return source.where === '' ? text : s.get('ui.block.order_at', { text, where: source.where });
   }
   if (reason === 'missing_input') {
     const items = env.registry.table<NamedRow>('items');
@@ -679,10 +779,11 @@ export function brokerOnWay(env: MessageEnv, depotId: EntityId, paused: boolean)
  * Who a waiting trade request waits for and why (`panels.md` § Depot, 20 § The session): the
  * depot's `trade` job's worker on the way, else the Broker it is for and what keeps them (asleep,
  * eating, at another job, a patient, sheltering, out of reach), else why no Broker holds it (on duty
- * with a squad, the trading labor off, none appointed) and whether any other dwarf can trade.
- * `null` when no request waits at the depot (no job, or the session is open). With `prospective`,
- * a request about to be sent is read as its job will be: for the Broker unless the Broker is on
- * duty or has the labor off.
+ * with a squad, the trading labor off, none appointed) and whether any other dwarf can trade; with
+ * no dwarf on the way and nothing else to say, that no one has taken the trade yet, and how many
+ * goods are still being carried to the depot. `null` when no request waits at the depot (no job,
+ * or the session is open). With `prospective`, a request about to be sent is read as its job will
+ * be: for the Broker unless the Broker is on duty or has the labor off, who is then on the way.
  */
 export function tradeWait(env: MessageEnv, depotId: EntityId, prospective = false): string | null {
   if (!env.readers.has('11') || !env.readers.has('20') || !env.readers.has('10')) return null;
@@ -690,16 +791,22 @@ export function tradeWait(env: MessageEnv, depotId: EntityId, prospective = fals
   const job = env.readers.of<JobsReader>('11').byKey(`trade:${depotId}`);
   if (job === undefined && !prospective) return null;
   const assigned = job === undefined ? brokerFor(env) : typeof job.data['assignedWorker'] === 'number' ? job.data['assignedWorker'] : 0;
-  return tradeWaitFor(env, job?.workerId ?? 0, assigned, typeof job?.workTile === 'number' ? job.workTile : -1, false);
+  return tradeWaitFor(env, job?.workerId ?? 0, assigned, typeof job?.workTile === 'number' ? job.workTile : -1, false, depotId, job === undefined);
 }
 
 /**
  * The words of {@link tradeWait} for a worker on the way (`workerId`), else the dwarf the job is
  * for (`assigned`, 0 for any trading dwarf). `late` reads them as the caravan leaves (20,
- * `TradeMissed`): a dwarf that was coming "did not reach the depot in time".
+ * `TradeMissed`): a dwarf that was coming "did not reach the depot in time". `depotId` counts the
+ * goods still being carried there; `prospective` reads a request not yet sent ({@link tradeWait}).
  */
-export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: EntityId, workTile: TileIndex, late: boolean): string {
+export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: EntityId, workTile: TileIndex, late: boolean, depotId = 0, prospective = false): string {
   const s = env.strings;
+  const hauls = depotId !== 0 && env.readers.has('20') ? env.readers.of<TradeReader>('20').depotHauls(depotId) : 0;
+  // No dwarf has taken the trade: said so, with the goods still on their way to the depot.
+  const notTaken = (): string => late
+    ? s.get(hauls === 0 ? 'ui.trade.wait.late_any' : 'ui.trade.wait.late_hauls', { n: hauls })
+    : s.get(hauls === 0 ? 'ui.trade.wait.not_taken' : 'ui.trade.wait.not_taken_hauls', { n: hauls });
   const dwarves = env.readers.of<DwarvesReader>('10');
   const broker = dwarves.holder('broker');
   const who = (id: EntityId): string => {
@@ -710,23 +817,26 @@ export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: Enti
     if (late) return s.get('ui.trade.wait.late', { who: who(workerId) });
     return s.get(broker !== 0 && broker !== workerId ? 'ui.trade.wait.stand_in_on_way' : 'ui.trade.wait.on_way', { who: who(workerId) });
   }
-  if (assigned !== 0 && env.readers.entities.alive(assigned)) return dwarfWait(env, assigned, who(assigned), workTile, late);
+  if (assigned !== 0 && env.readers.entities.alive(assigned)) return dwarfWait(env, assigned, who(assigned), workTile, late, prospective ? null : notTaken);
   // No Broker holds the job: why not, and whether another dwarf can trade.
   const combat = env.readers.has('16') ? env.readers.of<CombatReader>('16') : null;
   const free = (id: EntityId): boolean => id !== broker && combat?.onDuty(id) !== true && !dwarves.isChild(id);
   const others = env.readers.of<JobsReader>('11').workersWithLabor('trading').some(free);
-  if (late && others) return s.get('ui.trade.wait.late_any');
+  if (late && others) return notTaken();
   if (broker !== 0 && env.readers.entities.alive(broker)) {
     const squad = combat?.onDuty(broker) === true ? combat.squadOf(broker) : undefined;
     if (squad !== undefined) return s.get(others ? 'ui.trade.wait.on_duty_stand_in' : 'ui.trade.wait.on_duty_nobody', { who: who(broker), squad: squad.name });
     if (!env.readers.of<JobsReader>('11').laborEnabled(broker, 'trading')) return s.get(others ? 'ui.trade.wait.labor_off_stand_in' : 'ui.trade.wait.labor_off_nobody', { who: who(broker) });
   }
   if (!others) return s.get('ui.trade.wait.nobody');
-  return s.get(broker !== 0 ? 'ui.trade.wait.stand_in' : 'ui.trade.wait.no_broker');
+  return broker !== 0 ? notTaken() : `${notTaken()} ${s.get('ui.trade.wait.no_broker')}`;
 }
 
-/** What keeps the dwarf a trade job is for from the depot, from its brain and health. */
-function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileIndex, late: boolean): string {
+/**
+ * What keeps the dwarf a trade job is for from the depot, from its brain and health; with nothing
+ * keeping them, `notTaken` (they have not taken it yet), or, for a request not yet sent, on the way.
+ */
+function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileIndex, late: boolean, notTaken: (() => string) | null): string {
   const s = env.strings;
   const dwarves = env.readers.of<DwarvesReader>('10');
   const health = env.readers.has('17') ? env.readers.of<HealthReader>('17') : null;
@@ -745,7 +855,7 @@ function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileInd
   }
   if (late) return s.get('ui.trade.wait.late', { who });
   if (behavior === 'work' && env.readers.has('11') && env.readers.of<JobsReader>('11').forWorker(id) !== undefined) return s.get('ui.trade.wait.job', { who });
-  return s.get('ui.trade.wait.on_way', { who });
+  return notTaken === null ? s.get('ui.trade.wait.on_way', { who }) : notTaken();
 }
 
 /** The Broker a trade job would be for now (20 § The session): alive, trading on, not on duty; else 0. */

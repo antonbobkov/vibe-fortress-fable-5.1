@@ -117,6 +117,6 @@ describe('T-636 a waiting trade says who it waits for and why', () => {
     const { w, depot, command, ctx } = setup('t636-ui-jobs');
     expect(command({ type: 'TradeOpen', depotId: depot })).toEqual({ ok: true });
     expect(w.game.world.entities.has(depot, C.Building)).toBe(true);
-    expect(text((s) => drawJobsPanel(s, { col: 0, row: 0, cols: 60, rows: 30 }, new JobsPanel(), ctx), 60)).toContain('5 Trade, depot #1 ');
+    expect(text((s) => drawJobsPanel(s, { col: 0, row: 0, cols: 60, rows: 30 }, new JobsPanel(), ctx), 60)).toContain('2 Trade, depot #1 ');
   });
 });

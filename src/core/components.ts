@@ -218,6 +218,11 @@ export interface Patient {
   admittedTick: Tick;
   /** Washed with soap this admission (`17` § Patients and hospitals): no wound is rolled for infection; absent: not. */
   washed?: true;
+  /**
+   * The tick of the alert that this dwarf bleeds with no bandage or cloth to be had (`17` § Player-facing
+   * behavior); a wound that bleeds until bandaged, made after it, raises it again. Absent: none raised.
+   */
+  noDressingAlerted?: Tick;
 }
 
 /** `components.md` § ItemFlag. */
