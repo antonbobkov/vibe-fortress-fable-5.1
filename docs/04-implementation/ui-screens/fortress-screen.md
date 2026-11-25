@@ -117,7 +117,29 @@ The identity, activity and `At` lines stay at the top and the keys at the foot; 
 
 The activity line is never empty. A dwarf's is its activity (10 § Player-facing behavior). Any other creature says what its behaviour is: `Caged` in a cage; a wild or hostile creature its state in the Units All tab's words, capitalized (`Activity: Grazing`, `Asleep`, `Hunting`, `Fleeing`, `Attacking`); a tame animal, the first that holds of `Curled up in the pets' heap`, `Starving` (a grazer at full hunger), `Waiting for the butcher` (marked for slaughter), `Following Ketil Ironvein` (its assigned dwarf) and `Keeping to Pasture #1`; and with none of these, `Wandering` while it walks and `Standing about` while it stands.
 
-The health section lists each part on a line of its own, with a bar and its hit points, named as the creature's body plan names it (17's `health.partNames`): a dwarf's `left arm` and `right leg`, a wolf's `left foreleg` and `right hindleg`, a chicken's `left wing`, a fish's `tail` twice (its tail fills both leg slots, each with its own hit points). A slot the plan gives no part (a fish's arms, the Hollow Maw's limbs) is not listed. The `Permanent:` line names its slots the same way: `lost left foreleg`. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour. A click on one loose item opens the item's view:
+The health section lists each part on a line of its own, with a bar and its hit points, named as the creature's body plan names it (17's `health.partNames`): a dwarf's `left arm` and `right leg`, a wolf's `left foreleg` and `right hindleg`, a chicken's `left wing`, a fish's `tail` twice (its tail fills both leg slots, each with its own hit points). A slot the plan gives no part (a fish's arms, the Hollow Maw's limbs) is not listed. The `Permanent:` line names its slots the same way: `lost left foreleg`. The `At` line is read each frame, so the view stays with its creature as it walks, and the map cursor sits on it. The items it holds and wears and its friends and grudges are links, drawn in the value colour.
+
+A tame grazer's view has a third key row, its pasture (`[p] pasture: none` off pasture). `[p]` or a click on the row opens the pasture picker in place of the sections, the animal's pasture now chosen; each pasture's verdict is what its grass will feed with the animal on it, in the alert colour when it is too small, dim otherwise (24 § Inspection):
+
+```
+│ cow                                  [x] │
+│ Activity: Keeping to Pasture #1           │
+│ At (34, 31, z27)                          │
+│ ───────────────────────────────────────── │
+│ Pasture for the cow:                      │
+│   Off pasture                             │
+│ ▶ Pasture #1        Feeds 0 of 6 grazers  │
+│   Pasture #2        Feeds 3 of 3 grazers  │
+│ [Enter] choose  [Esc] cancel              │
+│ ───────────────────────────────────────── │
+│ [c] center  [f] follow off                │
+│ [h] here  [Bksp] back  [Tab] link         │
+│ [p] pasture: Pasture #1                   │
+```
+
+`Enter` or a click on a row sends `AssignPasture` and says on the status row what it did, as the Animals panel's `[p]` does; `Esc`, `Backspace` or `[p]` close the picker. A dwarf's view, a wild animal's and a tame animal's that does not graze have no pasture row.
+
+A click on one loose item opens the item's view:
 
 ```
 │ pine bed                             [x] │

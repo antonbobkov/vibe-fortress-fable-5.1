@@ -46,6 +46,7 @@ import { C } from '@core/components';
 import { clickRung, creatureShown, drawCreatureView, drawItemView, drawTileList, itemShown, itemSummary, itemTitle, LookScroll, tileContents, tileListRows, tileTitle, type LookTarget } from '../panels/look';
 import { identityLine, isDwarf } from '../panels/look-dwarf';
 import { creatureGone, deathKiller, drawGoneView, itemGone, type GoneState, type LookEnd, type LookFoot } from '../panels/look-gone';
+import { drawPastureChoice, PastureChoice, pastureFootText, pastureGrazer } from '../panels/look-pasture';
 import type { ItemsReader } from '@systems/items';
 import { drawLogPanel, drawLogStrip, filterLines, LogView, matchLines, type LogFilter } from '../panels/log';
 import { clickHit, type CellPointer, type CellWheel, type Screen } from '../screen';
@@ -115,10 +116,13 @@ export function followBox(pos: number, cam: number, size: number, extent: number
   return Math.max(0, Math.min(Math.max(0, extent - size), moved));
 }
 
-/** Look's centre and follow keys (24 § Inspection): Look's own only in a creature's or an item's view; in the tile list the letter keeps its other meaning. */
+/**
+ * Look's view keys (24 § Inspection): centre and follow, Look's own only in a creature's or an item's
+ * view, and pasture, only in a tame grazer's; in the tile list the letter keeps its other meaning.
+ */
 export function lookViewLetter(keymap: Keymap, press: KeyPress): boolean {
   const id = keymap.resolve('look_panel', press)?.id;
-  return id === 'centre' || id === 'follow_view';
+  return id === 'centre' || id === 'follow_view' || id === 'pasture';
 }
 
 export interface FortressSettings {
@@ -206,6 +210,8 @@ export class FortressScreen implements Screen {
   readonly lookView = new LookScroll();
   /** Follow (24 § Inspection, `[f]`): the view keeps the creature or the item Look shows inside the middle half of the map. */
   lookFollow = false;
+  /** A tame grazer's pasture picker in its view (24 § Inspection, `[p]`). */
+  readonly lookPasture = new PastureChoice();
   /** How the things Look shows or can go back to ended: a death with its cause and body, an item's destruction (24 § Inspection). */
   private readonly lookEnds = new Map<EntityId, LookEnd>();
   logFilter: LogFilter = 0;
@@ -1402,6 +1408,7 @@ export class FortressScreen implements Screen {
       this.lookBack.length = 0;
       this.lookEnds.clear();
       this.lookFollow = false;
+      this.lookPasture.close();
     }
     this.zones.byClick = false;
     // The log opens on its newest entry, unmarked: a choice holds while the panel stays open (24 § Announcements and the log).
@@ -1786,8 +1793,22 @@ export class FortressScreen implements Screen {
     this.ui.z = p.z;
   }
 
-  /** The keys at the foot of a creature's or an item's view, each a button. */
+  /**
+   * `[p]` in a tame grazer's view (24 § Inspection): open its pasture picker, or close it. False in
+   * any other view, where the letter keeps its other meaning.
+   */
+  private lookPastureToggle(): boolean {
+    const at = this.lookAt;
+    if (at.kind !== 'creature' || this.lookGone() !== null || !pastureGrazer(this.host.readers, at.id)) return false;
+    if (this.lookPasture.showing(this.host.readers, at.id)) this.lookPasture.close();
+    else this.lookPasture.open(this.ctx, at.id);
+    return true;
+  }
+
+  /** The keys at the foot of a creature's or an item's view, each a button; a tame grazer's adds its pasture. */
   private lookFoot(): LookFoot {
+    const at = this.lookAt;
+    const grazer = at.kind === 'creature' && pastureGrazer(this.host.readers, at.id);
     return {
       following: this.lookFollow,
       centre: () => void this.lookCentre(),
@@ -1795,6 +1816,7 @@ export class FortressScreen implements Screen {
       here: () => void this.lookHere(),
       back: () => void this.lookBackStep(),
       link: () => void this.lookView.cycle(1),
+      ...(grazer ? { action: { text: pastureFootText(this.ctx, at.id), run: () => void this.lookPastureToggle() } } : {}),
     };
   }
 
@@ -1819,7 +1841,11 @@ export class FortressScreen implements Screen {
       this.lookView.key = key;
       const facts = { name: this.lookTitle(''), sub: at.sub ?? '', holder: at.kind === 'item' ? at.holder ?? 0 : 0, last: at.last };
       drawGoneView(surface, body, readers, this.strings, gone, facts, sink, this.lookFoot(), (id) => itemTitle(readers, this.host.registry, id));
-    } else if (at.kind === 'creature') drawCreatureView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last, open, this.lookFoot());
+    } else if (at.kind === 'creature') {
+      const submit = (cmds: readonly Command[]): void => { for (const c of cmds) this.host.submit(c); };
+      const picker = this.lookPasture.showing(readers, at.id) ? (region: Rect): void => drawPastureChoice(surface, region, this.ctx, this.lookPasture, submit) : undefined;
+      drawCreatureView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last, open, this.lookFoot(), picker);
+    }
     else if (at.kind === 'item') drawItemView(surface, body, readers, this.host.registry, this.strings, at.id, this.ui.z, this.lookView, at.last, open, this.lookFoot());
     else drawTileList(surface, body, readers, this.host.registry, this.strings, this.cursorTile(), this.lookView, () => true, open);
   }
@@ -2144,6 +2170,7 @@ export class FortressScreen implements Screen {
     if (this.animals.capEditor !== null) { this.animals.capEditor = null; return; }
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
     if (this.animals.trainChoice !== null) { this.animals.trainChoice = null; return; }
+    if (this.ui.panel === 'look' && this.lookAt.kind === 'creature' && this.lookPasture.showing(this.host.readers, this.lookAt.id)) { this.lookPasture.close(); return; }
     if (this.military.settingStation || this.military.settingPatrol || this.military.settingKill || this.military.settingFollow || this.military.memberChoice) { this.military.cancel(); return; }
     if (this.zones.farmMenus.some((m) => m.open)) { for (const m of this.zones.farmMenus) m.open = false; return; }
     if (this.zones.cancelEditor()) return;
@@ -2457,7 +2484,7 @@ export class FortressScreen implements Screen {
     // A map selection dragged over Look's view takes its own keys (`f` forbid) before Look's centre and follow.
     const contexts = this.keyContexts();
     const ordered = this.ui.panel === 'look' && this.selection !== null ? ['selection' as const, ...contexts.filter((c) => c !== 'selection')] : contexts;
-    const claimed = ordered.find((context) => context !== 'panel' && this.keymap.claims([context], press) && !(context === 'look_panel' && this.lookAt.kind === 'tile' && lookViewLetter(this.keymap, press)));
+    const claimed = ordered.find((context) => context !== 'panel' && this.keymap.claims([context], press) && !(context === 'look_panel' && !this.lookViewOwns(press)));
     if (claimed === undefined) return false;
     if (claimed === 'selection') {
       if (this.selection !== null) this.selectionKey(own);
@@ -2468,6 +2495,17 @@ export class FortressScreen implements Screen {
     // The first time a panel's letter acts where it also opens a panel, a hint says how to switch.
     if (!press.shift && this.panelLetters().has(press.key.toLowerCase())) this.hints.show('hint_panel_letters', this.host.readers.calendar.tick, this.settings.hintsEnabled);
     return true;
+  }
+
+  /**
+   * Whether Look's binding of `press` acts in what Look shows (24 § Inspection): centre and follow in a
+   * creature's or an item's view, pasture in a tame grazer's; its other keys always. Where one does not
+   * act, its letter keeps its other meaning (a panel letter: `p` Population in a dwarf's view).
+   */
+  private lookViewOwns(press: KeyPress): boolean {
+    if (!lookViewLetter(this.keymap, press)) return true;
+    if (this.keymap.resolve('look_panel', press)?.id !== 'pasture') return this.lookAt.kind !== 'tile';
+    return this.lookAt.kind === 'creature' && this.lookGone() === null && pastureGrazer(this.host.readers, this.lookAt.id);
   }
 
   /** The open panel's own keys, read as their defaults (`own`), after the panel letters and before the map's. */
@@ -2517,6 +2555,7 @@ export class FortressScreen implements Screen {
       const letter = acceleratorOf(own);
       if (letter === 'c') return this.lookCentre();
       if (letter === 'f') return this.lookFollowToggle();
+      if (letter === 'p') return this.lookPastureToggle();
       return letter === 'h' && this.lookHere();
     }
     const tile = this.cursorTile();
@@ -2612,6 +2651,8 @@ export class FortressScreen implements Screen {
           }
           return false;
       case 'look':
+        // A tame grazer's pasture picker takes its arrows, `Enter` and `Backspace` first.
+        if (this.lookAt.kind === 'creature' && this.lookPasture.showing(this.host.readers, this.lookAt.id) && !press.shift && this.lookPasture.key(ctx, press, submit)) return true;
         // 24 § Inspection: the view scrolls a page; the arrows stay the map's.
         if (k === 'PageUp' || k === 'PageDown') { this.lookView.page(k === 'PageUp' ? -1 : 1); return true; }
         return false;

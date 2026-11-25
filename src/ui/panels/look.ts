@@ -621,7 +621,8 @@ function placeLine(readers: ReaderSet, strings: Strings, tile: TileIndex, others
  * A creature's view (24 § Inspection): it holds the creature, never a tile. Pinned on top the
  * identity line, the activity and the `At` line, read fresh each frame; under them the sections of
  * `ui-screens/fortress-screen.md` § Inspection panel, which scroll; the keys at the foot. A
- * creature the map no longer shows says so with the place it was last seen (`last`).
+ * creature the map no longer shows says so with the place it was last seen (`last`). `picker`
+ * draws a choice the view's own key opened (a tame grazer's pasture) in the sections' place.
  */
 export function drawCreatureView(
   s: Surface,
@@ -635,6 +636,7 @@ export function drawCreatureView(
   last: TileIndex | null = null,
   open?: (target: LookTarget) => void,
   foot?: LookFoot,
+  picker?: (region: Rect) => void,
 ): void {
   const t = s.theme;
   const sink = view?.sink(`creature:${id}`, open) ?? { links: [], focus: -1, open, seen: new Map() };
@@ -669,10 +671,12 @@ export function drawCreatureView(
     separator(s, rect.col + 1, row, width);
     row += 1;
   }
-  const feet = footRows(bottom - row);
+  const feet = footRows(bottom - row, foot?.action === undefined ? 0 : 1);
   if (feet > 0) drawLookFoot(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, strings, foot, false);
   const region = { col: rect.col, row, cols: rect.cols, rows: bottom - feet - row };
-  scrolled(s, region, view, `creature:${id}`, (pen) => creatureSections(s, rect, pen, readers, registry, strings, id, dwarf), sink);
+  // A choice the view's own key opened (a tame grazer's pasture picker) takes the sections' place while it is open.
+  if (picker !== undefined) picker(region);
+  else scrolled(s, region, view, `creature:${id}`, (pen) => creatureSections(s, rect, pen, readers, registry, strings, id, dwarf), sink);
 }
 
 /** The sections of a creature under its pinned lines, in the wireframe's order. */

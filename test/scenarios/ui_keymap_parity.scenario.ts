@@ -25,6 +25,8 @@ import { CellBuffer } from '@render/cellbuffer';
 import { ACTION_IDS, Keymap, parseKeySpec, type KeymapRow } from '@ui/keymap';
 import { Strings } from '@ui/strings';
 import { FortressScreen, lookViewLetter, type FortressHost } from '@ui/screens/fortress';
+import { pastureGrazer } from '@ui/panels/look-pasture';
+import type { AnimalsReader } from '@systems/animals';
 import { defaultUiState } from '@ui/ui-state';
 import type { KeyPress } from '@platform/input';
 import type { Command } from '@core/commands';
@@ -445,6 +447,25 @@ const scenario: Scenario = {
     expect(screen.lookFollow).toBe(true);
     screen.key(press('←'));
     expect(screen.lookFollow, 'an arrow ends follow').toBe(false);
+    // Look's `p` (T-707): Population in a dwarf's view; in a tame grazer's its pasture picker, and its foot row a button.
+    expect(screen.key(press('p'))).toBe(true);
+    expect(ui.panel, 'p in a dwarf\'s view is Population').toBe('population');
+    const cow = w.spawnTame('cow', w.index(22, 22, Z));
+    const grazer = w.readers.of<AnimalsReader>('08').tameList().find((id) => pastureGrazer(w.readers, id));
+    expect(grazer, 'a cow is a tame grazer').toBe(cow);
+    screen.inspectCreature(grazer ?? 0);
+    expect(screen.key(press('p'))).toBe(true);
+    expect(ui.panel, 'p in a tame grazer\'s view is Look\'s pasture').toBe('look');
+    expect(screen.lookPasture.animalId).toBe(grazer);
+    expect(screen.key(press('Esc'))).toBe(true);
+    expect(screen.lookPasture.animalId).toBe(0);
+    {
+      const s = draw();
+      const row = s.lines().findIndex((line) => line.includes('[p] pasture:'));
+      const col = s.lines()[row]?.indexOf('[p]') ?? -1;
+      s.hits.find((h) => h.rect.row === row && h.rect.col <= col && col < h.rect.col + h.rect.cols)?.action();
+      expect(screen.lookPasture.animalId, 'a click on [p] pasture opens the picker').toBe(grazer);
+    }
     screen.openPanel(null);
     // `d d` digs: Designate binds its own letter.
     screen.key(press('d'));
