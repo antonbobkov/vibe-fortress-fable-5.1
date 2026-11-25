@@ -41,9 +41,36 @@ export function retreatTile(ctx: InitContext, dwarfId: EntityId, kept: TileIndex
     }
   }
   if (best >= 0) return best;
+  if (indoorBehindDoor(ctx, buildings, from)) return from;
   const bedroom = buildings.bedroomOf(dwarfId);
   const zone = bedroom === 0 ? undefined : buildings.zone(bedroom);
   const tiles = zone?.tiles.filter((tile) => path.reachable(from, tile, 'walker')) ?? [];
   tiles.sort((a, b) => distance(a) - distance(b) || a - b);
   return tiles[0] ?? -1;
+}
+
+/**
+ * Whether a dwarf already stands behind a door (19 § Hearth alert retreat, step 2): its tile is
+ * indoor and not a doorway, and the indoor tiles it walks to from there without passing a door,
+ * hatch, floodgate or drawbridge reach a door (within `RETREAT_SEARCH_LIMIT` tiles). That door's
+ * outside is the outdoors, as 14 reads it, so the dwarf is on its inner side.
+ */
+function indoorBehindDoor(ctx: InitContext, buildings: BuildingsReader, from: TileIndex): boolean {
+  const map = ctx.world.map;
+  const path = ctx.readers.pathing;
+  if (map.hasFlag(from, TileFlag.Outdoor) || isShelterBarrier(buildings, from)) return false;
+  const seen = new Set<TileIndex>([from]);
+  const queue: TileIndex[] = [from];
+  for (let cursor = 0; cursor < queue.length && cursor < RETREAT_SEARCH_LIMIT; cursor += 1) {
+    for (const tile of map.neighbors(queue[cursor] as TileIndex)) {
+      if (seen.has(tile)) continue;
+      // A door counts whether or not the alert has locked it yet.
+      if (buildings.doorAt(tile)) return true;
+      if (!path.passable(tile, 'walker') || map.kindAt(tile) === TileKind.Open) continue;
+      seen.add(tile);
+      if (map.hasFlag(tile, TileFlag.Outdoor) || isShelterBarrier(buildings, tile)) continue;
+      queue.push(tile);
+    }
+  }
+  return false;
 }

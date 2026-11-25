@@ -14,5 +14,7 @@ Decide in 19 whether a civilian already on the indoor side of a door (the side a
 
 ## Done
 
-- [ ] Test: a civilian inside a one-door room shelters there under Hearth; the panel's no-shelter line does not count it.
+- [x] Decided (19 § Hearth alert retreat step 2, 10 § Behavior selection step 2): when step 2's search finds no tile behind a door, a dwarf that stands on an indoor tile, not a doorway, whose indoor tiles (walked without passing a door, hatch, floodgate or drawbridge) reach a door, locked or not, shelters on its own tile. It comes after the search, so a dwarf that can reach a room behind a door still goes there, and only the case the search cannot see changes. The tile is fixed as any step-2 tile is.
+- [x] Test: a civilian inside a one-door room shelters there under Hearth; the panel's no-shelter line does not count it; a roofed dwarf with no door anywhere still has none (`test/unit/defense/t753-shelter-from-inside.test.ts`).
 - [ ] If the rule changes the simulation: the sweep and the defence check on GitHub.
+- [x] Found: with no hearth, the door locks 20 ticks into the alert on a dwarf walking to it from a few tiles out (`T-NEW-hearthless-door-shuts-out.md`).
