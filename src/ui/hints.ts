@@ -66,6 +66,8 @@ export interface HintFacts {
   cavernBreached?: boolean;
   /** D-253: a panel's own letter acted where that letter also opens a panel (the screen shows it at once). */
   panelLetterShadowed?: boolean;
+  /** Work was ordered while the fortress had not run since it was entered (the screen shows it at once). */
+  pausedOrder?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -117,6 +119,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_rot': return f.foodStale === true;
     case 'hint_breach': return f.cavernBreached === true;
     case 'hint_panel_letters': return f.panelLetterShadowed === true;
+    case 'hint_paused': return f.pausedOrder === true;
     default: return false;
   }
 }
@@ -422,6 +425,7 @@ export class HintEngine {
       foodStale: this.pending('hint_rot'),
       cavernBreached: this.pending('hint_breach'),
       panelLetterShadowed: this.pending('hint_panel_letters'),
+      pausedOrder: this.pending('hint_paused'),
     };
   }
 }

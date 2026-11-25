@@ -238,7 +238,7 @@ describe('T-M1-14 status bar', () => {
     const readers = game.host.readers;
     // Since T-M3-08 the weather field (06) follows the date: glyph, word and temperature; this
     // world starts at midnight, so the clear sky shows the moon `C` (`glyphs-and-colors.md`).
-    expect(statusFields(readers, strings, 32, 0)).toEqual(['Day 1 of Spring, Year 1', 'C clear 8°C', '☺ 0', '♥ Fine', 'z 32', '║']);
+    expect(statusFields(readers, strings, 32, 0)).toEqual(['Day 1 of Spring, Year 1', 'C clear 8°C', '☺ 0', '♥ Fine', 'z 32', '║ paused']);
     const row = statusRow1(readers, strings, 32, 2, 80);
     // With `[Esc] menu` beside the help the fields no longer fit three apart in 80 columns: one apart, and the menu is `[Esc]` alone.
     expect(row.startsWith(' Day 1 of Spring, Year 1 C clear 8°C ☺ 0 ♥ Fine z 32 ►► 2×')).toBe(true);

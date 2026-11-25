@@ -1,6 +1,8 @@
 # T-757 — A new fortress starts paused and nothing on screen says so
 
-**Source:** playtest 2026-11-25 (newcomer) ([report](../../reports/data/2026-11-25-playtest-5.md), finding 3) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 121e5c74,27e7a2da.
+
+**Source:** playtest 2026-11-25 (newcomer) ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 3) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

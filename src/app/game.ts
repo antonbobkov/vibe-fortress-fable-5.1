@@ -268,7 +268,7 @@ export class Game {
     this.loadouts = options.loadouts ?? new LoadoutStore(null);
     this.legends = options.legends ?? null;
     this.files = options.files ?? null;
-    this.host.afterTick = () => { this.takeAutosave(); this.checkHallEnd(); };
+    this.host.afterTick = () => { this.fortress.noteTick(); this.takeAutosave(); this.checkHallEnd(); };
     this.randomSeed = options.randomSeed ?? defaultRandomSeed;
     this.createCanvas = options.createCanvas;
     this.fortress = new FortressScreen(this.fortressHost(), this.keymap, this.strings);
@@ -286,7 +286,10 @@ export class Game {
       },
       registry: this.registry,
       ui: this.ui,
-      submit: (command) => this.host.submit(command),
+      submit: (command) => {
+        this.host.submit(command);
+        this.fortress.noteCommand(command, this.tutorial !== null);
+      },
       speed: () => this.host.speed(),
       get loadSheddingActive() { return host.loadSheddingActive; },
       setSpeed: (speed) => this.host.setSpeed(speed),
@@ -1456,7 +1459,14 @@ export class Game {
   /** Fit the grid to the canvas and rebuild the atlas when the cell size changed. */
   resize(cssWidth: number, cssHeight: number, dpr = this.surface.pixelRatio): void {
     const fit = computeViewport(cssWidth * dpr, cssHeight * dpr, this.requestedZoom(cssWidth * dpr, cssHeight * dpr));
-    this.surface.resize(cssWidth, cssHeight, dpr, fit.cssScale);
+    // Below the smallest zoom the backing store keeps the whole grid and the element is shrunk to
+    // fit the window (23 § Canvas and cells), so the status rows are drawn too.
+    this.surface.resize(
+      cssWidth,
+      cssHeight,
+      dpr,
+      fit.cssScale < 1 ? { widthPx: fit.cols * fit.cellPx, heightPx: fit.rows * fit.cellPx, cssScale: fit.cssScale } : undefined,
+    );
     this.cols = fit.cols;
     this.rows = fit.rows;
     this.cssScale = fit.cssScale;

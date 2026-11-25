@@ -1,6 +1,8 @@
 # T-758 — A window under 960 × 540 loses the status bar, the key bar and the hover line
 
-**Source:** playtest 2026-11-25 (newcomer) ([report](../../reports/data/2026-11-25-playtest-5.md), finding 4) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 121e5c74,27e7a2da.
+
+**Source:** playtest 2026-11-25 (newcomer) ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 4) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 

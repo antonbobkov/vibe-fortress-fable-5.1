@@ -1814,5 +1814,9 @@
   {
     "table": "hints",
     "id": "hint_starving"
+  },
+  {
+    "table": "hints",
+    "id": "hint_paused"
   }
 ]

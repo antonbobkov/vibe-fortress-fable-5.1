@@ -550,6 +550,9 @@ export class OrdersPanel {
     const where = workshopId === 0 ? this.workshopsOfType(ctx, recipe.workshop) : [workshopId];
     if (where.length === 0) {
       const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(recipe.workshop)?.name ?? recipe.workshop.replace(/_/g, ' ')).toLowerCase();
+      // A workshop placed and not yet built is a plan, not a missing workshop (a ruin's wreck is neither).
+      const planned = (this.buildings(ctx)?.byType(recipe.workshop) ?? []).some((id) => this.buildings(ctx)?.get(id)?.state !== 'ruined');
+      if (planned) return s.get(ctx.paused?.() === false ? 'ui.orders.added_planned_running' : 'ui.orders.added_planned', { qty, recipe: recipe.name, workshop });
       return s.get('ui.orders.added_no_workshop', { qty, recipe: recipe.name, workshop });
     }
     if (reader !== null && !where.some((id) => reader.isRunnable(recipe.id, id).runnable)) {

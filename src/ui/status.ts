@@ -34,9 +34,21 @@ export function speedText(speed: Speed): string {
 
 /**
  * The fields of row 1, left to right, without the right-aligned help. A view-only final save never
- * runs, so it has no speed field.
+ * runs, so it has no speed field. Paused, the speed field reads `║ paused` when the row of `cols`
+ * cells has room for it beside `[Esc]  [?] help` (the menu entry gives way first), and `║` alone
+ * when it does not.
  */
-export function statusFields(readers: ReaderSet, strings: Strings, z: number, speed: Speed, loadShedding = false, viewOnly = false): string[] {
+export function statusFields(readers: ReaderSet, strings: Strings, z: number, speed: Speed, loadShedding = false, viewOnly = false, cols = Infinity): string[] {
+  const fields = statusFieldsBare(readers, strings, z, speed, loadShedding, viewOnly);
+  if (speed !== 0 || viewOnly || loadShedding) return fields;
+  const named = [...fields.slice(0, -1), `${speedText(0)} ${strings.get('ui.status.paused')}`];
+  const spacing = statusFieldSpacing(named, strings, cols);
+  const left = 1 + named.reduce((sum, field) => sum + Array.from(field).length, 0) + Math.max(0, named.length - 1) * spacing;
+  const right = Array.from(strings.get('ui.status.menu_short')).length + 2 + Array.from(strings.get('ui.status.help')).length + 3;
+  return left + right <= cols ? named : fields;
+}
+
+function statusFieldsBare(readers: ReaderSet, strings: Strings, z: number, speed: Speed, loadShedding: boolean, viewOnly: boolean): string[] {
   const cal = readers.calendar;
   const season = cal.seasonName.charAt(0).toUpperCase() + cal.seasonName.slice(1);
   const fields = [strings.get('ui.status.date', { day: cal.dayOfSeason, season, year: cal.year })];
@@ -100,8 +112,8 @@ export function statusRight(strings: Strings, leftLength: number, cols: number):
 
 /** Row 1 as one line of `cols` cells: the fields three spaces apart, `[Esc] menu  [?] help` at the right edge. */
 export function statusRow1(readers: ReaderSet, strings: Strings, z: number, speed: Speed, cols: number, loadShedding = false, viewOnly = false): string {
-  const fields = statusFields(readers, strings, z, speed, loadShedding, viewOnly);
-  const left = ` ${fields.join(' '.repeat(statusFieldSpacing(fields, strings, cols)))}`;
+  const fields = statusFields(readers, strings, z, speed, loadShedding, viewOnly, cols);
+  const left =` ${fields.join(' '.repeat(statusFieldSpacing(fields, strings, cols)))}`;
   const right = statusRight(strings, Array.from(left).length, cols).text;
   const pad = Math.max(1, cols - Array.from(left).length - Array.from(right).length);
   return `${left}${' '.repeat(pad)}${right}`;

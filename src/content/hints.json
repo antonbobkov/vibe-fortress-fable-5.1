@@ -228,5 +228,10 @@
     "id": "hint_panel_letters",
     "trigger": "a panel's own letter acts where that letter also opens a panel (§ Panels)",
     "text": "Inside a panel its own letters come first. Esc, then a letter, opens another panel."
+  },
+  {
+    "id": "hint_paused",
+    "trigger": "the first designation, zone, building or work order made while the fortress is paused and has not run since it was entered (embarked or loaded); not while the tutorial runs",
+    "text": "Time is paused, so nothing happens yet. [Space] runs the fortress, [+] and [-] change the speed."
   }
 ]

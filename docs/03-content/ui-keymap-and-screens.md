@@ -702,7 +702,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Hints
 
-Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed, `hint_starving` on its `Starving` event and `hint_alert`'s repeat on the raid's event). `hint_alert` alone shows again (24 § Hints). Ids and triggers:
+Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed, `hint_starving` on its `Starving` event, `hint_alert`'s repeat on the raid's event, and `hint_panel_letters` and `hint_paused` at the player's action that triggers them). `hint_alert` alone shows again (24 § Hints). Ids and triggers:
 
 | id | Trigger | Text |
 |---|---|---|
@@ -752,6 +752,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_rot` | the first food item of the fortress turns stale | "Food rots: meals and raw food keep two or three weeks. Barrels in a food stockpile slow it four times; smoked or salted meat keeps. Cook, farm and fish for more." |
 | `hint_breach` | first cavern breach | "A cavern lies open to the fortress, and what lives there can walk in. Wall the opening off [b > Constructions] or hang a door in it set to Lock on alert." |
 | `hint_panel_letters` | a panel's own letter acts where that letter also opens a panel (§ Panels) | "Inside a panel its own letters come first. Esc, then a letter, opens another panel." |
+| `hint_paused` | the first designation, zone, building or work order made while the fortress is paused and has not run since it was entered (embarked or loaded); not while the tutorial runs | "Time is paused, so nothing happens yet. [Space] runs the fortress, [+] and [-] change the speed." |
 
 `hint_starving`'s `{food}` is what the fortress could eat now, read when the hint shows, as clauses joined by "; " in this order and only those that hold (`ui.starving_hint.*`, § Announcement strings):
 
