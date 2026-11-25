@@ -2,11 +2,13 @@
  * T-439: the tutorial played through in the browser (`ui-screens/menus-and-world.md` § Tutorial).
  * Every step is done with the real keyboard and mouse, as its text says, and the step is read
  * through the hook after each. A second test takes the first New world's offer and drives the box's
- * buttons and keys.
+ * buttons and keys. T-755: the new order (time third), a step waits for its job (a stockpile's
+ * preset, this season's crop), and each step's keys are pressed from where the step before left off.
  */
 import { expect, test, type Page } from '@playwright/test';
 import { focusMenu, screenOf, textCell, textOf, tilePixel, type Hook } from './helpers';
 
+const WALL = 1;
 const FLOOR = 2;
 
 interface TutorialHook extends Hook {
@@ -50,9 +52,9 @@ async function cursorTo(page: Page, x: number, y: number): Promise<void> {
   throw new Error(`the cursor did not reach ${x},${y}`);
 }
 
-/** A w×h rectangle of free tiles near the cursor on the current level: floor, or tiles the zone type takes. */
-async function patchNear(page: Page, w: number, h: number, kind: 'stockpile' | 'farm_plot' | 'floor'): Promise<{ x: number; y: number }> {
-  const at = await page.evaluate(({ w, h, kind, FLOOR }) => {
+/** A w×h rectangle of free tiles near the cursor on the current level: floor, rock wall, or tiles the zone type takes. */
+async function patchNear(page: Page, w: number, h: number, kind: 'stockpile' | 'farm_plot' | 'floor' | 'wall'): Promise<{ x: number; y: number }> {
+  const at = await page.evaluate(({ w, h, kind, FLOOR, WALL }) => {
     const k = (window as unknown as { __deepholm: TutorialHook }).__deepholm;
     const { map, buildings, ui } = k.readers;
     const c = ui.cursor ?? { x: ui.camX + 20, y: ui.camY + 15 };
@@ -60,9 +62,10 @@ async function patchNear(page: Page, w: number, h: number, kind: 'stockpile' | '
       if (x < 0 || y < 0 || x >= map.w || y >= map.h) return false;
       const i = map.index(x, y, ui.z);
       if (buildings.at(i) !== 0 || buildings.zoneAt(i) !== 0) return false;
+      if (kind === 'wall') return map.kindAt(i) === WALL;
       return kind === 'floor' ? map.kindAt(i) === FLOOR : buildings.zoneTileQualifies(kind, i);
     };
-    for (let r = 2; r < 40; r += 1) {
+    for (let r = 2; r < 60; r += 1) {
       for (let dy = -r; dy <= r; dy += 1) {
         for (let dx = -r; dx <= r; dx += 1) {
           if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
@@ -75,7 +78,7 @@ async function patchNear(page: Page, w: number, h: number, kind: 'stockpile' | '
       }
     }
     return null;
-  }, { w, h, kind, FLOOR });
+  }, { w, h, kind, FLOOR, WALL });
   expect(at, `${w}x${h} ${kind}`).not.toBeNull();
   return at as { x: number; y: number };
 }
@@ -127,22 +130,27 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   await expect.poll(() => page.evaluate(() => (window as unknown as { __deepholm: TutorialHook }).__deepholm.readers.ui.panel)).toBe('look');
   expect(await step(page)).toBe('look');
   await cursorTo(page, dwarf.x, dwarf.y);
+  await expect.poll(() => step(page)).toBe('speed');
+
+  // 3. T-755: time is taught third, from where the look leaves the player. Run, faster, and pause again.
+  await expect.poll(() => textOf(page)).toContain('Tutorial · step 3 of 11');
+  await page.keyboard.press('Space');
+  await page.keyboard.press('+');
+  await page.keyboard.press('Space');
   await expect.poll(() => step(page)).toBe('dig');
 
-  // 3. Designate a dig box one level down: Enter at one corner, the arrows, Enter at the other.
+  // 4. T-755: a dig box on a rock face of the surface level, no level change: Enter twice on a wall.
   await page.keyboard.press('d');
-  await expect.poll(() => textOf(page)).toContain('Tutorial · step 3 of 11');
+  await expect.poll(() => textOf(page)).toContain('Tutorial · step 4 of 11');
   await page.screenshot({ path: 'reports/screenshots/t439-tutorial-2-dig.png' });
-  await page.keyboard.press('<');
+  const rock = await patchNear(page, 2, 1, 'wall');
+  await cursorTo(page, rock.x, rock.y);
   await page.keyboard.press('Enter');
   await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('ArrowRight');
-  await page.keyboard.press('ArrowDown');
   await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('stairs');
 
-  // 4. Stairs on a floor tile of the surface: two clicks on it (down stairs, and up stairs beneath).
-  await page.keyboard.press('>');
+  // 5. Stairs on a floor tile of the surface: two clicks on it (down stairs, and up stairs beneath).
   await page.keyboard.press('w');
   const stairs = await patchNear(page, 1, 1, 'floor');
   await cursorTo(page, stairs.x, stairs.y);
@@ -151,19 +159,28 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   await page.mouse.click(stairsAt.x, stairsAt.y);
   await expect.poll(() => step(page)).toBe('stockpile');
 
-  // 5. A stockpile: two corners by Enter.
+  // 6. A stockpile: two corners by Enter. T-755: it takes nothing, and the step waits, until a
+  // preset is chosen with `p` from its settings (Everything is the last).
   await page.keyboard.press('z');
-  await page.keyboard.press('Shift+S');
+  await page.keyboard.press('s');
   const pile = await patchNear(page, 3, 2, 'stockpile');
   await cursorTo(page, pile.x, pile.y);
   await page.keyboard.press('Enter');
   await cursorTo(page, pile.x + 2, pile.y + 1);
   await page.keyboard.press('Enter');
+  await expect.poll(() => textOf(page)).toContain('Takes nothing: choose a Preset.');
+  expect(await step(page)).toBe('stockpile');
+  await page.keyboard.press('p');
+  await page.keyboard.press('ArrowUp');
+  await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('workshop');
 
-  // 6. A workshop from the Build list, placed at the cursor. T-680: the new stockpile's settings
-  // show in the Zones menu's place and do not take the zone kinds' letters, so `b` opens Build at once.
+  // 7. A workshop from the Build list, placed at the cursor. T-755: as the text says, Esc twice
+  // from the zone's settings closes Zones (one Esc is the Zones menu, where `b` is Bedroom), then `b`.
   const panelNow = (): Promise<string | null> => page.evaluate(() => (window as unknown as { __deepholm: TutorialHook }).__deepholm.readers.ui.panel);
+  await page.keyboard.press('Escape');
+  await page.keyboard.press('Escape');
+  expect(await panelNow()).toBeNull();
   await page.keyboard.press('b');
   expect(await panelNow()).toBe('build');
   await page.keyboard.press('w');
@@ -201,18 +218,20 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('order');
 
-  // 7. An order: Orders, Shift+N, part of a recipe's name typed, Enter.
-  await page.keyboard.press('Escape');
+  // 8. An order: Orders, Shift+N, part of a recipe's name typed, Enter. T-755: `o` straight from
+  // Build, as the text says.
   await page.keyboard.press('o');
+  expect(await panelNow()).toBe('orders');
   await page.keyboard.press('Shift+N');
   await page.keyboard.type('bed');
   await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('farm');
 
-  // 8. A farm plot over soil, by a drag of the mouse.
-  await page.keyboard.press('Escape');
+  // 9. A farm plot over soil, by a drag of the mouse. T-755: `z` straight from Orders; the step
+  // waits for this season's crop, chosen in the plot's settings by Enter, ↓ and Enter.
   await page.keyboard.press('z');
-  await page.keyboard.press('Shift+F');
+  expect(await panelNow()).toBe('zones');
+  await page.keyboard.press('f');
   const plot = await patchNear(page, 2, 2, 'farm_plot');
   await cursorTo(page, plot.x, plot.y);
   await cursorTo(page, plot.x + 1, plot.y + 1);
@@ -222,19 +241,18 @@ test('T-439 tutorial: every step played through by keyboard and mouse', async ({
   await page.mouse.down();
   await page.mouse.move(pb.x, pb.y, { steps: 4 });
   await page.mouse.up();
+  await expect.poll(() => textOf(page)).toMatch(/Farm plot #1/);
+  expect(await step(page)).toBe('farm');
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
   await expect.poll(() => step(page)).toBe('labors');
+  await page.screenshot({ path: 'reports/screenshots/t755-tutorial-farm-crop.png' });
 
-  // 9. Labors: the whole row of the first dwarf.
-  await page.keyboard.press('Escape');
+  // 10. Labors: the whole row of the first dwarf, `l` straight from the plot's settings.
   await page.keyboard.press('l');
+  expect(await panelNow()).toBe('labors');
   await page.keyboard.press('Shift+A');
-  await expect.poll(() => step(page)).toBe('speed');
-
-  // 10. Run, faster, and pause again.
-  await page.keyboard.press('Escape');
-  await page.keyboard.press('Space');
-  await page.keyboard.press('+');
-  await page.keyboard.press('Space');
   await expect.poll(() => step(page)).toBe('save');
 
   // 11. A quick save.
@@ -265,11 +283,11 @@ test('T-439 tutorial: offered on the first New world, skipped and ended by the b
   await page.mouse.click(skip.x, skip.y);
   await expect.poll(() => step(page)).toBe('look');
   await page.keyboard.press('F1');
-  await expect.poll(() => step(page)).toBe('dig');
+  await expect.poll(() => step(page)).toBe('speed');
   // A click on the box away from its buttons does nothing, and opens no look panel under it.
   const title = await textCell(page, 'Tutorial · step 3 of 11', 2);
   await page.mouse.click(title.x, title.y);
-  expect(await step(page)).toBe('dig');
+  expect(await step(page)).toBe('speed');
   expect(await page.evaluate(() => (window as unknown as { __deepholm: TutorialHook }).__deepholm.readers.ui.panel)).toBeNull();
   const end = await textCell(page, '[Shift+F1] end tutorial', 2);
   await page.mouse.click(end.x, end.y);
