@@ -12,6 +12,7 @@
 import { C } from '@core/components';
 import type { Command } from '@core/commands';
 import type { EntityId, TileIndex, Alert } from '@core/types';
+import type { ReaderSet } from '@core/readers';
 import { SQUAD_MAX_COUNT, SQUAD_MAX_SIZE, TICKS_PER_YEAR } from '@core/constants';
 import { ADULT_AGE_YEARS } from '@systems/dwarves/constants';
 import type { Rect } from '@render/cellbuffer';
@@ -248,17 +249,41 @@ export function lowerAlertQuestion(ctx: PanelContext, from: Alert, to: Alert): {
 }
 
 /**
+ * The fortress's Lock on alert doors as the alert line tells them: `none` without a built one, `held` while one
+ * is locked (a Hearth alert's lock lasts until Calm, 14 § Doors and hatches), else `open`.
+ */
+export type AlertDoors = 'none' | 'open' | 'held';
+
+export function alertDoors(readers: ReaderSet): AlertDoors {
+  if (!readers.has('14')) return 'none';
+  const buildings = readers.of<BuildingsReader>('14');
+  let out: AlertDoors = 'none';
+  for (const id of buildings.byTag('door')) {
+    const b = buildings.get(id);
+    if (b === undefined || b.state !== 'built' || b.mode !== 'lock_on_alert') continue;
+    if (buildings.mechanismState(id) === 'locked') return 'held';
+    out = 'open';
+  }
+  return out;
+}
+
+/**
  * What the current alert does, in words. Under a calm alert the members of a squad on Train or
  * Active are on duty and work no job (16 § Squads), so the line names each such squad with its
  * members and its mode: "Calm: everyone works but 3 in The Hearthguard (Train)."; with none it is
- * "Calm: everyone works.".
+ * "Calm: everyone works.". While the fortress has a built Lock on alert door, the Calm and Watch
+ * lines also say what those doors do: a Hearth alert's lock holds under Watch and opens at Calm.
  */
-export function alertLine(strings: Strings, alert: Alert, squads: readonly Pick<SquadWithId, 'name' | 'members' | 'mode'>[]): string {
-  if (alert !== 'calm') return strings.get(`ui.military.alert_${alert}`);
+export function alertLine(strings: Strings, alert: Alert, squads: readonly Pick<SquadWithId, 'name' | 'members' | 'mode'>[], doors: AlertDoors = 'none'): string {
+  if (alert === 'hearth') return strings.get('ui.military.alert_hearth');
+  if (alert === 'watchful') {
+    return strings.get(doors === 'held' ? 'ui.military.alert_watchful_held' : doors === 'open' ? 'ui.military.alert_watchful_open' : 'ui.military.alert_watchful');
+  }
   const parts = squads.flatMap((sq) => (sq.mode === 'off' || sq.members.length === 0 ? [] : [
     strings.get(sq.mode === 'train' ? 'ui.military.alert_calm_part_train' : 'ui.military.alert_calm_part_active', { n: sq.members.length, squad: sq.name }),
   ]));
-  return parts.length === 0 ? strings.get('ui.military.alert_calm') : strings.get('ui.military.alert_calm_but', { list: listText(strings, parts, 'and') });
+  if (parts.length === 0) return strings.get(doors === 'none' ? 'ui.military.alert_calm' : 'ui.military.alert_calm_doors');
+  return strings.get(doors === 'none' ? 'ui.military.alert_calm_but' : 'ui.military.alert_calm_but_doors', { list: listText(strings, parts, 'and') });
 }
 
 export function shortDwarfName(fullName: string): string {
@@ -751,7 +776,7 @@ export function drawMilitaryPanel(
   ], { width });
   row += 1;
   // One line says what the current alert does, and under Calm who does not work; it wraps whole.
-  for (const line of wrapText(alertLine(ctx.strings, currentAlert, panel.squads(ctx)), width, Infinity)) {
+  for (const line of wrapText(alertLine(ctx.strings, currentAlert, panel.squads(ctx), alertDoors(ctx.readers)), width, Infinity)) {
     label(s, col, row, line, { fg: t.dim, width, keys: false });
     row += 1;
   }

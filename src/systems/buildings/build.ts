@@ -145,7 +145,7 @@ export interface BuildHost {
   dwarvesAlive(): boolean;
   /** 11's job id for a key, or 0. */
   jobIdByKey(key: string): number;
-  /** The fortress alert (`FortressState.alert`); a `lock_on_alert` door locks while it is `hearth`. */
+  /** The fortress alert (`FortressState.alert`); a `lock_on_alert` door locks under `hearth` and opens at `calm`. */
   alert(): string;
   tick(): number;
   /** 04's `waterBelow(i, maxDepth)` (-1 for none), or null without a fluid system (T-M3-05, D-094). */
@@ -1547,29 +1547,49 @@ export class BuildingStore {
     return reject('precondition_failed');
   }
 
-  /** `AlertChanged`: the `lock_on_alert` doors lock or unlock with the alert. */
+  /**
+   * `AlertChanged`: the `lock_on_alert` doors lock with a `hearth` alert and open only when it returns to `calm`
+   * (14 § Doors and hatches, 19 § Hearth alert retreat). A `watchful` alert keeps the locks already taken and takes
+   * no new one; a `hearth` alert raised again keeps them too, so raising the alert never opens the gate. The doors
+   * the change keeps locked, or opens, are said once (`AlertLocksHeld`, `AlertLocksCleared`).
+   */
   onAlertChanged(): void {
-    const isHearth = this.host.alert() === 'hearth';
+    const alert = this.host.alert();
+    const isHearth = alert === 'hearth';
+    const held: EntityId[] = [];
+    const cleared: EntityId[] = [];
     for (const id of this.all()) {
       const b = this.get(id) as Building;
       if (b.mode !== 'lock_on_alert') continue;
+      const wasLocked = b.settings['alertLocked'] === true;
+      if (wasLocked && alert === 'watchful') {
+        held.push(id);
+        this.write(id, { settings: { ...b.settings, alertAt: null, outsideClearSince: null, shutOutNoted: false } });
+        continue;
+      }
+      const keep = wasLocked && isHearth;
+      if (wasLocked && alert === 'calm') cleared.push(id);
       const outside = isHearth ? this.civilianOutsideDoor(b) : false;
       this.write(id, {
         settings: {
           ...b.settings,
           alertAt: isHearth ? this.host.tick() : null,
           outsideClearSince: isHearth && !outside ? this.host.tick() : null,
-          alertLocked: false,
+          alertLocked: keep,
           shutOutNoted: false,
         },
       });
       const locked = isHearth && this.alertLockDue(this.get(id) as Building);
-      if (locked) {
+      if (locked && !keep) {
         this.write(id, { settings: { ...(this.get(id) as Building).settings, alertLocked: true } });
       }
       for (const t of b.footprint) this.map.markChunkDirty(t, true, true);
       this.host.emit({ type: 'BuildingStateChanged', id, state: locked ? 'locked' : 'open' });
     }
+    const first = held[0] ?? cleared[0];
+    if (first === undefined) return;
+    const tile = (this.get(first) as Building).origin;
+    this.host.emit(held.length > 0 ? { type: 'AlertLocksHeld', id: first, doors: held, tile } : { type: 'AlertLocksCleared', id: first, doors: cleared, tile });
   }
 
   /**
@@ -1745,13 +1765,13 @@ export class BuildingStore {
   }
 
   /**
-   * A door's `locked`, or `lock_on_alert` while the alert is `hearth` (14 § Doors and hatches), as it
+   * A door's `locked`, or `lock_on_alert` from a `hearth` alert until `calm` (14 § Doors and hatches), as it
    * stands: the lock that 14 has taken and dirtied the door's chunks for, so that the pathfinder and the
    * connectivity labels see it on the same tick (T-530). Whether a lock is due is {@link alertLockDue}.
    */
   doorLocked(b: Building): boolean {
     if (b.mode === 'locked') return b.settings['lockHeld'] === true;
-    // `onAlertChanged` clears `alertLocked`, and dirties the chunks, when the alert leaves `hearth`.
+    // `onAlertChanged` clears `alertLocked`, and dirties the chunks, when the alert returns to `calm`.
     return b.mode === 'lock_on_alert' && b.settings['alertLocked'] === true;
   }
 
