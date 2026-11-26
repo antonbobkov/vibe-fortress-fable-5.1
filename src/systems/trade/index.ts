@@ -277,6 +277,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     if (!job.key.startsWith('trade:')) return true;
     const a = this.active;
     if (!a || a.state !== 'atDepot' || a.depotId !== job.data['depotId']) return true;
+    // Done trading (`TradeCancel`): the job completes and the trader goes back to work.
+    if (a.doneJob === job.id) return true;
     const session = this.sessionState;
     if (session !== null) return session.traderId !== job.workerId;
     if (!this.eligibleTrader(ctx, job)) return true;
@@ -331,6 +333,10 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     }
     if (!a || a.state !== 'atDepot' || a.depotId !== job.data['depotId']) return;
     if (!job.key.startsWith('trade:') || this.sessionState !== null) return;
+    if (a.doneJob === job.id) {
+      delete a.doneJob;
+      return;
+    }
     // The job completed without a session (`holdTrader`): a worker who cannot trade is replaced by
     // the dwarf the job is for; a trader or merchant off the depot has the job re-queued once.
     if (!this.eligibleTrader(ctx, job)) {
@@ -447,7 +453,10 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       // § The session: done trading for this visit; the held job ends and the trader goes back to work.
       if (!this.sessionState) return reject('no_session');
       this.sessionState = null;
-      if (a) this.cancelTradeJob(ctx, a.depotId, 'player');
+      if (a) {
+        const job = ctx.readers.of<JobsReader>('11').byKey(`trade:${a.depotId}`);
+        if (job) a.doneJob = job.id;
+      }
       return OK;
     }
     if (cmd.type === 'TradeOffer') return this.offer(cmd, ctx);

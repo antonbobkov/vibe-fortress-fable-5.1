@@ -439,7 +439,15 @@ const scenario: Scenario = {
 
     const yearTicks = DAYS_PER_YEAR * TICKS_PER_DAY;
     while (w.tick < yearTicks) {
-      w.step(Math.min(600, yearTicks - w.tick));
+      // T-800: the trade screen pauses the game the moment its session opens (20 § The session), and
+      // the player trades then; the trader waits at the depot until the trade is done.
+      const end = w.tick + Math.min(600, yearTicks - w.tick);
+      while (w.tick < end) {
+        if (!hillfolkTraded && w.readers.of<JobsReader>('11').byKey(`trade:${depotId}`) !== undefined) {
+          w.step(1);
+          if (tradeReader.sessionOpen()) tradeWithHillfolk();
+        } else w.step(end - w.tick);
+      }
       tradeWithHillfolk();
       // T-156: the game saved on day 56 loads into a second world that plays day 56 as this one does.
       if (w.tick === 55 * TICKS_PER_DAY) {
