@@ -31,6 +31,8 @@ mood         = clamp(MOOD_MIN, MOOD_MAX, max(raw, MOOD_NEEDS_MET_FLOOR − needP
 
 With the constants below: baseline 55, positives up to +40, negatives down to −35, need pressure down to −20, hearth up to +10. The standing thoughts of the four survival and company needs count twice, once as thoughts and once as pressure: that is what makes neglect, and only neglect, able to take a dwarf below 20. With every need met, `needPressure` is 0 and mood is at least `MOOD_NEEDS_MET_FLOOR` (20, Unhappy, not Miserable) whatever the thoughts and the personality. This is the design's anti-spiral guarantee, and the tests in `04-implementation/acceptance-tests.md` check it.
 
+A known gap (T-763, T-766): company is the dwarves' own errand, which a dwarf at work does not take (10 § Behavior selection), so in a busy first week with no hearth hall a gregarious dwarf can be Miserable by its second to fourth day with nothing neglected, three-quarters of it from `lonely` counting twice. Counting `lonely` once (not as pressure) cut that early misery from 111 dwarf-hours to 24 over 40 probed timelines, but on the same code it raised the twenty-seed sweep's dwarf deaths from 110.25 to 129 (all of the rise from raids in timelines it shifted), over the bar of about 118, so `lonely` stays need pressure for now. The Mood panel's `Helps:` line for `lonely` is the player's answer.
+
 ### Tiers and effects
 
 | Tier | Mood | Productivity | Other |
