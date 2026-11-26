@@ -14,7 +14,7 @@ function line(day: number, severity: LogLine['severity'], text: string, count = 
 /** A fortress's log as the second playtest's: a starving line and a rising every day, three deaths among them. */
 function reedholmLog(): LogLine[] {
   const log: LogLine[] = [];
-  log.push(line(2, 'alert', strings.get('announce.cavern_breached')));
+  log.push(line(2, 'alert', strings.get('announce.cavern_breached_unplaced')));
   for (let day = 10; day < 40; day += 1) {
     const names = NAMES.slice(0, 2 + (day % 3));
     log.push(line(day, 'note', `Note ${day}`));

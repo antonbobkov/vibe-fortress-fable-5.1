@@ -18,6 +18,7 @@ import type { AnnouncementLog } from './announcements';
 import { HINT_ALERT_REPEAT_DAYS, HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM } from './constants';
 import { raidArrival } from './raid-lines';
 import { foodAtHand } from './food-at-hand';
+import { starvingShutIn } from './shut-in';
 
 /** The string key the miserable line is filled from (`announce.mood_tier`, `_why`, `_many`, `_many_why`). */
 const MISERABLE_KEY = 'announce.mood_tier';
@@ -204,9 +205,14 @@ export class HintEngine {
     this.show(id, tick);
   }
 
-  /** `hint_starving`'s words: the food at hand now, or the advice for none. */
+  /**
+   * `hint_starving`'s words: with food in the stores that some starving dwarf cannot reach, that it is
+   * there and how many cannot reach it; else the food at hand now, or the advice for none.
+   */
   private starvingText(readers: ReaderSet): string {
     const strings = this.log.strings;
+    const shut = starvingShutIn(readers);
+    if (shut.length > 0) return strings.get('ui.starving_hint.shut_in', { n: shut.length });
     const food = foodAtHand(readers, this.registry, strings);
     return food.length === 0 ? strings.get('ui.starving_hint.none') : strings.get('hint.hint_starving', { food: food.join('; ') });
   }

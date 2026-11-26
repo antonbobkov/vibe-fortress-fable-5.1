@@ -388,7 +388,8 @@ describe('T-M1-14 announcements', () => {
     expect(log.lines).toHaveLength(1);
     expect(lineText(log.lines[0]!, strings)).toMatch(/ ×2$/);
     game.fortress.onEvents([{ type: 'CavernBreached', cavern: 1, tile: 9 } as never]);
-    expect(lineText(log.lines[1]!, strings)).toBe('! A cavern has been breached.');
+    expect(lineText(log.lines[1]!, strings)).toMatch(/^! Cavern 1 is open at \(\d+,\d+,z\d+\)\. What lives there can walk in\.$/);
+    expect(log.lines[1]?.focus).toBe(9);
     game.fortress.onEvents([{ type: 'DeepsilverMined', tile: game.host.readers.map.index(40, 40, 20), minerId: 0 } as never]);
     expect(game.host.speed()).toBe(0);
     expect(game.ui.z).toBe(20);

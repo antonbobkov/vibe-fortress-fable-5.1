@@ -12,6 +12,7 @@
  * of which the dwarf can reach. Read-only: every reader it calls is a pure query.
  */
 import { C } from '@core/components';
+import { NEED_MAX } from '@core/constants';
 import type { ReaderSet } from '@core/readers';
 import type { EntityId, TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
@@ -78,6 +79,29 @@ export function cutOff(readers: ReaderSet, need: ShutNeed): EntityId[] {
     if (!found) out.push(id);
   }
   return out.sort((a, b) => a - b);
+}
+
+/**
+ * 10 § Needs, the starving line (24 § Announcements and the log): the fortress stores something for
+ * `need` that a dwarf could take (13's `countAvailable`), and none of it lies on the dwarf's walker
+ * label (22): a wall, a coffin, a cave-in or a locked door shuts it in. False with no pathing or
+ * items to ask, and for a dwarf not on the map.
+ */
+export function shutAway(readers: ReaderSet, id: EntityId, need: ShutNeed): boolean {
+  if (!readers.has('13') || !readers.has('pathing')) return false;
+  const tile = tileOf(readers, id);
+  if (tile < 0) return false;
+  const items = readers.of<ItemsReader>('13');
+  return items.countAvailable(FILTER[need]) > 0 && items.findItem(FILTER[need], tile, 'walker', { reservable: true }) === 0;
+}
+
+/** The fortress dwarves starving now (hunger at `NEED_MAX`, 10's `Starving`) whom {@link shutAway} keeps from food, ascending. */
+export function starvingShutIn(readers: ReaderSet): EntityId[] {
+  if (!readers.has('10')) return [];
+  const dwarves = readers.of<DwarvesReader>('10');
+  return dwarves.list()
+    .filter((id) => (readers.entities.get(id, C.Needs)?.hunger ?? 0) >= NEED_MAX && shutAway(readers, id, 'hunger'))
+    .sort((a, b) => a - b);
 }
 
 function tileOf(readers: ReaderSet, id: EntityId): TileIndex {

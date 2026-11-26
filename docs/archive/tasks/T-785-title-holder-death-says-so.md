@@ -1,6 +1,8 @@
 # T-785 — The Thane and the Broker die, and their titles empty without a word
 
-**Source:** playtest 7 ([report](../../reports/data/2026-11-26-playtest-7.md), finding 2) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-26, in 82e42a21.
+
+**Source:** playtest 7 ([report](../../../reports/data/2026-11-26-playtest-7.md), finding 2) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -17,8 +19,16 @@ Decisions taken here:
 - The death line itself names the title: "!! Jorund Saltvein, Thane, has bled to death." (the `{name}` of `announce.died.*` takes the title as the whim line does).
 - No automatic successor. Choosing one is the player's decision, and the line says so.
 
+## Decisions made while implementing
+
+- **The UI joins the vacate to the death.** 10 destroys the dead dwarf as it hears `CreatureDied`, so when the announcer reads `TitleAssigned { dwarfId: 0, previousId }` the holder is gone and 10 no longer knows its titles. The event catalog row is unchanged (no `died` field): the announcer keeps each fortress dwarf's death line of the last day (presentation state, not saved) and, when a vacate names one of them, rewrites that death line with the titles and opens the alert. The first title opens the alert (it flashes, and pauses under auto-pause on alert); a second title of the same death changes both lines in place and returns nothing.
+- **Wording.** The titled name is `announce.titled_name` "{name}, {titles}," so every `announce.died.*` line reads with it ("Jorund Saltvein, Thane and Broker, has bled to death."). The alert lists "the Thane and the Broker" (`announce.the_title` before each title after the first), singular and plural keys `announce.title_vacated_died` and `_many`. The alert's focus is the death line's.
+- **The vacates come in title-table order** (thane, warden, broker, chief medic), as 10's titles are listed everywhere else.
+- **A vacate by command stays the note** `announce.title_vacated`.
+- No new event type and no new announcement registration, so the severity table and the event counts are unchanged. No world hash moves (an extra event on a title holder's death only; 20's Broker handler already repairs the trade job on `CreatureDied`, and does it again, idempotently).
+
 ## Done
 
-- [ ] 10 emits the vacate on death; a test that a dead Thane's title is vacated with the event.
-- [ ] The alert line and the titled death line in strings and 24's announcement table; a UI test.
-- [ ] 10 § Titles says what a death does to a title.
+- [x] 10 emits the vacate on death; a test that a dead Thane's title is vacated with the event.
+- [x] The alert line and the titled death line in strings and 24's announcement table; a UI test.
+- [x] 10 § Titles says what a death does to a title.

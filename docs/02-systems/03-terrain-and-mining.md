@@ -191,7 +191,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 Job producer `terrain` (designation jobs); overlay `designations`; inspector section `tile` (kind, material, flags, designation, engraving, temperature from 05, fluid from 04). Announcements:
 - `VeinFound`: note, string key `announce.vein_found` ("{dwarf} has found {material}.")
 - `FossilFound`: note, string key `announce.first_fossil` ("{dwarf} has found the bones of something old.")
-- `CavernBreached`: alert, string key `announce.cavern_breached` ("A cavern has been breached."); its focus is the breach tile, which the map marks as it marks a log line's focus, and the threats panel's cavern row names it (24 § Announcements and the log)
+- `CavernBreached`: alert, string key `announce.cavern_breached`, which names the cavern and the breach tile ("Cavern 2 is open at (2,14,z13). What lives there can walk in."; an event without them reads "A cavern has been breached.", `announce.cavern_breached_unplaced`); its focus is the breach tile, which the map marks as it marks a log line's focus, and the threats panel's cavern row names it (24 § Announcements and the log)
 - `DeepsilverMined`: danger, string key `announce.deepsilver_mined` ("Deepsilver has been mined."), first occurrence only (`once: true`)
 - `ConstructionCollapsed`: alert, string key `announce.construction_collapsed` ("A construction has collapsed.")
 

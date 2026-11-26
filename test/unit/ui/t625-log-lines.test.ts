@@ -169,12 +169,12 @@ describe('T-625 a breach is marked and placed', () => {
     const s = surface(36, 32);
     drawThreatsPanel(s, { col: 0, row: 0, cols: 36, rows: 32 }, f.threats, f.ctx, false, ui.breaches);
     const text = s.lines().join('\n');
-    expect(text).toContain(`1: breached at (30,25,z${Z - 2})`);
-    expect(text).toMatch(/ {3}monsters \d+/);
-    // Without the record (an older save) the row is as before.
+    expect(text).toContain(`1: open at (30,25,z${Z - 2})`);
+    expect(text).toMatch(/ {3}(no monsters|\d+ monsters?, (none|\d+) can reach the halls)/);
+    // Without the record (an older save) the row names no place.
     const old = surface(36, 32);
     drawThreatsPanel(old, { col: 0, row: 0, cols: 36, rows: 32 }, f.threats, f.ctx);
-    expect(old.lines().join('\n')).toMatch(/1: breached · monsters \d+/);
+    expect(old.lines().join('\n')).toMatch(/1: open\s*\n\s+(no monsters|\d+ monsters?, (none|\d+) can reach the halls)/);
 
     const restored = defaultUiState(Z);
     fromSaved(restored, toSaved(ui, []));

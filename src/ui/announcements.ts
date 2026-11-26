@@ -21,7 +21,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
-import { TICKS_PER_DAY } from '@core/constants';
+import { CAVERN_1_Z_MAX, CAVERN_1_Z_MIN, CAVERN_2_Z_MAX, CAVERN_2_Z_MIN, CAVERN_3_Z_MAX, CAVERN_3_Z_MIN, TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, LOG_STANDING_ALERTS, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
@@ -32,7 +32,8 @@ import { markFigure } from './panels/context';
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, sizeWords, stolenGoodsText, stolenOf, theftKey, warningWhen, type Stolen } from './raid-lines';
-import { ShutInWatch } from './shut-in';
+import { ShutInWatch, shutAway } from './shut-in';
+import { fortressLabels, reachesFortress } from './cavern-reach';
 import type { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
@@ -104,6 +105,8 @@ interface Fighter {
   readonly id: number;
   readonly species: number;
   readonly name: string;
+  /** A cavern monster (`hostile:cavern`) or a creature of the Deep. */
+  readonly deep: boolean;
 }
 
 /** The fortress's open engagement (16 § Combat log): its line, who has fought in it on each side, and its last blow. */
@@ -112,6 +115,19 @@ interface Engagement {
   readonly ours: Fighter[];
   readonly foes: Fighter[];
   last: number;
+  /** A cavern or Deep foe has fought in the halls: the line is a danger line in the halls' words. */
+  halls: boolean;
+}
+
+/** A fortress dwarf's death line, for the titles its death vacates (`announceTitleVacated`; not saved). */
+interface DeathRecord {
+  readonly line: LogLine;
+  readonly key: string;
+  readonly params: Readonly<Record<string, string | number>>;
+  readonly tick: number;
+  readonly name: string;
+  readonly titles: string[];
+  vacated?: LogLine;
 }
 
 /** A reason on the miserable line: a negative thought's text and its weight (its value, made positive). */
@@ -153,6 +169,10 @@ export class AnnouncementLog {
   private readonly thoughtLines = new Map<string, { line: LogLine; tick: number; ids: number[]; names: string[] }>();
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
   private readonly partyTiles = new Map<number, TileIndex>();
+  /** The day's line of each cavern's monsters and the species it counts, in the order they came (`announceMonster`; not saved). */
+  private readonly monsterLines = new Map<number, { line: LogLine; counts: Map<number, number> }>();
+  /** The fortress dwarves whose death lines came within the day, by id (`rememberDeath`; not saved). */
+  private readonly deaths = new Map<number, DeathRecord>();
   /** The standing alerts' templates as patterns (`templateOf`). */
   private readonly templates = new Map<string, RegExp>();
 
@@ -298,6 +318,13 @@ export class AnnouncementLog {
     if (event.type === 'WorkOrderSkipped' && (typeof recipeId === 'string' || typeof recipeId === 'number')) {
       const name = readers.has('12') ? readers.of<WorkshopsReader>('12').recipe(recipeId)?.name : undefined;
       out['recipe'] = name === undefined ? String(recipeId).replace(/_/g, ' ') : name.charAt(0).toLowerCase() + name.slice(1);
+    }
+    // 18 § Player-facing behavior: a breach names its place ("Cavern 2 is open at (2,14,z13).").
+    if (event.type === 'CavernBreached' && typeof e['tile'] === 'number' && e['tile'] >= 0) {
+      const at = readers.map.unpack(e['tile']);
+      out['x'] = at.x;
+      out['y'] = at.y;
+      out['z'] = at.z;
     }
     if (event.type === 'IceMelted') out['place'] = this.icePlace(readers, (e['tiles'] as readonly TileIndex[] | undefined) ?? []);
     if (event.type === 'PlotNeedsSeeds') out['plot'] = zoneName({ readers, strings: this.strings }, Number(e['zoneId'])) || this.strings.get('ui.zone.type.farm_plot');
@@ -500,6 +527,9 @@ export class AnnouncementLog {
     if (event.type === 'KillRecorded' && typeof fields['victimId'] === 'number' && this.killsTold.delete(fields['victimId'])) return null;
     if (event.type === 'AlertChanged') this.shutIn.reset();
     if (event.type === 'HourPassed') return this.announceShutIn(readers, tick);
+    // 10 § Titles: the titles a dwarf's death vacates are told with its death.
+    const dead = event.type === 'TitleAssigned' && fields['dwarfId'] === 0 && typeof fields['previousId'] === 'number' ? this.deaths.get(fields['previousId']) : undefined;
+    if (dead !== undefined) return this.announceTitleVacated(fields, dead, tick);
     // Completion/removal must clear suppression even when the event has no announcement.
     const finished = event.type === 'JobCompleted' && fields['jobType'] === 'craft' ? fields['target']
       : event.type === 'BuildingRemoved' ? fields['id'] : undefined;
@@ -528,6 +558,7 @@ export class AnnouncementLog {
     if (event.type === 'MiasmaSpread') return this.announceMiasma(fields, readers, tick, spec);
     if (event.type === 'ThiefEscaped') return this.announceTheft(fields, readers, tick, spec);
     if (event.type === 'RaidEnded') return this.announceRaidEnded(fields, readers, tick, spec);
+    if (event.type === 'MonsterSpawned') return this.announceMonster(fields, readers, tick, spec);
     if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
@@ -559,6 +590,8 @@ export class AnnouncementLog {
     const killTold = dwarfDeath && key === 'announce.died.killed_by' && typeof creatureId === 'number';
     if (killTold) this.killsTold.add(creatureId);
     if (event.type === 'ImmigrantsArrived') key = this.immigrantsLine(fields, readers, params) ?? key;
+    // A breach that names no cavern or place keeps the plain line.
+    if (event.type === 'CavernBreached' && (typeof fields['cavern'] !== 'number' || params['x'] === undefined)) key = 'announce.cavern_breached_unplaced';
     if (event.type === 'AnimalStarving') key = this.animalStarvingKey(creatureId, readers, params);
     const said = this.strings.get(key, params);
     // 18 § Registrations: under a Calm alert a raid's danger line says what the alert does and its keys, as true then.
@@ -574,7 +607,44 @@ export class AnnouncementLog {
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && fields['amount'] === 0) {
       return this.done(this.append(severity, this.strings.get('announce.attack_harmless', params), tick, focus, category, 'announce.attack_harmless'));
     }
-    return this.appendStanding(severity, text, tick, focus, category, key);
+    const done = this.appendStanding(severity, text, tick, focus, category, key);
+    if (dwarfDeath && typeof creatureId === 'number') this.rememberDeath(creatureId, done.line, key, params, tick);
+    return done;
+  }
+
+  /** A fortress dwarf's death line, kept a day for the titles its death vacates (`announceTitlesVacated`). */
+  private rememberDeath(id: number, line: LogLine, key: string, params: Record<string, string | number>, tick: number): void {
+    for (const [dead, record] of this.deaths) if (tick - record.tick > TICKS_PER_DAY) this.deaths.delete(dead);
+    this.deaths.set(id, { line, key, params, tick, name: String(params['dwarf'] ?? params['name'] ?? ''), titles: [] });
+  }
+
+  /**
+   * 10 § Titles: a title holder's death vacates its titles (`TitleAssigned { dwarfId: 0, previousId }`
+   * after its `CreatureDied`). The death line names the titles ("Jorund Saltvein, Thane, has bled to
+   * death."), and one alert per death says they are vacant and how to fill them ("Jorund Saltvein was
+   * the Thane and the Broker. The titles are vacant: [u] [t] names others."). The first title opens
+   * the alert; each later one changes both lines in place and returns null.
+   */
+  private announceTitleVacated(fields: Record<string, unknown>, record: DeathRecord, tick: number): Announced | null {
+    const title = String(fields['title'] ?? '');
+    const word = this.strings.has(`ui.title.${title}`) ? this.strings.get(`ui.title.${title}`) : title.replace(/_/g, ' ');
+    if (!record.titles.includes(word)) record.titles.push(word);
+    const listed = (words: readonly string[]): string => words.length === 1 ? words[0] as string
+      : this.strings.get('announce.list_and', { list: words.slice(0, -1).join(', '), last: words[words.length - 1] as string });
+    // "Thane and Broker" after the name; "the Thane and the Broker" after "was".
+    const titled = this.strings.get('announce.titled_name', { name: record.name, titles: listed(record.titles) });
+    const death = this.strings.get(record.key, { ...record.params, name: titled, dwarf: titled });
+    record.line.text = capitalize(death);
+    const the = record.titles.map((t, k) => k === 0 ? t : this.strings.get('announce.the_title', { title: t }));
+    const said = this.say(record.titles.length === 1 ? 'announce.title_vacated_died' : 'announce.title_vacated_died_many', { dwarf: record.name, titles: listed(the) });
+    if (record.vacated !== undefined && this.lines.includes(record.vacated)) {
+      record.vacated.text = capitalize(said.text);
+      record.vacated.key = said.key;
+      record.vacated.tick = tick;
+      return null;
+    }
+    record.vacated = this.append('alert', said.text, tick, record.line.focus, undefined, said.key);
+    return this.done(record.vacated);
   }
 
   private done(line: LogLine): Announced {
@@ -588,8 +658,11 @@ export class AnnouncementLog {
    * place of the latest blow, and it keeps its place in the log. A foe is a raider or a creature of
    * the Deep, a wild animal that attacks, or anything that strikes a fortress creature (a fortress
    * creature hunting a deer is no engagement). The engagement ends when no blow of it has come for
-   * `LOG_ENGAGEMENT_TICKS`. Returns the line it opened; null when it refreshed one or the blow is
-   * none of the fortress's.
+   * `LOG_ENGAGEMENT_TICKS`. A cavern monster or a creature of the Deep fighting in the halls
+   * ({@link inHalls}) makes it a danger line in the halls' words, with the Calm tail ("A blind stalker
+   * is in the halls! 3 dwarves are fighting it. The alert is Calm: …"); an open alert turns into one
+   * at the first such blow. Returns the line it opened or turned; null when it refreshed one or the
+   * blow is none of the fortress's.
    */
   engage(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
     if (event.type !== 'AttackResolved') return null;
@@ -626,31 +699,45 @@ export class AnnouncementLog {
       return null;
     }
     const focus = focusOf({ type: 'AttackResolved', defenderId: defender, attackerId: attacker } as unknown as GameEvent, readers);
-    const fight: Engagement = open ?? { line: { tick, severity: 'alert', text: '', count: 1 }, ours: [], foes: [], last: tick };
+    const fight: Engagement = open ?? { line: { tick, severity: 'alert', text: '', count: 1 }, ours: [], foes: [], last: tick, halls: false };
     this.enlist(fight.ours, ours, readers);
     this.enlist(fight.foes, foe, readers);
     fight.last = tick;
-    const said = this.engagementText(fight);
-    const text = capitalize(said.text);
+    // A cavern or Deep foe fighting in the halls makes the line a danger line; an open alert turns into one once.
+    const toHalls = !fight.halls && fight.foes.some((f) => f.deep) && inHalls(readers, focus);
+    if (toHalls) fight.halls = true;
+    const said = fight.halls ? this.hallsText(fight) : this.engagementText(fight);
+    const tail = fight.halls ? calmTail(this.strings, readers) : null;
+    const text = tail === null ? capitalize(said.text) : `${capitalize(said.text)} ${tail}`;
     if (open !== null) {
       open.line.text = text;
       open.line.key = said.key;
       open.line.tick = tick;
       if (focus !== undefined) open.line.focus = focus;
       open.line.subject = foe;
-      return null;
+      if (!toHalls) return null;
+      open.line.severity = 'danger';
+      return this.done(open.line);
     }
-    const line = this.append('alert', text, tick, focus, 'combat', said.key);
+    const line = this.append(fight.halls ? 'danger' : 'alert', text, tick, focus, 'combat', said.key);
     line.subject = foe;
-    this.engagement = { line, ours: fight.ours, foes: fight.foes, last: tick };
+    this.engagement = { line, ours: fight.ours, foes: fight.foes, last: tick, halls: fight.halls };
     return this.done(line);
+  }
+
+  /** "A blind stalker is in the halls! 3 dwarves are fighting it.", "2 cave crawlers are in the halls! Asa Forgehall is fighting them." */
+  private hallsText(fight: Engagement): Said {
+    const foes = this.fightersText(fight.foes);
+    const ours = capitalize(this.fightersText(fight.ours));
+    const many = (side: readonly Fighter[]): string => side.length === 1 ? 'one' : 'many';
+    return this.say(`announce.engagement.halls.${many(fight.foes)}_${many(fight.ours)}`, { ours, foes });
   }
 
   private enlist(side: Fighter[], id: number, readers: ReaderSet): void {
     if (side.some((f) => f.id === id)) return;
     const creature = readers.entities.get(id, C.Creature);
     if (creature === undefined) return;
-    side.push({ id, species: creature.species, name: creature.name });
+    side.push({ id, species: creature.species, name: creature.name, deep: creature.faction === 'hostile:cavern' || creature.faction === 'deep' });
   }
 
   /** "Halvar Ironfell is fighting a wolf.", "4 dwarves and a dog are fighting 9 gloam warriors and a gloam captain." */
@@ -757,6 +844,42 @@ export class AnnouncementLog {
   }
 
   /**
+   * 18 § Player-facing behavior: a `MonsterSpawned` names its species and its cavern ("A blind stalker
+   * has appeared in cavern 2."). The monsters of one cavern on one day are one line, counted by
+   * species in the order they came ("2 cave crawlers and a giant cave spider have appeared in cavern
+   * 1."). A monster that cannot walk to any fortress dwarf ({@link reachesFortress}) makes no line;
+   * the Threats panel counts it. A later monster of the line changes it in place and returns null.
+   */
+  private announceMonster(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const id = Number(fields['id'] ?? 0);
+    const creature = readers.entities.get(id, C.Creature);
+    if (creature === undefined || !reachesFortress(readers, id, fortressLabels(readers))) return null;
+    const cavern = Number(fields['cavern'] ?? 0);
+    const open = this.monsterLines.get(cavern);
+    const same = open !== undefined && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick);
+    const counts = same ? open.counts : new Map<number, number>();
+    counts.set(creature.species, (counts.get(creature.species) ?? 0) + 1);
+    const table = this.registry.table<NamedRow & { plural?: string }>('creatures');
+    const parts = Array.from(counts, ([species, n]) => n === 1
+      ? creatureWords(this.strings, this.registry, undefined, species)
+      : `${n} ${speciesPlural(table.byIndex(species))}`);
+    const monsters = parts.length === 1 ? parts[0] as string
+      : this.strings.get('announce.list_and', { list: parts.slice(0, -1).join(', '), last: parts[parts.length - 1] as string });
+    const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
+    const said = this.say(total === 1 ? spec.stringKey : 'announce.monster_spawned_many', { monsters, cavern });
+    if (same) {
+      open.line.text = capitalize(said.text);
+      open.line.key = said.key;
+      open.line.tick = tick;
+      return null;
+    }
+    const line = this.append(spec.severity, said.text, tick, focusOf({ type: 'MonsterSpawned', id } as unknown as GameEvent, readers), spec.category, said.key);
+    line.subject = id;
+    this.monsterLines.set(cavern, { line, counts });
+    return { line, severity: spec.severity, focus: line.focus };
+  }
+
+  /**
    * 10 § Needs: one `Starving` comes for each starving dwarf each day, naming its need. A day's of one
    * need are one line, which names each dwarf once as it comes: "Asa Forgehall is starving.", then
    * "3 dwarves are starving: Asa, Njal, Liv." (first names); thirst reads "Asa Forgehall is dying of
@@ -768,6 +891,7 @@ export class AnnouncementLog {
     const id = Number(fields['id']);
     const need = fields['need'] === 'thirst' ? 'thirst' : 'hunger';
     const name = String(this.params(event, readers)['dwarf'] ?? '');
+    if (shutAway(readers, id, need)) return this.announceShutAway(id, name, need, readers, tick, spec);
     const open = this.starving.get(need);
     if (open !== undefined && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
       if (!open.ids.includes(id)) { open.ids.push(id); open.names.push(name); }
@@ -782,6 +906,22 @@ export class AnnouncementLog {
     const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
     this.starving.set(need, { line, ids: [id], names: [name] });
     return { line, severity: spec.severity, focus };
+  }
+
+  /**
+   * 24 § Announcements and the log: a starving dwarf that the fortress's food (drink) is out of reach
+   * of ({@link shutAway}) has a line of its own, which says where it is shut in and focuses there:
+   * "Lida Crageye is starving, shut in at (10,13,z14) with no way to food." A standing alert, one per
+   * dwarf: the day after, it folds into its line ("… (14 days)").
+   */
+  private announceShutAway(id: number, name: string, need: 'hunger' | 'thirst', readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
+    const key = need === 'thirst' ? 'announce.thirsting_shut_in' : 'announce.starving_shut_in';
+    const p = readers.entities.get(id, C.Position);
+    const at = p === undefined ? { x: 0, y: 0, z: 0 } : p;
+    const focus = p === undefined ? undefined : readers.map.index(p.x, p.y, p.z);
+    const done = this.appendStanding(spec.severity, this.strings.get(key, { dwarf: name, x: at.x, y: at.y, z: at.z }), tick, focus, spec.category, key);
+    done.line.subject = id;
+    return done;
   }
 
   /**
@@ -1219,6 +1359,21 @@ export function creatureWords(strings: Strings, registry: Registry, name: string
 export function killerWords(strings: Strings, registry: Registry, name: string | undefined, species: number | undefined): string {
   if (species === undefined) return name === undefined || name === '' ? '' : withArticle(strings, name.toLowerCase());
   return creatureWords(strings, registry, name, species);
+}
+
+/** The z bands of the caverns, shallowest first (03 § Caverns). */
+const CAVERN_BANDS: readonly (readonly [number, number])[] = [[CAVERN_1_Z_MIN, CAVERN_1_Z_MAX], [CAVERN_2_Z_MIN, CAVERN_2_Z_MAX], [CAVERN_3_Z_MIN, CAVERN_3_Z_MAX]];
+
+/**
+ * 16 § Combat log: a blow struck inside the fortress, on a tile under a roof (no `outdoor` flag) and
+ * outside every cavern's z band. A tile in a cavern band is the cavern's, dug or not.
+ */
+export function inHalls(readers: ReaderSet, tile: TileIndex | undefined): boolean {
+  if (tile === undefined || tile < 0) return false;
+  const map = readers.map;
+  if (map.isOutdoor(tile)) return false;
+  const z = map.unpack(tile).z;
+  return !CAVERN_BANDS.some(([lo, hi]) => z >= lo && z <= hi);
 }
 
 /** A zone's first tile, for a line about the zone. */

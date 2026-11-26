@@ -682,7 +682,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.threats.schedule_never': 'never',
   'ui.threats.schedule_unknown': 'unknown',
   'ui.threats.caverns': 'Caverns',
-  'ui.threats.cavern_breached': '{n}: breached · monsters {monsters}',
+  'ui.threats.cavern_breached': '{n}: open',
   'ui.threats.cavern_sealed': '{n}: sealed',
   'ui.threats.deep': 'The Deep',
   'ui.threats.pressure': 'Pressure {bar} {pressure} / {next} (lvl {level})',
@@ -1869,6 +1869,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.units.squad_added_skipped': 'Added {n} to {squad}; {skipped} left out (a child, already in a squad, or no room).',
   'ui.units.squad_nobody': 'No one added to {squad}: children, dwarves already in a squad, or the squad is full.',
   'ui.status.build_placed_one': '{tool} placed',
+  // 24 § Input model: a placement that will shut dwarves away from home.
+  'ui.build.seals': '{text} · seals {n|dwarf|dwarves} at ({x},{y},z{z}) from the {home}',
+  'ui.build.seals.hall': 'hall',
+  'ui.build.seals.wagon': 'wagon',
   'ui.trade.wait.the_broker': 'The broker',
   'ui.trade.wait.named_broker': '{name}, the Broker,',
   'ui.trade.wait.on_way': '{who} is on the way to the depot.',
@@ -2481,7 +2485,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // Announcements (`03` § Registrations; texts D-065).
   'announce.vein_found': '{dwarf} has found {material}.',
   'announce.first_fossil': '{dwarf} has found the bones of something old.',
-  'announce.cavern_breached': 'A cavern has been breached.',
+  'announce.cavern_breached': 'Cavern {cavern} is open at ({x},{y},z{z}). What lives there can walk in.',
+  'announce.cavern_breached_unplaced': 'A cavern has been breached.',
   'announce.deepsilver_mined': 'Deepsilver has been mined.',
   'announce.construction_collapsed': 'A construction has collapsed.',
   'announce.obsidian_formed': 'Obsidian has formed.',
@@ -2606,6 +2611,11 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 16 § Combat log: the fortress's engagement line, refreshed while its blows come.
   'announce.engagement.one': '{ours} is fighting {foes}.',
   'announce.engagement.many': '{ours} are fighting {foes}.',
+  // 16 § Combat log: a cavern or Deep foe fighting in the halls, a danger line.
+  'announce.engagement.halls.one_one': '{foes} is in the halls! {ours} is fighting it.',
+  'announce.engagement.halls.one_many': '{foes} is in the halls! {ours} are fighting it.',
+  'announce.engagement.halls.many_one': '{foes} are in the halls! {ours} is fighting them.',
+  'announce.engagement.halls.many_many': '{foes} are in the halls! {ours} are fighting them.',
   'announce.alert_changed': 'The fortress alert is now {to}.',
   'announce.kill_recorded': '{killer} has slain {victim}.',
   // 18 Threats announcements
@@ -2653,7 +2663,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.raid_calm_tail': 'The alert is Calm: [m] [3] sends the civilians to shelter.',
   'announce.raid_calm_tail.squads': 'The alert is Calm: [m] [3] sends the civilians to shelter; Active [v] sends the squads.',
   'announce.raid_calm_tail.no_squad': 'The alert is Calm: [m] [3] sends the civilians to shelter; [m] [+] makes a squad.',
-  'announce.monster_spawned': 'A cavern monster has appeared.',
+  'announce.monster_spawned': '{monsters} has appeared in cavern {cavern}.',
+  'announce.monster_spawned_many': '{monsters} have appeared in cavern {cavern}.',
   'announce.deep_stirred': 'The Deep stirs. Something has noticed the pale metal being taken.',
   'announce.restless_rose': 'The restless dead rise.',
 });

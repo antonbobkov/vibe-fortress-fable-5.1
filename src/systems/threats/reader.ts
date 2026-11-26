@@ -51,6 +51,8 @@ export interface ThreatsReader {
   deepLevel(): number;
   deepNextThreshold(): number;
   monstersInCavern(n: number): number;
+  /** The living, uncaged monsters of cavern `n`, ascending (the Threats panel reads which can reach the halls). */
+  cavernMonsters(n: number): EntityId[];
   /** The warned parties still to come, soonest first. */
   coming(): readonly ComingParty[];
 }
@@ -64,6 +66,7 @@ export function makeThreatsReader(
   getMonstersInCavern?: (n: number) => number,
   getDeepNextThreshold?: () => number,
   getPendingArrivals?: () => readonly PendingArrivalState[],
+  getCavernMonsters?: (n: number) => EntityId[],
 ): ThreatsReader {
   return {
     activeParties: () => {
@@ -107,6 +110,7 @@ export function makeThreatsReader(
     deepLevel: getDeepLevel,
     deepNextThreshold: () => getDeepNextThreshold?.() ?? 50,
     monstersInCavern: (n: number) => getMonstersInCavern?.(n) ?? 0,
+    cavernMonsters: (n: number) => getCavernMonsters?.(n) ?? [],
     coming: () => (getPendingArrivals?.() ?? [])
       .filter((a) => a.warningEmitted)
       .map((a) => ({ kind: a.kind, civ: a.civ, sizeBand: sizeBandOf(a.size), edge: a.edge, arrivalTick: a.arrivalTick }))

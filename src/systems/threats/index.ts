@@ -181,17 +181,10 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       () => this.schedule,
       () => this.deepState.pressure,
       () => this.deepState.level,
-      (n: number) => {
-        let count = 0;
-        for (const [id, info] of this.monsterInfo) {
-          if (this.entities.alive(id) && (this.entities.get(id, C.Creature)?.cagedIn ?? 0) === 0 && info.tier === n) {
-            count++;
-          }
-        }
-        return count;
-      },
+      (n: number) => this.cavernMonsters(n).length,
       () => nextDeepThreshold(this.deepState.level),
       () => this.pendingArrivals,
+      (n: number) => this.cavernMonsters(n),
     );
     ctx.register.panel({ id: 'threats', title: 'Threats', hotkey: 't' });
     ctx.register.announcement('ThreatWarning', {
@@ -260,6 +253,15 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   override reader(): ThreatsReader {
     if (!this.readerRef) throw new Error('18 threats: reader requested before init');
     return this.readerRef;
+  }
+
+  /** `threats.cavernMonsters(n)`: the living monsters of cavern `n` not held in a cage, ascending. */
+  private cavernMonsters(n: number): EntityId[] {
+    const out: EntityId[] = [];
+    for (const [id, info] of this.monsterInfo) {
+      if (info.tier === n && this.entities.alive(id) && (this.entities.get(id, C.Creature)?.cagedIn ?? 0) === 0) out.push(id);
+    }
+    return out.sort((a, b) => a - b);
   }
 
   private updateRenown(ctx: TickContext): void {

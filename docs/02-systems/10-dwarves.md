@@ -153,6 +153,7 @@ The `EntitiesMoved` handler observes entries using the batch’s from/to tiles. 
 ### Titles
 
 - `AssignTitle { dwarfId, title }` and `AssignTitle { dwarfId: 0, title }` to vacate. One dwarf per title; a dwarf may hold several. The saved per-role holder record is authoritative; reassigning or vacating one role preserves other roles. The singular `Title` component caches the first held role in title-table order, while `dwarves.titles(id)` returns them all.
+- A holder's death (`CreatureDied`) vacates every title it held, as a vacate does: one `TitleAssigned { dwarfId: 0, title, previousId }` per title, in title-table order. No successor is chosen; naming one is the player's (24 § Announcements and the log says how the log tells it).
 - Thane: the fortress-wide thought `thane_hall_grand` or `thane_hall_bare` depending on the Thane's bedroom tier (15, recomputed daily); the Thane's presence in the hearth hall lets talking relieve `THANE_SOCIAL_BONUS` more; and once a season the Thane has a whim (§ The Thane's whim).
 - Warden: squads gain `WARDEN_TRAINING_BONUS_PERCENT` training experience; the Warden is the default squad leader.
 - Broker: their `trading` skill is used at the depot; without a Broker free to trade (none, their `trading` labor off, or on duty with a squad: 20 § The session) any dwarf with the `trading` labor trades, at their own skill.
@@ -225,7 +226,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Registrations
 
-Panel `units`; inspector sections `creature › dwarf` (attributes, skills with tiers and progress bars, needs, personality, title, relationships, activity, productivity); announcements: starving (alert), passed out (note), a title given or taken away (notes: "Palnir Wolfaxe is now the Thane.", "Palnir Wolfaxe is no longer the Thane.", naming the title as the units panel does), came of age (note), legendary (note), the first dwarf in the `starfall` crater (note, `CraterEntered` with `first`), the first dwarf in each boneyard's ribs (note, `RibsEntered`), the Thane's whim and its judgement (notes, `WhimSet` and `WhimJudged`).
+Panel `units`; inspector sections `creature › dwarf` (attributes, skills with tiers and progress bars, needs, personality, title, relationships, activity, productivity); announcements: starving (alert; one shut away from the food or drink the fortress stores has a line of its own that says where, 24 § Announcements and the log), passed out (note), a title given or taken away (notes: "Palnir Wolfaxe is now the Thane.", "Palnir Wolfaxe is no longer the Thane.", naming the title as the units panel does; a title vacated by its holder's death is an alert after the death line instead, 24 § Announcements and the log), came of age (note), legendary (note), the first dwarf in the `starfall` crater (note, `CraterEntered` with `first`), the first dwarf in each boneyard's ribs (note, `RibsEntered`), the Thane's whim and its judgement (notes, `WhimSet` and `WhimJudged`).
 
 ## Player-facing behavior
 

@@ -1,6 +1,8 @@
 # T-786 — The cavern lines say which cavern, where, and what lives there
 
-**Source:** playtest 7 ([report](../../reports/data/2026-11-26-playtest-7.md), finding 3) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-26, in 729de53b.
+
+**Source:** playtest 7 ([report](../../../reports/data/2026-11-26-playtest-7.md), finding 3) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -18,9 +20,18 @@ Decisions taken here:
 - **The respawn note names the species and the cavern, and folds:** "A blind stalker has appeared in cavern 2." Respawns of one cavern in a day are one line ("2 cave crawlers and a giant cave spider have appeared in cavern 1."). Respawns in a cavern with no path to any fortress creature are not announced at all; the Threats row counts them.
 - **The Threats row says whether the cavern's monsters can reach the fortress:** "2: open at (2,14,z13) · 5 monsters, 1 can reach the halls" or "… none can reach the halls". Reach is by 22's walker label of each monster against the fortress dwarves' labels, read when the panel draws. The panel already does a similar reach count for the shelter line.
 
+## Decisions made while implementing
+
+- **The breach line already had its focus.** `CavernBreached` carries its tile and the line's focus was that tile; the playtest's "No place to go to." was the action row of the hint selected above it (12-log-cavern.png). The line now names the cavern and the place. A breach event without a cavern or tile (only a test emits one) keeps the plain "A cavern has been breached." (`announce.cavern_breached_unplaced`), so no line prints a raw placeholder.
+- **The reach filter covers the wakes too.** A sleeper woken by the breach is a `MonsterSpawned` like a respawn, and the playtest's five woken monsters were in other pockets, so every `MonsterSpawned` whose monster cannot walk to a fortress dwarf is silent.
+- **Reach** is 22's walker label of the monster's tile against the labels of the fortress dwarves' tiles (`src/ui/cavern-reach.ts`), shared by the note and the Threats row. The labels know terrain only, so a door does not count as a wall (a monster behind a closed door "can reach").
+- **The fold** is per cavern and day, as the starving line is per need and day: the first monster's focus and subject stay; later monsters change the text and time in place (presentation state, not saved).
+- **The Threats row keeps two rows** (the panel is 36 cells wide): "2: open at (2,14,z13)" and under it "5 monsters, 1 can reach the halls", "13 monsters, none can reach the halls" or "no monsters". An older save without the breach record reads "2: open" with the same second row. 18's reader gains `threats.cavernMonsters(n)` (the ids `monstersInCavern` counted).
+- UI only, and one reader: no world hash moves.
+
 ## Done
 
-- [ ] The breach line with cavern, tile and focus; a UI test.
-- [ ] The respawn note with species and cavern, folded per cavern and day, and silent for monsters that cannot reach; a test.
-- [ ] The Threats row's reach count; a test with a sealed pocket and an open one.
-- [ ] 18 § Player-facing behavior and 24's announcement table updated.
+- [x] The breach line with cavern, tile and focus; a UI test.
+- [x] The respawn note with species and cavern, folded per cavern and day, and silent for monsters that cannot reach; a test.
+- [x] The Threats row's reach count; a test with a sealed pocket and an open one.
+- [x] 18 § Player-facing behavior and 24's announcement table updated.

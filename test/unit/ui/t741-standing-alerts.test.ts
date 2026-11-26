@@ -166,7 +166,10 @@ describe('T-741 a standing alert is one line while it comes day after day', () =
     const log = announcer(w);
     log.announce(event({ type: 'CavernBreached', cavern: 1, tile: w.index(10, 10, Z) }), w.readers, at(40));
     log.announce(event({ type: 'CavernBreached', cavern: 2, tile: w.index(12, 10, Z) }), w.readers, at(41));
-    expect(log.lines.map((l) => lineText(l, strings))).toEqual(['! A cavern has been breached.', '! A cavern has been breached.']);
+    expect(log.lines.map((l) => lineText(l, strings))).toEqual([
+      `! Cavern 1 is open at (10,10,z${Z}). What lives there can walk in.`,
+      `! Cavern 2 is open at (12,10,z${Z}). What lives there can walk in.`,
+    ]);
   });
 
   it('a save and a load keep the days, and the run goes on after the load', () => {
