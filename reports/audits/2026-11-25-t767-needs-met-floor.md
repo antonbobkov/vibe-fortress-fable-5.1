@@ -69,4 +69,19 @@ The rule removes 94 and 105 Miserable dwarf-hours, as replayed, and mean moods d
 
 ## The sweep, and the decision
 
-SWEEP_PLACEHOLDER
+Sweeps, living at year 3 / dwarf deaths, by shift 0, 50, 100, 150 and pooled, paired on one base:
+
+| Run | Commit | Shift 0 | 50 | 100 | 150 | Pooled |
+|---|---|---|---|---|---|---|
+| [45776840989](https://github.com/antonbobkov/vibe-fortress-fable-5.1/actions/runs/45776840989) | `ba3b6e90`, master (the base) | 1163 / 118 | 1179 / 115 | 1169 / 110 | 1174 / 97 | **1171.25 / 110** |
+| [45777368709](https://github.com/antonbobkov/vibe-fortress-fable-5.1/actions/runs/45777368709) | `43a550e6`, the rule | 1199 / 113 | 1145 / 128 | 1169 / 110 | 1164 / 102 | **1169.25 / 113.25** |
+
+Both verdicts pass (bounds ≥ 1046.63 living, ≤ 132.5 deaths), neither flags a seed worth tracing, and every seed job is green.
+
+Paired seed for seed, 75 of the 80 timelines end year 3 exactly as on master: a three-year fortress rarely has a dwarf on the floor at a small pressure, so the rule seldom engages. The five that differ: `p4-2` at shift 50, 52 living / 4 dead → 19 / 18 (12 bled out, 6 killed, 23 raids against 21: raids landing differently); `p2-7` at 150, 65 / 7 → 55 / 12; `p2-5` at 0, 24 / 9 → 56 / 8; `p2-4` at 0, 56 / 13 → 60 / 9; `p2-3` at 50, 66 / 11 → 65 / 10. One timeline's raid shuffle (`p4-2`+50) is the whole of the rise in deaths and more; the others net out. Need deaths: none in either.
+
+Defence check [45777372304](https://github.com/antonbobkov/vibe-fortress-fable-5.1/actions/runs/45777372304) on `43a550e6`: **pass**, raids turned back 7.50 of 8 (rule ≥ 5), a soldier killed 6.50 (≥ 4), dwarves killed by raids 1.13 a cadence, living at the end 26.67 a seed.
+
+**Decision: adopted.** Paired deaths are 3.25 above the base (the bar: within about 8), living is 2 lower (the bar: no more than about 30 lower), and the defence verdict passes. 15 § Mood and `balance.md` § Mood floor carry the rule and `FLOOR_MARGIN_SHARE`; `test/unit/morale/t767-floor-margin.test.ts` checks it.
+
+Left for later, not done here: the residual floor case is now a point or two of `lonely` (social about 58 for a sensitive dwarf), which lowers the floor in full; whether `lonely` should take a margin too (rule `half+social` above, social 75) belongs with T-766, which decides how `lonely` counts.

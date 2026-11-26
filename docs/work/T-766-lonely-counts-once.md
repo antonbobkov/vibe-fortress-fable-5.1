@@ -40,3 +40,5 @@ The T-763 probe (`T763_PROBE=1 T763_SHIFTS=0,17,331,613`, 40 timelines) on `950a
 
 - [x] Sweeps with their run ids and pooled rows in the commit body.
 - [x] The change merged with its spec edits and tests, or a note that the design stands, with the reason. (The design stands for now; reason above.)
+
+**Note from T-767 (2026-11-25):** hunger, thirst and rest now lower the needs-met floor only past halfway to critical; `lonely` still lowers it in full, and after T-767 the restless, sensitive dwarves' remaining first-week Miserable hours are mostly a point or two of `lonely` (social about 58). A smaller step than counting `lonely` once is a margin for it too, from social 75 (T-767's probe rule `half+social`: 154 and 220 of master's 687 and 914 Miserable hours kept at 20, against 94 and 105 for the adopted rule; [report](../../reports/audits/2026-11-25-t767-needs-met-floor.md)). Any re-sweep of this task should be paired on a base that includes T-767.
