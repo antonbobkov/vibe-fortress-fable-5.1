@@ -21,7 +21,7 @@ While the tutorial runs, its box covers the top left corner of the map view and 
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Ketil Ironvein has found hematite.                                                                                   │
 │ The Hillfolk caravan has arrived: 3 merchants, 4 guards, 5 mules.                                                    │
-│ ! Gloam scouts have been seen at the eastern edge. They will come tomorrow.                                          │
+│ ! A band of Gloam raiders has been seen at the eastern edge. They will come tomorrow.                                │
 ├──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┤
 │ Day 12 of Summer, Year 2   ☼ clear 21°C   ☺ 23   ♥ Content   +1   $   z 31   ►► 2×              [Esc] menu  [?] help     │
 │ [d] dig  [b] build  [z] zones  [o] orders  [m] military  [l] labors  [u] units  [j] jobs  [s] stocks  [k] look       │

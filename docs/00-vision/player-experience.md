@@ -37,7 +37,7 @@ The player digs deeper. Granite and marble. Gems in clusters. A vein of malachit
 
 A smelter and a forge go up next to a stockpile of ore and charcoal. Bronze first, then iron. Two dwarves are assigned to a squad under the Warden with iron mail and axes. They spar at the barracks. A Gloam thief is spotted stealing a barrel; the alert flashes; the squad chases it off.
 
-Summer: the Hillfolk caravan. Autumn: the first real raid is announced a day ahead. "Gloam scouts have been seen at the eastern edge." The player pulls the lever and raises the drawbridge. Eight goblins cross the moat's edge, find no way in, take bolts from the fortifications, and leave with two dead. The dwarves gain proud thoughts. The player has learned that the map is a weapon.
+Summer: the Hillfolk caravan. Autumn: the first real raid is announced a day ahead. "A band of Gloam raiders has been seen at the eastern edge." The player pulls the lever and raises the drawbridge. Eight goblins cross the moat's edge, find no way in, take bolts from the fortifications, and leave with two dead. The dwarves gain proud thoughts. The player has learned that the map is a weapon.
 
 ## Years three and four
 

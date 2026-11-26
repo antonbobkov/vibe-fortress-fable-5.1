@@ -18,7 +18,7 @@ import type { KeyPress } from '@platform/input';
 import type { EntityId } from '@core/types';
 import { visibleHostileIds } from '../status';
 import { speciesPlural, withArticle } from '../messages';
-import { comingText, memberShown, partyActiveText } from '../raid-lines';
+import { comingText, memberShown, partyActiveText, partyMakeupText } from '../raid-lines';
 
 /** The Deep's line under its gauge, by level (18 § The Deep): `ui.threats.deep_quote.<level>`, the last for every level above. */
 export function deepQuote(level: number, strings: Strings): string {
@@ -160,6 +160,15 @@ export function drawThreatsPanel(
           label(s, col, row, part, { fg: t.bad, width, keys: false });
           if (lead !== undefined && lead !== null) s.hit({ col, row, cols: width, rows: 1 }, () => ctx.focusOn(lead));
           row += 1;
+        }
+        // What the party is made of, by species, under its Active line (`panels.md` § Threats).
+        const makeup = partyMakeupText(ctx.strings, ctx.registry, ctx.readers, p);
+        if (makeup !== '') {
+          for (const part of wrapHang(ctx.strings.get('ui.threats.makeup', { list: makeup }), width, 2)) {
+            if (row >= rect.row + rect.rows) break;
+            label(s, col, row, part, { fg: t.bad, width, keys: false });
+            row += 1;
+          }
         }
         // 18 § Morale: the party's morale in words, on a line of its own, while it has not broken.
         const morale = p.state === 'retreat' ? '' : threats?.moraleWord(pId) ?? '';

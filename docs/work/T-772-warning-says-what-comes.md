@@ -23,7 +23,15 @@ Decisions:
 
 Spec: 18 § Registrations (the `ThreatWarning` announcement), 24 § Announcements, `ui-screens/panels.md` § Threats (Coming and Active), `03-content/ui-keymap-and-screens.md` (strings).
 
+Decided while doing it:
+
+- **"Today" under fog.** The warning's line said "They will come tomorrow." whatever the lead, so under fog (half a day's lead) it said tomorrow for a party that came the same day. It now takes `{when}` from the party 18 lists as coming (`threats.coming()`, matched by kind, civ and edge), worded as the Coming line words it: "tomorrow", or "today" when fog shortened the lead; "tomorrow" when no such party is listed. The event is unchanged.
+- **Verb agreement.** A few raiders "have been seen"; a band or a horde "has been seen". Each band has its own string (`announce.threat_warning.few`, `.band`, `.horde`), and a siege `announce.threat_warning.siege` with `{band}` ("a few", "a band", "a horde", `ui.threats.size.*`). The old `announce.threat_warning` stays as the line of a kind with no string of its own.
+- **The composition row's order.** "In the order of 18's roles" and the example ("6 warriors, 3 archers, 2 trollkin, a captain, a hexer") disagree: 18 lists trollkin last, and trollkin carry the `warriors` role. The row follows the example by a rule that needs no content id in code: the kinds with the most members first, kinds of as many in the creature table's order (captain before hexer). It groups by species, and names each species without the party's civilization ("gloam warrior" is "warrior" under a Gloam party; trollkin stay "trollkin"). It counts the members the Active line counts: on the map and shown.
+- **Colour and place.** The row is in the danger colour like its Active line, under the Active line and above the morale line, wrapped with `wrapHang` at a two-cell indent.
+- **Strings.** The new announcement lines and the band nouns are rows of the Announcement strings table (`strings.json`); the row's `ui.threats.makeup` ("  {list}") is a UI default, like `ui.threats.morale`.
+
 ## Done
 
-- [ ] Tests (`describe` with the task id): a raid warning of band size and a siege warning of horde size read as above; the siege Coming line has the band; a party of 6 warriors, 3 archers, 2 trollkin and a captain in view shows the composition row, and a stealthed unseen member is not counted.
-- [ ] UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): a raid warning of band size and a siege warning of horde size read as above; the siege Coming line has the band; a party of 6 warriors, 3 archers, 2 trollkin and a captain in view shows the composition row, and a stealthed unseen member is not counted.
+- [x] UI only: no world hash moves.

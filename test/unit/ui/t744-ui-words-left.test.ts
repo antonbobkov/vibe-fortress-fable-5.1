@@ -117,7 +117,7 @@ describe('T-744 the UI words what it draws with the game strings', () => {
     expect(['n', 'e', 's', 'w']).toContain(warning['edge' as keyof GameEvent]);
     const log = new AnnouncementLog(strings, w.game.registry);
     log.register(w.game.world.registrations.announcements);
-    expect(log.announce(warning, w.readers, 1)?.line.text).toMatch(/^Gloam scouts have been seen at the (northern|eastern|southern|western) edge\. They will come tomorrow\.$/);
+    expect(log.announce(warning, w.readers, 1)?.line.text).toMatch(/^A (few|band of|horde of) Gloam raiders ha(s|ve) been seen at the (northern|eastern|southern|western) edge\. They will come tomorrow\.$/);
     const rows = withRows({ 'ui.edge.side.n': 'dem Nordrand', 'ui.edge.side.e': 'dem Nordrand', 'ui.edge.side.s': 'dem Nordrand', 'ui.edge.side.w': 'dem Nordrand' });
     const worded = new AnnouncementLog(rows, w.game.registry);
     worded.register(w.game.world.registrations.announcements);

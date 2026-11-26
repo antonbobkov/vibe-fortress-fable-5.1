@@ -93,7 +93,7 @@ describe('T-635 a raid says where it comes from, once', () => {
     const { w } = setup('t635-warning');
     const log = announcer(w);
     const warning = { type: 'ThreatWarning', kind: 'raid', civ: 'gloam', sizeBand: 'band', edge: 'n' } as unknown as GameEvent;
-    expect(log.announce(warning, w.readers, 1)?.line.text).toBe('Gloam scouts have been seen at the northern edge. They will come tomorrow.');
+    expect(log.announce(warning, w.readers, 1)?.line.text).toBe('A band of Gloam raiders has been seen at the northern edge. They will come tomorrow.');
   });
 
   it('a raid, a siege and bandits name their edge; a thief comes unannounced', () => {

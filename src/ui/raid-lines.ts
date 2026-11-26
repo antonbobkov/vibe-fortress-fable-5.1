@@ -11,7 +11,7 @@ import type { Registry } from '@core/registry';
 import type { CombatReader } from '@systems/combat';
 import type { ComingParty, ThreatsReader } from '@systems/threats';
 import type { Said } from './announcements';
-import { capitalize, materialItemName, withArticle } from './messages';
+import { capitalize, materialItemName, speciesPlural, withArticle } from './messages';
 import type { Strings } from './strings';
 
 interface NamedRow {
@@ -39,14 +39,31 @@ export function whenWords(strings: Strings, tick: number, now: number): string {
 }
 
 /**
+ * When a warned party comes, as the Coming line says it ("tomorrow", or "today" when fog shortened
+ * the lead): the party of the warning's kind, civilization and edge that 18 lists as coming.
+ * "tomorrow" when 18 lists none.
+ */
+export function warningWhen(strings: Strings, readers: ReaderSet, warning: Readonly<Record<string, unknown>>): string {
+  const coming = readers.has('18')
+    ? readers.of<ThreatsReader>('18').coming().filter((c) => c.kind === warning['kind'] && c.civ === warning['civ'] && c.edge === warning['edge']).pop()
+    : undefined;
+  return coming === undefined ? strings.get('ui.threats.when_tomorrow') : whenWords(strings, coming.arrivalTick, readers.calendar.tick);
+}
+
+/** A warning's size band as a noun: "a few", "a band", "a horde" (18 § Arrival and warning). */
+export function sizeWords(strings: Strings, sizeBand: string): string {
+  return strings.has(`ui.threats.size.${sizeBand}`) ? strings.get(`ui.threats.size.${sizeBand}`) : sizeBand;
+}
+
+/**
  * The threats panel's line for a warned party: "Coming: a horde of Gloam from the north, tomorrow.",
- * "Coming: a Gloam siege from the east, in 2 days." The size is the warning's band, never a count.
+ * "Coming: a Gloam siege, a horde, from the east, in 2 days." The size is the warning's band, never a count.
  */
 export function comingText(strings: Strings, registry: Registry, coming: ComingParty, now: number): string {
   const civ = civWords(registry, coming.civ);
   const edge = strings.has(`ui.edge.${coming.edge}`) ? strings.get(`ui.edge.${coming.edge}`) : coming.edge;
   const when = whenWords(strings, coming.arrivalTick, now);
-  if (coming.kind === 'siege') return strings.get('ui.threats.coming_siege', { civ, edge, when });
+  if (coming.kind === 'siege') return strings.get('ui.threats.coming_siege', { civ, band: sizeWords(strings, coming.sizeBand), edge, when });
   return strings.get('ui.threats.coming', { party: strings.get(`ui.threats.band_${coming.sizeBand}`, { civ }), edge, when });
 }
 
@@ -93,6 +110,31 @@ export function memberShown(readers: ReaderSet, m: number): boolean {
 export function partyActiveText(strings: Strings, registry: Registry, readers: ReaderSet, party: Party): string {
   const count = partyCountWords(strings, readers, party, (m) => memberShown(readers, m));
   return strings.get('ui.threats.active_party', { party: partyWords(strings, registry, party), count, doing: partyDoingWords(strings, readers, party) });
+}
+
+/**
+ * What a party in view is made of, by species, counted: "6 warriors, 3 archers, 2 trollkin, a
+ * captain, a hexer" (the species' names less the party's civilization, which the Active line
+ * names). Only the members the Active line counts are in it: on the map and shown. The kinds come
+ * most first, and kinds of as many in the creature table's order. '' when none is left.
+ */
+export function partyMakeupText(strings: Strings, registry: Registry, readers: ReaderSet, party: Party): string {
+  const creatures = registry.table<NamedRow>('creatures');
+  const kinds = new Map<number, number>();
+  for (const m of party.members) {
+    if (!memberShown(readers, m) || !onMap(readers, m)) continue;
+    const species = readers.entities.get(m, C.Creature)?.species;
+    if (species !== undefined) kinds.set(species, (kinds.get(species) ?? 0) + 1);
+  }
+  const prefix = `${civWords(registry, party.civ).toLowerCase()} `;
+  const bare = (name: string): string => (name.startsWith(prefix) && name.length > prefix.length ? name.slice(prefix.length) : name);
+  return [...kinds]
+    .sort(([a, na], [b, nb]) => nb - na || a - b)
+    .map(([species, n]) => {
+      const row = creatures.byIndex(species);
+      return n === 1 ? withArticle(strings, bare((row?.name ?? strings.get('ui.creature.unknown')).toLowerCase())) : `${n} ${bare(speciesPlural(row))}`;
+    })
+    .join(', ');
 }
 
 /**
