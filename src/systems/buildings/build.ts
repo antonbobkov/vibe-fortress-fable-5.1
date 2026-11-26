@@ -1694,35 +1694,57 @@ export class BuildingStore {
   }
 
   /**
-   * A fortress dwarf stands outside the door (19 § Hearth alert retreat); an inner airlock door's outside is the corridor
-   * side away from the hearth, even indoors. A tame animal does not hold the gate open (T-683): one shut out stays out.
+   * A fortress dwarf stands outside the door (19 § Hearth alert retreat). In a straight corridor the outside is
+   * the whole side away from the hearth, even indoors (an airlock's inner door counts its vestibule); with no
+   * hearth, or one level with the door, the side of the corridor whose neighbour is `outdoor`, so a dwarf
+   * walking in from across the map holds the door as with a hearth. Otherwise the `outdoor` cardinal
+   * neighbours. A tame animal does not hold the gate open (T-683): one shut out stays out.
    */
   private civilianOutsideDoor(door: Building): boolean {
     const map = this.map;
     const tile = door.origin;
-    const hearth = this.get(this.hearthId);
-    if (hearth !== undefined) {
-      const wall = (dx: number, dy: number): boolean => {
-        const next = map.offset(tile, dx, dy, 0);
-        return next >= 0 && map.kindAt(next) === TileKind.Wall;
-      };
-      const axis: 'x' | 'y' | null = wall(-1, 0) && wall(1, 0) ? 'y' : wall(0, -1) && wall(0, 1) ? 'x' : null;
-      if (axis !== null) {
-        const at = axis === 'x' ? map.xOf(tile) : map.yOf(tile);
-        const home = axis === 'x' ? map.xOf(hearth.origin) : map.yOf(hearth.origin);
-        if (home !== at) {
-          return this.host.entities.with(C.Creature, C.Position).some((id) => {
-            const creature = this.host.entities.get(id, C.Creature);
-            const pos = this.host.entities.get(id, C.Position);
-            if (creature?.faction !== 'fortress' || this.host.entities.has(id, C.Tame) || pos === undefined || pos.z !== map.zOf(tile)) return false;
-            const coord = axis === 'x' ? pos.x : pos.y;
-            return (coord - at) * (home - at) <= 0;
-          });
-        }
+    const wall = (dx: number, dy: number): boolean => {
+      const next = map.offset(tile, dx, dy, 0);
+      return next >= 0 && map.kindAt(next) === TileKind.Wall;
+    };
+    const axis: 'x' | 'y' | null = wall(-1, 0) && wall(1, 0) ? 'y' : wall(0, -1) && wall(0, 1) ? 'x' : null;
+    if (axis !== null) {
+      const at = axis === 'x' ? map.xOf(tile) : map.yOf(tile);
+      const inward = this.inwardSign(door, axis, at);
+      if (inward !== 0) {
+        return this.host.entities.with(C.Creature, C.Position).some((id) => {
+          const creature = this.host.entities.get(id, C.Creature);
+          const pos = this.host.entities.get(id, C.Position);
+          if (creature?.faction !== 'fortress' || this.host.entities.has(id, C.Tame) || pos === undefined || pos.z !== map.zOf(tile)) return false;
+          const coord = axis === 'x' ? pos.x : pos.y;
+          return (coord - at) * inward <= 0;
+        });
       }
     }
     return map.neighbors(tile).some((next) => map.hasFlag(next, TileFlag.Outdoor) &&
       this.host.creaturesAt(next).some((id) => this.host.entities.get(id, C.Creature)?.faction === 'fortress' && !this.host.entities.has(id, C.Tame)));
+  }
+
+  /**
+   * The direction (+1 or -1 along the corridor `axis`) of a corridor door's inner side: toward the hearth when
+   * it lies off the door's line, else away from the door's one `outdoor` neighbour along the corridor; 0 when
+   * neither decides (no hearth, and both neighbours or neither `outdoor`).
+   */
+  private inwardSign(door: Building, axis: 'x' | 'y', at: number): number {
+    const map = this.map;
+    const hearth = this.get(this.hearthId);
+    if (hearth !== undefined) {
+      const home = axis === 'x' ? map.xOf(hearth.origin) : map.yOf(hearth.origin);
+      if (home !== at) return Math.sign(home - at);
+    }
+    const [dx, dy] = axis === 'x' ? [1, 0] : [0, 1];
+    const outdoor = (sign: number): boolean => {
+      const next = map.offset(door.origin, sign * dx, sign * dy, 0);
+      return next >= 0 && map.hasFlag(next, TileFlag.Outdoor);
+    };
+    const before = outdoor(-1);
+    const after = outdoor(1);
+    return before === after ? 0 : before ? 1 : -1;
   }
 
   /** Whether a well has water within `WELL_DEPTH` below (14: "`working` when water is present"). */
