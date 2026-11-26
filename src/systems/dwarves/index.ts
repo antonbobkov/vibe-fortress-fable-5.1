@@ -28,6 +28,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import { SLEEP_NEED_MIN, advanceNeeds, crossed, firstCritical, type NeedName } from './needs';
 import { ADULT_AGE_YEARS, DEHYDRATE_DAYS, STARVE_DAYS, HEAVY_ITEM_DENSITY, THREAT_RADIUS, TIPSY_SLOW_PERCENT } from './constants';
 import { Activities, hallStand } from './activities';
+import { wagonOutOfCold } from './shelter';
 import { SMOKE_RADIUS } from '@systems/materials/constants';
 import { TALLOW_SMOKE_PERMILLE } from '@systems/buildings/constants';
 import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
@@ -97,6 +98,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   private children: EntityId[] = [];
   /** The wagon tile of the arrival, the idle anchor until there is a hearth hall (D-057). */
   wagonTile: TileIndex = -1;
+  /** The wagon's stand-in out of the cold, found once a tick (§ Behavior selection, step 9); derived, not saved. */
+  private wagonWarmth: { tick: number; tile: TileIndex } | undefined;
   readonly interruptFlags = new Set<EntityId>();
   readonly shutOut = new Set<EntityId>();
   private shelterRevision = -1;
@@ -396,12 +399,20 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
           if (!ctx.readers.has('14')) return this.wagonTile;
           const from = ctx.world.services.movement?.tileOf(id) ?? -1;
           if (from < 0) return this.wagonTile;
+          // § Behavior selection, step 9, Out of the cold: the wagon's stand-in, found once a tick.
+          const wagon = (): TileIndex => {
+            const tick = ctx.world.calendar.tick;
+            const warmth = this.wagonWarmth?.tick === tick ? this.wagonWarmth : { tick, tile: wagonOutOfCold(ctx.world.map, ctx.readers, this.wagonTile) };
+            this.wagonWarmth = warmth;
+            const tile = warmth.tile;
+            return tile !== this.wagonTile && ctx.readers.pathing.reachable(from, tile, 'walker') ? tile : this.wagonTile;
+          };
           const map = ctx.world.map;
           const hall = ctx.readers.of<BuildingsReader>('14').hearthHallTiles()
             .filter((tile) => ctx.readers.pathing.passable(tile, 'walker') && ctx.readers.pathing.reachable(from, tile, 'walker'));
           hall.sort((a, b) => Math.max(Math.abs(map.xOf(from) - map.xOf(a)), Math.abs(map.yOf(from) - map.yOf(a)))
             - Math.max(Math.abs(map.xOf(from) - map.xOf(b)), Math.abs(map.yOf(from) - map.yOf(b))) || a - b);
-          return hall[0] ?? this.wagonTile;
+          return hall[0] ?? wagon();
         },
         idleStand: (id) => hallStand(ctx, id),
       jobName: (id) => {

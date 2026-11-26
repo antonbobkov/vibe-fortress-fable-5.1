@@ -135,6 +135,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `PatientAdmitted` / `PatientDischarged` / `PatientHealed` | `id[, hospitalTier]` | 17 | 10, 15, ui |
 | `InfectionStarted` / `InfectionCured` | `id` | 17 | ui |
 | `NoDressing` | `id` | 17 | ui |
+| `Frostbitten` | `id` | 17 | ui |
 | `TreatmentDone` | `patientId, medicId, kind` | 17 | 10 (xp) |
 | `ThreatWarning` | `kind, civ, sizeBand, edge` | 18 | 24 (hint), ui |
 | `RaidArrived` | `partyId, kind, size, edge` | 18 | 15, 16, 20, 21, 25, ui |

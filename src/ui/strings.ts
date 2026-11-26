@@ -336,6 +336,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.lack.soil': 'No surface soil: no farms or grass up here. Farm in a cavern or on mud; graze in a cavern.',
   'ui.site.lack.trees': 'No trees: wood only from the wagon, logs you bring, caravans and cavern fungus.',
   'ui.site.lack.water': 'No water on the surface: drink what you bring or brew; dig down to a cavern lake.',
+  'ui.site.frostbite_arrival': 'Frostbite from the first night: nights fall to about {c}°C, and below {limit}°C dwarves outside are wounded. Dig a room underground on the first day; they idle and sleep there.',
+  'ui.site.frostbite_later': '; frostbite on {season} nights (about {c}°C)',
   'ui.site.trait.serene_vale': 'deep loam; no storms, heatwaves or cold snaps; no wolves, bears or snow leopards; only thieves come.',
   'ui.site.trait.wyrm_roost': 'a magma wyrm sleeps in the third cavern.',
   'ui.site.trait.fungal_depths': 'larger caverns, more cave shrubs and cave beasts.',
@@ -2476,6 +2478,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.creature_died': '{name} has died.',
   'announce.summon_faded': '{name} fades.',
   'announce.infection': '{dwarf} has developed an infection.',
+  'announce.frostbitten': '{dwarf} has frostbite. This cold wounds dwarves outdoors: dig a room underground, where they will idle and sleep, and keep the work outside short.',
   'announce.no_dressing': '{dwarf} is bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',
   // T-723: the day's line of fortress animals bleeding with nothing to bandage them.
   'announce.no_dressing.animal': '{animal} is bleeding and there is no bandage or cloth: buy them from a caravan, or weave cloth at a loom.',

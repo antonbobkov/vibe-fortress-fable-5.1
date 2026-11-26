@@ -43,6 +43,8 @@ export const NEED_RETRY_TICKS = 50;
 export const THREAT_RADIUS = 8;
 /** Ticks without a melee or ranged attack opportunity before a civilian leaves combat. */
 export const CIVILIAN_COMBAT_TIMEOUT_TICKS = 200;
+/** °C: below it at the wagon, idling and floor sleep go to the nearest covered floor instead (§ Behavior selection, step 9, Out of the cold). */
+export const COLD_SHELTER_C = -15;
 /** Legal tile visits in the civilian escape fallback search. */
 export const CIVILIAN_FLEE_NODE_LIMIT = 256;
 /** Maximum legal tile visits in the search of a dwarf running from a fire for ground that cannot burn. */

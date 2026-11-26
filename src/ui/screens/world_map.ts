@@ -25,6 +25,9 @@ import type { Surface } from '../surface';
 import { bar, button, label, list, separator, type ListState } from '../widgets';
 import { chainText, wrapHang, wrapText } from '../messages';
 
+/** The season words of `ui.season.<word>`, spring … winter. */
+const SEASON_WORDS = ['spring', 'summer', 'autumn', 'winter'] as const;
+
 /** `01` § Region record: ratings are integers 0–`RATING_MAX`; the wireframe draws five cells. */
 export const RATING_BAR_CELLS = 5;
 const RATING_TOP = 4;
@@ -326,7 +329,10 @@ export class WorldMapScreen implements Screen {
       [
         s.get('ui.site.climate'),
         s.get('ui.site.climate_value', { band: s.get(`ui.site.band.${c.band}`), mean: c.meanC, summer: c.summerC, winter: c.winterC }) +
-          (c.longWinter ? s.get('ui.site.long_winter') : ''),
+          (c.longWinter ? s.get('ui.site.long_winter') : '') +
+          (c.frostbite !== null && !c.frostbite.arrival
+            ? s.get('ui.site.frostbite_later', { season: s.get(`ui.season.${SEASON_WORDS[c.frostbite.season] ?? 'winter'}`).toLowerCase(), c: c.frostbite.nightC })
+            : ''),
       ],
       [s.get('ui.site.wildlife'), wildlife.join('; ')],
     ];
@@ -372,6 +378,11 @@ export class WorldMapScreen implements Screen {
     }
     if (r.volcano) text(s.get('ui.worldmap.volcano'));
     for (const lack of site.lacks) for (const t of wrapHang(s.get(`ui.site.lack.${lack}`), width, 2)) text(t, 'alert');
+    // 02 § Site summary: frostbite is a missing essential too, a warmth the site does not give.
+    const frost = site.climate.frostbite;
+    if (frost?.arrival === true) {
+      for (const t of wrapHang(s.get('ui.site.frostbite_arrival', { c: frost.nightC, limit: frost.limitC }), width, 2)) text(t, 'alert');
+    }
     out.push({ text: '', fg: 'text' });
     for (const [name, value] of this.siteRows(site)) {
       for (const t of wrapHang(`${name.padEnd(SITE_LABEL_COLS - 1)} ${value}`, width, SITE_LABEL_COLS)) text(t);

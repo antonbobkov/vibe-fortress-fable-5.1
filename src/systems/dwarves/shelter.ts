@@ -2,11 +2,12 @@
  * The shelter of a civilian under a `hearth` alert (10 § Behavior selection, step 2), shared by the
  * dwarf brain (10) and the job board (11) so that both read one area.
  */
-import { TileFlag, type Map3D } from '@core/map3d';
+import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { ReaderSetLike } from '@core/system';
 import type { TileIndex } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
-import { CIVILIAN_FLEE_NODE_LIMIT } from './constants';
+import { RETREAT_SEARCH_LIMIT } from '@systems/defense/constants';
+import { CIVILIAN_FLEE_NODE_LIMIT, COLD_SHELTER_C } from './constants';
 
 /** Whether a door, hatch, floodgate or drawbridge stands on the tile: the shelter ends there. */
 export function isShelterBarrier(buildings: BuildingsReader | undefined, tile: TileIndex): boolean {
@@ -39,4 +40,31 @@ export function shelterArea(map: Map3D, readers: ReaderSetLike, shelter: TileInd
     }
   }
   return (tile) => area.has(tile);
+}
+
+/**
+ * 10 § Behavior selection, step 9, *Out of the cold*: the tile a dwarf idles and sleeps on the floor
+ * at in place of the wagon while the wagon's tile is colder than `COLD_SHELTER_C`, which keeps a night
+ * out of 17's frostbite (below `COLD_INJURY_C`, ten degrees colder): the
+ * first covered floor tile with no building on it that a walker reaches from the wagon, breadth first
+ * along the walker graph by step count, within `RETREAT_SEARCH_LIMIT` tiles. The wagon itself while it
+ * is warmer, and when no such tile is found.
+ */
+export function wagonOutOfCold(map: Map3D, readers: ReaderSetLike, wagon: TileIndex): TileIndex {
+  if (wagon < 0 || !map.validIndex(wagon) || !readers.has('05')) return wagon;
+  if (!map.hasFlag(wagon, TileFlag.Outdoor)) return wagon;
+  if (readers.of<{ temperatureAt(i: TileIndex): number }>('05').temperatureAt(wagon) >= COLD_SHELTER_C) return wagon;
+  const buildings = readers.has('14') ? readers.of<BuildingsReader>('14') : undefined;
+  const seen = new Set<TileIndex>([wagon]);
+  const queue = [wagon];
+  for (let cursor = 0; cursor < queue.length && cursor < RETREAT_SEARCH_LIMIT; cursor += 1) {
+    const tile = queue[cursor] as TileIndex;
+    if (tile !== wagon && !map.hasFlag(tile, TileFlag.Outdoor) && map.kindAt(tile) === TileKind.Floor && (buildings?.at(tile) ?? 0) === 0) return tile;
+    for (const [next] of readers.pathing.edges(tile, 'walker')) {
+      if (seen.has(next)) continue;
+      seen.add(next);
+      queue.push(next);
+    }
+  }
+  return wagon;
 }
