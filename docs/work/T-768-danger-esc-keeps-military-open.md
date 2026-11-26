@@ -27,5 +27,12 @@ Spec: 24 § Announcements and the log (the `danger` paragraph), `03-content/ui-k
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): with the Military panel open and a danger line pinned, `Esc` closes the panel and the line, and a following `a` opens the Log. With nothing open, `Esc` on a pinned line opens no game menu. Under Hearth with a raid on the map, `1` in the Military panel asks, `n` leaves Hearth, `y` lowers it; with no party, `1` lowers at once.
-- [ ] UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): with the Military panel open and a danger line pinned, `Esc` closes the panel and the line, and a following `a` opens the Log. With nothing open, `Esc` on a pinned line opens no game menu. Under Hearth with a raid on the map, `1` in the Military panel asks, `n` leaves Hearth, `y` lowers it; with no party, `1` lowers at once.
+- [x] UI only: no world hash moves.
+
+## As built
+
+- The question is the game's modal `confirm` dialog (`c_lower_alert`, `c_lower_alert_coming`, default No; `y` lowers, `n`, `Esc` or `Enter` keep the alert), not a status-row prompt: every other destructive action already asks through it, it takes every key while open, so a stray `Esc` or letter can never answer Yes, and it needed no new key-capture mode in the fortress screen. The text leads with the Threats panel's own line: "Active: Gloam siege, 30, looting. Lower the alert to Calm?", "Coming: a Gloam siege from the north, in 2 days. Lower the alert to Watchful?". A click on a level in the panel asks the same.
+- A party "on the map" is one the Threats panel's Active line shows (`visibleThreatParties`): an unspotted ambush or thief does not make the question appear and so does not give it away.
+- Help gains two notes: the global one says what `Space` and `Esc` do on a pinned danger line; the Military one says when lowering the alert asks.
+- Checked on the playtest's `stormvault-y1-raid-eve.bin`: with the Military panel open at the raid's arrival (tick 91,202), `Esc` `t` opened Threats and left every squad's mode; under Hearth `1` asked "Active: Gloam raid, 1, coming. Lower the alert to Calm?" and `n` kept Hearth.
