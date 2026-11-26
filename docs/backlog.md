@@ -11,10 +11,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
-| T-753 | [A civilian already in the only room behind a door finds no shelter there](work/T-753-shelter-from-inside.md) | [T-745](archive/tasks/T-745-locked-in-thirst.md) | — | open |
 | T-766 | [Lonely counts once: confirm the sweep's deaths and adopt](work/T-766-lonely-counts-once.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
 | T-767 | [A gloomy dwarf turns Miserable at the first point of ordinary tiredness or thirst](work/T-767-needs-met-floor-gives-way.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
-| T-777 | [With no hearth, a door locks on the alert's 20th tick and shuts out the dwarves walking to it](work/T-777-hearthless-door-shuts-out.md) | [T-752](archive/tasks/T-752-ui-words-still-in-code.md) | — | open |
 | T-778 | [A first bed order eats the embark's linen, the only dressing the fortress has](work/T-778-bed-order-eats-the-linen.md) | [T-765](archive/tasks/T-765-alpine-embark-frostbite.md) | — | open |
 | T-779 | [The world map often starts a newcomer on a site that freezes from the first night](work/T-779-default-site-frostbite.md) | [T-765](archive/tasks/T-765-alpine-embark-frostbite.md) | — | open |
 

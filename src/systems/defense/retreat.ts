@@ -41,9 +41,45 @@ export function retreatTile(ctx: InitContext, dwarfId: EntityId, kept: TileIndex
     }
   }
   if (best >= 0) return best;
+  if (shutRoom(ctx, buildings, from)) return from;
   const bedroom = buildings.bedroomOf(dwarfId);
   const zone = bedroom === 0 ? undefined : buildings.zone(bedroom);
   const tiles = zone?.tiles.filter((tile) => path.reachable(from, tile, 'walker')) ?? [];
   tiles.sort((a, b) => distance(a) - distance(b) || a - b);
   return tiles[0] ?? -1;
+}
+
+/**
+ * Whether a dwarf already stands in a room the alert shuts (19 § Hearth alert retreat, step 2): its tile
+ * is not `outdoor` and not a door, hatch, floodgate or drawbridge tile, and the indoor tiles it walks to
+ * from there without passing one of those (within `RETREAT_SEARCH_LIMIT` tiles) reach at least one door,
+ * every door they reach is `lock_on_alert` or `locked`, and none of them steps straight onto an `outdoor`
+ * tile. A room with a door that never locks, or an open way out, is not shut, and the dwarf keeps the
+ * freedom of one with no shelter.
+ */
+function shutRoom(ctx: InitContext, buildings: BuildingsReader, from: TileIndex): boolean {
+  const map = ctx.world.map;
+  const path = ctx.readers.pathing;
+  if (map.hasFlag(from, TileFlag.Outdoor) || isShelterBarrier(buildings, from)) return false;
+  const seen = new Set<TileIndex>([from]);
+  const queue: TileIndex[] = [from];
+  let doors = 0;
+  for (let cursor = 0; cursor < queue.length; cursor += 1) {
+    if (cursor >= RETREAT_SEARCH_LIMIT) return false;
+    for (const tile of map.neighbors(queue[cursor] as TileIndex)) {
+      if (seen.has(tile)) continue;
+      seen.add(tile);
+      if (buildings.doorAt(tile)) {
+        // A door counts whether or not the alert has locked it yet; the alert locks only `lock_on_alert`.
+        const mode = buildings.mechanismState(buildings.at(tile));
+        if (mode !== 'lock_on_alert' && mode !== 'locked') return false;
+        doors += 1;
+        continue;
+      }
+      if (!path.passable(tile, 'walker') || map.kindAt(tile) === TileKind.Open || isShelterBarrier(buildings, tile)) continue;
+      if (map.hasFlag(tile, TileFlag.Outdoor)) return false;
+      queue.push(tile);
+    }
+  }
+  return doors > 0;
 }
