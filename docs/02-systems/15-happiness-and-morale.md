@@ -24,12 +24,15 @@ Make dwarves' lives matter without letting misery snowball. A dwarf's mood is on
 positives    = min(POSITIVE_CAP, Σ value of active thoughts with value > 0)
 negatives    = min(NEGATIVE_CAP, Σ |value| of active thoughts with value < 0)
 needPressure = floor(min(NEED_PRESSURE_CAP, Σ |value| of the active standing thoughts hungry, thirsty, tired, lonely))
+floorPressure = floor(min(NEED_PRESSURE_CAP, Σ |value| of those of them past their margin, and lonely))
 hearthBonus  = hearthHallTierIndex × HEARTH_TIER_BONUS          // 0 with no hearth; bare = 0 … royal = 5 × bonus
 raw          = MOOD_BASELINE + positives − negatives − needPressure + hearthBonus + personalityBase
-mood         = clamp(MOOD_MIN, MOOD_MAX, max(raw, MOOD_NEEDS_MET_FLOOR − needPressure))
+mood         = clamp(MOOD_MIN, MOOD_MAX, max(raw, MOOD_NEEDS_MET_FLOOR − floorPressure))
 ```
 
 With the constants below: baseline 55, positives up to +40, negatives down to −35, need pressure down to −20, hearth up to +10. The standing thoughts of the four survival and company needs count twice, once as thoughts and once as pressure: that is what makes neglect, and only neglect, able to take a dwarf below 20. With every need met, `needPressure` is 0 and mood is at least `MOOD_NEEDS_MET_FLOOR` (20, Unhappy, not Miserable) whatever the thoughts and the personality. This is the design's anti-spiral guarantee, and the tests in `04-implementation/acceptance-tests.md` check it.
+
+The floor gives way only to neglect (T-767). Hunger, thirst or rest is *past its margin* when it is at least `FLOOR_MARGIN_SHARE` (half) of the way from its want threshold to its critical one (10 § Needs): hunger and thirst 67.5, rest 75. Under that it is the ordinary daily cycle, an evening's tiredness or thirst on the way to a drink: its thought counts twice in `raw` as before, but not in `floorPressure`, so a gloomy dwarf whose negatives have reached `NEGATIVE_CAP` stays at 20 through it and is Miserable only once a need goes unserved past its margin. `lonely`, whose need has no critical threshold, always counts in `floorPressure`. Before T-767 the floor dropped by every point of need pressure, and in the T-763 probe's 40 first fortnights a restless, sensitive dwarf with nothing it may do (`restless` and `bored` −10.4 each) was Miserable by its fourth to seventh day at a pressure of 1 to 4.
 
 A known gap (T-763, T-766): company is the dwarves' own errand, which a dwarf at work does not take (10 § Behavior selection), so in a busy first week with no hearth hall a gregarious dwarf can be Miserable by its second to fourth day with nothing neglected, three-quarters of it from `lonely` counting twice. Counting `lonely` once (not as pressure) cut that early misery from 111 dwarf-hours to 24 over 40 probed timelines, but on the same code it raised the twenty-seed sweep's dwarf deaths from 110.25 to 129 (all of the rise from raids in timelines it shifted), over the bar of about 118, so `lonely` stays need pressure for now. The Mood panel's `Helps:` line for `lonely` is the player's answer.
 
@@ -97,7 +100,7 @@ A corpse consumed by a predator is lost for burial. It no longer counts as prese
 
 ### Interaction with 10 needs
 
-Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are both the legible form of the pressure ("Hungry (−6)" in the dwarf's thought list) and its measure: all seven count among `negatives`, and `hungry`, `thirsty`, `tired` and `lonely` also make up `needPressure`. `uncomfortable`, `restless` and `bored` are ordinary standing negatives: a fortress without chairs or a meeting area is gloomier, not miserable. A dwarf on duty with a squad (16 § Squads: its squad in `train` or `active`, or any squad under a `watchful` or `hearth` alert) is not `restless`, whatever its purpose: drill and guard are something to do.
+Need pressure is part of the mood formula, so a hungry fortress is an unhappy fortress before it is a starving one. The standing need thoughts are both the legible form of the pressure ("Hungry (−6)" in the dwarf's thought list) and its measure: all seven count among `negatives`, and `hungry`, `thirsty`, `tired` and `lonely` also make up `needPressure`; the first three lower the needs-met floor only past their margin (§ Mood). `uncomfortable`, `restless` and `bored` are ordinary standing negatives: a fortress without chairs or a meeting area is gloomier, not miserable. A dwarf on duty with a squad (16 § Squads: its squad in `train` or `active`, or any squad under a `watchful` or `hearth` alert) is not `restless`, whatever its purpose: drill and guard are something to do.
 
 Masterwork sight thoughts consume 10's `SawMasterwork` event on room entry. Its visible objects are floor items and installed furniture, excluding container contents and the viewer's own work; 10 saves the per-dwarf seen-item memory.
 
@@ -153,6 +156,7 @@ The unburied dead: on each `DayPassed`, while some dwarf's body (a corpse or a s
 | `NEGATIVE_CAP` | 35 | |
 | `NEED_PRESSURE_CAP` | 20 | |
 | `MOOD_NEEDS_MET_FLOOR` | 20 | Mood floor while no need is neglected |
+| `FLOOR_MARGIN_SHARE` | 0.5 | Share of the way from a need's want threshold to its critical one before its thought lowers the floor (T-767; hunger, thirst, rest) |
 | `NEED_WEIGHT` | 40 | Per point of need over its want threshold, /100 |
 | `HEARTH_TIER_BONUS` | 2 | Per hearth hall tier index (bare 0 … royal 5) |
 | `SULK_DAYS` | 7 | Consecutive days Miserable before a sulk (*unmeasured*) |

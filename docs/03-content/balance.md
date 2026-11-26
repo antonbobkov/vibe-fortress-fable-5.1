@@ -146,11 +146,11 @@ The enclosure is added after the fortress setup: one seed already has wolves ins
 
 ## Mood floor and the no-spiral guarantee
 
-`mood = max(55 + min(40, positives) − min(35, negatives) − need pressure + hearth bonus + personality, 20 − need pressure)`, need pressure = the four survival and company thoughts (hungry, thirsty, tired, lonely), capped at 20:
+`mood = max(55 + min(40, positives) − min(35, negatives) − need pressure + hearth bonus + personality, 20 − floor pressure)`, need pressure = the four survival and company thoughts (hungry, thirsty, tired, lonely), capped at 20; floor pressure = the same, but hunger, thirst and rest only once halfway from their want threshold to their critical one (hunger and thirst 67.5, rest 75; T-767):
 
 - Every need met, no thoughts: 55 (Fine). With a hearth hall (decent, +4): 59.
 - Worst case with needs met: 55 − 35 + 0 = 20, and the floor keeps it at 20 for a sensitive, timid dwarf too (Unhappy, not Miserable). Misery requires need pressure, which requires the player to have failed to provide food, drink, beds or company.
-- A dwarf can be Miserable only while `need pressure > 0`; the moment needs are met the floor returns to 20 and the sulk counter decays. Sulks are capped at one per week per dwarf (*unmeasured*) and cost at most a chair.
+- A dwarf can be Miserable only while `floor pressure > 0`: a need past halfway to critical, or `lonely`. The ordinary daily rise of thirst and tiredness on the way to a drink or a bed leaves the floor at 20. The moment needs are met the floor returns to 20 and the sulk counter decays. Sulks are capped at one per week per dwarf (*unmeasured*) and cost at most a chair.
 - Positive thoughts cap at +40 so a fortress cannot become immune to bad news; grief always shows.
 - Hall spirit for immigration (55) needs a well-kept fortress: a hearth hall (+4 to +10), decent bedrooms (+3), meals at a table (+2), ale (+3) and a chat (+3) give 55 + 11 + 4 = 70 to a fed and rested dwarf at their peak (*unmeasured*). Event thoughts fade over their duration and average about half their peak, so a fortress with all of them settles near 55–60 (measured in T-M8-06), and some standing need thoughts are always present. Immigration is the reward for exactly the things the hints tell the player to build.
 
