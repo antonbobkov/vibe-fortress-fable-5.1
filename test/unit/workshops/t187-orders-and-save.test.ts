@@ -8,7 +8,7 @@ function orders(global = false) {
   const w = new TestWorld({ seed: 't187-orders', world: 'flat-test', embark: 'none' });
   const workshop = w.build('carpenter', w.index(12, 12, 32));
   w.spawnItem('log', 'oak', w.index(16, 12, 32), 6);
-  w.spawnItem('cloth', 'flax_cloth', w.index(16, 12, 32), 10); // T-572: a bed's bedding stuff
+  w.spawnItem('wool_raw', 'wool', w.index(16, 12, 32), 10); // T-572: a bed's bedding stuff; T-778: wool, as the cloth is kept for dressings
   w.step(1);
   const owner = global ? 0 : workshop;
   for (const recipeId of ['make_bed', 'make_barrel'])

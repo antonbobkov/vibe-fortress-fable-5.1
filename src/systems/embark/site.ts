@@ -137,6 +137,39 @@ export function coldestNightC(season: number, climate: Climate): number {
   return Math.min(snow, snap);
 }
 
+/** 06: the site's climate, the season's base plus the temper spread, as the weather system computes it. */
+function siteClimate(spec: LocalMapSpec, biome: BiomeRow): Climate {
+  return {
+    seasonTemp: biome.seasonTemp,
+    referenceTempC: biome.referenceTempC,
+    tempC: spec.tempC ?? biome.referenceTempC,
+    temper: spec.temper,
+    traits: spec.traits,
+  };
+}
+
+/**
+ * 02 § Site summary, Frostbite: the first season, from the spring of the arrival (`START_SEASON`) on,
+ * whose coldest night falls below `COLD_INJURY_C`; null when none does.
+ */
+function frostbiteOf(climate: Climate): SiteSummary['climate']['frostbite'] {
+  for (let season = SPRING; season <= WINTER; season += 1) {
+    const nightC = coldestNightC(season, climate);
+    if (nightC < COLD_INJURY_C) return { season, nightC, limitC: COLD_INJURY_C, arrival: season === SPRING };
+  }
+  return null;
+}
+
+/**
+ * The site's frostbite (02 § Site summary) without the rest of its summary: the world map asks it of
+ * many regions when it places its cursor (`ui-screens/menus-and-world.md` § World map).
+ */
+export function siteFrostbite(spec: LocalMapSpec, registry: Registry): SiteSummary['climate']['frostbite'] {
+  const biome = registry.table<BiomeRow>('biomes').byId(spec.biome);
+  if (biome === undefined) throw new RangeError(`siteFrostbite: unknown biome ${spec.biome}`);
+  return frostbiteOf(siteClimate(spec, biome));
+}
+
 /** `01` § Biomes, the temperature bands. */
 export function temperatureBandOf(tempC: number): TemperatureBand {
   if (tempC < -5) return 'frozen';
@@ -275,22 +308,10 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
   }
   const shrubs = shrubSpecies.length > 0 && baseShrubs + added > 0 ? { estimate: baseShrubs + added, species: shrubSpecies } : null;
 
-  // 06: the season's base plus the temper spread, as the weather system computes it.
-  const climate: Climate = {
-    seasonTemp: biome.seasonTemp,
-    referenceTempC: biome.referenceTempC,
-    tempC: spec.tempC ?? biome.referenceTempC,
-    temper: spec.temper,
-    traits: spec.traits,
-  };
+  const climate = siteClimate(spec, biome);
   const winterC = seasonBase(WINTER, climate) + temperSpread(WINTER, climate);
   const summerC = seasonBase(SUMMER, climate) + temperSpread(SUMMER, climate);
-  // The arrival is in spring (START_SEASON), so the seasons are looked at from spring on.
-  let frostbite: SiteSummary['climate']['frostbite'] = null;
-  for (let season = SPRING; season <= WINTER && frostbite === null; season += 1) {
-    const nightC = coldestNightC(season, climate);
-    if (nightC < COLD_INJURY_C) frostbite = { season, nightC, limitC: COLD_INJURY_C, arrival: season === SPRING };
-  }
+  const frostbite = frostbiteOf(climate);
 
   // 03 stage 2 (rivers, lakes) and stage 10 (gemsprings' springs, on dry surface soil).
   const water = {

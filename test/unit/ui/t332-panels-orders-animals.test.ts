@@ -130,9 +130,11 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[0]).toMatch(/^Carpenter's workshop #\d+$/);
     expect(rows[1]).toBe('Worker: any');
     expect(rows[3]).toMatch(/^─+ Recipes ─+$/);
-    for (const recipe of ['Wooden bolts', 'Buckler', 'Shield', 'Barrel', 'Bin', 'Bucket', 'Bed', 'Door', 'Chair']) {
+    for (const recipe of ['Wooden bolts', 'Buckler', 'Shield', 'Barrel', 'Bin', 'Bucket', 'Door', 'Chair']) {
       expect(rows.some((row) => row.startsWith(`• ${recipe}`)), recipe).toBe(true);
     }
+    // T-778: the wagon's five linen are the dressings a fortress with no hospital keeps.
+    expect(rows.some((row) => row.startsWith('○ Bed · cloth kept for wounds')), rows.join(' | ')).toBe(true);
     expect(rows.some((row) => /^─+ Furniture ─+/.test(row))).toBe(true);
     expect(rows[23]).toMatch(/^─+ Orders \(1\) ─+$/);
     expect(rows[24]).toBe('x5 Door · in progress');

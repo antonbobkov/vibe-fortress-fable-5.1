@@ -124,6 +124,9 @@ export function runHomesteadYear(w: TestWorld): void {
   w.spawnItem('log', 'oak', supplyTile, 60);
   w.spawnItem('raw_stone', 'granite', supplyTile, 60);
   w.spawnItem('rope', 'flax_cloth', supplyTile, 10);
+  // T-778: the ten dressings a fortress with no hospital keeps (12 § Cloth kept for dressings), as
+  // bandages, so the cloth the homestead weaves goes to its tunic.
+  w.spawnItem('bandage', 'flax_cloth', supplyTile, 10);
 
   // 2. Pasture zone on grass (x: 1..20, y: 1..8, z: 32)
   const pastureTiles: number[] = [];

@@ -25,8 +25,9 @@ const scenario: Scenario = {
       }
     }
     // T-572: a wooden bed takes 2 cloth beside its log: 200 cloth in stacks of ten, two to a tile, in
-    // the column between the carpenter and the logs.
+    // the column between the carpenter and the logs; T-778: and the ten kept for dressings, on a third.
     for (let dy = 0; dy < 10; dy += 1) for (let k = 0; k < 2; k += 1) w.spawnItem('cloth', 'flax_cloth', w.index(18, 15 + dy, 32), 10);
+    w.spawnItem('cloth', 'flax_cloth', w.index(18, 25, 32), 10);
     const pile = w.zone('stockpile', pileTiles);
     w.game.world.applyCommand({ type: 'SetStockpileFilter', zoneId: pile, filter: 'wood' });
     w.spawnItem('drink', 'ale', w.index(18, 17, 32), 200);

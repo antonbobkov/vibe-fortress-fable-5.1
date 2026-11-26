@@ -153,5 +153,5 @@ Peril budget bonus (`EMBARK_BUDGET_PER_PERIL` × peril) stays unspent for the pl
 - Two picks and one axe are the minimum for a working start.
 - A season of food and drink for seven dwarves is about 100 food units and 150 drink units; the presets carry roughly half and expect farming and hunting to cover the rest by autumn.
 - Seeds of at least one cave crop keep the fortress fed through winter.
-- Bring linen: without cloth or bandages no wound can be bandaged, and a serious cut bleeds until it is (17 § Patients and hospitals). Every preset carries five.
+- Bring linen: without cloth or bandages no wound can be bandaged, and a serious cut bleeds until it is (17 § Patients and hospitals). Every preset carries five, and no workshop takes them while they are the dressings the fortress keeps (12 § Cloth kept for dressings): a bed order stuffs its beds with wool or straw.
 - Two dogs spot thieves; a cat controls nothing (there is no vermin in version 1) but everyone loves it.

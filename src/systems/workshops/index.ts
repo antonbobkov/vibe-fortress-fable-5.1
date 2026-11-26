@@ -5,7 +5,7 @@ import type { CommandType } from '@core/command-types';
 import type { EventType } from '@core/event-types';
 import type { GameEvent } from '@core/events';
 import { BaseSystem, type InitContext, type TickContext } from '@core/system';
-import { WorkshopOperator } from './operate';
+import { CLOTH_KEPT, WorkshopOperator } from './operate';
 import { applyOrderCommand, applyWorkerCommand } from './orders';
 import { makeReader, type WorkshopsReader } from './reader';
 import type { WorkshopsStateV1 } from './state';
@@ -13,7 +13,7 @@ import type { WorkshopsStateV1 } from './state';
 export { qualityForRoll, rollQuality } from './quality';
 export { civilianProfession, militaryTitle } from './professions';
 export { mealName } from './meals';
-export { recipeInputFilter, outputFilter, resolveMaterial, resolveOutputMaterial, WorkshopOperator, type RecipeRow } from './operate';
+export { CLOTH_KEPT, recipeInputFilter, outputFilter, resolveMaterial, resolveOutputMaterial, WorkshopOperator, type RecipeRow } from './operate';
 export type { WorkshopsReader } from './reader';
 
 export const WORKSHOPS_ID = '12';
@@ -37,6 +37,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
     ctx.register.panel({ id: 'orders', title: 'Orders', hotkey: 'o' });
     ctx.register.inspector('building', { id: 'workshop', order: 30 });
     ctx.register.announcement('WorkshopBlocked', { severity: 'note', stringKey: 'announce.workshop_missing_input', oneOf: { field: 'reason', values: ['missing_input'] } });
+    ctx.register.announcement('WorkshopBlocked', { severity: 'note', stringKey: 'announce.workshop_cloth_kept', oneOf: { field: 'reason', values: [CLOTH_KEPT] } });
     ctx.register.announcement('MasterworkCreated', { severity: 'note', stringKey: 'announce.masterwork' });
     ctx.register.announcement('WorkshopBlocked', { severity: 'alert', stringKey: 'announce.workshop_blocked', oneOf: { field: 'reason', values: ['no_magma'] } });
     ctx.register.announcement('WorkshopBlocked', { severity: 'alert', stringKey: 'announce.workshop_no_container', oneOf: { field: 'reason', values: ['no_empty_container'] } });

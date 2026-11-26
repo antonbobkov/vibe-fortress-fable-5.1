@@ -32,7 +32,8 @@ describe('T-M4-08 workshops operation and orders', () => {
     w.spawnItem('log', 'oak', w.index(15, 14, 32));
     // T-572: a wooden bed takes a pallet's materials beside its log.
     expect(reader.isRunnable('make_bed', bed).runnable).toBe(false);
-    w.spawnItem('cloth', 'flax_cloth', w.index(15, 14, 32), 2);
+    // T-778: of wool, as with no hospital the last ten cloth are kept for dressings.
+    w.spawnItem('wool_raw', 'wool', w.index(15, 14, 32), 2);
     expect(reader.isRunnable('make_bed', bed)).toEqual({ runnable: true, reason: null });
     w.spawnItem('plant_food', 'turnip', w.index(24, 14, 32), 4);
     expect(reader.isRunnable('cook_easy_meal', kitchen)).toEqual({ runnable: false, reason: 'waiting for ingredient' });

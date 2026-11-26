@@ -1343,6 +1343,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.status.done': 'done',
   'ui.orders.status.stocked': 'stocked ({n})',
   'ui.orders.status.waiting': 'waiting for {item} ({n})',
+  'ui.orders.status.cloth_kept': 'cloth kept for wounds ({n})',
   'ui.orders.status.fuel': 'waiting for fuel',
   'ui.orders.status.out_of_reach': '{item} out of reach',
   'ui.orders.status.no_workshop': 'no {workshop}',
@@ -1392,6 +1393,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.pick.not_built': '· {workshop} not built yet',
   'ui.orders.pick.no_input': '· no {item}',
   'ui.orders.pick.no_fuel': '· no fuel',
+  'ui.orders.pick.cloth_kept': '· cloth kept for wounds',
   'ui.orders.pick.out_of_reach': '· {item} out of reach',
   // One step back for a missing input (`panels.md` § Add order): the recipe that makes it, or where it comes from.
   'ui.orders.pick.make_at': '· no {item}: {recipe} at {where}',
@@ -1776,6 +1778,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.advice.stone_trade': 'trade for stone or blocks',
   'ui.block.fuel': 'Needs fuel',
   'ui.block.out_of_reach': 'Skipped: {item} out of reach. Tried again later, or when a door opens.',
+  'ui.block.cloth_kept': "Waiting: the last {kept} cloth and bandages are kept to bandage wounds ({n} cloth in stock). Weave more cloth or lower a hospital's cloth supply; a bed can be stuffed with straw or wool instead.",
   'ui.block.inputs': 'Waiting for inputs',
   'ui.block.workshop_suspended': 'Suspended: [S-s] resume',
   'ui.block.no_magma': 'No magma power below',
@@ -2551,6 +2554,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.masterwork': '{crafter} has created a masterwork {item}.',
   'announce.workshop_blocked': 'A workshop needs magma power.',
   'announce.workshop_no_container': 'A workshop is waiting for an empty {container}: every one holds something.',
+  'announce.workshop_cloth_kept': '{workshop} is idle: the last cloth is kept to bandage wounds.',
   // 15 § Registrations: the day's miserable line, with the reasons in the dwarves' own words.
   'announce.mood_tier': '{dwarf} is miserable.',
   'announce.mood_tier_why': '{dwarf} is miserable: "{why}"',

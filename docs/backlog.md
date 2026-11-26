@@ -13,7 +13,7 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 |---|---|---|---|---|
 | T-766 | [Lonely counts once: confirm the sweep's deaths and adopt](work/T-766-lonely-counts-once.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
 | T-767 | [A gloomy dwarf turns Miserable at the first point of ordinary tiredness or thirst](work/T-767-needs-met-floor-gives-way.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
-| T-778 | [A first bed order eats the embark's linen, the only dressing the fortress has](work/T-778-bed-order-eats-the-linen.md) | [T-765](archive/tasks/T-765-alpine-embark-frostbite.md) | — | open |
-| T-779 | [The world map often starts a newcomer on a site that freezes from the first night](work/T-779-default-site-frostbite.md) | [T-765](archive/tasks/T-765-alpine-embark-frostbite.md) | — | open |
+| T-782 | [A medic claims a bleeding dwarf's bandage and has not started it three hours later](work/T-782-bandage-claimed-not-brought.md) | [T-778](archive/tasks/T-778-bed-order-eats-the-linen.md) | — | open |
+| T-783 | [The world map often starts a newcomer on bare rock with no soil, trees or water](work/T-783-default-site-lacks-essentials.md) | [T-779](archive/tasks/T-779-default-site-frostbite.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).

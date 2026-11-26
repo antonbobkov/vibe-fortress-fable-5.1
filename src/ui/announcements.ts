@@ -504,7 +504,7 @@ export class AnnouncementLog {
     const finished = event.type === 'JobCompleted' && fields['jobType'] === 'craft' ? fields['target']
       : event.type === 'BuildingRemoved' ? fields['id'] : undefined;
     if (typeof finished === 'number') this.history.workshopIdleNotes = this.history.workshopIdleNotes.filter(id => id !== finished);
-    const idleWorkshop = event.type === 'WorkshopBlocked' && fields['reason'] === 'missing_input' ? fields['workshopId'] : undefined;
+    const idleWorkshop = event.type === 'WorkshopBlocked' && (fields['reason'] === 'missing_input' || fields['reason'] === 'cloth_kept') ? fields['workshopId'] : undefined;
     if (typeof idleWorkshop === 'number' && this.history.workshopIdleNotes.includes(idleWorkshop)) return null;
     const spec = this.specs.get(event.type)?.find((candidate) => {
       if (candidate.atLeast !== undefined) {

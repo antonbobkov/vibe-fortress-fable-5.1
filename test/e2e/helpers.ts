@@ -100,28 +100,14 @@ export async function hilliestRegion(page: Page): Promise<number> {
 }
 
 /**
- * Where the world-map cursor starts (`menus-and-world.md` § World map): the region nearest the
- * centre where a fortress can embark, by Chebyshev distance, ties to the lowest id.
+ * Where the world-map cursor is (`menus-and-world.md` § World map: it starts on the site nearest the
+ * centre, passing over one with frostbite from the first night), read from the screen.
  */
 export async function cursorStart(page: Page): Promise<{ size: number; x: number; y: number }> {
   return page.evaluate(() => {
-    const world = (window as unknown as { __deepholm: WorldHook }).__deepholm.readers.world;
-    if (world === null) throw new Error('no world');
-    const size = world.size();
-    const mid = Math.floor(size / 2);
-    let best = { x: mid, y: mid };
-    let bestDistance = Infinity;
-    for (const r of world.regions()) {
-      if (r.biome === 'ocean' || r.biome === 'glacier') continue;
-      const x = r.id % size;
-      const y = Math.floor(r.id / size);
-      const d = Math.max(Math.abs(x - mid), Math.abs(y - mid));
-      if (d < bestDistance) {
-        best = { x, y };
-        bestDistance = d;
-      }
-    }
-    return { size, ...best };
+    const cursor = (window as unknown as { __deepholm: { worldMapCursor(): { size: number; x: number; y: number } | null } }).__deepholm.worldMapCursor();
+    if (cursor === null) throw new Error('no world map');
+    return cursor;
   });
 }
 

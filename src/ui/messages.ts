@@ -25,6 +25,8 @@ import type { EntityId, TileIndex } from '@core/types';
 import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
+import { CLOTH_KEPT } from '@systems/workshops';
+import { keptDressings } from '@systems/health/supplies';
 import type { ItemsReader, RotOutlook } from '@systems/items';
 import { STOCKPILE_PRESETS } from '@systems/items';
 import type { TradeReader } from '@systems/trade';
@@ -767,6 +769,11 @@ export function outOfReach(env: MessageEnv, reason: string | null): { match: str
   return { match, item: matchName(env.registry, match, 1, env.strings) };
 }
 
+/** The cloth to be had (12 § Cloth kept for dressings: an order waiting on the kept cloth names it). */
+export function clothInStock(env: MessageEnv): number {
+  return env.readers.has('13') ? env.readers.of<ItemsReader>('13').countAvailable({ category: 'textile/cloth' }) : 0;
+}
+
 /**
  * A workshop order's waiting reason as words (`12` § Operation 3: "waiting for <input>"): the
  * reader's `isRunnable` reason, which names the input (`waiting for raw_stone`), or the fuel
@@ -777,9 +784,14 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
   if (reason === null) return '';
   const far = outOfReach(env, reason);
   if (far !== null) return s.get('ui.block.out_of_reach', { item: far.item });
+  // 12 § Cloth kept for dressings: the cloth there is, and how many dressings the fortress keeps.
+  if (reason === CLOTH_KEPT) {
+    const kept = keptDressings(env.readers.has('14') ? env.readers.of<BuildingsReader>('14') : null);
+    return s.get('ui.block.cloth_kept', { n: clothInStock(env), kept });
+  }
   const waiting = waitingFor(env, reason);
   if (waiting !== null) {
-    const text = s.get('ui.block.waiting_for', { item: waiting.item, n: waiting.n });
+    const text = s.get('ui.block.waiting_for',{ item: waiting.item, n: waiting.n });
     // Where it comes from, as a blocked job's line says it (jobBlockText): stone says where the rock is.
     const source = sourceOf(env, waiting.match.split('|'));
     if (source.advice !== '') return s.get('ui.block.advice', { text, advice: source.advice });

@@ -15,7 +15,7 @@ import type { Registry } from '@core/registry';
 import type { Civ, Edge } from '@core/types';
 import type { KeyPress } from '@platform/input';
 import type { WorldMapCompositor } from '@render/world-map';
-import { localMapSpec, SIGNATURE_LIKELY, siteSummary, type SiteSummary } from '@systems/embark';
+import { localMapSpec, SIGNATURE_LIKELY, siteFrostbite, siteSummary, type SiteSummary } from '@systems/embark';
 import { CIVS, hasLandRoute, matchesFilter, type RegionFilter, type RegionRecord, type WorldMap } from '@systems/worldgen';
 import { SITE_LABEL_COLS, SITE_LIST_NAMES } from '../constants';
 import type { KeyContext, Keymap } from '../keymap';
@@ -160,26 +160,19 @@ export class WorldMapScreen implements Screen {
 
   /**
    * Where the cursor starts: the region nearest the centre where a fortress can embark (and that the
-   * filter keeps, when one is set), by Chebyshev distance, ties to the lowest id; the centre on a
-   * world with none.
+   * filter keeps, when one is set), by Chebyshev distance, ties to the lowest id, passing over a site
+   * with frostbite from the first night (02 § Site summary) while a site without it is left; the
+   * centre on a world with none.
    */
   private startCursor(): { x: number; y: number } {
     const size = this.world.size;
     const mid = Math.floor(size / 2);
     const matches = this.matches();
+    const distance = (id: number): number => Math.max(Math.abs((id % size) - mid), Math.abs(Math.floor(id / size) - mid));
     const nearest = (keep: (r: RegionRecord) => boolean): RegionRecord | null => {
-      let best: RegionRecord | null = null;
-      let bestDistance = Infinity;
-      for (const r of this.world.regions) {
-        if (!keep(r)) continue;
-        const d = Math.max(Math.abs((r.id % size) - mid), Math.abs(Math.floor(r.id / size) - mid));
-        // Regions come in id order, so the first at a distance is the lowest id.
-        if (d < bestDistance) {
-          best = r;
-          bestDistance = d;
-        }
-      }
-      return best;
+      // Regions come in id order, and the sort is stable, so ties go to the lowest id.
+      const sites = this.world.regions.filter(keep).sort((a, b) => distance(a.id) - distance(b.id));
+      return sites.find((r) => siteFrostbite(localMapSpec(this.world, r.id, this.registry), this.registry)?.arrival !== true) ?? sites[0] ?? null;
     };
     const site = (matches === undefined ? null : nearest((r) => this.embarkable(r) && matches(r.id))) ?? nearest((r) => this.embarkable(r));
     return site === null ? { x: mid, y: mid } : { x: site.id % size, y: Math.floor(site.id / size) };

@@ -1,4 +1,7 @@
-/** `acceptance-tests.md` ws_bed: a level-6 carpenter makes one bed from one log and two cloth (T-572). */
+/**
+ * `acceptance-tests.md` ws_bed: a level-6 carpenter makes one bed from one log and two cloth (T-572),
+ * two beyond the ten the fortress keeps for dressings while it has no hospital (T-778).
+ */
 import { expect } from 'vitest';
 import type { Scenario } from './runner';
 import type { ItemsReader } from '@systems/items';
@@ -11,7 +14,7 @@ const scenario: Scenario = {
     const workshop = w.build('carpenter', tile);
     const carpenter = w.spawnDwarf({ at: w.index(17, 17, 32), skills: { carpentry: 6 } });
     w.spawnItem('log', 'oak', w.index(18, 17, 32));
-    w.spawnItem('cloth', 'flax_cloth', w.index(19, 17, 32), 2);
+    w.spawnItem('cloth', 'flax_cloth', w.index(19, 17, 32), 12);
     w.step(1);
     const result = w.game.world.applyCommand({ type: 'AddWorkOrder', workshopId: workshop,
       order: { recipeId: 'make_bed', mode: 'once', remaining: 1, priority: 5 } });
