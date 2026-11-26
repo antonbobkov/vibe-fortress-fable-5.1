@@ -1,0 +1,52 @@
+/** Playtest 11-26 (not committed): what the deep holds under a save. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { TileKind, TileFlag } from '@core/map3d';
+import { C } from '@core/components';
+
+const SAVE = process.env['PT_SAVE'] ?? 'out/pt7/playtest-1126-p2-d336.bin';
+
+describe('pt7 look', () => {
+  it('looks', async () => {
+    const { game } = await loadGame(new Uint8Array(readFileSync(SAVE)));
+    const map = game.map;
+    const mats = game.registry.table<{ id: string }>('materials');
+    const matName = (m: number): string => mats.rows[m]?.id ?? String(m);
+    console.log('map', map.w, map.h, map.d);
+    for (let z = map.d - 1; z >= 0; z--) {
+      let open = 0, floor = 0, wall = 0, disc = 0, desig = 0, stairs = 0;
+      const minerals: Record<string, number> = {};
+      for (let y = 0; y < map.h; y++) for (let x = 0; x < map.w; x++) {
+        const t = map.index(x, y, z);
+        const k = map.kindAt(t);
+        if (k === TileKind.Open) open++; else if (k === TileKind.Wall) wall++; else if (k === TileKind.Floor) floor++;
+        if (k >= 4 && k <= 6) stairs++;
+        if (map.hasFlag(t, TileFlag.Discovered)) disc++;
+        if (map.designationAt(t) !== 0) desig++;
+        if (k === TileKind.Wall) { const n = matName(map.materialAt(t)); if (!/stone|granite|basalt|soil|loam|clay|sand|silt|peat|slate|shale|limestone|marble|gabbro|diorite|sandstone|chalk|dolomite|schist|gneiss|quartzite|obsidian|andesite|rhyolite|mudstone|siltstone|conglomerate/.test(n)) minerals[n] = (minerals[n] ?? 0) + 1; }
+      }
+      const fl = map.fluidLevelAt.bind(map);
+      let magma = 0, water = 0;
+      for (let y = 0; y < map.h; y++) for (let x = 0; x < map.w; x++) { const t = map.index(x, y, z); if (fl(t) > 0) { if (map.fluidTypeAt(t) === 1) magma++; else water++; } }
+      console.log(`z${z} open ${open} floor ${floor} wall ${wall} stairs ${stairs} disc ${disc} desig ${desig} water ${water} magma ${magma} ${JSON.stringify(minerals)}`);
+    }
+    const ent = game.world.entities;
+    const items: Record<string, number> = {};
+    const itypes = game.registry.table<{ id: string }>('items');
+    for (const id of ent.with(C.Item)) {
+      const it = ent.get(id, C.Item) as unknown as { type: number; material: number; count?: number };
+      const k = `${itypes.rows[it.type]?.id}`;
+      items[k] = (items[k] ?? 0) + (it.count ?? 1);
+    }
+    console.log(JSON.stringify(items));
+    const creatures: Record<string, number> = {};
+    const species = game.registry.table<{ id: string }>('creatures');
+    for (const id of ent.with(C.Creature)) {
+      const c = ent.get(id, C.Creature) as unknown as { species: number; faction: string };
+      const k = `${c.faction}:${species.rows[c.species]?.id}`;
+      creatures[k] = (creatures[k] ?? 0) + 1;
+    }
+    console.log(JSON.stringify(creatures));
+  }, 600_000);
+});

@@ -1,0 +1,30 @@
+/** Playtest 11-26 (not committed): where the deepsilver lies, and what touches it. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { TileKind } from '@core/map3d';
+
+const SAVE = process.env['PT_SAVE'] ?? 'out/pt7/playtest-1126-p2-d672.bin';
+
+describe('pt7 deepsilver', () => {
+  it('finds', async () => {
+    const { game } = await loadGame(new Uint8Array(readFileSync(SAVE)));
+    const map = game.map;
+    const mats = game.registry.table<{ id: string }>('materials');
+    const out: string[] = [];
+    for (let z = 0; z < 10; z++) for (let y = 0; y < map.h; y++) for (let x = 0; x < map.w; x++) {
+      const t = map.index(x, y, z);
+      if (map.kindAt(t) !== TileKind.Wall) continue;
+      if (!/deepsilver/.test(mats.rows[map.materialAt(t)]?.id ?? '')) continue;
+      const nb: string[] = [];
+      for (const [dx, dy, dz] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]] as const) {
+        if (!map.inBounds(x + dx, y + dy, z + dz)) { nb.push('edge'); continue; }
+        const n = map.index(x + dx, y + dy, z + dz);
+        const k = map.kindAt(n);
+        nb.push(`${TileKind[k]}${map.fluidLevelAt(n) > 0 ? (map.fluidTypeAt(n) === 1 ? '+magma' : '+water') : ''}`);
+      }
+      out.push(`${x},${y},z${z}: ${nb.join(' ')}`);
+    }
+    console.log(`deepsilver walls: ${out.length}\n${out.join('\n')}`);
+  }, 600_000);
+});
