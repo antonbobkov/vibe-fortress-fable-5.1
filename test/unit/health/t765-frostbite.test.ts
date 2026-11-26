@@ -74,7 +74,7 @@ describe('T-765 the first frostbite of a season is an alert', () => {
   });
 });
 
-/** The region the world map starts on: the embarkable one nearest the centre (T-759). */
+/** The embarkable region nearest the centre, where the world map started before T-779 passed over a site with frostbite from the first night (T-759). */
 function defaultSite(world: WorldMap): number {
   const biomes = registry.table<{ id: string; embarkable: boolean }>('biomes');
   const mid = Math.floor(world.size / 2);

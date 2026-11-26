@@ -1439,6 +1439,12 @@ export class Game {
     await new Promise<void>((resolve) => setTimeout(resolve, 0));
   }
 
+  /** The world map's cursor while it is on top (the e2e hook's `worldMapCursor`). */
+  worldMapCursor(): { size: number; x: number; y: number } | null {
+    const top = this.top();
+    return top instanceof WorldMapScreen ? { size: top.world.size, ...top.cursor } : null;
+  }
+
   /** The world-level reader of the running game's generated world, if any. */
   worldReader(): WorldgenReader | null {
     const top = this.top();
@@ -1765,6 +1771,8 @@ export interface TestHook {
   settled(): Promise<void>;
   /** The running tutorial's step (`ui-screens/menus-and-world.md` § Tutorial), or null. */
   tutorial(): { step: string | null; index: number; total: number } | null;
+  /** The world map's cursor and the world's size while the world map is on top, else null. */
+  worldMapCursor(): { size: number; x: number; y: number } | null;
 }
 
 /**
@@ -1860,6 +1868,7 @@ export function testHook(game: Game): TestHook {
     lastSaveId: () => game.lastSaveId,
     settled: () => game.settled(),
     tutorial: () => game.tutorialState(),
+    worldMapCursor: () => game.worldMapCursor(),
   };
 }
 

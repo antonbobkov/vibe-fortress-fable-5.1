@@ -1,8 +1,9 @@
 /**
  * T-763's probe: the first fourteen days of a busy fortress on the default embark, and its moods.
  *
- * The site is the one the world map starts on: the embarkable region nearest the centre of the
- * standard world of the seed, with the Balanced preset. On day 1 the probe gives the orders a
+ * The site is the embarkable region nearest the centre of the standard world of the seed (where the
+ * world map started before T-779 passed over a site with frostbite from the first night), with the
+ * Balanced preset. On day 1 the probe gives the orders a
  * newcomer gives: a stair shaft down four levels and a 5 × 5 room at its foot, a chop box over the
  * twelve trees nearest the wagon, a carpenter's workshop with an order for four beds, a 4 × 4
  * stockpile that takes everything and a 4 × 4 farm plot. The variant `meeting` also zones a 3 × 3
