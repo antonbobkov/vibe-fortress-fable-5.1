@@ -17,7 +17,14 @@ Decisions:
 
 Spec: 24 § Announcements and the log (Shut in), `ui-screens/panels.md` § Military (the Thirsty and Hungry lines), 19 § Hearth alert retreat.
 
+## Decisions made while implementing
+
+- **One shut-in rule with T-770.** The rule holds while the locks hold the fortress in: under `hearth` while some door stands locked (as T-745 had it), under `watchful` while a `lock_on_alert` door the Hearth alert locked still holds (`locksHold` in `src/ui/shut-in.ts`), never under `calm`. A manual lock alone under Watch does not count: the line's "[m] [1] opens them" would not be true of it.
+- **"Still retreating" and "found nothing to serve the need" are one test.** Under both alerts a dwarf counts while its brain does not serve that need (`behavior` is not `need` with that need's activity) and it is not a patient (17 serves a patient in bed). Under Hearth a sheltering civilian whose need goes unserved is retreating, so T-745's case reads as before; a dwarf serving its other critical need now counts for the unserved one, which is what the line says. The two-checks-in-a-row rule is unchanged.
+- **Once per need in each Watch or Hearth alert.** `AlertChanged` already reset the watch; now only `calm` clears it in `check`, so Hearth then Watch may tell a need once in each.
+- **19's wording follows T-769.** 19 said the shut-in dwarves go without "until the alert is lowered"; since the lock holds through Watch it now says "until the alert returns to `calm`", and the FortressShutOut sentence says the player sets the alert back to Calm. The line's "[m] [1] opens them" already named Calm.
+
 ## Done
 
-- [ ] Tests (`describe` with the task id): the T-745 fortress with its drink outside the door, locked under Hearth and lowered to Watch, a civilian at critical thirst: the line shows once and the panel line shows; at Calm both go. With the lock not held (Calm → Watch) neither shows.
-- [ ] UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): the T-745 fortress with its drink outside the door, locked under Hearth and lowered to Watch, a civilian at critical thirst: the line shows once and the panel line shows; at Calm both go. With the lock not held (Calm → Watch) neither shows.
+- [x] UI only: no world hash moves.

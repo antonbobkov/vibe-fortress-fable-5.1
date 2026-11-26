@@ -789,8 +789,8 @@ export function drawMilitaryPanel(
       row += 1;
     }
   }
-  // 19 § Hearth alert retreat: the sheltering civilians the locked doors keep from their drink or food.
-  for (const need of currentAlert === 'hearth' ? SHUT_NEEDS : []) {
+  // 19 § Hearth alert retreat: the civilians the locked doors keep from their drink or food, under Hearth or Watch.
+  for (const need of SHUT_NEEDS) {
     const n = cutOff(ctx.readers, need).length;
     if (n === 0) continue;
     for (const line of wrapHang(ctx.strings.get(`ui.military.cut_off.${need}`, { n }), width, 2)) {
