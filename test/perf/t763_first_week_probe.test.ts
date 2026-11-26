@@ -15,6 +15,10 @@
  * talks; for each dwarf's first Miserable hour, its three strongest negative thoughts, traits and
  * social need.
  *
+ * T-782: `T763_TRACE=2` logs the bandage and carry jobs' events, with the medic's distance from the
+ * patient at the claim; `T763_TRACE=1` also each tenth of an hour the job's state, the patient's and the
+ * medic's places and doings, and every blow.
+ *
  * Local measurement only (`T763_PROBE=1`, `T763_SEEDS=a,b,c`, `T763_DAYS`, `T763_OUT`); not part of
  * `npm test`.
  */
@@ -31,6 +35,7 @@ import type { EntityId } from '@core/types';
 import { generate as generateWorld } from '@systems/worldgen';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
+import type { JobsReader } from '@systems/jobs';
 import type { MoraleReader } from '@systems/morale/reader';
 import { moodValue } from '@systems/morale/mood';
 import { NEED_PRESSURE_THOUGHTS } from '@systems/morale/standing';
@@ -201,6 +206,32 @@ function orderDayOne(w: TestWorld, meeting: boolean): string[] {
   return log;
 }
 
+/** T-782: `T763_TRACE=1` logs, every tenth of an hour, each bandage job and its medic when either changes. */
+const TRACE = process.env['T763_TRACE'] === '1';
+/** `T763_TRACE=2`: the bandage and carry jobs' events only, with the medic's distance from the patient at the claim. */
+const TRACE_EVENTS = TRACE || process.env['T763_TRACE'] === '2';
+const traceLast = new Map<string, string>();
+function traceCare(w: TestWorld, startTick: number, _out: string[]): void {
+  const jobs = w.readers.of<JobsReader>('11');
+  const e = w.game.world.entities;
+  const pos = (id: number): string => { const p = e.get(id, C.Position); return p === undefined ? '-' : `${p.x},${p.y},${p.z}`; };
+  for (const job of jobs.list()) {
+    const type = jobs.typeOf(job.id) ?? '';
+    if (type !== 'stop_bleeding' && type !== 'carry_patient') continue;
+    const patient = job.target.ref;
+    const body = e.get(patient, C.Body);
+    const m = job.workerId;
+    const brain = m === 0 ? undefined : e.get(m, C.Brain);
+    const worker = m === 0 ? undefined : e.get(m, C.Worker);
+    const inputs = job.inputs.map((i) => `${i.delivered.length}/${i.count} res[${i.reserved.join(',')}]`).join(' ');
+    const line = `${type} #${job.id} ${job.state}${job.blockedReason === null ? '' : `(${job.blockedReason})`} patient ${patient}@${pos(patient)} ${body?.conscious === false ? 'down' : 'up'} ${e.get(patient, C.Brain)?.behavior ?? ''}/${e.get(patient, C.Brain)?.activity ?? ''} blood ${body?.blood ?? '?'} wounds ${(body?.parts ?? []).flatMap((q) => q.wounds).filter((x) => x.bleed > 0 && !x.bandaged).map((x) => `${x.severity[0]}${x.bleed}`).join(',')} | medic ${m}@${m === 0 ? '-' : pos(m)} ${brain?.behavior ?? ''}/${brain?.activity ?? ''} wjob ${worker?.jobId ?? '-'} ph ${worker?.phase ?? '-'} carry ${worker?.carrying ?? '-'} | in ${inputs} stand ${String(job.data['standTile'] ?? '-')}`;
+    if (traceLast.get(job.key) === line) continue;
+    traceLast.set(job.key, line);
+    const t = w.tick - startTick;
+    console.log(`  t${t} h${(t / TICKS_PER_HOUR).toFixed(1)} ${line}`);
+  }
+}
+
 function run(seed: string, meeting: boolean, shift: number): RunResult {
   const site = siteRegion(seed);
   const w = new TestWorld({ seed, world: 'local', spec: site.spec, embark: 'default' });
@@ -223,6 +254,13 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
   w.game.world.onEvents((batch) => {
     for (const e of batch) {
       if (e.type === 'Talked') talks += 1;
+      if (TRACE_EVENTS && e.type.startsWith('Job') && /stop_bleeding|carry_patient/.test(String(e['key'] ?? e['jobType'] ?? ''))) {
+        const at = (id: number): { x: number; y: number; z: number } | undefined => w.game.world.entities.get(id, C.Position);
+        const a = at(e['workerId'] as number);
+        const b = at(e['target'] as number);
+        const d = a === undefined || b === undefined ? '' : ` dist ${Math.max(Math.abs(a.x - b.x), Math.abs(a.y - b.y))}/${a.z - b.z}`;
+        console.log(`  t${w.tick - startTick} h${((w.tick - startTick) / TICKS_PER_HOUR).toFixed(1)} ${e.type} ${String(e['jobType'])} #${String(e['jobId'])} ${String(e['reason'] ?? '')}${d}`);
+      }
       if (process.env['T763_DAMAGE'] === '1' && (e.type === 'WoundInflicted' || e.type === 'Fell' || e.type === 'AttackResolved' || e.type === 'ConstructionCollapsed' || e.type === 'BurnDamage')) {
         deaths.push(`ev day ${Math.floor((w.tick - startTick) / TICKS_PER_DAY) + 1} ${e.type} ${String(e['woundType'] ?? '')}/${String(e['severity'] ?? '')} on ${w.game.registry.table<{ id: string }>('creatures').byIndex(w.game.world.entities.get(e['id'] as number, C.Creature)?.species ?? -1)?.id ?? '?'}`);
       }
@@ -231,6 +269,7 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
         const def = w.game.world.entities.get(e['defenderId'] as number, C.Creature);
         const sp = (c: typeof att): string => (c === undefined ? 'none' : `${w.game.registry.table<{ id: string }>('creatures').byIndex(c.species)?.id ?? '?'}/${c.faction}`);
         deaths.push(`hit day ${Math.floor((w.tick - startTick) / TICKS_PER_DAY) + 1} ${sp(att)}>${sp(def)}`);
+        if (TRACE) console.log(`  t${w.tick - startTick} hit ${String(e['attackerId'])}@${(() => { const q = w.game.world.entities.get(e['attackerId'] as number, C.Position); return q === undefined ? '-' : `${q.x},${q.y},${q.z}`; })()} ${sp(att)} > ${String(e['defenderId'])} ${sp(def)}`);
       }
       if (e.type === 'CreatureDied' && e['faction'] === 'fortress') deaths.push(`day ${Math.floor((w.tick - startTick) / TICKS_PER_DAY) + 1} ${String(e['cause'])}${e['killerSpecies'] === undefined ? '' : ` by ${String(e['killerSpecies'])}`}`);
     }
@@ -243,7 +282,9 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
     const talksBefore = talks;
     let moodSum = 0;
     for (let hour = 0; hour < 24; hour += 1) {
-      w.step(TICKS_PER_HOUR);
+      if (TRACE) {
+        for (let k = 0; k < 10; k += 1) { w.step(TICKS_PER_HOUR / 10); traceCare(w, startTick, deaths); }
+      } else w.step(TICKS_PER_HOUR);
       for (const id of entities.with(C.Brain)) {
         if (!entities.alive(id) || !entities.has(id, C.Mood)) continue;
         const mood = morale.mood(id);

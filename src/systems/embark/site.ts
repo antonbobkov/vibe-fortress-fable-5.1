@@ -269,6 +269,50 @@ function reachedLayers(registry: Registry, spec: LocalMapSpec, soil: number): st
   return out;
 }
 
+/**
+ * The three essentials of a site (02 § What a site has and lacks): its surface soil (03 stage 3),
+ * its trees (stage 9: only on soil) and its surface water (stage 2's river and lake, stage 10's
+ * `gemsprings` springs, which lie on soil).
+ */
+interface Essentials {
+  readonly materials: string[];
+  readonly river: boolean;
+  readonly lake: boolean;
+  readonly springs: boolean;
+  readonly treeDensity: Fixed;
+  /** The tree species, the biome's by weight and then the riverbank's by a river; empty with no trees. */
+  readonly treeSpecies: string[];
+}
+
+function essentialsOf(spec: LocalMapSpec, registry: Registry, biome: BiomeRow): Essentials {
+  const materials = siteSoilMaterials(spec, registry);
+  const hasSoil = materials.length > 0;
+  const river = carvesRiver(spec);
+  const treeDensity = surfaceTreeDensity(spec.traits, biome);
+  const treeSpecies = hasSoil && treeDensity > 0 ? plantsOf(registry, 'tree', spec.biome) : [];
+  if (hasSoil && treeDensity > 0 && river) for (const id of plantsOf(registry, 'tree', 'riverbank')) if (!treeSpecies.includes(id)) treeSpecies.push(id);
+  return { materials, river, lake: carvesLake(spec), springs: hasSoil && spec.traits.includes('gemsprings'), treeDensity, treeSpecies };
+}
+
+/** The missing essentials of a site, in the summary's order. */
+function lacksOf(e: Essentials, spec: LocalMapSpec): SiteSummary['lacks'] {
+  const lacks: ('soil' | 'trees' | 'water')[] = [];
+  if (e.materials.length === 0) lacks.push('soil');
+  if (e.treeSpecies.length === 0) lacks.push('trees');
+  if (!(e.river && spec.river !== null) && !e.lake && !e.springs) lacks.push('water');
+  return lacks;
+}
+
+/**
+ * The site's missing essentials (02 § What a site has and lacks) without the rest of its summary: the
+ * world map asks it of many regions when it places its cursor (`ui-screens/menus-and-world.md` § World map).
+ */
+export function siteLacks(spec: LocalMapSpec, registry: Registry): SiteSummary['lacks'] {
+  const biome = registry.table<BiomeRow>('biomes').byId(spec.biome);
+  if (biome === undefined) throw new RangeError(`siteLacks: unknown biome ${spec.biome}`);
+  return lacksOf(essentialsOf(spec, registry, biome), spec);
+}
+
 /** The summary of one region's site, from its local map spec. */
 export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary {
   const biome = registry.table<BiomeRow>('biomes').byId(spec.biome);
@@ -276,25 +320,25 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
   const tiles = LOCAL_MAP_W * LOCAL_MAP_H;
   const glass = spec.traits.includes('glasslands');
   const serene = spec.traits.includes('serene_vale');
+  const essentials = essentialsOf(spec, registry, biome);
 
   // 03 stage 3: soil depth by biome (+2 serene_vale, loam only); glasslands lays obsidian instead.
   const depth = specSoilDepth(spec);
-  const materials = siteSoilMaterials(spec, registry);
+  const materials = essentials.materials;
   const hasSoil = materials.length > 0;
   const soil = hasSoil ? { depth, materials } : null;
 
   // 03 stage 9: trees and shrubs only on soil; grass on the soil that is left.
-  const river = carvesRiver(spec);
-  const treeDensity = surfaceTreeDensity(spec.traits, biome);
-  const treeSpecies = plantsOf(registry, 'tree', spec.biome);
-  if (river) for (const id of plantsOf(registry, 'tree', 'riverbank')) if (!treeSpecies.includes(id)) treeSpecies.push(id);
-  const trees = hasSoil && treeDensity > 0 && treeSpecies.length > 0
+  const river = essentials.river;
+  const treeDensity = essentials.treeDensity;
+  const treeSpecies = essentials.treeSpecies;
+  const trees = treeSpecies.length > 0
     ? { estimate: Math.round((treeDensity * tiles) / FIXED_SCALE), species: treeSpecies }
     : null;
   const shrubSpecies = hasSoil && biome.shrubDensity > 0 ? plantsOf(registry, 'shrub', spec.biome) : [];
   // 03 stage 10 conversions: the converted plants are listed after their kind's own species, and
   // the shrubs they add on open ground counted in.
-  const conversions = conversionsOf(registry, spec.biome, river || carvesLake(spec));
+  const conversions = conversionsOf(registry, spec.biome, river || essentials.lake);
   for (const c of conversions) if (c.kind === 'tree' && trees !== null && !treeSpecies.includes(c.id)) treeSpecies.push(c.id);
   const baseShrubs = shrubSpecies.length > 0 ? Math.round(((FIXED_SCALE - treeDensity) * biome.shrubDensity * tiles) / (FIXED_SCALE * FIXED_SCALE)) : 0;
   const bareSoil = hasSoil ? ((FIXED_SCALE - treeDensity) * (FIXED_SCALE - biome.shrubDensity) * tiles) / (FIXED_SCALE * FIXED_SCALE) : 0;
@@ -316,8 +360,8 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
   // 03 stage 2 (rivers, lakes) and stage 10 (gemsprings' springs, on dry surface soil).
   const water = {
     river: river && spec.river !== null ? { class: spec.river.class, inflow: spec.river.inflowEdges, outflow: spec.river.outflowEdge } : null,
-    lake: carvesLake(spec),
-    springs: hasSoil && spec.traits.includes('gemsprings'),
+    lake: essentials.lake,
+    springs: essentials.springs,
     freezes: winterC < FREEZE_C,
   };
 
@@ -349,10 +393,7 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
   // `frostmarrow` brings wild yaks (08 § Wild spawning, T-445).
   if (spec.traits.includes('frostmarrow') && creatures.byId(FROSTMARROW_YAK) !== undefined && !other.some(([id]) => id === FROSTMARROW_YAK)) other.push([FROSTMARROW_YAK, FROSTMARROW_YAK_WEIGHT]);
 
-  const lacks: ('soil' | 'trees' | 'water')[] = [];
-  if (soil === null) lacks.push('soil');
-  if (trees === null) lacks.push('trees');
-  if (water.river === null && !water.lake && !water.springs) lacks.push('water');
+  const lacks = lacksOf(essentials, spec);
 
   return {
     soil,

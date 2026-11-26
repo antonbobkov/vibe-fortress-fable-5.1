@@ -58,15 +58,14 @@ describe('T-779 the world map does not start on a site that freezes from the fir
     expect(start(world(new Map([[near, FROZEN], [far, FROZEN]])))).toBe(near);
   });
 
-  it('on probe-5 it starts beside the alpine site T-765 measured, on the cold steppe', () => {
+  it('on probe-5 it does not start on the alpine site T-765 measured', () => {
     const w = generate('probe-5', WORLD_SIZE_STANDARD, registry);
     // The centre of the 64 × 64 standard world.
     expect(Math.floor(w.size / 2) * (w.size + 1)).toBe(2080);
     expect(w.regions[2080]?.biome).toBe('alpine');
     expect(arrival(w, 2080)).toBe(true);
     const region = start(w);
-    expect(region).toBe(2015);
-    expect(w.regions[region]?.biome).toBe('cold_steppe');
-    expect(siteFrostbite(localMapSpec(w, region, registry), registry)).toMatchObject({ season: 3, arrival: false });
+    expect(region).not.toBe(2080);
+    expect(arrival(w, region)).toBe(false);
   });
 });
