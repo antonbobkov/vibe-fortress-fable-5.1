@@ -1,0 +1,534 @@
+year length 112
+d7 pop 7 ents 138 items 162 ms/day 540
+d14 pop 7 ents 167 items 195 ms/day 501
+d21 pop 7 ents 232 items 260 ms/day 552
+d28 pop 7 ents 255 items 290 ms/day 669
+d35 pop 9 ents 283 items 324 ms/day 1113
+d42 pop 9 ents 330 items 597 ms/day 1135
+d49 pop 9 ents 343 items 397 ms/day 939
+d56 pop 9 ents 371 items 432 ms/day 939
+d63 pop 11 ents 390 items 635 ms/day 1197
+d70 pop 11 ents 373 items 446 ms/day 947
+d77 pop 11 ents 399 items 505 ms/day 1727
+d84 pop 11 ents 400 items 487 ms/day 836
+d91 pop 13 ents 403 items 502 ms/day 1278
+d98 pop 13 ents 392 items 503 ms/day 1537
+d105 pop 13 ents 384 items 509 ms/day 1569
+d112 pop 13 ents 359 items 499 ms/day 1414
+d119 pop 22 ents 369 items 538 ms/day 1628
+d126 pop 22 ents 394 items 632 ms/day 2016
+d133 pop 22 ents 377 items 549 ms/day 2160
+d140 pop 22 ents 381 items 554 ms/day 2290
+d147 pop 22 ents 440 items 626 ms/day 2241
+d154 pop 22 ents 428 items 643 ms/day 2349
+d161 pop 22 ents 467 items 614 ms/day 2425
+d168 pop 22 ents 471 items 652 ms/day 2068
+d175 pop 34 ents 461 items 689 ms/day 2877
+d182 pop 34 ents 521 items 749 ms/day 3083
+d189 pop 32 ents 610 items 835 ms/day 3109
+d196 pop 32 ents 621 items 875 ms/day 3252
+d203 pop 38 ents 630 items 928 ms/day 3032
+d210 pop 38 ents 643 items 917 ms/day 2661
+d217 pop 38 ents 618 items 906 ms/day 2909
+d224 pop 38 ents 614 items 904 ms/day 3117
+d231 pop 50 ents 555 items 1035 ms/day 3200
+d238 pop 50 ents 526 items 828 ms/day 3205
+d245 pop 50 ents 526 items 880 ms/day 2918
+d252 pop 50 ents 600 items 943 ms/day 4116
+d259 pop 50 ents 582 items 1024 ms/day 3357
+d266 pop 50 ents 714 items 1160 ms/day 3380
+d273 pop 50 ents 774 items 1911 ms/day 3767
+d280 pop 48 ents 767 items 1257 ms/day 3572
+d287 pop 60 ents 930 items 1490 ms/day 3853
+d294 pop 60 ents 946 items 1503 ms/day 3856
+d301 pop 60 ents 971 items 1551 ms/day 3484
+d308 pop 60 ents 959 items 1572 ms/day 3300
+d315 pop 66 ents 943 items 1567 ms/day 2902
+d322 pop 66 ents 922 items 1461 ms/day 2927
+d329 pop 66 ents 905 items 1462 ms/day 2900
+d336 pop 66 ents 899 items 1434 ms/day 3156
+d343 pop 78 ents 727 items 1296 ms/day 3642
+d350 pop 77 ents 746 items 1269 ms/day 4904
+d357 pop 77 ents 747 items 1287 ms/day 4502
+d364 pop 77 ents 831 items 1454 ms/day 7607
+d371 pop 77 ents 847 items 1461 ms/day 4599
+d378 pop 77 ents 966 items 2287 ms/day 5027
+d385 pop 77 ents 876 items 1547 ms/day 3454
+d392 pop 77 ents 821 items 1524 ms/day 3293
+d399 pop 80 ents 992 items 1725 ms/day 4238
+d406 pop 80 ents 975 items 1719 ms/day 3973
+d413 pop 80 ents 955 items 1697 ms/day 4007
+d420 pop 80 ents 914 items 1693 ms/day 4230
+d427 pop 80 ents 892 items 1604 ms/day 4476
+d434 pop 80 ents 895 items 1520 ms/day 4926
+d441 pop 79 ents 886 items 1520 ms/day 7283
+d448 pop 79 ents 859 items 1486 ms/day 3919
+d455 pop 79 ents 713 items 1259 ms/day 4763
+d462 pop 79 ents 727 items 1316 ms/day 4645
+d469 pop 77 ents 713 items 1290 ms/day 10224
+d476 pop 77 ents 756 items 1392 ms/day 4085
+d483 pop 80 ents 814 items 1512 ms/day 5136
+d490 pop 79 ents 915 items 1615 ms/day 5256
+d497 pop 79 ents 962 items 2431 ms/day 5155
+d504 pop 79 ents 884 items 1625 ms/day 4052
+d511 pop 79 ents 1089 items 1830 ms/day 3742
+d518 pop 79 ents 1040 items 1799 ms/day 3978
+d525 pop 79 ents 1019 items 1761 ms/day 3462
+d532 pop 79 ents 1006 items 1774 ms/day 4122
+d539 pop 80 ents 993 items 1711 ms/day 3667
+d546 pop 80 ents 1003 items 1643 ms/day 4314
+d553 pop 80 ents 1000 items 1633 ms/day 4229
+d560 pop 80 ents 975 items 1577 ms/day 5861
+d567 pop 80 ents 844 items 1440 ms/day 6521
+d574 pop 80 ents 853 items 1792 ms/day 6142
+d581 pop 80 ents 828 items 1408 ms/day 5511
+d588 pop 80 ents 940 items 1554 ms/day 5860
+d595 pop 80 ents 1015 items 1639 ms/day 5981
+d602 pop 80 ents 1095 items 1711 ms/day 7761
+d609 pop 78 ents 1068 items 1740 ms/day 5422
+d616 pop 78 ents 1031 items 1747 ms/day 5850
+d623 pop 80 ents 1111 items 1871 ms/day 5265
+d630 pop 80 ents 1197 items 1968 ms/day 4328
+d637 pop 80 ents 1193 items 2592 ms/day 6275
+d644 pop 79 ents 1144 items 1917 ms/day 5899
+d651 pop 80 ents 1148 items 1850 ms/day 5891
+d658 pop 80 ents 1170 items 1891 ms/day 6001
+d665 pop 80 ents 1149 items 1817 ms/day 6403
+d672 pop 80 ents 1116 items 1718 ms/day 6839
+
+d1 TitleAssigned {"dwarfId":16777283,"title":"broker","previousId":0}
+d1 TreeFelled {"tile":78355,"species":"oak"}
+
+d1 TitleAssigned {"dwarfId":16777283,"title":"broker","previousId":0}
+d21 CavernBreached {"cavern":1,"tile":51285}
+d29 WhimSet {"thaneId":16777285,"whimId":"whim_fine_meal"}
+d29 ImmigrantsArrived {"ids":[251658443,16777667],"count":2,"children":0,"guaranteed":true}
+d32 RaidArrived {"partyId":184549634,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d32 ThiefSpotted {"id":251658431}
+d32 RaidEnded {"partyId":184549634,"outcome":"withdrew"}
+d41 CaravanArrived {"civ":"hillfolk","merchants":[184549623,83886431],"guards":[117440810,16777765,16777770,16777775],"animals":[16777780,16777781,16777782,16777783],"partyId":184549483}
+d41 CaravanAtDepot {"civ":"hillfolk","partyId":184549483,"depotId":50331871}
+d43 TradeCompleted {"civ":"hillfolk","givenValue":3.2,"receivedValue":2.4}
+d46 CaravanDeparted {"civ":"hillfolk","boughtValue":2.4,"soldValue":3.2,"reason":"completed"}
+d57 WhimJudged {"thaneId":16777285,"whimId":"whim_fine_meal","met":false}
+d57 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d57 ImmigrantsArrived {"ids":[117441063,117440884],"count":2,"children":0,"guaranteed":true}
+d63 CaravanArrived {"civ":"wildwood","merchants":[150995676,150995411],"guards":[50332365,50332360,50332355,50332350],"animals":[50332345,50332344,50332343,50332342,50332341],"partyId":184549859}
+d63 CaravanAtDepot {"civ":"wildwood","partyId":184549859,"depotId":50331871}
+d65 TradeCompleted {"civ":"wildwood","givenValue":21.400000000000002,"receivedValue":18}
+d66 RaidArrived {"partyId":16778064,"kind":"bandits","size":3,"tile":71424,"edge":"n"}
+d66 CreatureDied fortress 14 dog cause=bled_out killer=hillfolk_bandit
+d66 CreatureDied hostile:hillfolk 28 hillfolk_bandit cause=killed killer=dog
+d66 RaidEnded {"partyId":16778064,"outcome":"repelled"}
+d66 CreatureDied fortress 14 dog cause=bled_out killer=
+d68 CaravanDeparted {"civ":"wildwood","boughtValue":18,"soldValue":21.400000000000002,"reason":"completed"}
+d73 RaidArrived {"partyId":318767541,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d73 ThiefSpotted {"id":184550159}
+d73 RaidEnded {"partyId":318767541,"outcome":"withdrew"}
+d76 AmbushSprung {"partyId":117441299}
+d76 CreatureDied fortress 14 dog cause=bled_out killer=gloam_archer
+d76 CreatureDied fortress 14 dog cause=bled_out killer=gloam_archer
+d76 CreatureDied hostile:gloam 22 gloam_archer cause=bled_out killer=
+d78 RaidEnded {"partyId":117441299,"outcome":"looted"}
+d85 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d85 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d85 ImmigrantsArrived {"ids":[83886394,117441275],"count":2,"children":0,"guaranteed":false}
+d113 RaidArrived {"partyId":117440888,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d113 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d113 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d113 ThiefSpotted {"id":150995459}
+d113 RaidEnded {"partyId":117440888,"outcome":"withdrew"}
+d113 ImmigrantsArrived {"ids":[251658770,184549891,218103918,352321754,150995647,83886660,486539993,83886669,83886678],"count":9,"children":1,"guaranteed":false}
+d120 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"band","edge":"n"}
+d121 RaidArrived {"partyId":620757431,"kind":"raid","size":10,"tile":71424,"edge":"n"}
+d123 RaidEnded {"partyId":620757431,"outcome":"looted"}
+d124 CaravanArrived {"civ":"mountainhome","merchants":[218104498,150994975,184550064],"guards":[184550062,184550063,50332512,117441191],"animals":[117441186,117441179,117441184,117441183,117441182,117441181],"partyId":52
+d124 CaravanAtDepot {"civ":"mountainhome","partyId":520093821,"depotId":50331871}
+d126 TradeCompleted {"civ":"mountainhome","givenValue":1336.3999999999999,"receivedValue":1153.2}
+d129 CaravanDeparted {"civ":"mountainhome","boughtValue":1153.2,"soldValue":1336.3999999999999,"reason":"completed"}
+d141 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d141 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d141 ImmigrationSkipped {"reason":"luck"}
+d148 RaidArrived {"partyId":184550020,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d148 ThiefSpotted {"id":150995644}
+d148 RaidEnded {"partyId":184550020,"outcome":"withdrew"}
+d156 CaravanArrived {"civ":"hillfolk","merchants":[184550037,218103993,352322449],"guards":[352322129,16778143,16778148,16778153],"animals":[16778158,16778159,16778160,16778161,16778162,16778163,16778164],"partyId":45298
+d156 CaravanAtDepot {"civ":"hillfolk","partyId":452985733,"depotId":50331871}
+d158 TradeCompleted {"civ":"hillfolk","givenValue":662,"receivedValue":574.8000000000001}
+d161 CaravanDeparted {"civ":"hillfolk","boughtValue":574.8000000000001,"soldValue":662,"reason":"completed"}
+d169 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d169 WhimSet {"thaneId":16777285,"whimId":"whim_fine_meal"}
+d169 ImmigrantsArrived {"ids":[184549673,184549611,150995083,285213589,50332972,352321913,50332966,50332955,50332950,50332944,251658556,50332937],"count":12,"children":1,"guaranteed":false}
+d170 TitleAssigned {"dwarfId":50332944,"title":"warden","previousId":0}
+d183 CaravanArrived {"civ":"wildwood","merchants":[352322218,218104435],"guards":[50332863,50332856,50332841,50332836],"animals":[50332831,50332830,50332829,50332828,50332827,50332826,50332825,50332824],"partyId":1509963
+d183 CaravanAtDepot {"civ":"wildwood","partyId":150996311,"depotId":50331871}
+d184 AmbushSprung {"partyId":184550726}
+d184 CaravanAttacked {"civ":"wildwood","partyId":150996311}
+d184 PatientAdmitted {"id":50332950,"hospitalTier":0}
+d184 CreatureDied hostile:gloam 22 gloam_archer cause=killed killer=Asgeir Hawkhall
+d184 CreatureDied fortress 15 Orm Elkfoot cause=killed killer=gloam_warrior
+d184 CaravanDeparted {"civ":"wildwood","boughtValue":0,"soldValue":0,"reason":"completed"}
+d184 PatientAdmitted {"id":150995083,"hospitalTier":0}
+d184 CreatureDied fortress 15 Jorund Boarstair cause=bled_out killer=gloam_warrior
+d184 CreatureDied hostile:gloam 25 gloam_warrior cause=bled_out killer=
+d184 RaidEnded {"partyId":184550726,"outcome":"repelled"}
+d192 RaidArrived {"partyId":83887270,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d192 ThiefSpotted {"id":83887269}
+d192 RaidEnded {"partyId":83887270,"outcome":"withdrew"}
+d196 Buried {"dwarfId":150995083,"coffinId":83887260,"tombTier":1}
+d197 WhimJudged {"thaneId":16777285,"whimId":"whim_fine_meal","met":true}
+d197 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d197 ImmigrantsArrived {"ids":[687866361,218105078,553648807,117442015,452985406,50333148],"count":6,"children":0,"guaranteed":false}
+d197 Buried {"dwarfId":50332950,"coffinId":83887261,"tombTier":1}
+d225 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d225 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d225 ImmigrantsArrived {"ids":[654312071,620757124,452985712,721420655,620758535,352322835,553649321,620757158,587203202,754975584,620757663,318767827],"count":12,"children":0,"guaranteed":false}
+d229 CaravanArrived {"civ":"mountainhome","merchants":[587204115,352322410,385876152],"guards":[184550677,50333059,50333053,50333048],"animals":[50333043,50333042,50333041,50333040,50333039,50333038,50333037,50333036,503
+d229 CaravanAtDepot {"civ":"mountainhome","partyId":587203261,"depotId":50331871}
+d231 TradeCompleted {"civ":"mountainhome","givenValue":900.8999999999997,"receivedValue":782.28}
+d234 CaravanDeparted {"civ":"mountainhome","boughtValue":782.28,"soldValue":900.8999999999997,"reason":"completed"}
+d241 RaidArrived {"partyId":150996276,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d241 ThiefSpotted {"id":117441822}
+d241 RaidEnded {"partyId":150996276,"outcome":"withdrew"}
+d249 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"horde","edge":"n"}
+d250 RaidArrived {"partyId":251659234,"kind":"raid","size":16,"tile":71424,"edge":"n"}
+d252 RaidEnded {"partyId":251659234,"outcome":"looted"}
+d253 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d253 WhimSet {"thaneId":16777285,"whimId":"whim_fine_meal"}
+d253 ImmigrationSkipped {"reason":"luck"}
+d270 CaravanArrived {"civ":"hillfolk","merchants":[16778899,16778900,16778901],"guards":[16778902,16778907,16778912,16778917],"animals":[16778922,16778923,16778924,16778925,16778926,16778927,16778928,16778929,16778930,16
+d270 CaravanAtDepot {"civ":"hillfolk","partyId":754975998,"depotId":50331871}
+d272 TradeCompleted {"civ":"hillfolk","givenValue":339,"receivedValue":295.2}
+d275 AmbushSprung {"partyId":83888496}
+d275 PatientAdmitted {"id":16777286,"hospitalTier":0}
+d275 CaravanAttacked {"civ":"hillfolk","partyId":754975998}
+d275 PatientAdmitted {"id":754975584,"hospitalTier":2}
+d275 CreatureDied fortress 15 Marr Thundermantle cause=killed killer=gloam_warrior
+d275 CreatureDied hostile:gloam 22 gloam_archer cause=killed killer=human
+d275 CaravanDeparted {"civ":"hillfolk","boughtValue":295.2,"soldValue":339,"reason":"completed"}
+d275 CreatureDied hostile:gloam 22 gloam_archer cause=bled_out killer=
+d275 CreatureDied fortress 15 Rannveig Elkfell cause=bled_out killer=
+d277 RaidEnded {"partyId":83888496,"outcome":"looted"}
+d278 Buried {"dwarfId":754975584,"coffinId":83887262,"tombTier":1}
+d281 WhimJudged {"thaneId":16777285,"whimId":"whim_fine_meal","met":true}
+d281 WhimSet {"thaneId":16777285,"whimId":"whim_fine_meal"}
+d281 ImmigrantsArrived {"ids":[520093852,117442942,318768162,285213655,721420409,251659189,1023410954,150997436,419431728,150997429,117442957,587204048],"count":12,"children":3,"guaranteed":false}
+d283 Buried {"dwarfId":16777286,"coffinId":50334153,"tombTier":1}
+d286 RaidArrived {"partyId":117442164,"kind":"bandits","size":5,"tile":71424,"edge":"n"}
+d286 CreatureDied hostile:hillfolk 28 hillfolk_bandit cause=bled_out killer=Vigga Goldspark
+d286 RaidEnded {"partyId":117442164,"outcome":"repelled"}
+d288 CaravanArrived {"civ":"wildwood","merchants":[318768775,184551050],"guards":[117442124,452985952,452985858,385877047],"animals":[184550450,150997247,184551773,419431564,150997238,251659584,50333934,50333933,50333932
+d288 CaravanAtDepot {"civ":"wildwood","partyId":150997241,"depotId":50331871}
+d290 TradeCompleted {"civ":"wildwood","givenValue":122.5,"receivedValue":105.6}
+d290 RaidArrived {"partyId":184551813,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d290 ThiefSpotted {"id":285214339}
+d290 RaidEnded {"partyId":184551813,"outcome":"withdrew"}
+d290 PatientAdmitted {"id":83886394,"hospitalTier":0}
+d293 CaravanDeparted {"civ":"wildwood","boughtValue":105.6,"soldValue":122.5,"reason":"completed"}
+d309 WhimJudged {"thaneId":16777285,"whimId":"whim_fine_meal","met":true}
+d309 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d309 ImmigrantsArrived {"ids":[452985988,553649305,318769506,218105176,83887846,83887851],"count":6,"children":2,"guaranteed":false}
+d337 RaidArrived {"partyId":318769618,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d337 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d337 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d337 ThiefSpotted {"id":788530162}
+d337 RaidEnded {"partyId":318769618,"outcome":"withdrew"}
+d337 ImmigrantsArrived {"ids":[956302286,419432887,754975445,620759403,452985791,754975720,620758728,520094831,352322626,654312957,754976862,419431430],"count":12,"children":0,"guaranteed":false}
+d346 CaravanArrived {"civ":"mountainhome","merchants":[385877307,587204889],"guards":[452986480,352324035,520095325,1358956050],"animals":[855638331,654312644,452985950,1358955164,1392510336,587203839,486541621,352322603
+d346 CaravanAtDepot {"civ":"mountainhome","partyId":956301336,"depotId":50331871}
+d348 TradeCompleted {"civ":"mountainhome","givenValue":503.0999999999995,"receivedValue":438.72000000000014}
+d349 AmbushSprung {"partyId":889194055}
+d349 PatientAdmitted {"id":50332966,"hospitalTier":0}
+d349 CreatureDied hostile:gloam 22 gloam_archer cause=bled_out killer=Oddvar Hollowward
+d349 CreatureDied hostile:gloam 25 gloam_warrior cause=bled_out killer=Oddvar Hollowward
+d349 CaravanAttacked {"civ":"mountainhome","partyId":956301336}
+d349 CreatureDied hostile:gloam 25 gloam_warrior cause=bled_out killer=Oddvar Hollowward
+d349 RaidEnded {"partyId":889194055,"outcome":"repelled"}
+d349 CaravanDeparted {"civ":"mountainhome","boughtValue":438.72000000000014,"soldValue":503.0999999999995,"reason":"completed"}
+d349 CreatureDied fortress 15 Oddvar Hollowward cause=bled_out killer=
+d350 Buried {"dwarfId":50332966,"coffinId":117442968,"tombTier":1}
+d362 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"horde","edge":"n"}
+d363 RaidArrived {"partyId":452985853,"kind":"raid","size":16,"tile":71424,"edge":"n"}
+d365 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d365 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d365 RaidEnded {"partyId":452985853,"outcome":"looted"}
+d366 ImmigrationSkipped {"reason":"spirit"}
+d375 CaravanArrived {"civ":"hillfolk","merchants":[520096176,1023410914,620758777],"guards":[352322853,822084199,989856851,452987159],"animals":[587204972,452987128,1023410547,285214975,855638676,620758005,553649202,4529
+d375 CaravanAtDepot {"civ":"hillfolk","partyId":1157629572,"depotId":50331871}
+d377 TradeCompleted {"civ":"hillfolk","givenValue":171.99999999999997,"receivedValue":148.8000000000001}
+d380 CaravanDeparted {"civ":"hillfolk","boughtValue":148.8000000000001,"soldValue":171.99999999999997,"reason":"completed"}
+d389 RaidArrived {"partyId":654312380,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d389 ThiefSpotted {"id":1224737757}
+d389 RaidEnded {"partyId":654312380,"outcome":"withdrew"}
+d393 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d393 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d393 ImmigrantsArrived {"ids":[620758336,385878826,1023410587],"count":3,"children":0,"guaranteed":false}
+d407 CaravanArrived {"civ":"wildwood","merchants":[654314285,251661083],"guards":[889194070,1426063977,520096546,1224738429],"animals":[251659377,1124074587,553649183,285213710,419431313,352322392,419431215,285213442,419
+d407 CaravanAtDepot {"civ":"wildwood","partyId":486540916,"depotId":50331871}
+d409 TradeCompleted {"civ":"wildwood","givenValue":383.39999999999975,"receivedValue":333.83999999999986}
+d412 CaravanDeparted {"civ":"wildwood","boughtValue":333.83999999999986,"soldValue":383.39999999999975,"reason":"completed"}
+d421 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d421 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d421 ImmigrationSkipped {"reason":"cap"}
+d426 RaidArrived {"partyId":822085250,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d426 ThiefSpotted {"id":989858623}
+d426 RaidEnded {"partyId":822085250,"outcome":"withdrew"}
+d436 CreatureDied wild 49 wolf cause=killed killer=Liv Bronzestair
+d439 CreatureDied wild 49 wolf cause=killed killer=Liv Bronzestair
+d441 RaidArrived {"partyId":2097152919,"kind":"bandits","size":5,"tile":71424,"edge":"n"}
+d441 CreatureDied fortress 6 cat cause=killed killer=hillfolk_bandit
+d441 PatientAdmitted {"id":83886669,"hospitalTier":0}
+d441 CreatureDied fortress 15 Jorunn Coalheart cause=killed killer=hillfolk_bandit
+d441 RaidEnded {"partyId":2097152919,"outcome":"looted"}
+d442 Buried {"dwarfId":83886669,"coffinId":822085274,"tombTier":1}
+d443 CreatureDied wild 49 wolf cause=killed killer=Asgeir Hawkhall
+d443 CreatureDied wild 49 wolf cause=killed killer=Asgeir Hawkhall
+d449 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d449 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d449 ImmigrationSkipped {"reason":"luck"}
+d464 CaravanArrived {"civ":"mountainhome","merchants":[1627391059,889193166],"guards":[687868764,855640098,1728054316,385878883],"animals":[788531492,620759856,1191184763,1526727094,721421861,520096533,989858182,92274814
+d464 CaravanAtDepot {"civ":"mountainhome","partyId":1392510325,"depotId":50331871}
+d466 TradeCompleted {"civ":"mountainhome","givenValue":118.5,"receivedValue":102.72}
+d466 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"horde","edge":"n"}
+d467 RaidArrived {"partyId":1124074867,"kind":"raid","size":16,"tile":71424,"edge":"n"}
+d469 RaidEnded {"partyId":1124074867,"outcome":"looted"}
+d469 CaravanDeparted {"civ":"mountainhome","boughtValue":102.72,"soldValue":118.5,"reason":"completed"}
+d469 AmbushSprung {"partyId":956302992}
+d469 PatientAdmitted {"id":620757124,"hospitalTier":0}
+d469 CreatureDied hostile:gloam 22 gloam_archer cause=killed killer=Liv Bronzestair
+d469 PatientAdmitted {"id":184549673,"hospitalTier":0}
+d469 CreatureDied hostile:gloam 25 gloam_warrior cause=bled_out killer=Vigga Goldspark
+d469 PatientAdmitted {"id":184549891,"hospitalTier":0}
+d469 PatientAdmitted {"id":385878826,"hospitalTier":0}
+d469 PatientAdmitted {"id":553648807,"hospitalTier":0}
+d469 PatientAdmitted {"id":620757124,"hospitalTier":0}
+d469 PatientAdmitted {"id":117442957,"hospitalTier":0}
+d469 PatientAdmitted {"id":184549673,"hospitalTier":0}
+d469 PatientAdmitted {"id":452985988,"hospitalTier":0}
+d469 CreatureDied hostile:gloam 25 gloam_warrior cause=bled_out killer=Kettil Frosthammer
+d469 RaidEnded {"partyId":956302992,"outcome":"looted"}
+d469 CreatureDied fortress 15 Frida Hawkstair cause=bled_out killer=
+d469 CreatureDied fortress 15 Borin Mossmark cause=bled_out killer=
+d470 Buried {"dwarfId":452985988,"coffinId":1157630104,"tombTier":1}
+d473 PatientAdmitted {"id":184549673,"hospitalTier":2}
+d473 Buried {"dwarfId":184549891,"coffinId":452987585,"tombTier":1}
+d476 RaidArrived {"partyId":486540111,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d476 ThiefSpotted {"id":1090520720}
+d476 RaidEnded {"partyId":486540111,"outcome":"withdrew"}
+d477 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d477 WhimSet {"thaneId":16777285,"whimId":"whim_fine_meal"}
+d477 ImmigrantsArrived {"ids":[989857062,654311939,922746970],"count":3,"children":0,"guaranteed":false}
+d488 CreatureDied fortress 15 Gyda Hearthwall cause=infection killer=
+d488 Buried {"dwarfId":184549673,"coffinId":1090520963,"tombTier":1}
+d494 CaravanArrived {"civ":"hillfolk","merchants":[687866765,989856867,2298479036],"guards":[452987315,855640445,251659990,1056966063],"animals":[620757961,721420998,989856374,754975268,922747305,822083949,721420414,7549
+d494 CaravanAtDepot {"civ":"hillfolk","partyId":855640312,"depotId":50331871}
+d496 TradeCompleted {"civ":"hillfolk","givenValue":56.4,"receivedValue":48}
+d499 CaravanDeparted {"civ":"hillfolk","boughtValue":48,"soldValue":56.4,"reason":"completed"}
+d505 WhimJudged {"thaneId":16777285,"whimId":"whim_fine_meal","met":true}
+d505 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d505 ImmigrationSkipped {"reason":"luck"}
+d520 CaravanArrived {"civ":"wildwood","merchants":[1962935056,1291846073],"guards":[1191183988,822085919,1023411773,1895825662],"animals":[956303110,1761608549,352323993,117443519,1358955144,1392510589,1124075269,2516612
+d520 CaravanAtDepot {"civ":"wildwood","partyId":687866967,"depotId":50331871}
+d522 TradeCompleted {"civ":"wildwood","givenValue":57.599999999999994,"receivedValue":49.2}
+d523 RaidArrived {"partyId":1895826159,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d523 ThiefSpotted {"id":587205569}
+d523 RaidEnded {"partyId":1895826159,"outcome":"withdrew"}
+d525 CaravanDeparted {"civ":"wildwood","boughtValue":49.2,"soldValue":57.599999999999994,"reason":"completed"}
+d533 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d533 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d533 ImmigrantsArrived {"ids":[520093959],"count":1,"children":0,"guaranteed":false}
+d557 AmbushSprung {"partyId":1459619714}
+d557 PatientAdmitted {"id":16777281,"hospitalTier":2}
+d559 RaidEnded {"partyId":1459619714,"outcome":"looted"}
+d561 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":false}
+d561 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d561 ImmigrationSkipped {"reason":"cap"}
+d572 CaravanArrived {"civ":"mountainhome","merchants":[1358956215,2097152869],"guards":[1493174557,1426064404,2097153673,1426065355],"animals":[1056965924,1124075298,1358956194,1392509056,1560282812,754975314,1157629900,
+d572 CaravanAtDepot {"civ":"mountainhome","partyId":1392511295,"depotId":50331871}
+d574 TradeCompleted {"civ":"mountainhome","givenValue":128.70000000000002,"receivedValue":111.6}
+d575 RaidArrived {"partyId":1258294044,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d575 ThiefSpotted {"id":1660946058}
+d575 RaidEnded {"partyId":1258294044,"outcome":"withdrew"}
+d577 CaravanDeparted {"civ":"mountainhome","boughtValue":111.6,"soldValue":128.70000000000002,"reason":"completed"}
+d589 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":true}
+d589 WhimSet {"thaneId":16777285,"whimId":"whim_fine_meal"}
+d589 ImmigrationSkipped {"reason":"cap"}
+d597 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"horde","edge":"n"}
+d597 CaravanArrived {"civ":"hillfolk","merchants":[1694501718,721421425],"guards":[553651167,1828718275,1090521899,385878174],"animals":[1660946705,318769255,553651061,1325402372,553649854,1593836392,1392510584,922748048
+d597 CaravanAtDepot {"civ":"hillfolk","partyId":1392510649,"depotId":50331871}
+d598 RaidArrived {"partyId":16780328,"kind":"raid","size":16,"tile":71424,"edge":"n"}
+d600 RaidEnded {"partyId":16780328,"outcome":"looted"}
+d601 TradeCompleted {"civ":"hillfolk","givenValue":15,"receivedValue":12.96}
+d602 CaravanDeparted {"civ":"hillfolk","boughtValue":12.96,"soldValue":15,"reason":"completed"}
+d603 PatientAdmitted {"id":922746970,"hospitalTier":2}
+d603 CreatureDied wild 49 wolf cause=killed killer=Liv Bronzestair
+d604 CreatureDied fortress 15 Kettil Deepstair cause=bled_out killer=
+d605 Buried {"dwarfId":922746970,"coffinId":1761610174,"tombTier":1}
+d606 CreatureDied wild 49 wolf cause=killed killer=Liv Bronzestair
+d608 PatientAdmitted {"id":754975720,"hospitalTier":0}
+d608 CreatureDied wild 49 wolf cause=killed killer=Liv Bronzestair
+d608 CreatureDied fortress 15 Rurik Deepcrown cause=bled_out killer=
+d609 Buried {"dwarfId":754975720,"coffinId":419432924,"tombTier":1}
+d610 CreatureDied wild 49 wolf cause=bled_out killer=Thora Ravenward
+d617 WhimJudged {"thaneId":16777285,"whimId":"whim_fine_meal","met":true}
+d617 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d617 ImmigrantsArrived {"ids":[1291847494,1895825815],"count":2,"children":0,"guaranteed":false}
+d624 RaidArrived {"partyId":1728055530,"kind":"thief","size":1,"tile":71424,"edge":"n"}
+d624 ThiefSpotted {"id":855639834}
+d624 RaidEnded {"partyId":1728055530,"outcome":"withdrew"}
+d626 RaidArrived {"partyId":352323627,"kind":"bandits","size":5,"tile":71424,"edge":"n"}
+d628 RaidEnded {"partyId":352323627,"outcome":"looted"}
+d634 CaravanArrived {"civ":"wildwood","merchants":[1694500358,822085795],"guards":[2332034131,1493175113,1157628619,1962935879],"animals":[1358954586,419433525,2197815753,385878061,1593836202,1392510763,1660945897,285214
+d634 CaravanAtDepot {"civ":"wildwood","partyId":2701132318,"depotId":50331871}
+d636 TradeCompleted {"civ":"wildwood","givenValue":107.10000000000001,"receivedValue":93.6}
+d639 AmbushSprung {"partyId":1325401889}
+d639 PatientAdmitted {"id":218103918,"hospitalTier":0}
+d639 CaravanDeparted {"civ":"wildwood","boughtValue":93.6,"soldValue":107.10000000000001,"reason":"completed"}
+d639 PatientAdmitted {"id":251658770,"hospitalTier":0}
+d639 CreatureDied fortress 15 Ymir Flinttongue cause=bled_out killer=gloam_warrior
+d639 CreatureDied hostile:gloam 25 gloam_warrior cause=killed killer=Vigga Goldspark
+d639 CreatureDied hostile:gloam 25 gloam_warrior cause=killed killer=Inga Brighthelm
+d639 CreatureDied hostile:gloam 25 gloam_warrior cause=killed killer=Asgeir Hawkhall
+d639 RaidEnded {"partyId":1325401889,"outcome":"repelled"}
+d640 Buried {"dwarfId":218103918,"coffinId":352324604,"tombTier":1}
+d645 WhimJudged {"thaneId":16777285,"whimId":"whim_spirits","met":true}
+d645 WhimSet {"thaneId":16777285,"whimId":"whim_spirits"}
+d645 ImmigrantsArrived {"ids":[1493173697],"count":1,"children":0,"guaranteed":false}
+
+{
+ "ZoneChanged": 81,
+ "JobCreated": 31189,
+ "StocksChanged": 61791,
+ "FluidsChanged": 25551,
+ "TilesChanged": 5936,
+ "EntitiesMoved": 743573,
+ "TemperatureTick": 80574,
+ "TitleAssigned": 2,
+ "JobStarted": 29986,
+ "ItemReleased": 14796,
+ "JobCompleted": 28688,
+ "ItemReserved": 26920,
+ "JobClaimed": 32201,
+ "ToolEquipped": 61,
+ "HourPassed": 16114,
+ "StockpileFull": 906,
+ "DwarfIdle": 15600,
+ "JobUnblocked": 3270,
+ "JobBlocked": 3793,
+ "TilesDiscovered": 1815,
+ "BuildingPlaced": 148,
+ "ItemCreated": 26129,
+ "TreeFelled": 157,
+ "CropPlanted": 4894,
+ "Slept": 44664,
+ "JobCancelled": 2790,
+ "DayPassed": 671,
+ "PlotNeedsSeeds": 137,
+ "WebSpun": 1981,
+ "ItemDestroyed": 60391,
+ "DrankAlcohol": 22079,
+ "Talked": 24952,
+ "BuildingCompleted": 148,
+ "MoodTierChanged": 99928,
+ "MealEaten": 13970,
+ "WeatherChanged": 763,
+ "DwarfOutdoorsIn": 23104,
+ "GrassRegrown": 330,
+ "ItemCrafted": 6157,
+ "NeedCritical": 8868,
+ "HallSpiritChanged": 949,
+ "SkillLevelUp": 1069,
+ "AnimalSpawned": 375,
+ "RoomQualityChanged": 47,
+ "WorkshopBlocked": 1134,
+ "WealthChanged": 5060,
+ "WorkOrderCompleted": 53,
+ "ItemRotStage": 8815,
+ "GrassGrazed": 1322,
+ "RoomAssigned": 61,
+ "LightningStrike": 69,
+ "FireStarted": 54,
+ "FireOut": 88,
+ "MineralMined": 499,
+ "VeinFound": 17,
+ "WorkOrderSkipped": 63,
+ "CropHarvested": 4744,
+ "CreatureFled": 220,
+ "AnimalLeft": 345,
+ "CavernBreached": 1,
+ "MonsterSpawned": 12,
+ "AnimalTrained": 4,
+ "BuildingStateChanged": 710,
+ "SeasonChanged": 23,
+ "SeasonEffectsChanged": 23,
+ "WhimSet": 23,
+ "PetAdopted": 1,
+ "ImmigrantsArrived": 15,
+ "HearthLit": 1,
+ "ThoughtGained": 269,
+ "Sat": 25356,
+ "HearthVisited": 21571,
+ "RaidArrived": 23,
+ "HostileSpawned": 150,
+ "ThiefSpotted": 14,
+ "ThreatNearby": 1796,
+ "RaidEnded": 30,
+ "BuildingRemoved": 9,
+ "CaravanArrived": 17,
+ "ProductReady": 2,
+ "CaravanAtDepot": 17,
+ "ItemRotted": 2513,
+ "MiasmaSpread": 1131,
+ "ReputationChanged": 33,
+ "TradeCompleted": 16,
+ "AnimalStarving": 37,
+ "DamageDealt": 323,
+ "AttackResolved": 674,
+ "WoundInflicted": 302,
+ "AnimalBorn": 2,
+ "CaravanDeparted": 17,
+ "DepotGoodsReturned": 13,
+ "WhimJudged": 22,
+ "AlertChanged": 58,
+ "SquadOrderIssued": 246,
+ "LimbLost": 23,
+ "CreatureUnconscious": 35,
+ "CreatureDied": 41,
+ "CorpseCreated": 41,
+ "KillRecorded": 30,
+ "HostileFled": 8,
+ "AmbushSprung": 7,
+ "ProjectileFired": 118,
+ "Starving": 92,
+ "ThiefEscaped": 73,
+ "TileFrozen": 8648,
+ "CropDied": 22,
+ "SnowCoverChanged": 267,
+ "TileThawed": 8648,
+ "YearPassed": 5,
+ "ThreatWarning": 5,
+ "SaplingGrew": 52,
+ "ToolDropped": 20,
+ "ImmigrationSkipped": 8,
+ "FireSpread": 44,
+ "WorkshopIdle": 17,
+ "TrainingSession": 1713,
+ "CaravanAttacked": 3,
+ "PatientAdmitted": 22,
+ "Buried": 12,
+ "ShrubRegrown": 11,
+ "ObsidianFormed": 149,
+ "MistProduced": 5,
+ "ItemMerged": 230,
+ "HuntStarted": 9,
+ "HuntKill": 5,
+ "HuntAbandoned": 6,
+ "TreatmentDone": 28,
+ "CreatureConscious": 2,
+ "PatientDischarged": 10,
+ "DwarfBecameAdult": 1,
+ "PatientHealed": 16,
+ "AlertLocksCleared": 14,
+ "InfectionStarted": 1,
+ "CreatureSubmerged": 2
+}
