@@ -2261,8 +2261,11 @@ export class FortressScreen implements Screen {
     this.commit(this.tool.anchor, p);
   }
 
-  /** "`Esc` cancels the current tool, then closes the panel, then opens the game menu." */
-  private cancel(): void {
+  /**
+   * "`Esc` cancels the current tool, then closes the panel, then opens the game menu"; with `menu`
+   * false (the `Esc` that dismisses a danger line) the last step is left out.
+   */
+  private cancel(menu = true): void {
     // The Esc chain of 24 § Input model, innermost first: a modal editor, then a rectangle in
     // progress, then the selection, then the tool, then the panel, then the game menu.
     if (this.orders.materialOpen) { this.orders.materialOpen = false; return; }
@@ -2329,7 +2332,7 @@ export class FortressScreen implements Screen {
         this.ui.mark = null;
         return;
       }
-      this.host.gameMenu?.();
+      if (menu) this.host.gameMenu?.();
   }
 
   private undoDesignation(): void {
@@ -2386,23 +2389,35 @@ export class FortressScreen implements Screen {
       this.stocks.toggleDepot(this.ctx);
       return true;
     }
-    // "the strip shows the line until dismissed by any key; the key then acts, but Space and Esc
-    // only dismiss": a player who presses Space to read the line does not unpause by it.
+    // "the strip shows the line until dismissed by any key; the key then acts", but the pause key
+    // only dismisses: a player who presses Space to read the line does not unpause by it. The
+    // cancel key backs out as it always does, so `Esc` and then a letter still reaches any panel
+    // (a Military panel left open would take `1` and `t` as its alert and mode keys), but it opens
+    // no game menu (24 § Announcements and the log).
     const dismissed = this.pinned !== null;
     if (dismissed) {
       this.pinned = null;
-      if (this.dismissOnly(press)) return true;
+      if (this.pauseKey(press)) return true;
+      if (this.cancelKey(press)) {
+        this.cancel(false);
+        return true;
+      }
     }
     // The order picker is a text field too: letters are its type-ahead filter, digits its quantity.
     if (this.ui.panel === 'orders' && this.orders.picker.open && !this.orders.materialOpen && this.orders.key(this.ctx, press)) return true;
     return this.keyOwn(press, own) || dismissed;
   }
 
-  /** `Space` and `Esc`, or whatever key pauses or cancels: after a danger line they only dismiss it (24 § Announcements and the log). */
-  private dismissOnly(press: KeyPress): boolean {
-    if (['Space', ' ', 'Esc', 'Escape'].includes(press.key)) return true;
-    const global = this.keymap.resolve('global', press);
-    return global !== null && (global.id === 'pause' || global.id === 'cancel');
+  /** `Space`, or whatever key pauses: after a danger line it only dismisses it (24 § Announcements and the log). */
+  private pauseKey(press: KeyPress): boolean {
+    if (['Space', ' '].includes(press.key)) return true;
+    return this.keymap.resolve('global', press)?.id === 'pause';
+  }
+
+  /** `Esc`, or whatever key cancels. */
+  private cancelKey(press: KeyPress): boolean {
+    if (['Esc', 'Escape'].includes(press.key)) return true;
+    return this.keymap.resolve('global', press)?.id === 'cancel';
   }
 
   /** The keys after the text fields: `press` as it was for the global, panel-letter and map keys, `own` for the panels'. */

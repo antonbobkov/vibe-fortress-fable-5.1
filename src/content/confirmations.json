@@ -148,5 +148,15 @@
     "id": "c_first_ignite",
     "text": "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out.",
     "default": "no"
+  },
+  {
+    "id": "c_lower_alert",
+    "text": "{threat}. Lower the alert to {level}?",
+    "default": "no"
+  },
+  {
+    "id": "c_lower_alert_coming",
+    "text": "{threat} Lower the alert to {level}?",
+    "default": "no"
   }
 ]

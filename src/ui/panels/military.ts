@@ -19,7 +19,10 @@ import type { CombatReader, SquadWithId } from '@systems/combat';
 import { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { captionButtons, clampList, label, Marks, separator, table, type ListState } from '../widgets';
-import { accel, type PanelContext } from './context';
+import { accel, confirmThen, type PanelContext } from './context';
+import type { ThreatsReader } from '@systems/threats';
+import { visibleThreatParties } from './threats';
+import { comingText, partyActiveText } from '../raid-lines';
 import type { KeyPress } from '@platform/input';
 import type { FortressHost } from '../screens/fortress';
 import { creaturesAt } from './look';
@@ -165,6 +168,25 @@ export function squadOrdersText(ctx: PanelContext, squad: Pick<SquadWithId, 'ord
   const whom = follow[follow.length - 1];
   if (whom !== undefined) parts.push(ctx.strings.get('ui.military.orders_follow', { dwarf: shortDwarfName(ctx.readers.entities.get(whom, C.Creature)?.name ?? '') }));
   return parts.join('; ');
+}
+
+const ALERT_RANK: Readonly<Record<Alert, number>> = { calm: 0, watchful: 1, hearth: 2 };
+
+/**
+ * The question lowering the alert from `from` to `to` asks first, or null when it asks none
+ * (`ui-screens/panels.md` § Military): lowering it while a hostile party is on the map (one the
+ * Threats panel's Active line shows), or from Hearth while a warning has announced one coming.
+ * The question names the party as the Threats panel does. Raising the alert never asks.
+ */
+export function lowerAlertQuestion(ctx: PanelContext, from: Alert, to: Alert): { readonly id: string; readonly params: Readonly<Record<string, string>> } | null {
+  if (ALERT_RANK[to] >= ALERT_RANK[from] || !ctx.readers.has('18')) return null;
+  const threats = ctx.readers.of<ThreatsReader>('18');
+  const level = ctx.strings.get(`ui.military.alert_level.${to}`);
+  const party = visibleThreatParties(threats).map((id) => threats.party(id)).find((p) => p !== undefined);
+  if (party !== undefined) return { id: 'c_lower_alert', params: { level, threat: partyActiveText(ctx.strings, ctx.registry, ctx.readers, party) } };
+  const coming = from === 'hearth' ? threats.coming()[0] : undefined;
+  if (coming !== undefined) return { id: 'c_lower_alert_coming', params: { level, threat: comingText(ctx.strings, ctx.registry, coming, ctx.readers.calendar.tick) } };
+  return null;
 }
 
 /**
@@ -535,6 +557,15 @@ export class MilitaryPanel {
     return true;
   }
 
+  /** Set the alert, asking first when {@link lowerAlertQuestion} has a question. */
+  setAlert(ctx: PanelContext, level: Alert, submit: (cmd: Command) => void): void {
+    const from: Alert = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16').alert() : 'calm';
+    const cmd: Command = { type: 'SetAlert', level };
+    const ask = lowerAlertQuestion(ctx, from, level);
+    if (ask === null) submit(cmd);
+    else confirmThen(ctx, ask.id, ask.params, () => submit(cmd));
+  }
+
   key(ctx: PanelContext, press: KeyPress, host?: FortressHost): boolean {
     if (press.ctrl || press.alt || press.meta) return false;
     const k = press.key;
@@ -580,10 +611,12 @@ export class MilitaryPanel {
       return true;
     }
 
-    // Alert setting keys: 1 (calm), 2 (watchful), 3 or h (hearth)
-    if (k === '1') return submit({ type: 'SetAlert', level: 'calm' });
-    if (k === '2') return submit({ type: 'SetAlert', level: 'watchful' });
-    if (k === '3' || letter === 'h') return submit({ type: 'SetAlert', level: 'hearth' });
+    // Alert setting keys: 1 (calm), 2 (watchful), 3 or h (hearth); lowering it under a threat asks first.
+    const level: Alert | null = k === '1' ? 'calm' : k === '2' ? 'watchful' : k === '3' || letter === 'h' ? 'hearth' : null;
+    if (level !== null) {
+      this.setAlert(ctx, level, (cmd) => { submit(cmd); });
+      return true;
+    }
 
     // New squad / disband
     if (k === '+') {
@@ -654,9 +687,9 @@ export function drawMilitaryPanel(
   label(s, col, row, alertStr, { fg: currentAlert === 'hearth' ? t.danger : currentAlert === 'watchful' ? t.alert : t.good, width });
   row += 1;
   captionButtons(s, col, row, ctx.strings.get('ui.military.alert_keys'), [
-    () => ctx.submit({ type: 'SetAlert', level: 'calm' }),
-    () => ctx.submit({ type: 'SetAlert', level: 'watchful' }),
-    () => ctx.submit({ type: 'SetAlert', level: 'hearth' }),
+    () => panel.setAlert(ctx, 'calm', (cmd) => ctx.submit(cmd)),
+    () => panel.setAlert(ctx, 'watchful', (cmd) => ctx.submit(cmd)),
+    () => panel.setAlert(ctx, 'hearth', (cmd) => ctx.submit(cmd)),
   ], { width });
   row += 1;
   // One line says what the current alert does, and under Calm who does not work; it wraps whole.

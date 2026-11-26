@@ -1515,6 +1515,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.help.start.6': '6. Home: order beds, place them [b], draw a Bedroom over each. A hearth [b > Special] makes a hall where dwarves sit and talk; [e] Mood says what they miss.',
   'ui.help.start.7': '7. Safety: a door on your hall set to Lock on alert, and a squad [m] with iron spears.',
   'ui.help.start.8': '8. Space pauses. [?] opens this help.',
+  'ui.help.global.danger': 'A red line pinned to the log: any key dismisses it and acts; Space only dismisses; Esc also backs out of a tool or panel, but opens no game menu.',
+  'ui.help.military.alert': 'Lowering the alert asks first while a hostile party is on the map (from Hearth, also while one is coming); raising it never asks.',
   'ui.help.accelerators': 'letter  in a panel its own letters come first; Esc, then a letter, opens another panel',
   'ui.help.orders.picker': 'letters filter · digits quantity · Tab field · ←→ change',
   // T-673: the wheel over the map; Settings › Wheel up goes chooses its way.
