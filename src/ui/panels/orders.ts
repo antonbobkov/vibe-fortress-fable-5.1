@@ -26,7 +26,7 @@ import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
 import { jobLabor, jobWait } from '../job-wait';
-import { buildingName, capitalize, clothInStock, inputLack, itemName, jobBlockText, keepCounts, lackHeld, lackText, matchName, materialKept, outOfReach, waitingFor, whereMade, withArticle, workshopBlockText, wrapHang, wrapText } from '../messages';
+import { buildingName, capitalize, clothInStock, inputLack, itemName, jobBlockText, keepCounts, lackHeld, lackText, matchName, materialKept, outOfReach, waitingFor, whereMade, withArticle, workshopBlockText, wrapHang, wrapText, zoneName } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -1002,7 +1002,10 @@ export class OrdersPanel {
   }
   /** One order as a list row: "×5 Door · waiting for log (0)". */
   rowText(ctx: PanelContext, row: OrderRow): string {
-    const recipe = this.recipeName(ctx, row.kind === 'done' ? row.done.recipeId : row.entry.order.recipe);
+    const name = this.recipeName(ctx, row.kind === 'done' ? row.done.recipeId : row.entry.order.recipe);
+    // 12 § Work orders, Coffins for a tomb: a tomb's standing coffin order names its tomb.
+    const zoneId = row.kind === 'done' ? undefined : row.entry.order.forZoneId;
+    const recipe = zoneId === undefined ? name : ctx.strings.get('ui.orders.for_zone', { recipe: name, zone: zoneName(ctx, zoneId) });
     return ctx.strings.get('ui.orders.row', { qty: this.quantityText(ctx, row), recipe, status: this.status(ctx, row).short });
   }
 }
