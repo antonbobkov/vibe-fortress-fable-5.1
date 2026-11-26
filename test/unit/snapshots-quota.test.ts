@@ -150,7 +150,7 @@ describe('T-M8-03 import validation messages', () => {
     await game.importSave();
 
     // The load screen now has an error message
-    expect(loadScreen.message).toContain('bad magic');
+    expect(loadScreen.message).toBe('Import failed: this file is not a Deepholm save');
   });
 });
 

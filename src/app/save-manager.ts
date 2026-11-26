@@ -89,24 +89,47 @@ export interface SaveHeader {
   readonly end?: SaveEnd;
 }
 
-export class SaveFormatError extends Error {
-  constructor(message: string) {
+/**
+ * An error the player may be shown (the Load screen, an import): its words are the strings key
+ * `key` filled with `params` (`ui.load.error.*`, `persistence.md` § Failure handling). Its message
+ * is for the console and the tests, in the code's own words.
+ */
+export class WordedError extends Error {
+  readonly key: string;
+  readonly params: Readonly<Record<string, string | number>>;
+
+  constructor(message: string, key: string, params: Readonly<Record<string, string | number>> = {}) {
     super(message);
+    this.key = key;
+    this.params = params;
+  }
+}
+
+/** A container that cannot be read: by default "the save is damaged" (`ui.load.error.damaged`). */
+export class SaveFormatError extends WordedError {
+  constructor(message: string, key = 'ui.load.error.damaged', params: Readonly<Record<string, string | number>> = {}) {
+    super(message, key, params);
     this.name = 'SaveFormatError';
   }
 }
 
 /** `save-format.md` § Load procedure step 1: refused if `formatVersion > supported`. */
-export class SaveVersionError extends Error {
+export class SaveVersionError extends WordedError {
   readonly found: number;
   readonly supported: number;
 
   constructor(found: number, supported: number) {
-    super(`this save needs a newer game version (save format ${found}, this build reads ${supported})`);
+    super(`this save needs a newer game version (save format ${found}, this build reads ${supported})`, 'ui.load.error.newer', { found, supported });
     this.name = 'SaveVersionError';
     this.found = found;
     this.supported = supported;
   }
+}
+
+/** The words of an error the Load screen or an import shows: a {@link WordedError}'s key, or the message of any other. */
+export function errorWords(strings: { get(key: string, params?: Readonly<Record<string, string | number>>): string }, error: unknown): string {
+  if (error instanceof WordedError) return strings.get(error.key, error.params);
+  return error instanceof Error ? error.message : String(error);
 }
 
 const encoder = new TextEncoder();
@@ -248,10 +271,10 @@ export async function writeSave(
  * touched, so the Load screen can list saves without inflating them.
  */
 export function readSaveHeader(blob: Uint8Array): SaveHeader {
-  if (blob.byteLength < 16) throw new SaveFormatError('not a Deepholm save: too short');
+  if (blob.byteLength < 16) throw new SaveFormatError('not a Deepholm save: too short', 'ui.load.error.not_a_save');
   const view = new DataView(blob.buffer, blob.byteOffset, blob.byteLength);
   if (decoder.decode(blob.subarray(0, 4)) !== SAVE_MAGIC) {
-    throw new SaveFormatError('not a Deepholm save: bad magic');
+    throw new SaveFormatError('not a Deepholm save: bad magic', 'ui.load.error.not_a_save');
   }
   const formatVersion = view.getUint32(4, true);
   if (formatVersion > SAVE_FORMAT_VERSION) throw new SaveVersionError(formatVersion, SAVE_FORMAT_VERSION);

@@ -15,7 +15,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import { patternCell } from '@render/things';
-import { agedMaterial, buildingName, enchantedName, filterText, itemRotText, materialItemName, qualityWord, wrapHang, zoneName } from '../messages';
+import { agedMaterial, buildingName, categoryWord, enchantedName, filterText, itemRotText, materialItemName, qualityWord, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import { creatureName, creatureNameOf } from '../creature-name';
 import { goodsWaiting, goodsWaitText } from '../goods-wait';
@@ -954,14 +954,14 @@ export function heldSpans(readers: ReaderSet, registry: Registry, strings: Strin
   return [{ text: strings.get((rec.flags & ItemFlag.Installed) !== 0 ? 'ui.look.item.installed' : 'ui.look.item.nowhere') }];
 }
 
-/** The item view's first line: "Furniture · common · 10 ☼", "Drink · ×20 · 40 ☼". */
+/** The item view's first line: "Furniture · common · 10 ☼", "Drink · ×20 · 40 ☼"; the top category is its `ui.item.category.<top>` word, capitalized. */
 export function itemSummary(readers: ReaderSet, strings: Strings, id: EntityId): string {
   const it = readers.of<ItemsReader>('13');
   const rec = it.get(id);
   if (rec === undefined) return '';
   const def = it.def(rec.type);
   const top = it.categoryOf(rec.type).split('/')[0] ?? '';
-  const parts = [capitalize(top.replace(/_/g, ' '))];
+  const parts = [capitalize(categoryWord(strings, top))];
   if (def?.quality === true) parts.push(qualityWord(strings, rec.quality));
   if (rec.count > 1) parts.push(strings.get('ui.look.item.count', { n: rec.count }));
   parts.push(strings.get('ui.look.item.value', { value: it.value(id) }));
