@@ -614,7 +614,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Announcements
 
-`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines of one need are one (`announce.starving_many`; thirst's lines are `announce.thirsting` and `announce.thirsting_many`), and so are a day's falls to Miserable (`announce.mood_tier_many`, 15 § Registrations) and a thought many dwarves gain in one tick (`announce.thought_pair`, `announce.thought_many`); the alert before food rots is `announce.rot_soon` (24 § Announcements and the log), and the alert of the unburied dead is `announce.unburied`, `.few` or `.free` by the free coffins (15 § Registrations). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations). The once-per-alert line of sheltering dwarves locked away from their drink or their food is `announce.shut_in.thirst` or `announce.shut_in.hunger` (19 § Hearth alert retreat).
+`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines of one need are one (`announce.starving_many`; thirst's lines are `announce.thirsting` and `announce.thirsting_many`), and so are a day's falls to Miserable (`announce.mood_tier_many`, 15 § Registrations) and a thought many dwarves gain in one tick (`announce.thought_pair`, `announce.thought_many`); the alert before food rots is `announce.rot_soon` (24 § Announcements and the log), and the alert of the unburied dead is `announce.unburied`, `.few` or `.free` by the free coffins (15 § Registrations). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), a title holder's names its titles (`announce.titled_name`) and the alert under it says they are vacant (`announce.title_vacated_died`, `_many`; 24 § Announcements and the log), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations). The once-per-alert line of sheltering dwarves locked away from their drink or their food is `announce.shut_in.thirst` or `announce.shut_in.hunger` (19 § Hearth alert retreat).
 
 ### Announcement strings
 
@@ -629,6 +629,10 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.trade_completed` | "A trade with the {civ} is complete." |
 | `announce.title_assigned` | "{dwarf} is now the {title}." |
 | `announce.title_vacated` | "{dwarf} is no longer the {title}." |
+| `announce.title_vacated_died` | "{dwarf} was the {titles}. The title is vacant: [u] [t] names another." |
+| `announce.title_vacated_died_many` | "{dwarf} was the {titles}. The titles are vacant: [u] [t] names others." |
+| `announce.titled_name` | "{name}, {titles}," |
+| `announce.the_title` | "the {title}" |
 | `announce.trade_missed` | "The {civ} caravan is leaving without trading. {why}" |
 | `announce.depot_goods_returned` | "{count\|good\|goods} taken back from {depot}." |
 | `announce.immigrants_arrived` | "{count} dwarves have come to join the hall, {children\|of them a child\|of them children}." |

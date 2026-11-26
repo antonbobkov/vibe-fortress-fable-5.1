@@ -114,6 +114,17 @@ interface Engagement {
   last: number;
 }
 
+/** A fortress dwarf's death line, for the titles its death vacates (`announceTitleVacated`; not saved). */
+interface DeathRecord {
+  readonly line: LogLine;
+  readonly key: string;
+  readonly params: Readonly<Record<string, string | number>>;
+  readonly tick: number;
+  readonly name: string;
+  readonly titles: string[];
+  vacated?: LogLine;
+}
+
 /** A reason on the miserable line: a negative thought's text and its weight (its value, made positive). */
 interface Reason {
   readonly text: string;
@@ -153,6 +164,8 @@ export class AnnouncementLog {
   private readonly thoughtLines = new Map<string, { line: LogLine; tick: number; ids: number[]; names: string[] }>();
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
   private readonly partyTiles = new Map<number, TileIndex>();
+  /** The fortress dwarves whose death lines came within the day, by id (`rememberDeath`; not saved). */
+  private readonly deaths = new Map<number, DeathRecord>();
   /** The standing alerts' templates as patterns (`templateOf`). */
   private readonly templates = new Map<string, RegExp>();
 
@@ -500,6 +513,9 @@ export class AnnouncementLog {
     if (event.type === 'KillRecorded' && typeof fields['victimId'] === 'number' && this.killsTold.delete(fields['victimId'])) return null;
     if (event.type === 'AlertChanged') this.shutIn.reset();
     if (event.type === 'HourPassed') return this.announceShutIn(readers, tick);
+    // 10 § Titles: the titles a dwarf's death vacates are told with its death.
+    const dead = event.type === 'TitleAssigned' && fields['dwarfId'] === 0 && typeof fields['previousId'] === 'number' ? this.deaths.get(fields['previousId']) : undefined;
+    if (dead !== undefined) return this.announceTitleVacated(fields, dead, tick);
     // Completion/removal must clear suppression even when the event has no announcement.
     const finished = event.type === 'JobCompleted' && fields['jobType'] === 'craft' ? fields['target']
       : event.type === 'BuildingRemoved' ? fields['id'] : undefined;
@@ -574,7 +590,44 @@ export class AnnouncementLog {
     if (event.type === 'AttackResolved' && fields['outcome'] === 'hit' && fields['amount'] === 0) {
       return this.done(this.append(severity, this.strings.get('announce.attack_harmless', params), tick, focus, category, 'announce.attack_harmless'));
     }
-    return this.appendStanding(severity, text, tick, focus, category, key);
+    const done = this.appendStanding(severity, text, tick, focus, category, key);
+    if (dwarfDeath && typeof creatureId === 'number') this.rememberDeath(creatureId, done.line, key, params, tick);
+    return done;
+  }
+
+  /** A fortress dwarf's death line, kept a day for the titles its death vacates (`announceTitlesVacated`). */
+  private rememberDeath(id: number, line: LogLine, key: string, params: Record<string, string | number>, tick: number): void {
+    for (const [dead, record] of this.deaths) if (tick - record.tick > TICKS_PER_DAY) this.deaths.delete(dead);
+    this.deaths.set(id, { line, key, params, tick, name: String(params['dwarf'] ?? params['name'] ?? ''), titles: [] });
+  }
+
+  /**
+   * 10 § Titles: a title holder's death vacates its titles (`TitleAssigned { dwarfId: 0, previousId }`
+   * after its `CreatureDied`). The death line names the titles ("Jorund Saltvein, Thane, has bled to
+   * death."), and one alert per death says they are vacant and how to fill them ("Jorund Saltvein was
+   * the Thane and the Broker. The titles are vacant: [u] [t] names others."). The first title opens
+   * the alert; each later one changes both lines in place and returns null.
+   */
+  private announceTitleVacated(fields: Record<string, unknown>, record: DeathRecord, tick: number): Announced | null {
+    const title = String(fields['title'] ?? '');
+    const word = this.strings.has(`ui.title.${title}`) ? this.strings.get(`ui.title.${title}`) : title.replace(/_/g, ' ');
+    if (!record.titles.includes(word)) record.titles.push(word);
+    const listed = (words: readonly string[]): string => words.length === 1 ? words[0] as string
+      : this.strings.get('announce.list_and', { list: words.slice(0, -1).join(', '), last: words[words.length - 1] as string });
+    // "Thane and Broker" after the name; "the Thane and the Broker" after "was".
+    const titled = this.strings.get('announce.titled_name', { name: record.name, titles: listed(record.titles) });
+    const death = this.strings.get(record.key, { ...record.params, name: titled, dwarf: titled });
+    record.line.text = capitalize(death);
+    const the = record.titles.map((t, k) => k === 0 ? t : this.strings.get('announce.the_title', { title: t }));
+    const said = this.say(record.titles.length === 1 ? 'announce.title_vacated_died' : 'announce.title_vacated_died_many', { dwarf: record.name, titles: listed(the) });
+    if (record.vacated !== undefined && this.lines.includes(record.vacated)) {
+      record.vacated.text = capitalize(said.text);
+      record.vacated.key = said.key;
+      record.vacated.tick = tick;
+      return null;
+    }
+    record.vacated = this.append('alert', said.text, tick, record.line.focus, undefined, said.key);
+    return this.done(record.vacated);
   }
 
   private done(line: LogLine): Announced {

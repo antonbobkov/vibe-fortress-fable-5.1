@@ -627,7 +627,12 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         if (this.threatened.get(dwarfId)?.hostileId === id) this.threatened.delete(dwarfId);
       }
       this.seedTitles();
-      for (const title of TITLES) if (this.titles[title] === id) this.titles[title] = 0;
+      // § Titles: a holder's death vacates each title it held, as a vacate does, with the event.
+      for (const title of TITLES) {
+        if (this.titles[title] !== id) continue;
+        this.titles[title] = 0;
+        ctx.emit({ type: 'TitleAssigned', dwarfId: 0, title, previousId: id });
+      }
       this.activities.cancel(ctx, id);
       this.activities.forget(id);
       this.idleAnnounced.delete(id);
