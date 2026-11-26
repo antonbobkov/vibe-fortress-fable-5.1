@@ -2606,6 +2606,11 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   // 16 § Combat log: the fortress's engagement line, refreshed while its blows come.
   'announce.engagement.one': '{ours} is fighting {foes}.',
   'announce.engagement.many': '{ours} are fighting {foes}.',
+  // 16 § Combat log: a cavern or Deep foe fighting in the halls, a danger line.
+  'announce.engagement.halls.one_one': '{foes} is in the halls! {ours} is fighting it.',
+  'announce.engagement.halls.one_many': '{foes} is in the halls! {ours} are fighting it.',
+  'announce.engagement.halls.many_one': '{foes} are in the halls! {ours} is fighting them.',
+  'announce.engagement.halls.many_many': '{foes} are in the halls! {ours} are fighting them.',
   'announce.alert_changed': 'The fortress alert is now {to}.',
   'announce.kill_recorded': '{killer} has slain {victim}.',
   // 18 Threats announcements

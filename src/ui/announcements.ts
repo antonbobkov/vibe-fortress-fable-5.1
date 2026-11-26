@@ -21,7 +21,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { AnimalsReader } from '@systems/animals';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
-import { TICKS_PER_DAY } from '@core/constants';
+import { CAVERN_1_Z_MAX, CAVERN_1_Z_MIN, CAVERN_2_Z_MAX, CAVERN_2_Z_MIN, CAVERN_3_Z_MAX, CAVERN_3_Z_MIN, TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, LOG_STANDING_ALERTS, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
@@ -104,6 +104,8 @@ interface Fighter {
   readonly id: number;
   readonly species: number;
   readonly name: string;
+  /** A cavern monster (`hostile:cavern`) or a creature of the Deep. */
+  readonly deep: boolean;
 }
 
 /** The fortress's open engagement (16 § Combat log): its line, who has fought in it on each side, and its last blow. */
@@ -112,6 +114,8 @@ interface Engagement {
   readonly ours: Fighter[];
   readonly foes: Fighter[];
   last: number;
+  /** A cavern or Deep foe has fought in the halls: the line is a danger line in the halls' words. */
+  halls: boolean;
 }
 
 /** A fortress dwarf's death line, for the titles its death vacates (`announceTitleVacated`; not saved). */
@@ -641,8 +645,11 @@ export class AnnouncementLog {
    * place of the latest blow, and it keeps its place in the log. A foe is a raider or a creature of
    * the Deep, a wild animal that attacks, or anything that strikes a fortress creature (a fortress
    * creature hunting a deer is no engagement). The engagement ends when no blow of it has come for
-   * `LOG_ENGAGEMENT_TICKS`. Returns the line it opened; null when it refreshed one or the blow is
-   * none of the fortress's.
+   * `LOG_ENGAGEMENT_TICKS`. A cavern monster or a creature of the Deep fighting in the halls
+   * ({@link inHalls}) makes it a danger line in the halls' words, with the Calm tail ("A blind stalker
+   * is in the halls! 3 dwarves are fighting it. The alert is Calm: …"); an open alert turns into one
+   * at the first such blow. Returns the line it opened or turned; null when it refreshed one or the
+   * blow is none of the fortress's.
    */
   engage(event: GameEvent, readers: ReaderSet, tick: number): Announced | null {
     if (event.type !== 'AttackResolved') return null;
@@ -679,31 +686,45 @@ export class AnnouncementLog {
       return null;
     }
     const focus = focusOf({ type: 'AttackResolved', defenderId: defender, attackerId: attacker } as unknown as GameEvent, readers);
-    const fight: Engagement = open ?? { line: { tick, severity: 'alert', text: '', count: 1 }, ours: [], foes: [], last: tick };
+    const fight: Engagement = open ?? { line: { tick, severity: 'alert', text: '', count: 1 }, ours: [], foes: [], last: tick, halls: false };
     this.enlist(fight.ours, ours, readers);
     this.enlist(fight.foes, foe, readers);
     fight.last = tick;
-    const said = this.engagementText(fight);
-    const text = capitalize(said.text);
+    // A cavern or Deep foe fighting in the halls makes the line a danger line; an open alert turns into one once.
+    const toHalls = !fight.halls && fight.foes.some((f) => f.deep) && inHalls(readers, focus);
+    if (toHalls) fight.halls = true;
+    const said = fight.halls ? this.hallsText(fight) : this.engagementText(fight);
+    const tail = fight.halls ? calmTail(this.strings, readers) : null;
+    const text = tail === null ? capitalize(said.text) : `${capitalize(said.text)} ${tail}`;
     if (open !== null) {
       open.line.text = text;
       open.line.key = said.key;
       open.line.tick = tick;
       if (focus !== undefined) open.line.focus = focus;
       open.line.subject = foe;
-      return null;
+      if (!toHalls) return null;
+      open.line.severity = 'danger';
+      return this.done(open.line);
     }
-    const line = this.append('alert', text, tick, focus, 'combat', said.key);
+    const line = this.append(fight.halls ? 'danger' : 'alert', text, tick, focus, 'combat', said.key);
     line.subject = foe;
-    this.engagement = { line, ours: fight.ours, foes: fight.foes, last: tick };
+    this.engagement = { line, ours: fight.ours, foes: fight.foes, last: tick, halls: fight.halls };
     return this.done(line);
+  }
+
+  /** "A blind stalker is in the halls! 3 dwarves are fighting it.", "2 cave crawlers are in the halls! Asa Forgehall is fighting them." */
+  private hallsText(fight: Engagement): Said {
+    const foes = this.fightersText(fight.foes);
+    const ours = capitalize(this.fightersText(fight.ours));
+    const many = (side: readonly Fighter[]): string => side.length === 1 ? 'one' : 'many';
+    return this.say(`announce.engagement.halls.${many(fight.foes)}_${many(fight.ours)}`, { ours, foes });
   }
 
   private enlist(side: Fighter[], id: number, readers: ReaderSet): void {
     if (side.some((f) => f.id === id)) return;
     const creature = readers.entities.get(id, C.Creature);
     if (creature === undefined) return;
-    side.push({ id, species: creature.species, name: creature.name });
+    side.push({ id, species: creature.species, name: creature.name, deep: creature.faction === 'hostile:cavern' || creature.faction === 'deep' });
   }
 
   /** "Halvar Ironfell is fighting a wolf.", "4 dwarves and a dog are fighting 9 gloam warriors and a gloam captain." */
@@ -1272,6 +1293,21 @@ export function creatureWords(strings: Strings, registry: Registry, name: string
 export function killerWords(strings: Strings, registry: Registry, name: string | undefined, species: number | undefined): string {
   if (species === undefined) return name === undefined || name === '' ? '' : withArticle(strings, name.toLowerCase());
   return creatureWords(strings, registry, name, species);
+}
+
+/** The z bands of the caverns, shallowest first (03 § Caverns). */
+const CAVERN_BANDS: readonly (readonly [number, number])[] = [[CAVERN_1_Z_MIN, CAVERN_1_Z_MAX], [CAVERN_2_Z_MIN, CAVERN_2_Z_MAX], [CAVERN_3_Z_MIN, CAVERN_3_Z_MAX]];
+
+/**
+ * 16 § Combat log: a blow struck inside the fortress, on a tile under a roof (no `outdoor` flag) and
+ * outside every cavern's z band. A tile in a cavern band is the cavern's, dug or not.
+ */
+export function inHalls(readers: ReaderSet, tile: TileIndex | undefined): boolean {
+  if (tile === undefined || tile < 0) return false;
+  const map = readers.map;
+  if (map.isOutdoor(tile)) return false;
+  const z = map.unpack(tile).z;
+  return !CAVERN_BANDS.some(([lo, hi]) => z >= lo && z <= hi);
 }
 
 /** A zone's first tile, for a line about the zone. */

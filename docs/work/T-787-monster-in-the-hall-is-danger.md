@@ -16,7 +16,15 @@ Decisions taken here:
 - In the cavern itself (a tile in a cavern band, for instance a miner meeting a crawler), the line stays an alert: going below is the player's risk, and the pause would come too often.
 - The civilians still fight a lone monster when the alert is Calm: the mob is how the stalker died, and it is a kept outcome (fun-features, "Seventeen and a cat").
 
+## Decisions made while implementing
+
+- **"Inside the fortress"** is the defender's tile (the line's focus) with no `outdoor` flag and in no cavern's z band (`CAVERN_n_Z_MIN` … `CAVERN_n_Z_MAX`). A dug corridor that lies in a cavern band counts as the cavern: the band is the work file's own test, and it needs no reach or region search. Between the bands (say z15 to z17, under cavern 1) is the halls.
+- **An open alert turns into the danger line** at the first blow of a cavern or Deep foe in the halls (a miner who met a crawler below and ran up with it behind), and the turn pauses and pins as a new danger line does. Only once per engagement; later blows refresh it as now.
+- **The halls' words** count both sides: `announce.engagement.halls.one_one`, `.one_many`, `.many_one`, `.many_many` (foes, then the fortress side), "A blind stalker is in the halls! 3 dwarves are fighting it." The tail is 18's `calmTail`, read at each refresh, so it goes when the player raises the alert. The line keeps its category `combat` and its string key is the halls key.
+- Raiders, bandits and wild animals keep the alert even in the hall: their arrival had its own line.
+- UI only: no world hash moves; no event or registration is added.
+
 ## Done
 
-- [ ] `engage` opens a danger line for a cavern or Deep foe inside the halls, with the Calm tail; a UI test for a stalker in the hall and a crawler in the cavern.
-- [ ] 24 § Announcements and the log and 16 § Combat log describe the case.
+- [x] `engage` opens a danger line for a cavern or Deep foe inside the halls, with the Calm tail; a UI test for a stalker in the hall and a crawler in the cavern.
+- [x] 24 § Announcements and the log and 16 § Combat log describe the case.
