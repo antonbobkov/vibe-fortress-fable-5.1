@@ -146,7 +146,7 @@ The keys of a rectangle dragged with no tool (§ Mouse); `Delete` is the Map con
 | `[q]` | harvest ice |
 | `[S-b]` | ignite (set a fire) |
 | `[f]` | traffic (again: the next traffic mode) |
-| `[p]` | give the tool's priority to the last batch |
+| `[p]` | give the tool's priority to the last box drawn |
 
 ### Build panel
 
@@ -248,7 +248,7 @@ An action applies to every marked dwarf when the cursor's row is marked, otherwi
 | `Tab` | move between the jobs and the "Orders waiting" rows |
 | `[l]` | cycle the labors that have jobs |
 | `[s]` | cycle all / open / claimed / blocked |
-| `[p]` | raise the job's priority (1–9, wrapping) |
+| `[p]` | the job sooner (toward 1, the most urgent); with `Shift`, later (toward 9); neither wraps |
 | `[x]` | cancel the job |
 
 ### Orders panel

@@ -33,6 +33,7 @@ import type { Surface } from '../surface';
 import { captionButtons, label, separator, wrapLabel } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
 import { barCells } from '../widgets/bar';
+import { priorityWithWord } from './designate';
 import { creatureActivity } from './look-activity';
 import { ANIMAL_FIELDS, animalFields } from './look-animal';
 import { HOSTILE_FIELDS, hostileFields } from './look-hostile';
@@ -556,7 +557,7 @@ function tileLines(readers: ReaderSet, strings: Strings, i: TileIndex): string[]
     const info = readers.of<TerrainReaderLike>('03').inspect(i);
     if (info.designation !== null) {
       const kind = strings.get(`ui.tool.designate.${DESIGNATION_IDS[info.designation.kind] ?? ''}`);
-      out.push(strings.get('ui.look.designation', { kind, priority: info.designation.priority }));
+      out.push(strings.get('ui.look.designation', { kind, priority: priorityWithWord(strings, info.designation.priority) }));
     }
     if (info.forbidden) out.push(strings.get('ui.look.forbidden'));
     else if (info.restricted) out.push(strings.get('ui.look.restricted'));

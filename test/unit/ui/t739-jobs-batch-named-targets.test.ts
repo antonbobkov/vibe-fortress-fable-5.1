@@ -156,11 +156,11 @@ describe('T-739 Jobs batches jobs on named targets', () => {
     expect(a.w.game.world.entities.get(a.board.jobs.get(a.f.jobs.rows(a.f.ctx)[0]?.jobs[0]?.id as number)!.target.ref, C.Creature)).toBeDefined();
   });
 
-  it('[p] on the batch row raises all nine; [x] cancels all nine', () => {
+  it('[p] on the batch row makes all nine sooner; [x] cancels all nine', () => {
     const a = setup();
     const ids = beds(a);
     a.f.key(press('p'));
-    expect(a.sent).toEqual(ids.map((jobId) => ({ type: 'SetJobPriority', jobId, priority: 5 })));
+    expect(a.sent).toEqual(ids.map((jobId) => ({ type: 'SetJobPriority', jobId, priority: 3 })));
     a.sent.length = 0;
     a.f.key(press('x'));
     expect(a.sent).toEqual(ids.map((jobId) => ({ type: 'CancelJob', jobId })));

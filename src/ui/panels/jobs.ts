@@ -185,12 +185,16 @@ export class JobsPanel {
     this.list.selected = Math.max(0, Math.min(Math.max(0, n - 1), this.list.selected + delta));
   }
 
-  /** `[p]`: the next priority, wrapping; for every job of a batch. */
-  priority(ctx: PanelContext): Command[] | null {
+  /**
+   * `[p]` sooner: one step toward 1, the most urgent; `[S-p]` later: one step toward 9. Neither wraps:
+   * at the end of the scale nothing is sent (an empty list). For every job of a batch.
+   */
+  priority(ctx: PanelContext, later = false): Command[] | null {
     const row = this.selectedRow(ctx);
     const j = row?.jobs[0];
     if (row === undefined || j === undefined) return null;
-    const next = j.priority >= PRIORITY_MAX ? PRIORITY_MIN : j.priority + 1;
+    const next = later ? Math.min(PRIORITY_MAX, j.priority + 1) : Math.max(PRIORITY_MIN, j.priority - 1);
+    if (next === j.priority) return [];
     return row.jobs.map((job) => ({ type: 'SetJobPriority', jobId: job.id, priority: next }));
   }
 
@@ -383,9 +387,9 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   const waitingShown = waiting.slice(list.scroll, list.scroll + WAITING_ROWS).map((o) => ({ ...o, lines: wrapHang(keepCounts(o.text), width, 2) }));
   const waitingRows = waiting.length === 0 ? 0 : waitingShown.reduce((n, o) => n + o.lines.length, 0) + 1;
   // The reason wraps over as many rows as it needs, the list giving them up down to its header and one row.
-  const detail = detailText === '' ? [] : wrapText(detailText, width, Math.max(2, rect.rows - top - 4 - priorities.length - waitingRows - 2));
+  const detail = detailText === '' ? [] : wrapText(detailText, width, Math.max(2, rect.rows - top - 5 - priorities.length - waitingRows - 2));
   const detailColor = waitText !== '' ? t.value : t.alert;
-  const height = Math.max(2, rect.rows - top - 4 - priorities.length - detail.length - waitingRows);
+  const height = Math.max(2, rect.rows - top - 5 - priorities.length - detail.length - waitingRows);
   // The columns keep their widths and cut names only: a job too long for its column is named by its
   // kind ("Haul to depot"), a reason too long by its first word ("waiting"), the whole in the cell's
   // tooltip and, for the selected job, on the line under the list.
@@ -451,8 +455,9 @@ export function drawJobsPanel(s: Surface, rect: Rect, panel: JobsPanel, ctx: Pan
   }
   separator(s, rect.col + 1, row, rect.cols - 2);
   label(s, rect.col + 1, row + 1, strings.get('ui.jobs.actions1'), { width: rect.cols - 2 });
-  label(s, rect.col + 1, row + 2, strings.get('ui.jobs.actions2'), { width: rect.cols - 2 });
-  row += 3;
+  label(s, rect.col + 1, row + 2, strings.get('ui.jobs.actions_priority'), { width: rect.cols - 2 });
+  label(s, rect.col + 1, row + 3, strings.get('ui.jobs.actions2'), { width: rect.cols - 2 });
+  row += 4;
   separator(s, rect.col + 1, row, rect.cols - 2, strings.get('ui.jobs.labor_priorities'));
   row += 1;
   for (const line of priorities) {

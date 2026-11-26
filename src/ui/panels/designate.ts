@@ -137,6 +137,28 @@ export interface DesignatePlan {
   readonly skipped: readonly SkipCount[];
   /** Stair tiles that already lead every way they need. */
   readonly already: number;
+  /** Tiles of the box already designated at another priority, which take the tool's (24 § Input model). */
+  readonly reprioritized?: number;
+}
+
+/** 11 § Concepts: a priority's band in words, 1–3 urgent, 4–6 normal, 7–9 whenever. */
+export function priorityBand(priority: number): 'urgent' | 'normal' | 'whenever' {
+  return priority <= 3 ? 'urgent' : priority <= 6 ? 'normal' : 'whenever';
+}
+
+/** A priority with the word that says which end of the scale it is at: "2 (urgent)", "9 (whenever)". */
+export function priorityWithWord(strings: Strings, priority: number): string {
+  return strings.get('ui.priority.with_word', { n: priority, word: strings.get(`ui.priority.${priorityBand(priority)}`) });
+}
+
+/** The last box drawn with a designation tool: what `[p]` re-prioritizes and names (24 § Input model). */
+export interface DrawnBox {
+  readonly name: string;
+  readonly w: number;
+  readonly h: number;
+  readonly d: number;
+  /** Its tiles that were designated, or already were. */
+  readonly tiles: readonly TileIndex[];
 }
 
 /** Counts the skipped tiles by reason, most first, then in the order they were met. */
@@ -411,10 +433,12 @@ export class DesignateTool {
   /** The corner under the pointer while dragging. */
   end: TilePoint | null = null;
   private readonly batches: TileIndex[][] = [];
-  /** Latest remaining batch, also used by re-prioritize. */
+  /** The last box drawn, which `[p]` re-prioritizes, whether its tiles were new or not. */
+  lastBox: DrawnBox | null = null;
+  /** Latest remaining batch (undo). */
   get lastBatch(): TileIndex[] | null { return this.batches.at(-1) ?? null; }
   /** Undo history is not persisted across worlds or loads. */
-  clearHistory(): void { this.batches.length = 0; }
+  clearHistory(): void { this.batches.length = 0; this.lastBox = null; }
 
   get active(): boolean {
     return this.kind !== null || this.clearing;
@@ -488,14 +512,16 @@ export class DesignateTool {
       }
       const commands: Command[] = [];
       let designated = 0;
+      let reprioritized = 0;
       const order: readonly [Designation, string][] = [[Designation.StairsDown, 'stairs_down'], [Designation.StairsUpDown, 'stairs_updown'], [Designation.StairsUp, 'stairs_up']];
       for (const [d, id] of order) {
         const tiles = byKind.get(d);
         if (tiles === undefined) continue;
         designated += tiles.length;
+        reprioritized += this.reprioritizedIn(map, tiles);
         commands.push({ type: 'Designate', tiles, kind: id, priority: this.priority });
       }
-      return { commands, designated, skipped: skips.list(), already };
+      return { commands, designated, skipped: skips.list(), already, reprioritized };
     }
     // `command-catalog.md`: `DesignateHarvest { tiles[] }` is 07's, which marks the ripe crops.
     if (kind.designation === Designation.Harvest) return { ...none, commands: [{ type: 'DesignateHarvest', tiles: boxTiles(map, a, b) }] };
@@ -506,7 +532,24 @@ export class DesignateTool {
       else skips.add(skipReason(map, i, designation));
     }
     const commands: Command[] = tiles.length === 0 ? [] : [{ type: 'Designate', tiles, kind: kind.id, priority: this.priority }];
-    return { commands, designated: tiles.length, skipped: skips.list(), already: 0 };
+    return { commands, designated: tiles.length, skipped: skips.list(), already: 0, reprioritized: this.reprioritizedIn(map, tiles) };
+  }
+
+  /** The tiles already designated at a priority other than the tool's: the box gives them the tool's. */
+  private reprioritizedIn(map: MapReader, tiles: readonly TileIndex[]): number {
+    return tiles.filter((i) => map.designationAt(i) !== Designation.None && map.designationPriorityAt(i) !== this.priority).length;
+  }
+
+  /**
+   * Record the box just drawn (`[p]`'s target): its tiles that the commands designate and those of the
+   * box that are designated already, with the tool's name and size.
+   */
+  rememberBox(map: MapReader, name: string, a: TilePoint, b: TilePoint, commands: readonly Command[]): void {
+    const sent = commands.filter((c) => c.type === 'Designate').flatMap((c) => c['tiles'] as TileIndex[]);
+    const tiles = new Set<TileIndex>(sent);
+    for (const i of boxTiles(map, a, b)) if (map.designationAt(i) !== Designation.None) tiles.add(i);
+    if (tiles.size === 0) return;
+    this.lastBox = { name, w: Math.abs(a.x - b.x) + 1, h: Math.abs(a.y - b.y) + 1, d: Math.abs(a.z - b.z) + 1, tiles: [...tiles].sort((x, y) => x - y) };
   }
 
   /** Record what a submitted batch was (every `Designate` in it), so `Ctrl+Z` can undo it. */
@@ -525,11 +568,11 @@ export class DesignateTool {
   }
 
   /**
-   * `SetDesignationPriority` for the last batch: its tiles that are still designated take the tool's
-   * priority (`command-catalog.md`: "designations exist"), or null when there are none.
+   * `SetDesignationPriority` for the last box drawn: its tiles that are still designated take the
+   * tool's priority (`command-catalog.md`: "designations exist"), or null when there are none.
    */
   reprioritize(map: MapReader): Command | null {
-    const tiles = (this.lastBatch ?? []).filter((i) => map.designationAt(i) !== Designation.None);
+    const tiles = (this.lastBox?.tiles ?? []).filter((i) => map.designationAt(i) !== Designation.None);
     return tiles.length === 0 ? null : { type: 'SetDesignationPriority', tiles, priority: this.priority };
   }
 
@@ -584,7 +627,7 @@ export function drawDesignatePanel(s: Surface, rect: Rect, tool: DesignateTool, 
   if (clear !== undefined) s.hit({ col: rect.col + 1 + undoWidth + 2, row, cols: clearWidth, rows: 1 }, clear);
   row += 1;
   // U-05: the last batch can take another priority (`SetDesignationPriority`).
-  label(s, rect.col + 1, row, strings.get('ui.tool.designate.reprioritize', { n: tool.priority }), { fg: tool.lastBatch === null ? s.theme.dim : s.theme.text, width: rect.cols - 2 });
+  label(s, rect.col + 1, row, strings.get('ui.tool.designate.reprioritize', { n: tool.priority }), { fg: tool.lastBox === null ? s.theme.dim : s.theme.text, width: rect.cols - 2 });
   if (reprioritize !== undefined) s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => reprioritize());
   row += 1;
   label(s, rect.col + 1, row, strings.get('ui.tool.designate.help1'), { fg: t.dim, width: rect.cols - 2 });

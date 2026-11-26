@@ -1,6 +1,6 @@
 # T-799 — The priority digit says which end is urgent, and a redrawn box takes the new one
 
-**Source:** playtest 8 ([report](../../reports/data/2026-11-26-playtest-8.md), finding 5) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** playtest 8 ([report](../../reports/data/2026-11-26-playtest-8.md), finding 5) · **Size:** S · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -21,9 +21,16 @@ Decisions taken here:
 - **Designate's [p] applies to the last box drawn,** whether its tiles were new or not, and names it: "Stairs 1×1×20: priority 2."
 - "Raise its priority" in the Jobs advice becomes "Give it a lower number (more urgent)".
 
+Decided in the work (ambiguity protocol):
+
+- **The Jobs header.** The priority column is 4 cells wide, so "Pri (1 first)" does not fit; the header stays "Pri" and the key line under the list says it: "[p] sooner  [S-p] later (1 first)". The panel's key lines are now three ("[Enter] center  [x] cancel", the priority line, "[o] standing orders"), and the list gives up one row for them. At either end of the scale nothing is sent and the status row says so ("Already priority 1, the most urgent.").
+- **Where the band is shown:** the designation tool's status rows, the Designate panel's priority line ("(1 first)" in place of "(1–9)"), Look's designation line ("Designated: dig, priority 2 (urgent)") and `[p]`'s message.
+- **A redrawn box.** 03 already gives a designated tile that passes the precondition the new designation and priority, and its producer moves the job's priority with it; what was missing was saying so. The box now counts those tiles in the status row ("Dig: 2 designated, 2 re-prioritized.").
+- **Designate's `[p]`** acts on the last box drawn: its tiles sent and those of the box already designated, even when the box sent nothing new. The undo history (`Ctrl+Z`) keeps its batches as before.
+
 ## Done
 
-- [ ] The status, header and key texts; the Jobs [p]/[S-p] direction without wrap; UI tests.
-- [ ] Redrawn boxes re-prioritize tiles and their jobs; a test.
-- [ ] Designate [p] on the last box; a test.
-- [ ] 24 § Rules (input model), 11 § Concepts and `panels.md` § Jobs, § Designate updated.
+- [x] The status, header and key texts; the Jobs [p]/[S-p] direction without wrap; UI tests.
+- [x] Redrawn boxes re-prioritize tiles and their jobs; a test.
+- [x] Designate [p] on the last box; a test.
+- [x] 24 § Rules (input model), 11 § Concepts and `panels.md` § Jobs, § Designate updated (§ Designate is `fortress-screen.md` § Designate tool; also the keymap table).

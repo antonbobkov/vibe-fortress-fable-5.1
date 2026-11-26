@@ -11,7 +11,7 @@ Turn everything the fortress wants done into jobs, match jobs to workers, run ea
 - **Job**: a unit of work with a type, a target, a priority, a required labor, an optional minimum skill, inputs to fetch, a tool requirement, and a state.
 - **Producer**: a system that creates jobs through the registration API and executes their work steps.
 - **Labor**: a category of work a dwarf may do; toggled per dwarf. The labor list is content (`labors` table); the design fixes it below.
-- **Priority**: 1 (most urgent) to 9 on each job; 5 by default. A **labor priority** per labor (also 1–9) shifts every job of that labor.
+- **Priority**: 1 (most urgent) to 9 on each job; 5 by default. A **labor priority** per labor (also 1–9) shifts every job of that labor. Wherever the UI shows or sets a priority it says which end is urgent: a designation's priority reads with its band, 1–3 `urgent`, 4–6 `normal`, 7–9 `whenever` ("priority 2 (urgent)"), and the Jobs panel's keys make a job sooner (toward 1) or later (toward 9).
 - **Claim**: a worker taking a job. **Reservation**: an item held for a job.
 - **Blocked**: a job that cannot proceed, with a reason.
 - **Standing order**: a fortress-wide toggle that lets a producer create jobs automatically.
@@ -67,7 +67,7 @@ Each tick, for up to `ASSIGN_WORKERS_PER_TICK` workers that asked for a job (10 
 
 `laborPriorityShift = laborPriority − PRIORITY_DEFAULT`, so raising mining's labor priority to 3 makes every mining job behave two steps more urgent.
 
-Priority is strict and a job does not age: a worker takes a less urgent job only when no more urgent one is open to it, so while a fortress keeps a backlog of more urgent work open to every worker with a labor, a less urgent job of that labor stays `open`, unclaimed and not blocked (nothing is wrong with it), however long it waits. The player raises its priority or its labor's. A producer that holds one job at a time must not let such a job keep back its more urgent work (12 § Operation, step 1).
+Priority is strict and a job does not age: a worker takes a less urgent job only when no more urgent one is open to it, so while a fortress keeps a backlog of more urgent work open to every worker with a labor, a less urgent job of that labor stays `open`, unclaimed and not blocked (nothing is wrong with it), however long it waits. The player gives it, or its labor, a lower number. A producer that holds one job at a time must not let such a job keep back its more urgent work (12 § Operation, step 1).
 
 An open job for a patient at priority `PATIENT_SUMMON_PRIORITY` (17: `stop_bleeding`, `carry_patient`) does not wait for a worker to finish what it is doing, nor does a job its producer marks to call a worker (`summon` in its data: 20's `trade` job, which exists only while its caravan is at the depot). Each tick, before the queue is answered, for each such job that no free worker in the queue could take: among the workers to whom the job is open by step 1, who are in `work` behavior at an interruptible job that is not itself for a patient (and, for a call that is not for a patient, is less urgent than the calling job by priority), and who are neither soldiers on duty nor patients, the nearest to the patient's own tile, or for a call to the job's anchor (the estimate of step 2, the first in id order on a tie), is interrupted with its progress kept (§ Job steps, interruptions) and claims the calling job at once; if that claim fails (steps 4 and 5), it is queued like any free worker. A worker eating, drinking or asleep is not called.
 

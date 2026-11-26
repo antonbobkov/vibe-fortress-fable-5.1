@@ -45,7 +45,7 @@ describe('T-243 status row notices and counts', () => {
     // Starting a drag replaces the notice immediately with the drag readout.
     game.pointerDown(cell(game, 10, 5));
     game.pointerMove(cell(game, 13, 7));
-    expect(game.fortress.statusRow2()).toBe(`Dig 4×3 (12 tiles), priority ${game.fortress.tool.priority}`);
+    expect(game.fortress.statusRow2()).toBe(`Dig 4×3 (12 tiles), priority ${game.fortress.tool.priority} (normal)`);
 
     // After release, the old notice does not return.
     game.pointerUp(cell(game, 13, 7));
