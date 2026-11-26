@@ -23,9 +23,9 @@ import {
   TREAT_FAIL_PERMILLE,
   TREAT_TICKS,
   BANDAGE_TICKS,
-  HOSPITAL_DEFAULT_SUPPLIES,
   PAIN_UNCONSCIOUS,
 } from './constants';
+import { hospitalDressings } from './supplies';
 import { updatePatient } from './tick';
 import { awaitsBandage, needsCleaning, onlyLightBurnsUndressed, woundTreatmentNeeds } from './wounds';
 
@@ -35,21 +35,6 @@ const CLOTH_FILTER = { category: 'textile/cloth' } as const;
 const BANDAGE_FILTER = { category: 'medical/bandage' } as const;
 /** The treatments that take a dressing: a bandage, else a cloth. */
 const DRESSING_TREATMENTS: readonly string[] = ['stop_bleeding', 'dress_burn', 'bandage_animal'];
-
-/**
- * 17 § Patients and hospitals: the dressings the fortress's hospitals keep, the sum of their `cloth`
- * and `bandages` supply settings (as 13's hospital chests read them); none without a hospital.
- */
-function hospitalDressings(buildings: BuildingsReader | null): number {
-  if (buildings === null) return 0;
-  let kept = 0;
-  for (const zoneId of buildings.zonesOfType('hospital')) {
-    const wants = (buildings.zoneSetting(zoneId, 'desired supplies') ?? buildings.zoneSetting(zoneId, 'wants') ??
-      HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
-    kept += (wants['cloth'] ?? 0) + (wants['bandages'] ?? 0);
-  }
-  return kept;
-}
 
 /** 17 § Patients and hospitals: the honey a medic takes in place of a bucket or a dressing, when they are not to be had. */
 const HONEY_FILTER = { category: 'food/honey' } as const;

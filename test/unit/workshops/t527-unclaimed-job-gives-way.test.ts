@@ -23,7 +23,7 @@ function setup(): { w: TestWorld; carpenter: number; dwarf: number } {
   const carpenter = w.build('carpenter', w.index(15, 15, Z));
   const mason = w.build('mason', w.index(30, 15, Z));
   w.spawnItem('log', 'oak', w.index(17, 18, Z), 10);
-  w.spawnItem('cloth', 'flax_cloth', w.index(17, 18, Z), 10); // T-572: a bed's bedding stuff
+  w.spawnItem('wool_raw', 'wool', w.index(17, 18, Z), 10); // T-572: a bed's bedding stuff; T-778: wool, as the cloth is kept for dressings
   for (let k = 0; k < 40; k += 1) w.spawnItem('raw_stone', 'granite', w.index(28 + (k % 8), 19 + Math.floor(k / 8), Z));
   w.spawnItem('easy_meal', 'dimcap', w.index(25, 25, Z), 60);
   w.spawnItem('drink', 'ale', w.index(26, 25, Z), 60);

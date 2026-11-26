@@ -29,6 +29,7 @@ import { TileKind } from '@core/map3d';
 import type { EntityId } from '@core/types';
 import { generate as generateWorld } from '@systems/worldgen';
 import type { BuildingsReader } from '@systems/buildings';
+import type { ItemsReader } from '@systems/items';
 import type { MoraleReader } from '@systems/morale/reader';
 import { moodValue } from '@systems/morale/mood';
 import { NEED_PRESSURE_THOUGHTS } from '@systems/morale/standing';
@@ -66,6 +67,10 @@ interface DayRow {
   alive: number;
   /** Miserable dwarf-hours that lonely counted once would have kept at 20 or more. */
   lonelyMadeHours: number;
+  /** T-778: the cloth, bandages and beds in the fortress at the day's end. */
+  cloth: number;
+  bandages: number;
+  beds: number;
 }
 
 interface RunResult {
@@ -231,7 +236,7 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
   });
   const dwarvesAtStart = entities.with(C.Brain).length;
   for (let day = 1; day <= DAYS; day += 1) {
-    const row: DayRow = { day, alive: 0, lonelyMadeHours: 0, dwarfHours: 0, miserableHours: 0, miserableDwarves: 0, onceMiserableHours: 0, onceMiserableDwarves: 0, lonelyHours: 0, talks: 0, meanMood: 0, minMood: 100 };
+    const row: DayRow = { day, cloth: 0, bandages: 0, beds: 0, alive: 0, lonelyMadeHours: 0, dwarfHours: 0, miserableHours: 0, miserableDwarves: 0, onceMiserableHours: 0, onceMiserableDwarves: 0, lonelyHours: 0, talks: 0, meanMood: 0, minMood: 100 };
     const miserableToday = new Set<EntityId>();
     const onceToday = new Set<EntityId>();
     const talksBefore = talks;
@@ -280,6 +285,10 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
       }
     }
     row.alive = entities.with(C.Brain).filter((id) => entities.alive(id)).length;
+    const items = w.readers.of<ItemsReader>('13');
+    row.cloth = items.count('cloth');
+    row.bandages = items.count('bandage');
+    row.beds = items.count('bed');
     row.miserableDwarves = miserableToday.size;
     row.onceMiserableDwarves = onceToday.size;
     row.talks = talks - talksBefore;
@@ -309,6 +318,7 @@ describe('T-763 probe: a busy first fortnight', () => {
         console.log(`  lonely share ${r.days.map((d) => Math.round((100 * d.lonelyHours) / Math.max(1, d.dwarfHours))).join(' ')}`);
         console.log(`  talks ${r.days.map((d) => d.talks).join(' ')}`);
         console.log(`  alive ${r.days.map((d) => d.alive).join(' ')}${r.deaths.length > 0 ? ` | deaths: ${r.deaths.join(', ')}` : ''}`);
+        console.log(`  cloth ${r.days.map((d) => d.cloth).join(' ')} | bandages ${r.days.map((d) => d.bandages).join(' ')} | beds ${r.days.map((d) => d.beds).join(' ')}`);
         console.log(`  miserable dwarf-hours ${r.days.map((d) => d.miserableHours).join(' ')} | of them lonely-made ${r.days.map((d) => d.lonelyMadeHours).join(' ')}`);
         for (const f of r.firstMiserable) console.log(`  first miserable ${f.name} day ${f.day} h${f.hour} mood ${f.mood.toFixed(1)} (once ${f.onceMood.toFixed(1)}) ${f.parts} social ${f.social} [${f.traits.join(',')}] ${f.top.join('; ')}`);
         const top = Object.entries(r.thoughtHours).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([k, n]) => `${k} ${Math.round((100 * n) / (r.dwarves * 24 * DAYS))}%`);

@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { buildFlatTestMap } from '@app/headless';
 import { contentRegistry } from '@content/loader';
 import type { RecipeRow, WorkshopsReader } from '@systems/workshops';
+import { keptDressings } from '@systems/health/supplies';
 import { TestWorld } from '../../scenarios/test-world';
 
 const registry = contentRegistry();
+const KEPT_DRESSINGS = keptDressings(null);
 
 const WORKSHOP_TYPES = [
   'carpenter', 'mason', 'craftdwarf', 'jeweler', 'mechanic',
@@ -151,6 +153,9 @@ function runRecipe(workshopType: string, recipe: RecipeRow): { ok: boolean; erro
   if (recipe.fuel) {
     w.spawnItem('charcoal_bar', 'charcoal', dropTile, 1);
   }
+  // T-778: the dressings the fortress keeps with no hospital (12 § Cloth kept for dressings), as
+  // bandages, which no recipe takes, so a recipe's cloth is its own.
+  if (recipe.inputs.some((input) => input.match.split('|').includes('cloth'))) w.spawnItem('bandage', 'flax_cloth', dropTile, KEPT_DRESSINGS);
 
   if (recipe.container === 'barrel') {
     w.spawnItem('barrel', 'pine', dropTile, 1);

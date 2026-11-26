@@ -16,6 +16,7 @@ import { rollQuality } from './quality';
 import { grantXp } from '@systems/dwarves/skills';
 import { jobXp } from '@systems/dwarves/rules/skills';
 import { ALCHEMY_MISHAP_PERMILLE } from '@systems/magic/constants';
+import { keptDressings, type HospitalZones } from '@systems/health/supplies';
 import { distillable } from './spirits';
 
 export interface RecipeRow {
@@ -222,6 +223,12 @@ class RunePressure {
 /** `12` § Operation 2: the waiting reason of an order whose inputs lie out of reach, before the item ids. */
 export const OUT_OF_REACH = 'out of reach';
 
+/** `12` § Cloth kept for dressings: the waiting reason of an order that would take the fortress's last dressings. */
+export const CLOTH_KEPT = 'cloth_kept';
+/** The category of cloth, and of the bandages that are dressings beside it (17 § Bandages first). */
+const CLOTH_CATEGORY = 'textile/cloth';
+const BANDAGE_CATEGORY = 'medical/bandage';
+
 /**
  * `12` § Operation 2: whether a remembered order out of reach is of this order's kind: the same
  * recipe, material filter and target type, so steel axes skipped leave iron axes to be tried.
@@ -361,7 +368,11 @@ export class WorkshopOperator {
     if (this.row(this.ctx.world.entities.get(id, C.Building) as Building).magmaVariantOf && !this.isMagmaPowered(id)) return 'no_magma';
     for (const input of recipe.inputs) {
       const filter = this.inputFilter(recipe, input, order);
-      if (filter === null || this.items.countAvailable(filter) < input.count) return `waiting for ${input.match}`;
+      if (filter === null || this.items.countAvailable(filter) < input.count) {
+        // 12 § Cloth kept for dressings: an input that the kept cloth alone would fill says so.
+        const whole = this.inputFilter(recipe, input, order, false);
+        return whole !== null && this.items.countAvailable(whole) >= input.count ? CLOTH_KEPT : `waiting for ${input.match}`;
+      }
       if (input.distinct === true) {
         const b = this.ctx.world.entities.get(id, C.Building) as Building;
         const tile = this.workTile(b);
@@ -526,14 +537,27 @@ export class WorkshopOperator {
     return null;
   }
 
-  /** Alternatives and same-species inputs specified in content data beyond RecipeDef. */
-  inputFilter(recipe: RecipeRow, input: RecipeRow['inputs'][number], order: WorkOrder): ItemFilter | null {
+  /**
+   * Alternatives and same-species inputs specified in content data beyond RecipeDef. With `keep`
+   * (the default), an input that may be cloth takes none while the cloth is kept for dressings
+   * (§ Cloth kept for dressings): its other alternatives only, or null when it has none.
+   */
+  inputFilter(recipe: RecipeRow, input: RecipeRow['inputs'][number], order: WorkOrder, keep = true): ItemFilter | null {
     const registry = this.ctx.registry;
     const firstOutput = recipe.outputs[0];
     const targetIndex = firstOutput !== undefined && 'from' in firstOutput.material ? firstOutput.material.index : 0;
     const inputIndex = recipe.inputs.indexOf(input);
     const filterOrder = inputIndex === targetIndex ? order : { ...order, materialFilter: null };
     const filter = recipeInputFilter(registry, input, filterOrder);
+    if (keep) {
+      const cloth = this.clothTypes();
+      const takesCloth = filter.type !== undefined ? cloth.includes(filter.type) : filter.types?.some((type) => cloth.includes(type)) === true;
+      if (takesCloth && this.clothKept(recipe, input.count)) {
+        const others = filter.type !== undefined ? [] : (filter.types ?? []).filter((type) => !cloth.includes(type));
+        if (others.length === 0) return null;
+        filter.types = others;
+      }
+    }
     // A transform recipe's kept input takes only an item with no enchantment, of the order's target
     // type when it names one of the alternatives.
     if (recipe.transform === true && inputIndex === 0) {
@@ -559,6 +583,32 @@ export class WorkshopOperator {
       return null;
     }
     return filter;
+  }
+
+  private clothTypeCache: readonly number[] | null = null;
+
+  /** The item types of cloth (category `textile/cloth`). */
+  private clothTypes(): readonly number[] {
+    if (this.clothTypeCache === null) {
+      const items = this.ctx.registry.table<ItemRow>('items');
+      this.clothTypeCache = items.ids().filter((id) => items.byId(id)?.category === CLOTH_CATEGORY).map((id) => items.index(id));
+    }
+    return this.clothTypeCache;
+  }
+
+  /**
+   * `12` § Cloth kept for dressings: whether `count` units of cloth taken by the recipe would leave
+   * fewer dressings (cloth and bandages to be had) than the fortress keeps (17's hospitals' `cloth`
+   * and `bandages`, or a default hospital's while there is none). A recipe that makes dressings
+   * (bandages) is never held: it turns one cloth into several.
+   */
+  clothKept(recipe: RecipeRow, count: number): boolean {
+    const items = this.ctx.registry.table<ItemRow>('items');
+    if (recipe.outputs.some((output) => items.byId(output.item)?.category === BANDAGE_CATEGORY)) return false;
+    const kept = keptDressings(this.ctx.readers.has('14') ? this.ctx.readers.of<HospitalZones>('14') : null);
+    if (kept <= 0) return false;
+    const had = this.items.countAvailable({ category: CLOTH_CATEGORY }) + this.items.countAvailable({ category: BANDAGE_CATEGORY });
+    return had - count < kept;
   }
 
   workTile(b: Building): TileIndex {

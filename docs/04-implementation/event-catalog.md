@@ -185,7 +185,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 
 For a need errand's `ItemReleased`, `jobId` carries the eating or drinking dwarf's id; for a job reservation it carries the job id.
 
-For `WorkshopBlocked`, `input` names the missing recipe input match when reason is `missing_input`, or `fuel` for a fuel shortage, and the item types out of reach ('|'-joined) when reason is `out_of_reach`. The container class remains in `container` for `no_empty_container`. `WorkOrderSkipped` names the item types out of reach in `input` the same way.
+For `WorkshopBlocked`, `input` names the missing recipe input match when reason is `missing_input`, or `fuel` for a fuel shortage, and the item types out of reach ('|'-joined) when reason is `out_of_reach`; `cloth_kept` names none (12 § Cloth kept for dressings). The container class remains in `container` for `no_empty_container`. `WorkOrderSkipped` names the item types out of reach in `input` the same way.
 
 ## Notes for implementers
 

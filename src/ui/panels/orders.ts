@@ -19,14 +19,14 @@ import type { Rgb } from '@render/palette';
 import type { KeyPress } from '@platform/input';
 import type { BuildingsReader } from '@systems/buildings';
 import type { ItemsReader } from '@systems/items';
-import type { RecipeRow, WorkshopsReader } from '@systems/workshops';
+import { CLOTH_KEPT, type RecipeRow, type WorkshopsReader } from '@systems/workshops';
 import type { JobsReader } from '@systems/jobs';
 import { STANDING_ORDERS } from '@systems/jobs/constants';
 import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
 import { jobLabor, jobWait } from '../job-wait';
-import { buildingName, capitalize, itemName, jobBlockText, keepCounts, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, withArticle, wrapHang, wrapText } from '../messages';
+import { buildingName, capitalize, clothInStock, itemName, jobBlockText, keepCounts, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, withArticle, wrapHang, wrapText } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -91,6 +91,7 @@ function clampCount(n: number): number {
 /** A `○` recipe's missing input, from its workshop's waiting reason: "· no tallow", "· no fuel"; '' for any other reason. */
 function missingNote(ctx: PanelContext, reason: string | null): string {
   if (reason === 'missing_input') return ctx.strings.get('ui.orders.pick.no_fuel');
+  if (reason === CLOTH_KEPT) return ctx.strings.get('ui.orders.pick.cloth_kept');
   const far = outOfReach(ctx, reason);
   if (far !== null) return ctx.strings.get('ui.orders.pick.out_of_reach', { item: far.item });
   const waiting = waitingFor(ctx, reason);
@@ -957,6 +958,7 @@ export class OrdersPanel {
     const long = workshopBlockText(ctx, reason);
     const far = outOfReach(ctx, reason);
     if (far !== null) return { kind: 'out_of_reach', short: s.get('ui.orders.status.out_of_reach', { item: far.item }), long };
+    if (reason === CLOTH_KEPT) return { kind: 'waiting', short: s.get('ui.orders.status.cloth_kept', { n: clothInStock(ctx) }), long };
     const waiting = waitingFor(ctx, reason);
     if (waiting !== null) return { kind: 'waiting', short: s.get('ui.orders.status.waiting', { item: waiting.item, n: waiting.n }), long };
     if (reason === 'missing_input') return plain('fuel', long);
