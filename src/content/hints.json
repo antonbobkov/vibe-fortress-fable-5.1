@@ -238,5 +238,10 @@
     "id": "hint_mood",
     "trigger": "the first miserable line of the fortress, after it (MoodTierChanged)",
     "text": "A miserable dwarf works slower and may sulk. The Mood panel [e] says what helps."
+  },
+  {
+    "id": "hint_cap",
+    "trigger": "the living dwarves of the fortress reach its population cap (21), hourly",
+    "text": "The fortress has reached its population cap: [p] raises it. The idle wait in the hearth hall. For more to do, put a squad on Train [m], dig down to the caverns and what the deep holds, or build a runeforge [b > Workshops] for runecraft."
   }
 ]

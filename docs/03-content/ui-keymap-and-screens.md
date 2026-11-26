@@ -775,6 +775,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_panel_letters` | a panel's own letter acts where that letter also opens a panel (§ Panels) | "Inside a panel its own letters come first. Esc, then a letter, opens another panel." |
 | `hint_paused` | the first designation, zone, building or work order made while the fortress is paused and has not run since it was entered (embarked or loaded); not while the tutorial runs | "Time is paused, so nothing happens yet. [Space] runs the fortress, [+] and [-] change the speed." |
 | `hint_mood` | the first miserable line of the fortress, after it (`MoodTierChanged`) | "A miserable dwarf works slower and may sulk. The Mood panel [e] says what helps." |
+| `hint_cap` | the living dwarves of the fortress reach its population cap (21), hourly | "The fortress has reached its population cap: [p] raises it. The idle wait in the hearth hall. For more to do, put a squad on Train [m], dig down to the caverns and what the deep holds, or build a runeforge [b > Workshops] for runecraft." |
 
 `hint_starving`'s `{food}` is what the fortress could eat now, read when the hint shows, as clauses joined by "; " in this order and only those that hold (`ui.starving_hint.*`, § Announcement strings):
 
