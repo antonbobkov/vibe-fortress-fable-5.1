@@ -72,7 +72,7 @@ All owned by 14; this system documents the patterns the design guarantees work, 
 `defense.retreatTile(dwarfId)`:
 
 1. If a `hearth_hall` zone exists and is reachable: the nearest free tile in it.
-2. Else the nearest reachable tile that is not `outdoor`, is not a door, hatch, floodgate or drawbridge tile, and lies behind at least one door on the path from the dwarf's current tile (computed by a bounded BFS that counts door tiles crossed; `RETREAT_SEARCH_LIMIT` tiles). When the search finds none, a dwarf that already stands on the inner side of a door shelters where it stands: its own tile, when that tile is not `outdoor` and not a door, hatch, floodgate or drawbridge tile, and the indoor tiles it walks to from there without passing one of those reach a door, locked or not (within `RETREAT_SEARCH_LIMIT` tiles). That is a room whose doors lead only outdoors, which a dwarf inside it never finds behind a door, since its search leaves by the door into the open. A dwarf therefore never shelters in a doorway, which 14 would not lock.
+2. Else the nearest reachable tile that is not `outdoor`, is not a door, hatch, floodgate or drawbridge tile, and lies behind at least one door on the path from the dwarf's current tile (computed by a bounded BFS that counts door tiles crossed; `RETREAT_SEARCH_LIMIT` tiles). A dwarf therefore never shelters in a doorway, which 14 would not lock.
 3. Else the dwarf's bedroom if any.
 4. Else stay and flee locally (10 `flee`).
 
