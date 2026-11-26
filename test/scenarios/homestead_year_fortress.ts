@@ -622,10 +622,14 @@ export function runHomesteadYear(w: TestWorld): void {
 
     // T-655: whether a wild animal stands where the hunter can walk to it (a herd that spawns beyond
     // the brook, which edge tile depends on where the dwarves stand, can be out of reach all year).
+    // T-763: a quarry is a huntable one (09: rabbits, under `HUNT_MIN_SIZE`, are not hunted).
     const hp = w.game.world.entities.get(hunter, C.Position);
+    const foraging = w.readers.of<{ isHuntable(species: number): boolean }>('09');
     if (hp !== undefined && w.animals.reader().wildList().some((id) => {
       const p = w.game.world.entities.get(id, C.Position);
-      return p !== undefined && w.reachable(w.index(hp.x, hp.y, hp.z), w.index(p.x, p.y, p.z));
+      const species = w.game.world.entities.get(id, C.Creature)?.species;
+      return p !== undefined && species !== undefined && foraging.isHuntable(species) &&
+        w.reachable(w.index(hp.x, hp.y, hp.z), w.index(p.x, p.y, p.z));
     })) quarryInReach += 1;
 
     w.step(Math.min(600, totalTicks - w.tick));
