@@ -18,7 +18,7 @@ import type { KeyPress } from '@platform/input';
 import type { Rect } from '@render/cellbuffer';
 import type { AnimalsReader } from '@systems/animals';
 import { HIVE_CAPACITY, HIVE_DAYS, HIVE_FLOWERS_MIN, HIVE_FLOWER_RADIUS } from '@systems/animals/constants';
-import type { BuildingView, StandView } from '@systems/buildings';
+import { isLamp, type BuildingView, type StandView } from '@systems/buildings';
 import { STAND_CANDLES } from '@systems/buildings/constants';
 import type { DefenseReader } from '@systems/defense';
 import { CATEGORY_TREE } from '@systems/items';
@@ -663,6 +663,8 @@ export class BuildingPanel {
       out.push({ id: 'owner', text, tone: owner === 0 ? 'dim' : 'value' });
       out.push({ id: 'choose', text: key('w', s.get(coffin ? 'ui.building.coffin_caption' : 'ui.building.owner_caption')), key: 'w', run: () => void this.startOwner(ctx), help: s.get(coffin ? 'ui.building.coffin_help' : 'ui.building.owner_caption_help') });
     }
+    // 14 § Special buildings: a built statue of glowstone is a lamp, and says what it lights.
+    if (isLamp(view.typeId, ctx.registry.table<{ id: string }>('materials').byIndex(view.material)?.id)) out.push({ id: 'lamp', text: s.get('ui.building.lamp'), tone: 'good' });
     if (tags.includes('hive')) out.push(...this.hiveLines(ctx, view));
     out.push(...this.heldLines(ctx, key));
     if (tags.includes('container')) out.push(...this.containerLines(ctx, view, key));

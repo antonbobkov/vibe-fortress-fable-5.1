@@ -15,7 +15,7 @@ import type { Command } from '@core/commands';
 import { PRIORITY_DEFAULT } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import { buildTicksOf, inputsOf, mayBeOfBlocks, onRuleOf, type BuildingRow } from '@systems/buildings';
+import { buildTicksOf, inputsOf, LAMP_BUILDING, LAMP_MATERIAL, mayBeOfBlocks, onRuleOf, type BuildingRow } from '@systems/buildings';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { Registry } from '@core/registry';
 import { workshopHasWork } from '@core/workshop-use';
@@ -353,6 +353,21 @@ export class BuildTool {
   }
 
   /**
+   * The row's name as the build list shows it: "Statue / lamp" for the type a lamp is placed as while
+   * a statue of the lamp's material is to be had (14 § Special buildings), else the type's name.
+   */
+  rowName(ctx: PanelContext, row: BuildingRow): string {
+    const name = capitalize(row.name);
+    if (row.id !== LAMP_BUILDING) return name;
+    const materials = ctx.registry.table<{ id: string }>('materials');
+    const it = items(ctx);
+    const types = this.inputTypes(ctx, row, false);
+    if (it === null || types.length === 0 || !materials.has(LAMP_MATERIAL)) return name;
+    const lamps = it.countAvailable({ types, materialId: materials.index(LAMP_MATERIAL) });
+    return lamps > 0 ? ctx.strings.get('ui.build.lamp_row', { name }) : name;
+  }
+
+  /**
    * "Material: [x] any wood ▸ oak (9)": any, then each material of the first input's available items,
    * most first; then, for a workshop that may be built of blocks, "blocks" with the stone blocks available.
    */
@@ -634,7 +649,7 @@ export function drawBuildPanel(s: Surface, rect: Rect, tool: BuildTool, ctx: Pan
     s,
     { col: rect.col + 1, row, cols: rect.cols - 2, rows: height },
     rows.map((r): GroupRow => ({ text: () => {
-      const name = r.name.charAt(0).toUpperCase() + r.name.slice(1);
+      const name = tool.rowName(ctx, r);
       const figure = tool.countText(ctx, r);
       const count = figure === '' ? '' : ` (${figure})`;
       return buildRowLines(name, inputText(r, ctx.registry, ctx.strings), count, rect.cols - 3);

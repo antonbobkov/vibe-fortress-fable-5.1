@@ -31,6 +31,8 @@ export interface ItemFilter {
   materialId?: number;
   /** One of several materials, retained through job reservation and save. */
   materialIds?: number[];
+  /** None of these materials: the units kept for another order (`12` § Materials kept for orders). */
+  excludeMaterialIds?: number[];
   minQuality?: number;
   edible?: boolean;
   drinkable?: boolean;

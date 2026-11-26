@@ -225,6 +225,13 @@ export const OUT_OF_REACH = 'out of reach';
 
 /** `12` § Cloth kept for dressings: the waiting reason of an order that would take the fortress's last dressings. */
 export const CLOTH_KEPT = 'cloth_kept';
+/**
+ * `12` § Materials kept for orders: the waiting reason of an order whose input's units are all kept
+ * for another order, before the input's match, the kept material's id and the keeping recipe's id.
+ */
+export const MATERIAL_KEPT = 'material_kept';
+/** The order a recipe input's own filter is read with: no material filter, no target. */
+const NO_ORDER: WorkOrder = { recipe: 0, remaining: 1, mode: 'once', threshold: 0, priority: 5, materialFilter: null };
 /** The category of cloth, and of the bandages that are dressings beside it (17 § Bandages first). */
 const CLOTH_CATEGORY = 'textile/cloth';
 const BANDAGE_CATEGORY = 'medical/bandage';
@@ -369,9 +376,22 @@ export class WorkshopOperator {
     for (const input of recipe.inputs) {
       const filter = this.inputFilter(recipe, input, order);
       if (filter === null || this.items.countAvailable(filter) < input.count) {
-        // 12 § Cloth kept for dressings: an input that the kept cloth alone would fill says so.
+        // 12 § Cloth kept for dressings: an input that the kept cloth alone would fill says so; and
+        // § Materials kept for orders: one that the units kept for another order would fill names them.
         const whole = this.inputFilter(recipe, input, order, false);
-        return whole !== null && this.items.countAvailable(whole) >= input.count ? CLOTH_KEPT : `waiting for ${input.match}`;
+        if (whole === null || this.items.countAvailable(whole) < input.count) return `waiting for ${input.match}`;
+        const kept = filter?.excludeMaterialIds;
+        if (filter !== null && kept !== undefined) {
+          const unkept = { ...filter };
+          delete unkept.excludeMaterialIds;
+          if (this.items.countAvailable(unkept) >= input.count) {
+            const material = kept.find((m) => this.items.countAvailable({ ...unkept, materialId: m }) > 0) ?? kept[0] as number;
+            const keeper = this.keptMaterials(recipe, whole, order).get(material)?.recipe ?? '';
+            const materialId = this.ctx.registry.table<MaterialRow>('materials').byIndex(material)?.id ?? '';
+            return `${MATERIAL_KEPT} ${input.match} ${materialId} ${keeper}`;
+          }
+        }
+        return CLOTH_KEPT;
       }
       if (input.distinct === true) {
         const b = this.ctx.world.entities.get(id, C.Building) as Building;
@@ -557,6 +577,14 @@ export class WorkshopOperator {
         if (others.length === 0) return null;
         filter.types = others;
       }
+      // § Materials kept for orders: an input that names no material leaves the units another order names.
+      if (filter.materialId === undefined && filter.materialIds === undefined && filter.materialClass === undefined) {
+        const excluded: number[] = [];
+        for (const [material, kept] of this.keptMaterials(recipe, filter, order)) {
+          if (this.items.countAvailable({ ...filter, materialId: material }) - input.count < kept.units) excluded.push(material);
+        }
+        if (excluded.length > 0) filter.excludeMaterialIds = excluded;
+      }
     }
     // A transform recipe's kept input takes only an item with no enchantment, of the order's target
     // type when it names one of the alternatives.
@@ -583,6 +611,65 @@ export class WorkshopOperator {
       return null;
     }
     return filter;
+  }
+
+  /** Per recipe id: its inputs that name one material by the recipe (`material: <id>`), with their item types. */
+  private namedInputCache = new Map<string, readonly { types: readonly number[]; material: number; count: number }[]>();
+
+  private namedInputs(recipe: RecipeRow): readonly { types: readonly number[]; material: number; count: number }[] {
+    const known = this.namedInputCache.get(recipe.id);
+    if (known !== undefined) return known;
+    const materials = this.ctx.registry.table<MaterialRow>('materials');
+    const out: { types: readonly number[]; material: number; count: number }[] = [];
+    for (const input of recipe.inputs) {
+      if (input.material === undefined || !materials.has(input.material)) continue;
+      const filter = recipeInputFilter(this.ctx.registry, input, NO_ORDER);
+      const types = filter.type !== undefined ? [filter.type] : filter.types ?? [];
+      if (types.length > 0) out.push({ types, material: materials.index(input.material), count: input.count });
+    }
+    this.namedInputCache.set(recipe.id, out);
+    return out;
+  }
+
+  private namedTypeCache: { recipes: number; types: Set<number> } | null = null;
+
+  /** The item types some recipe's input names a material of: the only inputs that can find units kept. */
+  private namedTypes(): Set<number> {
+    if (this.namedTypeCache?.recipes === this.recipes.size) return this.namedTypeCache.types;
+    const types = new Set<number>();
+    for (const id of Array.from(this.recipes.keys()).sort()) for (const named of this.namedInputs(this.recipes.get(id) as RecipeRow)) for (const type of named.types) types.add(type);
+    this.namedTypeCache = { recipes: this.recipes.size, types };
+    return types;
+  }
+
+  /**
+   * `12` § Materials kept for orders: per material, the units the standing orders of the fortress keep
+   * of it from an input of `filter`'s item types that names no material (each other recipe's input that
+   * names the material, times the order's `remaining`, or once for a `maintain` order; orders of a
+   * suspended workshop and orders of the same recipe keep none), with the first keeping recipe's id.
+   */
+  keptMaterials(recipe: RecipeRow, filter: ItemFilter, self: WorkOrder): Map<number, { units: number; recipe: string }> {
+    const out = new Map<number, { units: number; recipe: string }>();
+    const types = filter.type !== undefined ? [filter.type] : filter.types ?? [];
+    if (!types.some((type) => this.namedTypes().has(type))) return out;
+    const add =(order: WorkOrder): void => {
+      if (order.mode === 'once' && order.remaining <= 0) return;
+      const other = this.recipe(order.recipe);
+      if (other === undefined || other.id === recipe.id || self.recipe === order.recipe) return;
+      for (const named of this.namedInputs(other)) {
+        if (!named.types.some((type) => types.includes(type))) continue;
+        const units = named.count * (order.mode === 'once' ? order.remaining : 1);
+        const had = out.get(named.material);
+        out.set(named.material, { units: (had?.units ?? 0) + units, recipe: had?.recipe ?? other.id });
+      }
+    };
+    for (const id of this.ctx.world.entities.with(C.Workshop)) {
+      const ws = this.workshop(id);
+      if (ws === undefined || ws.suspended) continue;
+      for (const order of ws.orders) add(order);
+    }
+    for (const order of this.globalOrders) add(order);
+    return out;
   }
 
   private clothTypeCache: readonly number[] | null = null;
@@ -725,10 +812,12 @@ export class WorkshopOperator {
             // 12 § Operation 3: a wait for an empty container is its own reason and names the container class.
             const container = recipe.container !== undefined && problem === `waiting for ${recipe.container}` ? recipe.container : null;
             const far = problem.startsWith(`${OUT_OF_REACH} `);
-            reason = container !== null ? 'no_empty_container' : problem.startsWith('waiting for ') ? 'missing_input' : far ? 'out_of_reach' : problem;
+            const kept = problem.startsWith(`${MATERIAL_KEPT} `);
+            reason = container !== null ? 'no_empty_container' : problem.startsWith('waiting for ') ? 'missing_input' : far ? 'out_of_reach' : kept ? MATERIAL_KEPT : problem;
             missingContainer = container;
             if (reason === 'missing_input') missingInput = problem === 'missing_input' ? 'fuel' : problem.slice('waiting for '.length);
             if (far) missingInput = problem.slice(OUT_OF_REACH.length + 1);
+            if (kept) missingInput = problem.split(' ')[1] ?? null;
           }
           continue;
         }

@@ -79,7 +79,7 @@ interface Job { id: number; key: string; type: Idx<JobTypeDef>; producer: string
 // Job.data.inputsInvalidated?: true remembers a destroyed input already pruned from the lists, until the next delivered-input validation; absent means no pending invalidation.
 interface ItemFilter { itemId?: EntityId; type?: Idx<ItemTypeDef>; types?: Idx<ItemTypeDef>[]; category?: string; tag?: string; materialClass?: MaterialClass; materialId?: Idx<MaterialDef>;
   minQuality?: Quality; edible?: boolean; drinkable?: boolean; emptyContainer?: string; unoccupied?: boolean; excludeIds?: EntityId[];
-  noEnchant?: boolean /* only an item with no enchantment: a transform recipe's input 0 */ }
+  excludeMaterialIds?: Idx<MaterialDef>[] /* none of these materials: units kept for another order (12 § Materials kept for orders) */; noEnchant?: boolean /* only an item with no enchantment: a transform recipe's input 0 */ }
 
 interface WorkshopsState { stateVersion: 1; globalOrders: WorkOrder[]; nextOrderSerial?: number /* absent means 0; never reuse a removed serial */; professionCache: [EntityId, string][]; rng: RngState }
 
