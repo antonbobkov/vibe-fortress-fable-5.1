@@ -25,10 +25,20 @@ Decisions taken here:
 - **The Jobs panel names the threat.** "Nobody takes it yet … or a way clear of danger" names the creature and its tile when that is the reason. A job interrupted three times by threats in a day says so: "Interrupted: dwarves flee a cave crawler at (18,29,z21)".
 - No change to `THREAT_RADIUS` and none to fleeing itself.
 
+## Decisions taken while doing it
+
+- **The label is the hostile's own class.** `hostileReaches` (`combat/threats.ts`) compares labels in the hostile's movement class, of the dwarf's tile or one of its eight neighbours on its level. A hostile standing on a tile its class has no label for (0) still counts, as before. There is no flier class in the game, so "a flier" is moot; "a ranged attacker" is a species with a natural ranged attack or a creature with a launcher or channel in hand.
+- **A locked door cuts a threat off.** The labels treat a locked door as a wall, so raiders shut out by a locked gate frighten no one inside until it breaks. Kept as characterful (fun-features: "Work goes on behind a locked gate"). F-16's retreat test spawned its warrior behind the locked gate; it now stands on the dwarf's side.
+- **When a job blocks.** A threat interrupt (11 § Job steps) blocks the job `threatened` at once when the hostile can come at every one of its stand tiles (its anchor when it has none), each on its level within `THREAT_RADIUS`; otherwise the job reopens as before. The retry reopens it when the hostile is dead or that no longer holds. The job's data keeps `threatHostile`, `threatTile`, `threatHits` and `threatSince`.
+- **"Three times in a day" is a panel rule.** `JOB_THREAT_FLIGHTS` = 3 (24 § Tuning constants): an open job with three threat interrupts within a day of the first, whose hostile lives, reads "Interrupted: dwarves flee a cave crawler at (x,y,z)." A job blocked `threatened` reads "Threatened: a cave crawler at (x,y,z). Nobody works here until it is gone."
+- **"Nobody takes it yet" names the threat** when every free dwarf with the labor is kept from the job by its remembered hostile: two new readers, `dwarves.avoidedThreat(id)` (10) and `jobs.keptByThreat(jobId, dwarfId)` (11).
+- **The avoidance filter** skips a job whose anchor, or every stand tile, is near the remembered tile (the anchor test is kept).
+- **The stair-pocket "scenario"** is a `TestWorld` test in `test/unit/combat/t796-threat-needs-a-path.test.ts` (a five-level column beside a sealed crawler, carved to the bottom; it fails without the fix), not a registered scenario.
+
 ## Done
 
-- [ ] `threatScan` filters by label or line; a test with a crawler behind a wall at Chebyshev 8 (no `ThreatNearby`) and one in the open (one).
-- [ ] `eligible` reads stand tiles; a test of a stair job one level below a remembered threat.
-- [ ] The `threatened` block reason and the Jobs panel lines; UI tests.
-- [ ] The save `frostwatch-y4-au5-stair-stuck` shape reproduced in a scenario: a stair column beside a sealed pocket is carved to the bottom.
-- [ ] 11 § Assignment, 16 § Targeting (threat scan) and `panels.md` § Jobs updated.
+- [x] `threatScan` filters by label or line; a test with a crawler behind a wall at Chebyshev 8 (no `ThreatNearby`) and one in the open (one).
+- [x] `eligible` reads stand tiles; a test of a stair job one level below a remembered threat.
+- [x] The `threatened` block reason and the Jobs panel lines; UI tests.
+- [x] The save `frostwatch-y4-au5-stair-stuck` shape reproduced in a scenario: a stair column beside a sealed pocket is carved to the bottom.
+- [x] 11 § Assignment, 16 § Targeting (threat scan) and `panels.md` § Jobs updated.

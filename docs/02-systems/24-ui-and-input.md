@@ -315,6 +315,7 @@ This entire document.
 | `MOOD_SUMMARY_THOUGHTS` | 5 | Thoughts the Mood panel's summary lists, those held by most dwarves (*unmeasured*) |
 | `UNITS_ACTIVITY_MIN_COLS` | 10 | Fewest cells the Units list leaves its activity column when it widens the name column (*unmeasured*) |
 | `UNDO_BATCHES_MAX` | 10 | Designation batches retained for undo (*unmeasured*) |
+| `JOB_THREAT_FLIGHTS` | 3 | Threat interruptions of one job within a day after which the Jobs panel says dwarves flee from it (*unmeasured*) |
 | `BREEDING_CAP_MIN` | 0 | Animals cap editor lower bound |
 | `BREEDING_CAP_MAX` | 100 | Animals cap editor upper bound |
 | `BREEDING_CAP_BIG_STEP` | 10 | Cap editor Shift increment (*unmeasured*) |

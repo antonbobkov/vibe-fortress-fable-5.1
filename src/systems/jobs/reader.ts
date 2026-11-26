@@ -53,6 +53,8 @@ export interface JobsReader {
   isHuntQuarry(creatureId: EntityId): boolean;
   /** True when the dwarf, without the job's tool, leaves it to another worker with the labor who carries one, no free one being in its reach (§ Assignment). */
   leavesForTool(jobId: number, dwarfId: EntityId): boolean;
+  /** True when the dwarf's remembered threat (10 `avoidedThreatTile`) keeps it from the job (§ Assignment). */
+  keptByThreat(jobId: number, dwarfId: EntityId): boolean;
 }
 
 function copy(job: Job | undefined): Job | undefined {
@@ -119,6 +121,11 @@ export function makeReader(board: JobBoard): JobsReader {
     leavesForTool: (jobId, dwarfId) => {
       const job = board.jobs.get(jobId);
       return job !== undefined && board.leavesForTool(job, dwarfId);
+    },
+    keptByThreat: (jobId, dwarfId) => {
+      const job = board.jobs.get(jobId);
+      const threat = board.avoidedThreatTileOf(dwarfId);
+      return job !== undefined && threat >= 0 && board.avoidsThreat(job, threat);
     },
     holdsPatientCare: (dwarfId) => {
       const job = board.jobs.get(board.workerOf(dwarfId).jobId);

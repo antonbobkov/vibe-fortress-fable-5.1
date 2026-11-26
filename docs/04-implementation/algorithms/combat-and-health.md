@@ -81,7 +81,7 @@ blocksProjectile(cell, p): kind in {Wall, Tree, Boulder} or closed door/raised b
 ## Threat scan, duties, training
 
 ```
-threatScan(): for h in hostileToFortress (not stealthed or spotted): for c in spatial.inRadius(pos(h), THREAT_RADIUS, fortress creatures): if lastThreat[c] + THREAT_THROTTLE_TICKS <= tick: emit ThreatNearby{c, h}; lastThreat[c] = tick
+threatScan(): for h in hostileToFortress (not stealthed or spotted): for c in spatial.inRadius(pos(h), THREAT_RADIUS, fortress creatures) on h's level where hostileReaches(h, c) (label of c's tile or a neighbour in h's class, or lineOfFire for a shooter): if lastThreat[c] + THREAT_THROTTLE_TICKS <= tick: emit ThreatNearby{c, h}; lastThreat[c] = tick
 on SquadOrder: a new station/patrol/follow replaces the standing order, preserving queued kills; insert each kill after earlier kills and before the standing order
 squadDuties(): for sq in squads: mode = alert != 'calm' ? 'active' : sq.mode
   for m in sq.members: Soldier[m].onDuty = mode != 'off'

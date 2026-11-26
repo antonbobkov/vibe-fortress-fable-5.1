@@ -24,6 +24,13 @@ function cornered(seed: string): { w: TestWorld; id: number; enemy: number } {
   expect(w.game.world.entities.get(id, C.Brain)?.activity).toBe('Fighting');
   return { w, id, enemy };
 }
+/**
+ * T-796: 16's scan sends no `ThreatNearby` for a hostile that cannot come at the dwarf (the warrior's
+ * pocket is sealed from the dwarf's), so the tests of repeated scans send them as the scan once did.
+ */
+function threatenEvery(w: TestWorld, id: number, enemy: number, ticks: number): void {
+  if (w.tick % ticks === 0) w.game.world.emit({ type: 'ThreatNearby', id, hostileId: enemy });
+}
 function context(w: TestWorld, tick = w.tick): TickContext {
   return { world: w.game.world, registry: w.game.registry, readers: w.readers,
     tick, emit: (event) => w.game.world.emit(event), jobs: w.game.world.services.jobs,
@@ -48,13 +55,13 @@ describe('T-122 civilian escape and combat interruption', () => {
   });
 
   it('finishes critical eating while repeated threat scans cannot restart the activity', () => {
-    const { w, id } = cornered('cornered-eat');
+    const { w, id, enemy } = cornered('cornered-eat');
     w.spawnItem('easy_meal', 'dimcap', w.movement.tileOf(id), 1);
     w.setNeed(id, 'hunger', 90);
     w.step(1);
     expect(w.game.world.entities.get(id, C.Brain)?.behavior).toBe('need');
     expect(w.readers.of<CombatReader>('16').targetOf(id)).toBe(0);
-    w.until(() => w.events('MealEaten').some((e) => e['id'] === id), 100);
+    w.until(() => { threatenEvery(w, id, enemy, 25); return w.events('MealEaten').some((e) => e['id'] === id); }, 100);
     expect(w.game.world.entities.get(id, C.Needs)?.hunger).toBeLessThan(50);
     expect(w.events('ThreatNearby').filter((e) => e['id'] === id).length).toBeGreaterThanOrEqual(2);
   });
@@ -69,14 +76,20 @@ describe('T-122 civilian escape and combat interruption', () => {
   });
 
   it('leaves a fight after its saved deadline despite repeated out-of-reach threats', () => {
-    const { w, id } = cornered('cornered-timeout');
+    const { w, id, enemy } = cornered('cornered-timeout');
     const until = w.game.world.entities.get(id, C.Brain)!.behaviorUntil;
     expect(until - (w.tick - 1)).toBe(CIVILIAN_COMBAT_TIMEOUT_TICKS);
     w.step(20);
     const loaded = roundTrip(w.game).game;
     expect(loaded.hash()).toBe(w.hash());
-    w.step(until - w.tick + 1);
-    loaded.step(until - loaded.tick + 1);
+    while (w.tick <= until) {
+      if (w.tick % 50 === 0) {
+        w.game.world.emit({ type: 'ThreatNearby', id, hostileId: enemy });
+        loaded.world.emit({ type: 'ThreatNearby', id, hostileId: enemy });
+      }
+      w.step(1);
+      loaded.step(1);
+    }
     expect(loaded.hash()).toBe(w.hash());
     expect(w.game.world.entities.get(id, C.Brain)?.activity).toBe('No job');
     expect(w.readers.of<CombatReader>('16').targetOf(id)).toBe(0);
