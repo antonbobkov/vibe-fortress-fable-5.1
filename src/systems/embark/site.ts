@@ -18,7 +18,9 @@ import { BASEMENT, GLASSLANDS_FIRST_LAYER, specSoilDepth } from '@systems/terrai
 import { expectedOreCount } from '@systems/terrain/generate/minerals';
 import { carvesLake, carvesRiver } from '@systems/terrain/generate/rivers';
 import { surfaceTreeDensity } from '@systems/terrain/generate/vegetation';
-import { SUMMER, WINTER, seasonBase, temperSpread, type Climate } from '@systems/weather/transitions';
+import { SPRING, SUMMER, WINTER, allowed, seasonBase, surfaceTemp, temperSpread, type Climate } from '@systems/weather/transitions';
+import { COLD_INJURY_C, SNOW_OVERRIDE } from '@systems/materials/constants';
+import { DAY_CURVE_C } from '@systems/weather/constants';
 import { siteSignature, siteSoilMaterials, type SiteSignature } from './signatures';
 import type { LocalMapSpec } from './spec';
 
@@ -58,6 +60,13 @@ export interface SiteSummary {
     readonly winterC: number;
     /** `frostmarrow`: spring and autumn take winter's values. */
     readonly longWinter: boolean;
+    /**
+     * Frostbite: the first season from the arrival's (spring … winter) whose coldest night, a snowy
+     * night on snow cover or a cold snap where the site has them, is below 17's `COLD_INJURY_C`
+     * (`limitC`), and that night's temperature; `arrival` when it is the arrival's season. Null
+     * when no season's is.
+     */
+    readonly frostbite: { readonly season: number; readonly nightC: number; readonly limitC: number; readonly arrival: boolean } | null;
   };
   /** Surface wildlife, most common first: aggressive or territorial species, and the rest. */
   readonly wildlife: { readonly dangerous: readonly string[]; readonly other: readonly string[] };
@@ -113,6 +122,19 @@ interface WealthRow {
   readonly wealth: number;
   readonly ore: Fixed;
   readonly deepsilverVeins: number;
+}
+
+/**
+ * The coldest hour of a season's nights at the site (02 § Site summary, Frostbite): its coldest hour
+ * of the day under snow, on a tile with snow cover (05's `SNOW_OVERRIDE`), or under a cold snap where
+ * the season and temper allow one and `serene_vale` does not remove it, whichever is colder.
+ */
+export function coldestNightC(season: number, climate: Climate): number {
+  const coldestHour = DAY_CURVE_C.indexOf(Math.min(...DAY_CURVE_C));
+  const snow = surfaceTemp(season, coldestHour, 'snow', climate) - SNOW_OVERRIDE * 5;
+  const snap = allowed('cold_snap', season, climate) && !climate.traits.includes('serene_vale')
+    ? surfaceTemp(season, coldestHour, 'cold_snap', climate) : snow;
+  return Math.min(snow, snap);
 }
 
 /** `01` § Biomes, the temperature bands. */
@@ -263,6 +285,12 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
   };
   const winterC = seasonBase(WINTER, climate) + temperSpread(WINTER, climate);
   const summerC = seasonBase(SUMMER, climate) + temperSpread(SUMMER, climate);
+  // The arrival is in spring (START_SEASON), so the seasons are looked at from spring on.
+  let frostbite: SiteSummary['climate']['frostbite'] = null;
+  for (let season = SPRING; season <= WINTER && frostbite === null; season += 1) {
+    const nightC = coldestNightC(season, climate);
+    if (nightC < COLD_INJURY_C) frostbite = { season, nightC, limitC: COLD_INJURY_C, arrival: season === SPRING };
+  }
 
   // 03 stage 2 (rivers, lakes) and stage 10 (gemsprings' springs, on dry surface soil).
   const water = {
@@ -321,6 +349,7 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
       summerC,
       winterC,
       longWinter: spec.traits.includes('frostmarrow'),
+      frostbite,
     },
     wildlife: { dangerous: byWeight(dangerous), other: byWeight(other) },
     lacks,

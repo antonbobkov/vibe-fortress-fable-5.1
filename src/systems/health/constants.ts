@@ -22,6 +22,8 @@ export const INFECTION_DEATH_PERMILLE = 50;
 export const INFECTION_CURE_DAYS = 3;
 export const DROWN_DAMAGE = 8;
 export const FALL_DAMAGE_PER_LEVEL_SQ = 6;
+/** The damage of one hour's heat stroke or frostbite on a limb (§ Wound creation, Heat and cold). */
+export const TEMPERATURE_INJURY_DAMAGE = 5;
 export const STARVE_PERCENT = 8;
 export const PRODUCTIVITY_FLOOR = 30;
 export const TREAT_TICKS = 200;

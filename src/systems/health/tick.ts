@@ -17,10 +17,11 @@ import {
   PAIN_DISCHARGE,
   PAIN_UNCONSCIOUS,
   SUTURED_HEAL_PERCENT,
+  TEMPERATURE_INJURY_DAMAGE,
   UNTREATED_FRACTURE_PERCENT,
 } from './constants';
 import { COLD_INJURY_C, HEAT_INJURY_C } from '@systems/materials/constants';
-import { FLUID_DEEP_LEVEL, FLUID_MAX_LEVEL, TICKS_PER_DAY } from '@core/constants';
+import { FLUID_DEEP_LEVEL, FLUID_MAX_LEVEL, SEASONS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import { WADE_LARGE_SIZE } from '@core/path-constants';
 import { FluidType, TileFlag } from '@core/map3d';
 import type { RngStream } from '@core/rng';
@@ -270,6 +271,8 @@ export function applyDamage(
   lastHospitalTier?: Map<EntityId, number>,
   /** The wound is made `cleaned`, so it cannot take infection (25's mishap burns). */
   clean = false,
+  /** The wound is `light` whatever its share of the part (heat stroke and frostbite, § Wound creation). */
+  light = false,
 ): void {
   if (amount <= 0) return;
   const entities = ctx.world.entities;
@@ -283,7 +286,7 @@ export function applyDamage(
   if (!part || part.destroyed) return;
 
   const maxHp = part.maxHp;
-  const sev = severityFor(amount, maxHp);
+  const sev = light ? 'light' : severityFor(amount, maxHp);
 
   part.hp -= amount;
 
@@ -573,6 +576,8 @@ export function handleHourlyTemperature(
   rng: RngStream,
   woundedSet: Set<EntityId>,
   lastAttacker: Map<EntityId, EntityId>,
+  /** The season (`year × 4 + season`) of the last `Frostbitten` alert, -1 for none; updated here. */
+  frostbite: { alertedSeason: number } = { alertedSeason: -1 },
 ): void {
   const entities = ctx.world.entities;
   const map = ctx.world.map;
@@ -601,7 +606,18 @@ export function handleHourlyTemperature(
     // Random limb
     const limb = LIMB_SLOTS[rng.int(0, LIMB_SLOTS.length - 1)] as BodySlot;
     const damageType = isHot ? 'burn' : 'frost';
-    applyDamage(ctx, id, limb, damageType, 5, 0, woundedSet, lastAttacker);
+    // 17 § Wound creation, Heat and cold: a light wound on any creature, and like a fall it never severs
+    // a limb: the damage stops at the limb's last hit point, and a limb at 1 hp takes no more.
+    const part = entities.get(id, C.Body)?.parts[BODY_SLOTS.indexOf(limb)];
+    if (part === undefined || part.destroyed) continue;
+    const amount = Math.min(TEMPERATURE_INJURY_DAMAGE, part.hp - 1);
+    applyDamage(ctx, id, limb, damageType, amount, 0, woundedSet, lastAttacker, 'killed', undefined, false, true);
+    // § Player-facing behavior: a season's first frostbitten dwarf is an alert that names the shelter.
+    const season = ctx.readers.calendar.year * SEASONS_PER_YEAR + ctx.readers.calendar.season;
+    if (isCold && amount > 0 && entities.has(id, C.Brain) && frostbite.alertedSeason !== season) {
+      frostbite.alertedSeason = season;
+      ctx.emit({ type: 'Frostbitten', id });
+    }
   }
 }
 

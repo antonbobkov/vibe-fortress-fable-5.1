@@ -56,7 +56,7 @@ On the first materials tick, compute the reach of all magma and warm spring sour
 |---|---|---|
 | 04 fluids | outdoor water tiles vs `FREEZE_C`/`THAW_C` | Ice |
 | 07 plants | tile temperature vs crop range | Growth or dormancy; frost kills surface crops below `FROST_KILL_C` outside their growing seasons |
-| 10 dwarves | tile temperature of the dwarf's position | Comfort need and outdoor thoughts (15) |
+| 10 dwarves | tile temperature of the dwarf's position; the wagon's tile | Comfort need and outdoor thoughts (15); idling and floor sleep go under cover while the wagon is colder than `COLD_SHELTER_C` (10 § Behavior selection) |
 | 17 health | tile temperature | Heat stroke above `HEAT_INJURY_C`, frostbite below `COLD_INJURY_C`, burn damage on burning tiles |
 | 12 workshops | `fluids.isMagmaAdjacent` | Magma-powered furnaces (not temperature; listed for completeness) |
 | 13 items | `MagmaContact` | Melting |

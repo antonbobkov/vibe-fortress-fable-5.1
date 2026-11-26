@@ -78,6 +78,8 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
   private readonly lastHospitalTier: Map<EntityId, number> = new Map();
   /** `CreatureStunned`: the tick each stun ends (§ Consciousness). */
   private readonly stunnedUntil: Map<EntityId, number> = new Map();
+  /** The season (`year × 4 + season`) of the last `Frostbitten` alert, -1 for none (saved). */
+  private readonly frostbite = { alertedSeason: -1 };
 
   get rng(): RngStream {
     if (this.rngRef === null) throw new Error('17 health: used before init');
@@ -109,6 +111,10 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     ctx.register.announcement('NoDressing', {
       severity: 'alert',
       stringKey: 'announce.no_dressing',
+    });
+    ctx.register.announcement('Frostbitten', {
+      severity: 'alert',
+      stringKey: 'announce.frostbitten',
     });
     ctx.register.announcement('LimbLost', {
       severity: 'alert',
@@ -325,7 +331,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     }
 
     if (event.type === 'HourPassed') {
-      handleHourlyTemperature(ctx, this.rng, this.wounded, this.lastAttacker);
+      handleHourlyTemperature(ctx, this.rng, this.wounded, this.lastAttacker, this.frostbite);
       return;
     }
 
@@ -347,6 +353,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
       patientJobs: [],
       ...(pending.length === 0 ? {} : { pendingTreatments: pending }),
       ...(stuns.length === 0 ? {} : { stunnedUntil: stuns }),
+      ...(this.frostbite.alertedSeason < 0 ? {} : { frostbiteAlerted: this.frostbite.alertedSeason }),
       rng: this.rng.state(),
     };
   }
@@ -361,6 +368,7 @@ export class HealthSystem extends BaseSystem<HealthStateV1> {
     for (const [id, kinds] of state.pendingTreatments ?? []) this.pendingTreatments.set(id, new Set(kinds));
     this.stunnedUntil.clear();
     for (const [id, until] of state.stunnedUntil ?? []) this.stunnedUntil.set(id, until);
+    this.frostbite.alertedSeason = state.frostbiteAlerted ?? -1;
     this.rng.setState(state.rng);
   }
 }

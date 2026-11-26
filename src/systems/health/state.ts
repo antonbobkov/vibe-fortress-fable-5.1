@@ -14,5 +14,7 @@ export interface HealthStateV1 {
   pendingTreatments?: [EntityId, string[]][];
   /** Creatures held unconscious by a stun, and the tick it ends; absent when none, and in older saves. */
   stunnedUntil?: [EntityId, number][];
+  /** The season (`year × 4 + season`) of the last `Frostbitten` alert; absent when none, and in older saves. */
+  frostbiteAlerted?: number;
   rng: RngState;
 }
