@@ -1869,6 +1869,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.units.squad_added_skipped': 'Added {n} to {squad}; {skipped} left out (a child, already in a squad, or no room).',
   'ui.units.squad_nobody': 'No one added to {squad}: children, dwarves already in a squad, or the squad is full.',
   'ui.status.build_placed_one': '{tool} placed',
+  // 24 § Input model: a placement that will shut dwarves away from home.
+  'ui.build.seals': '{text} · seals {n|dwarf|dwarves} at ({x},{y},z{z}) from the {home}',
+  'ui.build.seals.hall': 'hall',
+  'ui.build.seals.wagon': 'wagon',
   'ui.trade.wait.the_broker': 'The broker',
   'ui.trade.wait.named_broker': '{name}, the Broker,',
   'ui.trade.wait.on_way': '{who} is on the way to the depot.',

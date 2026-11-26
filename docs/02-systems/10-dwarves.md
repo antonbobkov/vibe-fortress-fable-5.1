@@ -226,7 +226,7 @@ Dwarves wear a body garment, a leg garment and boots (items with the `clothing` 
 
 ### Registrations
 
-Panel `units`; inspector sections `creature › dwarf` (attributes, skills with tiers and progress bars, needs, personality, title, relationships, activity, productivity); announcements: starving (alert), passed out (note), a title given or taken away (notes: "Palnir Wolfaxe is now the Thane.", "Palnir Wolfaxe is no longer the Thane.", naming the title as the units panel does; a title vacated by its holder's death is an alert after the death line instead, 24 § Announcements and the log), came of age (note), legendary (note), the first dwarf in the `starfall` crater (note, `CraterEntered` with `first`), the first dwarf in each boneyard's ribs (note, `RibsEntered`), the Thane's whim and its judgement (notes, `WhimSet` and `WhimJudged`).
+Panel `units`; inspector sections `creature › dwarf` (attributes, skills with tiers and progress bars, needs, personality, title, relationships, activity, productivity); announcements: starving (alert; one shut away from the food or drink the fortress stores has a line of its own that says where, 24 § Announcements and the log), passed out (note), a title given or taken away (notes: "Palnir Wolfaxe is now the Thane.", "Palnir Wolfaxe is no longer the Thane.", naming the title as the units panel does; a title vacated by its holder's death is an alert after the death line instead, 24 § Announcements and the log), came of age (note), legendary (note), the first dwarf in the `starfall` crater (note, `CraterEntered` with `first`), the first dwarf in each boneyard's ribs (note, `RibsEntered`), the Thane's whim and its judgement (notes, `WhimSet` and `WhimJudged`).
 
 ## Player-facing behavior
 

@@ -53,6 +53,8 @@ export const LOG_STANDING_ALERTS: Readonly<Record<string, readonly string[]>> = 
   'announce.unburied': [],
   'announce.unburied.few': [],
   'announce.unburied.free': [],
+  'announce.starving_shut_in': ['dwarf'],
+  'announce.thirsting_shut_in': ['dwarf'],
 });
 
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */

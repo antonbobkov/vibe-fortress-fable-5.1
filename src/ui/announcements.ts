@@ -32,7 +32,7 @@ import { markFigure } from './panels/context';
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, sizeWords, stolenGoodsText, stolenOf, theftKey, warningWhen, type Stolen } from './raid-lines';
-import { ShutInWatch } from './shut-in';
+import { ShutInWatch, shutAway } from './shut-in';
 import { fortressLabels, reachesFortress } from './cavern-reach';
 import type { Strings } from './strings';
 
@@ -891,6 +891,7 @@ export class AnnouncementLog {
     const id = Number(fields['id']);
     const need = fields['need'] === 'thirst' ? 'thirst' : 'hunger';
     const name = String(this.params(event, readers)['dwarf'] ?? '');
+    if (shutAway(readers, id, need)) return this.announceShutAway(id, name, need, readers, tick, spec);
     const open = this.starving.get(need);
     if (open !== undefined && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick)) {
       if (!open.ids.includes(id)) { open.ids.push(id); open.names.push(name); }
@@ -905,6 +906,22 @@ export class AnnouncementLog {
     const line = this.append(spec.severity, said.text, tick, focus, spec.category, said.key);
     this.starving.set(need, { line, ids: [id], names: [name] });
     return { line, severity: spec.severity, focus };
+  }
+
+  /**
+   * 24 § Announcements and the log: a starving dwarf that the fortress's food (drink) is out of reach
+   * of ({@link shutAway}) has a line of its own, which says where it is shut in and focuses there:
+   * "Lida Crageye is starving, shut in at (10,13,z14) with no way to food." A standing alert, one per
+   * dwarf: the day after, it folds into its line ("… (14 days)").
+   */
+  private announceShutAway(id: number, name: string, need: 'hunger' | 'thirst', readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced {
+    const key = need === 'thirst' ? 'announce.thirsting_shut_in' : 'announce.starving_shut_in';
+    const p = readers.entities.get(id, C.Position);
+    const at = p === undefined ? { x: 0, y: 0, z: 0 } : p;
+    const focus = p === undefined ? undefined : readers.map.index(p.x, p.y, p.z);
+    const done = this.appendStanding(spec.severity, this.strings.get(key, { dwarf: name, x: at.x, y: at.y, z: at.z }), tick, focus, spec.category, key);
+    done.line.subject = id;
+    return done;
   }
 
   /**

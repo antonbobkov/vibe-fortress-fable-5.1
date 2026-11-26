@@ -44,6 +44,7 @@ import { drawThreatsPanel, ThreatsPanel } from '../panels/threats';
 import { CivilizationsPanel, drawCivilizationsPanel } from '../panels/civilizations';
 import { DepotPanel, depotGaps, drawDepotPanel } from '../panels/depot';
 import { C } from '@core/components';
+import { blockedTiles, sealedBy } from '../seal-check';
 import { clickRung, creatureShown, drawCreatureView, drawItemView, drawTileList, itemShown, itemSummary, itemTitle, LookScroll, tileContents, tileListRows, tileTitle, type LookTarget } from '../panels/look';
 import { identityLine, isDwarf } from '../panels/look-dwarf';
 import { creatureGone, deathKiller, drawGoneView, itemGone, type GoneState, type LookEnd, type LookFoot } from '../panels/look-gone';
@@ -2031,8 +2032,12 @@ export class FortressScreen implements Screen {
           text = this.strings.get('ui.depot.placed_unreachable', { tool: this.build.name(ctx), who });
           this.log.append('alert', text, ctx.readers.calendar.tick, ghost.tiles[0]);
         }
+        // 24 § Input model: a placement that will shut dwarves away from home says so, and does it all the same.
+        const row = this.build.current(ctx);
+        const sealed = row === undefined ? null : this.sealNotice(text, blockedTiles(row, ghost.tiles));
+        if (sealed !== null) text = sealed;
         if (stock !== '') text = `${text} · ${stock}`;
-        this.notice(text);
+        this.notice(text, sealed !== null);
         this.build.rememberPlacement(ghost.tiles, text);
       }
       this.host.submit(cmd);
@@ -2064,12 +2069,33 @@ export class FortressScreen implements Screen {
     let text = plan.blocked === 0 ? s.get('ui.status.build_placed', { tool, n })
       : n === 0 ? s.get('ui.status.build_none', { tool, blocked: plan.blocked, rule })
       : s.get(plan.blocked === 1 ? 'ui.status.build_skipped_one' : 'ui.status.build_skipped', { tool, n, blocked: plan.blocked, rule });
+    const row = this.build.current(ctx);
+    const sealed = row === undefined || n === 0 ? null : this.sealNotice(text, blockedTiles(row, plan.ok));
+    if (sealed !== null) text = sealed;
     const stock = this.stockText(0);
     if (stock !== '') text = `${text} · ${stock}`;
-    this.notice(text);
+    this.notice(text, sealed !== null);
     this.build.rememberPlacement(plan.ok, text);
     for (const c of commands) this.host.submit(c);
     return commands;
+  }
+
+  /**
+   * 24 § Input model: the status row's words when the blocked tiles of a placement, once built, would
+   * shut fortress dwarves away from the hall (the wagon with no hearth): "Coffin placed · seals 4
+   * dwarves at (28,20,z28) from the hall", also an alert in the log at the first such dwarf. Null when
+   * it shuts no one in.
+   */
+  private sealNotice(text: string, blocked: readonly TileIndex[]): string | null {
+    const readers = this.host.readers;
+    const sealed = sealedBy(readers, blocked);
+    if (sealed === null) return null;
+    const first = readers.entities.get(sealed.ids[0] as EntityId, C.Position);
+    if (first === undefined) return null;
+    const home = this.strings.get(`ui.build.seals.${sealed.home}`);
+    const said = this.strings.get('ui.build.seals', { text, n: sealed.ids.length, x: first.x, y: first.y, z: first.z, home });
+    this.log.append('alert', said, readers.calendar.tick, readers.map.index(first.x, first.y, first.z));
+    return said;
   }
 
   /** The key that opens Orders now. */
