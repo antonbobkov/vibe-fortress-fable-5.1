@@ -32,7 +32,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { MoraleReader } from '@systems/morale/reader';
 import { moodValue } from '@systems/morale/mood';
 import { NEED_PRESSURE_THOUGHTS } from '@systems/morale/standing';
-import { personalityBase } from '@systems/morale/thoughts';
+import { personalityBase, personalityMultiplier, type ThoughtDef } from '@systems/morale/thoughts';
 import { TestWorld } from '../scenarios/test-world';
 
 const SEEDS = (process.env['T763_SEEDS'] ?? 'deep-5589-1,probe-2,probe-3,probe-4,probe-5').split(',');
@@ -68,7 +68,43 @@ interface DayRow {
   lonelyMadeHours: number;
 }
 
+/**
+ * T-767: the needs-met floor. For each dwarf-hour whose mood is held up by the floor (raw mood under
+ * 20 − need pressure), the hour of the day and the pressure; and what candidate rules would give.
+ * A need is *pressing* when it is at least halfway from its want threshold to its critical one:
+ * hunger and thirst 67.5 (an unscaled thought of 3.5), rest 75 (3). `lonely` has no critical
+ * threshold; rule `half` counts it in full, `half+social` counts it from social 75 (2.5).
+ */
+interface FloorStats {
+  /** By hour of the day: hours held at exactly 20 (no pressure), Miserable hours, their summed pressure. */
+  heldByHour: number[];
+  miserableByHour: number[];
+  pressureByHour: number[];
+  /** Miserable hours each candidate rule would keep at 20 or more, by hour of day. */
+  rescued: Record<string, number[]>;
+  /** Miserable hours by floored pressure (1 … 20). */
+  pressureHist: number[];
+  /** Miserable hours by the need thoughts present (sorted ids), and by whether any is pressing. */
+  composition: Record<string, number>;
+  /** Miserable hours whose raw mood is above 20 − pressure (not floor-bound but raw-bound). */
+  rawBound: number;
+  /** Days 1–4 only: Miserable hours and those each rule rescues. */
+  early: { miserable: number; rescued: Record<string, number> };
+}
+
+const RULES = ['half', 'half+social', 'flat3', 'flat4', 'flat5'] as const;
+const HALF: Record<string, number> = { hungry: 3.5, thirsty: 3.5, tired: 3, lonely: 2.5 };
+
+function newFloorStats(): FloorStats {
+  const z = (): number[] => Array.from({ length: 24 }, () => 0);
+  const rescued: Record<string, number[]> = {};
+  const early: Record<string, number> = {};
+  for (const r of RULES) { rescued[r] = z(); early[r] = 0; }
+  return { heldByHour: z(), miserableByHour: z(), pressureByHour: z(), rescued, pressureHist: Array.from({ length: 21 }, () => 0), composition: {}, rawBound: 0, early: { miserable: 0, rescued: early } };
+}
+
 interface RunResult {
+  readonly floor: FloorStats;
   readonly seed: string;
   readonly variant: string;
   readonly region: number;
@@ -230,6 +266,8 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
     }
   });
   const dwarvesAtStart = entities.with(C.Brain).length;
+  const floor = newFloorStats();
+  const thoughtDefs = registry.table<ThoughtDef>('thoughts');
   for (let day = 1; day <= DAYS; day += 1) {
     const row: DayRow = { day, alive: 0, lonelyMadeHours: 0, dwarfHours: 0, miserableHours: 0, miserableDwarves: 0, onceMiserableHours: 0, onceMiserableDwarves: 0, lonelyHours: 0, talks: 0, meanMood: 0, minMood: 100 };
     const miserableToday = new Set<EntityId>();
@@ -249,6 +287,41 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
         const pressure = thoughts.reduce((n, t) => n + (NEED_PRESSURE_THOUGHTS.has(t.id) ? Math.max(0, -t.value) : 0), 0);
         const lonelyP = Math.max(0, -(thoughts.find((t) => t.id === 'lonely')?.value ?? 0));
         const positives = Math.min(40, thoughts.reduce((n, t) => n + Math.max(0, t.value), 0));
+        {
+          // T-767: the floor, by hour of the day.
+          const hod = Math.floor((w.tick % TICKS_PER_DAY) / TICKS_PER_HOUR);
+          const P = Math.floor(Math.min(20, pressure));
+          // The reader's mood was computed at the hour's recomputation, when event thoughts had
+          // decayed less than now; the standing need thoughts have not changed since. So the
+          // floor's part is read from the mood itself: it is floor-bound when it equals 20 − P.
+          if (Math.abs(mood - 20) < 1e-9 && P === 0) floor.heldByHour[hod] = (floor.heldByHour[hod] ?? 0) + 1;
+          if (mood < 20) {
+            floor.miserableByHour[hod] = (floor.miserableByHour[hod] ?? 0) + 1;
+            floor.pressureByHour[hod] = (floor.pressureByHour[hod] ?? 0) + P;
+            floor.pressureHist[P] = (floor.pressureHist[P] ?? 0) + 1;
+            if (mood > 20 - P + 1e-9) floor.rawBound += 1;
+            if (day <= 4) floor.early.miserable += 1;
+            const needs = thoughts.filter((t) => NEED_PRESSURE_THOUGHTS.has(t.id) && t.value < 0);
+            const unscaled = (t: { id: string; value: number }): number => {
+              const def = thoughtDefs.byId(t.id);
+              const mult = def === undefined ? 1 : personalityMultiplier(registry, traits, def, t.value);
+              return -t.value / (mult === 0 ? 1 : mult);
+            };
+            const pressing = (t: { id: string; value: number }, social: boolean): boolean => t.id === 'lonely' && !social ? true : unscaled(t) >= (HALF[t.id] ?? 0) - 1e-9;
+            const key = needs.map((t) => `${t.id}${pressing(t, true) ? '!' : ''}`).sort().join('+');
+            floor.composition[key] = (floor.composition[key] ?? 0) + 1;
+            for (const rule of RULES) {
+              let fp: number;
+              if (rule === 'half' || rule === 'half+social') fp = needs.filter((t) => pressing(t, rule === 'half+social')).reduce((n, t) => n - t.value, 0);
+              else fp = Math.max(0, pressure - Number(rule.slice(4)));
+              // A Miserable mood has raw < 20, so a rule keeps it at 20 exactly when its floor pressure floors to 0.
+              if (Math.floor(Math.min(20, fp)) === 0) {
+                floor.rescued[rule]![hod] = (floor.rescued[rule]![hod] ?? 0) + 1;
+                if (day <= 4) floor.early.rescued[rule] = (floor.early.rescued[rule] ?? 0) + 1;
+              }
+            }
+          }
+        }
         const parts = `+${positives.toFixed(1)} -${negatives.toFixed(1)} pressure ${pressure.toFixed(1)} (lonely ${lonelyP.toFixed(1)}) base ${base}`;
         row.dwarfHours += 1;
         moodSum += mood;
@@ -287,7 +360,7 @@ function run(seed: string, meeting: boolean, shift: number): RunResult {
     days.push(row);
   }
   expect(w.tick - startTick).toBe(DAYS * TICKS_PER_DAY);
-  return { seed, variant: `${meeting ? 'meeting' : 'busy'}+${shift}`, region: site.region, biome: site.biome, dwarves: dwarvesAtStart, days, firstMiserable, firstOnceMiserable, thoughtHours, orders, deaths };
+  return { floor, seed, variant: `${meeting ? 'meeting' : 'busy'}+${shift}`, region: site.region, biome: site.biome, dwarves: dwarvesAtStart, days, firstMiserable, firstOnceMiserable, thoughtHours, orders, deaths };
 }
 
 describe('T-763 probe: a busy first fortnight', () => {
@@ -331,6 +404,25 @@ describe('T-763 probe: a busy first fortnight', () => {
       console.log(`SUMMARY ${v}: runs ${rs.length}; a dwarf miserable by day 2 ${by(2)}, day 4 ${by(4)}, day 7 ${by(7)}, day 14 ${by(14)}`);
       console.log(`  miserable share of dwarf-hours by day ${Array.from({ length: DAYS }, (_, k) => share(k + 1)).join(' ')} (all ${Math.round((1000 * hours) / dh) / 10}%)`);
       console.log(`  miserable dwarf-hours ${hours}, lonely-made ${made}; days 1-4: ${early}, lonely-made ${earlyMade}`);
+      // T-767: the floor.
+      const sum24 = (f: (r: RunResult) => number[]): number[] => Array.from({ length: 24 }, (_, h) => rs.reduce((n, r) => n + (f(r)[h] ?? 0), 0));
+      const held = sum24((r) => r.floor.heldByHour);
+      const mis = sum24((r) => r.floor.miserableByHour);
+      const pres = sum24((r) => r.floor.pressureByHour);
+      console.log(`FLOOR ${v}: held at 20 by the floor ${held.reduce((a, b) => a + b, 0)} dwarf-hours of ${dh}; miserable ${mis.reduce((a, b) => a + b, 0)} (raw-bound ${rs.reduce((n, r) => n + r.floor.rawBound, 0)})`);
+      console.log(`  by hour of day: held ${held.join(' ')}`);
+      console.log(`  by hour of day: miserable ${mis.join(' ')}`);
+      console.log(`  by hour of day: mean pressure when miserable ${pres.map((p, h) => (mis[h]! > 0 ? (p / mis[h]!).toFixed(1) : '-')).join(' ')}`);
+      const hist = Array.from({ length: 21 }, (_, k) => rs.reduce((n, r) => n + (r.floor.pressureHist[k] ?? 0), 0));
+      console.log(`  miserable hours by pressure 1..20: ${hist.slice(1).join(' ')}`);
+      const comp: Record<string, number> = {};
+      for (const r of rs) for (const [k, n] of Object.entries(r.floor.composition)) comp[k] = (comp[k] ?? 0) + n;
+      console.log(`  by need thoughts (! = pressing): ${Object.entries(comp).sort((a, b) => b[1] - a[1]).slice(0, 14).map(([k, n]) => `${k || 'none'} ${n}`).join(', ')}`);
+      const earlyMis = rs.reduce((n, r) => n + r.floor.early.miserable, 0);
+      for (const rule of RULES) {
+        const res = sum24((r) => r.floor.rescued[rule]!);
+        console.log(`  rule ${rule}: keeps ${res.reduce((a, b) => a + b, 0)} of the miserable hours at 20+ (days 1-4: ${rs.reduce((n, r) => n + (r.floor.early.rescued[rule] ?? 0), 0)} of ${earlyMis}); by hour ${res.join(' ')}`);
+      }
     }
     if (OUT !== undefined) writeFileSync(OUT, JSON.stringify(results, null, 2));
   });

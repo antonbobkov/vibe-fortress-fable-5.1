@@ -292,14 +292,17 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
         return def !== undefined && def.decay !== 'standing' && currentValue(t, def, ctx.tick) !== 0;
       });
       const traits = entities.get(id, C.Personality)?.traits ?? [];
+      const withinMargin = new Set<number>();
       for (const stand of standingThoughts(id, ctx, this.floorSleepers, this.definitions)) {
         const def = this.definitions.get(stand.id) as ThoughtDef;
+        if (stand.withinMargin === true) withinMargin.add(this.indices.get(stand.id) as number);
         const scaled = stand.value * personalityMultiplier(ctx.registry, traits, def, stand.value);
         next.push({ thought: this.indices.get(stand.id) as number, startTick: ctx.tick, baseValue: scaled });
       }
       const values = next.map((thought) => {
         const def = thoughts.byIndex(thought.thought) as ThoughtDef;
-        return { value: currentValue(thought, def, ctx.tick), need: NEED_PRESSURE_THOUGHTS.has(def.id) };
+        const need = NEED_PRESSURE_THOUGHTS.has(def.id);
+        return { value: currentValue(thought, def, ctx.tick), need, floor: need && !withinMargin.has(thought.thought) };
       });
       const value = moodValue(values, hearth, personalityBase(ctx.registry, traits));
       const tier = tierOf(value);

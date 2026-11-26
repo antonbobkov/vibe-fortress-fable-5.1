@@ -35,12 +35,17 @@ export function currentValue(thought: ActiveThought, def: ThoughtDef, tick: numb
   return Math.abs(value) < 1 ? 0 : value;
 }
 
-/** F-02: mood formula with need pressure as its own term and the needs-met floor. */
-export function moodValue(values: readonly { value: number; need?: boolean }[], hearthTier: number, personalityBase: number): number {
+/**
+ * F-02: mood formula with need pressure as its own term and the needs-met floor. T-767: the floor
+ * gives way only to the pressure of values marked `floor` (a need past its margin, or `lonely`);
+ * `floor` defaults to `need`.
+ */
+export function moodValue(values: readonly { value: number; need?: boolean; floor?: boolean }[], hearthTier: number, personalityBase: number): number {
   const positives = Math.min(POSITIVE_CAP, values.reduce((n, v) => n + Math.max(0, v.value), 0));
   const negatives = Math.min(NEGATIVE_CAP, values.reduce((n, v) => n + Math.max(0, -v.value), 0));
   const needPressure = Math.floor(Math.min(NEED_PRESSURE_CAP, values.reduce((n, v) => n + (v.need ? Math.max(0, -v.value) : 0), 0)));
+  const floorPressure = Math.floor(Math.min(NEED_PRESSURE_CAP, values.reduce((n, v) => n + ((v.floor ?? v.need) === true ? Math.max(0, -v.value) : 0), 0)));
   const hearthBonus = hearthTier * HEARTH_TIER_BONUS;
   const raw = MOOD_BASELINE + positives - negatives - needPressure + hearthBonus + personalityBase;
-  return Math.max(MOOD_MIN, Math.min(MOOD_MAX, Math.max(raw, MOOD_NEEDS_MET_FLOOR - needPressure)));
+  return Math.max(MOOD_MIN, Math.min(MOOD_MAX, Math.max(raw, MOOD_NEEDS_MET_FLOOR - floorPressure)));
 }
