@@ -74,6 +74,8 @@ export interface HintFacts {
   panelLetterShadowed?: boolean;
   /** Work was ordered while the fortress had not run since it was entered (the screen shows it at once). */
   pausedOrder?: boolean;
+  /** 21 § Population cap: the living dwarves of the fortress have reached its cap. */
+  populationCapped?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -127,6 +129,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_breach': return f.cavernBreached === true;
     case 'hint_panel_letters': return f.panelLetterShadowed === true;
     case 'hint_paused': return f.pausedOrder === true;
+    case 'hint_cap': return f.populationCapped === true;
     default: return false;
   }
 }
@@ -442,6 +445,8 @@ export class HintEngine {
       cavernBreached: this.pending('hint_breach'),
       panelLetterShadowed: this.pending('hint_panel_letters'),
       pausedOrder: this.pending('hint_paused'),
+      populationCapped: readers.has('10') && readers.has('21') &&
+        readers.of<{ population(): number }>('10').population() >= readers.of<{ cap(): number }>('21').cap(),
     };
   }
 }

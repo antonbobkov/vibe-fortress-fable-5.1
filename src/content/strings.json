@@ -144,6 +144,7 @@
   "hint.hint_barrel": "A brew needs an empty barrel, and a barrel that holds food or seed is not empty. Order a barrel at the carpenter's workshop.",
   "hint.hint_breach": "A cavern lies open to the fortress, and what lives there can walk in. Wall the opening off [b > Constructions] or hang a door in it set to Lock on alert.",
   "hint.hint_cage": "Cage traps catch anything smaller than a wyrm. Caged beasts can be tamed at a kennel or sold.",
+  "hint.hint_cap": "The fortress has reached its population cap: [p] raises it. The idle wait in the hearth hall. For more to do, put a squad on Train [m], dig down to the caverns and what the deep holds, or build a runeforge [b > Workshops] for runecraft.",
   "hint.hint_cellar": "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two.",
   "hint.hint_containers": "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags.",
   "hint.hint_deep": "Deepsilver lies beside the Sea of Fire. Taking it wakes the Hollow. The threats panel shows the Deep gauge.",

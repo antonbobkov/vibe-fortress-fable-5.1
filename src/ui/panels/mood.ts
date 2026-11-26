@@ -6,10 +6,12 @@
  * a `ui.mood.helps.<thought>` string says what helps under it: the summary's three heaviest negative
  * thoughts, and each dwarf's strongest negative thought that has one.
  */
+import type { ReaderSet } from '@core/readers';
 import type { EntityId } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { MoraleReader, ThoughtView } from '@systems/morale';
 import { MOOD_SUMMARY_THOUGHTS } from '../constants';
+import { shutInFrom } from '../shut-in';
 import type { Strings } from '../strings';
 import type { Surface } from '../surface';
 import { label, separator, wrapHang, wrapLabel, type ListState } from '../widgets';
@@ -36,6 +38,17 @@ const HELPS_INDENT = 2;
 export function helpsText(strings: Strings, thoughtId: string): string | null {
   const key = `ui.mood.helps.${thoughtId}`;
   return strings.has(key) ? strings.get('ui.mood.helps_line', { what: strings.get(key) }) : null;
+}
+
+/**
+ * A dwarf's own `Helps:` line for one of its thoughts: a hungry or thirsty dwarf shut away from what
+ * it needs ({@link shutInFrom}) needs a way out, not the stocks ("Helps: a way out: food is stored
+ * but none is on this dwarf's side …"); any other thought says what {@link helpsText} says.
+ */
+export function dwarfHelpsText(readers: ReaderSet, strings: Strings, id: EntityId, thoughtId: string): string | null {
+  if (thoughtId === 'hungry' && shutInFrom(readers, id, 'hunger')) return strings.get('ui.mood.helps_line', { what: strings.get('ui.mood.helps_shut_in.hunger') });
+  if (thoughtId === 'thirsty' && shutInFrom(readers, id, 'thirst')) return strings.get('ui.mood.helps_line', { what: strings.get('ui.mood.helps_shut_in.thirst') });
+  return helpsText(strings, thoughtId);
 }
 
 /** Of a dwarf's thoughts, strongest first, the id of the first negative one that says what helps; null for none. */
@@ -192,7 +205,7 @@ function layoutDwarves(ctx: PanelContext, morale: MoraleReader, ids: readonly En
       tier: moodTierName(ctx.strings, morale.tier(id)),
       lines: shown.flatMap((t) => {
         const own = wrapHang(thoughtText(t), room, THOUGHT_INDENT);
-        const helps = t.id === helped ? helpsText(ctx.strings, t.id) : null;
+        const helps = t.id === helped ? dwarfHelpsText(ctx.readers, ctx.strings, id, t.id) : null;
         return helps === null ? own : [...own, ...wrapHang(helps, room - HELPS_INDENT, THOUGHT_INDENT).map((line) => `${' '.repeat(HELPS_INDENT)}${line}`)];
       }),
     };

@@ -36,6 +36,7 @@ import { TITLE_IDS, UNITS_ACTIVITY_MIN_COLS } from '../constants';
 import type { Surface } from '../surface';
 import { clampList, label, Marks, separator, table, tabs, type ListState } from '../widgets';
 import { whimProgressText, whimWhereMade, wrapText } from '../messages';
+import { shutInNeed } from '../shut-in';
 import { accel, type PanelContext } from './context';
 import { allCreatures, creatureFact, creatureGlyph, isWounded, kindCounts, CREATURE_KINDS, type CreatureKind, type CreatureRow } from './units-all';
 
@@ -195,6 +196,17 @@ export function idleLabel(ctx: Pick<PanelContext, 'readers' | 'strings'>, id: En
   return ctx.strings.get(unsheltered.includes(id) ? 'ui.units.idle_no_shelter' : 'ui.units.idle');
 }
 
+/** A dwarf shut away from the food or drink it needs now (`shutInNeed`), and not down: the Units list says "Shut in". */
+export function isShutIn(ctx: Pick<PanelContext, 'readers'>, id: EntityId): boolean {
+  return !isDown(ctx, id) && shutInNeed(ctx.readers, id) !== null;
+}
+
+/** A dwarf's activity as the Units list gives it, on both tabs: "Shut in" over anything else, "Idle", or {@link activityLabel}. */
+export function unitsActivity(ctx: Pick<PanelContext, 'readers' | 'registry' | 'strings'>, id: EntityId): string {
+  if (isShutIn(ctx, id)) return ctx.strings.get('ui.units.shut_in');
+  return isIdle(ctx as PanelContext, id) ? idleLabel(ctx, id) : activityLabel(ctx, id);
+}
+
 /** How many dwarves are idle, for the panel title. */
 export function idleCount(ctx: PanelContext): number {
   return dwarvesOf(ctx).filter((id) => isIdle(ctx, id)).length;
@@ -284,10 +296,14 @@ export class UnitsPanel {
   rows(ctx: PanelContext): EntityId[] {
     if (this.tab === 1) return this.creatureRows(ctx).map((r) => r.id);
     const f = this.filter.toLowerCase();
-    const shown = dwarvesOf(ctx).filter((id) => (f === '' || nameOf(ctx, id).toLowerCase().includes(f)) && (!this.idleOnly || isIdle(ctx, id)));
+    const all = dwarvesOf(ctx).filter((id) => (f === '' || nameOf(ctx, id).toLowerCase().includes(f)) && (!this.idleOnly || isIdle(ctx, id)));
+    // A dwarf shut in comes first, in list order, whatever the order below.
+    const shut = all.filter((id) => isShutIn(ctx, id));
+    const shown = shut.length === 0 ? all : [...shut, ...all.filter((id) => !shut.includes(id))];
     if (!this.woundedFirst || !ctx.readers.has('17')) return shown;
     const health = ctx.readers.of<HealthReader>('17');
-    return [...shown.filter((id) => health.isWounded(id)), ...shown.filter((id) => !health.isWounded(id))];
+    const rest = shown.slice(shut.length);
+    return [...shut, ...rest.filter((id) => health.isWounded(id)), ...rest.filter((id) => !health.isWounded(id))];
   }
 
   selectedId(ctx: PanelContext): EntityId {
@@ -650,7 +666,7 @@ function drawAllTab(s: Surface, rect: Rect, panel: UnitsPanel, ctx: PanelContext
     const row = area.row + 1 + (k - first);
     s.tooltip({ col, row, cols: nameCols - 1, rows: 1 }, r.name, { box: false });
     if (k === panel.list.selected) continue;
-    const fg = r.kind === 'hostile' ? t.danger : r.kind === 'visitor' ? t.value : r.kind === 'dwarf' && isDown(ctx, r.id) ? t.alert : r.kind === 'dwarf' && isIdle(ctx, r.id) ? t.dim : null;
+    const fg = r.kind === 'hostile' ? t.danger : r.kind === 'visitor' ? t.value : r.kind === 'dwarf' && (isDown(ctx, r.id) || isShutIn(ctx, r.id)) ? t.alert : r.kind === 'dwarf' && isIdle(ctx, r.id) ? t.dim : null;
     if (fg !== null) label(s, col + nameCols, row, facts.get(k) ?? '', { fg, width: listCols - nameCols, keys: false });
   }
   const foot = rect.row + top + height;
@@ -719,7 +735,7 @@ export function drawUnitsPanel(s: Surface, whole: Rect, panel: UnitsPanel, ctx: 
     ],
     rows.map((id, k) => {
       // 10 § Tipsy: "Tipsy" beside the activity.
-      const activity = isIdle(ctx, id) ? idleLabel(ctx, id) : activityLabel(ctx, id);
+      const activity = unitsActivity(ctx, id);
       const tipsy = dwarves?.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity }) : activity;
       const name = fitName(names[k] as string, nameCols - 2 - markCols(id), names);
       return [`${panel.marks.has(id) ? '•' : k === panel.list.selected ? '▶' : ' '}${name}${holders.has(id) ? ` ${TITLE_MARK}` : ''}`, '', tipsy];
@@ -751,7 +767,9 @@ export function drawUnitsPanel(s: Surface, whole: Rect, panel: UnitsPanel, ctx: 
     const titles = holders.get(id) ?? [];
     const tip = { name: names[index] as string, profession: professionOf(ctx, id), titles: titles.map((title) => strings.get(`ui.title.${title}`)).join(', ') };
     s.tooltip(cells, strings.get(titles.length > 0 ? 'ui.units.row_tip_titled' : 'ui.units.row_tip', tip), { box: false });
-    if (isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, idleLabel(ctx, id), { fg: t.dim, width: listCols - nameCols - MOOD_COLS, keys: false });
+    const shutIn = isShutIn(ctx, id);
+    if (shutIn && index !== panel.list.selected) label(s, activityCol, cells.row, strings.get('ui.units.shut_in'), { fg: t.alert, width: listCols - nameCols - MOOD_COLS, keys: false });
+    if (!shutIn && isIdle(ctx, id) && index !== panel.list.selected) label(s, activityCol, cells.row, idleLabel(ctx, id), { fg: t.dim, width: listCols - nameCols - MOOD_COLS, keys: false });
     if (isDown(ctx, id) && index !== panel.list.selected) {
       const words = activityLabel(ctx, id);
       const shown = dwarves?.isTipsy?.(id) === true ? strings.get('ui.units.tipsy', { activity: words }) : words;

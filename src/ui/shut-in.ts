@@ -95,6 +95,25 @@ export function shutAway(readers: ReaderSet, id: EntityId, need: ShutNeed): bool
   return items.countAvailable(FILTER[need]) > 0 && items.findItem(FILTER[need], tile, 'walker', { reservable: true }) === 0;
 }
 
+/**
+ * `panels.md` § Units and the creature view: the need, thirst first, that a dwarf is shut away from
+ * now: its hunger or thirst is at 10's critical mark, its brain is not on its way to serve it (a
+ * well or a brook on its side serves thirst), and {@link shutAway} holds. Null for none. The check
+ * runs only for a dwarf at a critical mark, so a list of eighty asks it of few.
+ */
+export function shutInNeed(readers: ReaderSet, id: EntityId): ShutNeed | null {
+  return SHUT_NEEDS.find((need) => shutInFrom(readers, id, need)) ?? null;
+}
+
+/** {@link shutInNeed} for one need: at its critical mark, not on its way to serve it, and {@link shutAway}. */
+export function shutInFrom(readers: ReaderSet, id: EntityId, need: ShutNeed): boolean {
+  const needs = readers.entities.get(id, C.Needs);
+  if (needs === undefined || needs[need] < (CRITICAL[need] as number)) return false;
+  const brain = readers.entities.get(id, C.Brain);
+  if (brain?.behavior === 'need' && brain.activity === need) return false;
+  return shutAway(readers, id, need);
+}
+
 /** The fortress dwarves starving now (hunger at `NEED_MAX`, 10's `Starving`) whom {@link shutAway} keeps from food, ascending. */
 export function starvingShutIn(readers: ReaderSet): EntityId[] {
   if (!readers.has('10')) return [];

@@ -466,3 +466,4 @@ Every new row of every table goes at the end of this table, including generated 
 | hints | hint_mood |
 | confirmations | c_lower_alert |
 | confirmations | c_lower_alert_coming |
+| hints | hint_cap |
