@@ -239,9 +239,10 @@ export class ThreeYearsMeasurements {
     }
     const w = this.w;
     const im = w.readers.of<ImmigrationReader>('21');
-    const eligibility = im.eligibility();
     const season = seasonal ? Number(event['season']) : state.deferredSeason;
     const year = seasonal ? Number(event['year']) : state.deferredYear;
+    // The evaluation being made now, which the reader's default (the one to come) is not.
+    const eligibility = im.eligibility({ season, year });
     const guaranteed = year === 1 && ((season === 1 && !state.guaranteedDone[0]) || (season === 2 && !state.guaranteedDone[1]));
     const entry: ImmigrationEvaluation = { tick: ctx.tick, trigger: seasonal ? 'SeasonChanged' : 'DayPassed', waveSize: null, year, season: SEASON_NAMES[season] ?? 'unknown',
       population: this.population(), wealth: w.readers.of<ItemsReader>('13').wealth(),

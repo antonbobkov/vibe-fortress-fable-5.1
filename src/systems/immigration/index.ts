@@ -60,17 +60,17 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
       cap: () => ctx.world.fortress.populationCap,
       wavesSoFar: () => this.wavesSoFarState,
       lastWave: () => this.lastWaveState && { ...this.lastWaveState },
-      eligibility: () => this.eligibility(ctx, seasonOf(ctx.world.calendar.tick), yearOf(ctx.world.calendar.tick)),
+      eligibility: (at) => {
+        const next = at ?? this.upcoming(ctx);
+        return this.eligibility(ctx, next.season, next.year);
+      },
       nextEvaluation: () => SEASON_NAMES[(seasonOf(ctx.world.calendar.tick) + 1) % SEASON_NAMES.length] ?? 'spring',
       lastSkipReason: () => this.lastSkip,
       wealthBar: () => {
-        // The evaluation to come: a deferred one, or the next season's. Year 1's guaranteed waves ask no wealth.
-        const tick = ctx.world.calendar.tick;
-        const deferred = this.deferredUntilTick > 0;
-        const season = deferred ? this.deferredSeason : (seasonOf(tick) + 1) % SEASON_NAMES.length;
-        const year = deferred ? this.deferredYear : yearOf(tick) + (season === 0 ? 1 : 0);
+        // Year 1's guaranteed waves ask no wealth.
+        const next = this.upcoming(ctx);
         const bar = this.wealthBar(ctx);
-        return year === 1 && ((season === 1 && !this.guaranteedDone[0]) || (season === 2 && !this.guaranteedDone[1])) ? { ...bar, need: 0 } : bar;
+        return this.guaranteedWave(next.season, next.year) ? { ...bar, need: 0 } : bar;
       },
       lastSkipWealth: () => this.lastSkipWealthState && { ...this.lastSkipWealthState },
     };
@@ -89,20 +89,32 @@ export class ImmigrationSystem extends BaseSystem<ImmigrationStateV1> {
     });
   }
 
-  private eligibility(ctx: InitContext, season: number, year: number): { eligible: boolean; reasons: string[] } {
+  /** The evaluation to come: a deferred one, or the next season's (21 § Reader). */
+  private upcoming(ctx: InitContext): { season: number; year: number } {
+    if (this.deferredUntilTick > 0) return { season: this.deferredSeason, year: this.deferredYear };
+    const tick = ctx.world.calendar.tick;
+    const season = (seasonOf(tick) + 1) % SEASON_NAMES.length;
+    return { season, year: yearOf(tick) + (season === 0 ? 1 : 0) };
+  }
+
+  /** Whether the evaluation of `season` in `year` brings one of Year 1's guaranteed waves still to come. */
+  private guaranteedWave(season: number, year: number): boolean {
+    return year === 1 && ((season === 1 && !this.guaranteedDone[0]) || (season === 2 && !this.guaranteedDone[1]));
+  }
+
+  private eligibility(ctx: InitContext, season: number, year: number): { eligible: boolean; reasons: string[]; guaranteed: boolean } {
     const population = ctx.readers.of<DwarvesReader>('10').population();
-    if (population === 0) return { eligible: false, reasons: ['no_population'] };
-    if (this.raidActive(ctx)) return { eligible: false, reasons: ['raid'] };
+    if (population === 0) return { eligible: false, reasons: ['no_population'], guaranteed: false };
+    if (this.raidActive(ctx)) return { eligible: false, reasons: ['raid'], guaranteed: false };
     const cap = ctx.world.fortress.populationCap;
-    if (cap <= population) return { eligible: false, reasons: ['cap'] };
-    const guaranteed = year === 1 && ((season === 1 && !this.guaranteedDone[0]) || (season === 2 && !this.guaranteedDone[1]));
-    if (guaranteed) return { eligible: true, reasons: [] };
+    if (cap <= population) return { eligible: false, reasons: ['cap'], guaranteed: false };
+    if (this.guaranteedWave(season, year)) return { eligible: true, reasons: [], guaranteed: true };
     const reasons: string[] = [];
     if (ctx.readers.of<MoraleReader>('15').hallSpirit() < IMMIGRATION_SPIRIT_MIN) reasons.push('spirit');
     const bar = this.wealthBar(ctx);
     if (bar.wealth < bar.need) reasons.push('wealth');
     if (season === 3 && (this.spec?.temper ?? 0) >= 2) reasons.push('winter');
-    return { eligible: reasons.length === 0, reasons };
+    return { eligible: reasons.length === 0, reasons, guaranteed: false };
   }
 
   private evaluate(ctx: TickContext, season: number, year: number): void {

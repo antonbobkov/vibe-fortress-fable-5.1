@@ -933,7 +933,7 @@ function drawChoice(s: Surface, rect: Rect, top: number, panel: MilitaryPanel, c
         text = skill === '' ? name : strings.get('ui.military.add_row', { dwarf: name, skill });
       } else if (choice.kind === 'remove') {
         const weapon = heldWeapon(ctx.readers, ctx.registry, id);
-        text = strings.get('ui.military.remove_row', { dwarf: name, weapon: weapon === 0 ? strings.get('ui.military.unarmed_word') : gearName(ctx.readers, ctx.registry, weapon) });
+        text = strings.get('ui.military.remove_row', { dwarf: name, weapon: weapon === 0 ? strings.get('ui.military.unarmed_word') : gearName(ctx.readers, ctx.registry, strings, weapon) });
       } else text = name;
     }
     const mark = choice.marks.has(id) ? '•' : ' ';

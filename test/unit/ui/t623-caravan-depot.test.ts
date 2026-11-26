@@ -190,13 +190,13 @@ describe('T-623 names', () => {
   it('a mass noun is its own plural, and a draught puts the s on the draught', () => {
     const { w } = setup('t623-plurals');
     const registry = w.game.registry;
-    expect(itemName(registry, 'dung', 40)).toBe('dung');
-    expect(itemName(registry, 'flour', 50)).toBe('flour');
-    expect(itemName(registry, 'salt', 70)).toBe('salt');
-    expect(itemName(registry, 'tallow', 3)).toBe('tallow');
-    expect(itemName(registry, 'mending_draught', 2)).toBe('draughts of mending');
-    expect(itemName(registry, 'boots', 3)).toBe('boots');
-    expect(itemName(registry, 'easy_meal', 2)).toBe('easy meals');
+    expect(itemName(registry, strings, 'dung', 40)).toBe('dung');
+    expect(itemName(registry, strings, 'flour', 50)).toBe('flour');
+    expect(itemName(registry, strings, 'salt', 70)).toBe('salt');
+    expect(itemName(registry, strings, 'tallow', 3)).toBe('tallow');
+    expect(itemName(registry, strings, 'mending_draught', 2)).toBe('draughts of mending');
+    expect(itemName(registry, strings, 'boots', 3)).toBe('boots');
+    expect(itemName(registry, strings, 'easy_meal', 2)).toBe('easy meals');
   });
 
   it('the trade title names the Broker as none when the dwarf who trades holds no title', () => {

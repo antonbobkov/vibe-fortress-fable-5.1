@@ -11,7 +11,7 @@ import type { Registry } from '@core/registry';
 import type { EntityId } from '@core/types';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
-import { enchantedName, materialItemName, whereMade } from '../messages';
+import { enchantedName, materialItemName, qualityWord, whereMade } from '../messages';
 import type { Strings } from '../strings';
 
 export interface WeaponRow {
@@ -35,7 +35,6 @@ interface ArmorRow {
   readonly layer?: string;
 }
 
-const QUALITY_WORDS = ['poor', 'common', 'fine', 'superior', 'exceptional', 'masterwork'];
 /** The quality every made item has unless its maker rolled better or worse: not written after a name. */
 const COMMON_QUALITY = 1;
 
@@ -162,12 +161,12 @@ export function whereWeaponMade(strings: Strings, registry: Registry, weaponClas
  * An item a creature carries, by name: "iron spear", "iron spear (fine)", "24 iron bolts". The
  * quality is written when it is not common; an enchantment's suffix is part of the name.
  */
-export function gearName(readers: ReaderSet, registry: Registry, itemId: EntityId): string {
+export function gearName(readers: ReaderSet, registry: Registry, strings: Strings, itemId: EntityId): string {
   const item = readers.entities.get(itemId, C.Item);
   if (item === undefined) return '';
   const type = registry.table<ItemRow>('items').byIndex(item.type);
   const material = registry.table<{ id: string; name: string }>('materials').byIndex(item.material)?.name ?? '';
   const name = enchantedName(readers, itemId, materialItemName(material, type ?? { name: '' }, item.count));
   const counted = item.count > 1 ? `${item.count} ${name}` : name;
-  return type?.quality === true && item.quality !== COMMON_QUALITY ? `${counted} (${QUALITY_WORDS[item.quality] ?? ''})` : counted;
+  return type?.quality === true && item.quality !== COMMON_QUALITY ? `${counted} (${qualityWord(strings, item.quality)})` : counted;
 }

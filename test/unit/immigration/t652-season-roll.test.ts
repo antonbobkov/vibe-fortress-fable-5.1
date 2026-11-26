@@ -39,7 +39,7 @@ function play(seed: string, summerTier: MoodTier): { size: number; autumn: strin
   const im = w.game.world.scheduler.byId('21') as ImmigrationSystem;
   const rng = im.serialize().rng;
   setSpirit(w, 2);
-  expect(w.readers.of<ImmigrationReader>('21').eligibility()).toEqual({ eligible: true, reasons: [] });
+  expect(w.readers.of<ImmigrationReader>('21').eligibility()).toEqual({ eligible: true, reasons: [], guaranteed: false });
   const waves = im.serialize().wavesSoFar;
   w.game.world.emit({ type: 'SeasonChanged', season: 2, year: 2 });
   w.step(1);

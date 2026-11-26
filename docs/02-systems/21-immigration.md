@@ -66,7 +66,7 @@ with `hallSpiritTierIndex` 0..4 for Miserable..Ecstatic and `FINE_INDEX = 2`. A 
 ### Reader
 
 - `immigration.cap()`, `immigration.wavesSoFar()`, `immigration.lastWave()`
-- `immigration.eligibility()` — `{ eligible, reasons: string[] }` computed from current readers for the panel
+- `immigration.eligibility(at?)` — `{ eligible, reasons: string[], guaranteed }` for the evaluation to come (a deferred one, or the next season's, as `wealthBar()` reads it), or for `at` (`{ season, year }`), computed from current readers for the panel; `guaranteed` when it is one of Year 1's guaranteed waves, which is eligible whatever the spirit, wealth or season
 - `immigration.nextEvaluation()` — the next season name
 - `immigration.lastSkipReason()` — why the last wave was skipped, or null
 - `immigration.wealthBar()` — `{ wealth, need }`: the fortress's wealth now and what the evaluation to come asks of it, `WEALTH_PER_WAVE × wavesSoFar` (0 when it is one of Year 1's guaranteed waves)

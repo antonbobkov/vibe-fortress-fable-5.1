@@ -22,13 +22,22 @@ export function changePopulationCap(ctx: PanelContext, delta: number): void {
   ctx.submit({ type: 'SetPopulationCap', n: cap + delta });
 }
 
-/** Why a wave can come or not (21 § Eligibility), the first reason in words. */
-export function eligibilityText(reasons: readonly string[], strings: Strings): string {
+/**
+ * Whether the evaluation to come can bring a wave (21 § Eligibility), the first reason in words; one
+ * of Year 1's guaranteed waves says the cousins are coming.
+ */
+export function eligibilityText(reasons: readonly string[], strings: Strings, guaranteed = false): string {
   const reason = reasons[0];
-  if (!reason) return strings.get('ui.population.eligible_yes');
+  if (!reason) return strings.get(guaranteed ? 'ui.population.eligible_guaranteed' : 'ui.population.eligible_yes');
   if (reason === 'cap') return strings.get('ui.population.paused_cap');
   const words = strings.has(`ui.population.reason.${reason}`) ? strings.get(`ui.population.reason.${reason}`) : reason;
   return strings.get('ui.population.eligible_no', { reason: words });
+}
+
+/** The last skip's reason in words (`ui.population.skip.<code>`); an unknown code as it is. */
+export function skipWords(reason: string, strings: Strings): string {
+  const key = `ui.population.skip.${reason}`;
+  return strings.has(key) ? strings.get(key) : reason;
 }
 
 export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): void {
@@ -55,7 +64,8 @@ export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): 
   label(s, col, rect.row + 3, strings.get('ui.population.next', { season: seasonName(strings, next) }), { width });
   // Why no wave comes is the line's fact: it wraps under itself rather than being cut.
   let row = rect.row + 4;
-  row += wrapLabel(s, col, row, eligibilityText(immigration.eligibility().reasons, strings), { width, indent: 2 });
+  const eligibility = immigration.eligibility();
+  row += wrapLabel(s, col, row, eligibilityText(eligibility.reasons, strings, eligibility.guaranteed), { width, indent: 2 });
   // While wealth holds the next wave back, its bar and the wealth (Stocks' figure), whatever the first reason.
   const bar = immigration.wealthBar();
   if (bar.wealth < bar.need) {
@@ -72,6 +82,6 @@ export function drawPopulationPanel(s: Surface, rect: Rect, ctx: PanelContext): 
   const skipped = skip === 'wealth' ? immigration.lastSkipWealth() : null;
   const skipText = skipped !== null
     ? strings.get('ui.population.last_skip_wealth', { wealth: markFigure(skipped.wealth), need: markFigure(skipped.need) })
-    : strings.get('ui.population.last_skip', { reason: skip ?? '' });
+    : strings.get('ui.population.last_skip', { reason: skip === null ? '' : skipWords(skip, strings) });
   if (skip) wrapLabel(s, col, row, skipText, { fg: s.theme.dim, width, indent: 2 });
 }

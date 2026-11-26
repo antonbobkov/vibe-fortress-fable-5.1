@@ -30,7 +30,7 @@ const scenario: Scenario = {
     const high = new TestWorld({ seed: 'im-threshold-high', world: 'flat-test', embark: 'none', startTick: YEAR_TWO_SUMMER - 2 });
     for (let n = 0; n < 7; n += 1) high.spawnDwarf();
     withSpirit(high, 60);
-    expect(high.readers.of<ImmigrationReader>('21').eligibility()).toEqual({ eligible: true, reasons: [] });
+    expect(high.readers.of<ImmigrationReader>('21').eligibility()).toEqual({ eligible: true, reasons: [], guaranteed: false });
     let arrivals = 0;
     for (let seed = 1; seed <= 100; seed += 1) {
       if (seasonRoll(`im-threshold-${seed}`, 2, 1) < IMMIGRATION_PERMILLE) arrivals += 1;

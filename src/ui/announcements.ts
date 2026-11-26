@@ -296,7 +296,7 @@ export class AnnouncementLog {
     if (event.type === 'IceMelted') out['place'] = this.icePlace(readers, (e['tiles'] as readonly TileIndex[] | undefined) ?? []);
     if (event.type === 'PlotNeedsSeeds') out['plot'] = zoneName({ readers, strings: this.strings }, Number(e['zoneId'])) || this.strings.get('ui.zone.type.farm_plot');
     // A workshop waiting for an empty container names the container class (12 § Operation 3).
-    if (event.type === 'WorkshopBlocked' && typeof e['container'] === 'string') out['container'] = itemName(this.registry, e['container']);
+    if (event.type === 'WorkshopBlocked' && typeof e['container'] === 'string') out['container'] = itemName(this.registry, this.strings, e['container']);
     const crafter = e['crafterId'];
     if (typeof crafter === 'number') out['crafter'] = readers.entities.get(crafter, C.Creature)?.name ?? '';
     const smith = e['smithId'];

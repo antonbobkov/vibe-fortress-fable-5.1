@@ -16,7 +16,7 @@ const scenario: Scenario = {
     w.until((world) => world.events('ImmigrationSkipped').length > 0, 10);
     const immigration = w.readers.of<ImmigrationReader>('21');
     expect(immigration.cap()).toBe(20);
-    expect(immigration.eligibility()).toEqual({ eligible: false, reasons: ['cap'] });
+    expect(immigration.eligibility()).toEqual({ eligible: false, reasons: ['cap'], guaranteed: false });
     expect(immigration.wavesSoFar()).toBe(0);
     expect(w.events('ImmigrationSkipped')[0]?.['reason']).toBe('cap');
     w.submit({ type: 'SetPopulationCap', n: 999 });

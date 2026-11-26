@@ -679,6 +679,13 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       const killer = (event['killer'] ?? event['killerId'] ?? 0) as EntityId;
       this.threatThrottles.delete(id);
       this.targets.onCreatureDied(id);
+      // § Squads: a dead member leaves its squad at once, not at the squads' next step.
+      for (const squadId of ctx.world.entities.with(C.Squad)) {
+        const squad = ctx.world.entities.get(squadId, C.Squad);
+        if (squad === undefined) continue;
+        if (squad.members.includes(id)) squad.members = squad.members.filter((m) => m !== id);
+        if (squad.leaderId === id) squad.leaderId = 0;
+      }
       if (killer !== 0 && ctx.world.entities.alive(killer)) {
         const killerCreature = ctx.world.entities.get(killer, C.Creature);
         // The victim is already gone: its faction and, for a wild animal, its state come from the death event.

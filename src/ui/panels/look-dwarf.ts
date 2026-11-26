@@ -139,7 +139,7 @@ export function equipmentSpans(readers: ReaderSet, registry: Registry, strings: 
     }
   }
   if (held.length === 0) return dwarf ? [{ text: strings.get('ui.look.dwarf.equipment_none') }] : null;
-  return stringSpans(strings, 'ui.look.dwarf.equipment', { list: itemLinks(readers, registry, held) });
+  return stringSpans(strings, 'ui.look.dwarf.equipment', { list: itemLinks(readers, registry, strings, held) });
 }
 
 /** What a creature wears (10 § Clothing): "Wearing linen tunic, linen trousers, leather boots"; null for a creature with no clothing slots. */
@@ -153,12 +153,12 @@ export function wearingSpans(readers: ReaderSet, registry: Registry, strings: St
   const clothing = readers.entities.get(id, C.Equipment)?.clothing;
   if (clothing === undefined) return null;
   const worn = (['body', 'legs', 'feet', 'over'] as const).map((slot) => clothing[slot]).filter((item) => item !== 0 && readers.entities.alive(item));
-  return worn.length === 0 ? [{ text: strings.get('ui.look.dwarf.wearing_none') }] : stringSpans(strings, 'ui.look.dwarf.wearing', { list: itemLinks(readers, registry, worn) });
+  return worn.length === 0 ? [{ text: strings.get('ui.look.dwarf.wearing_none') }] : stringSpans(strings, 'ui.look.dwarf.wearing', { list: itemLinks(readers, registry, strings, worn) });
 }
 
 /** Items by name, each a link to its view, joined by commas. */
-function itemLinks(readers: ReaderSet, registry: Registry, items: readonly EntityId[]): Span[] {
-  return joinSpans(items.map((item) => [{ text: gearName(readers, registry, item), target: { kind: 'item', id: item } }]), ', ');
+function itemLinks(readers: ReaderSet, registry: Registry, strings: Strings, items: readonly EntityId[]): Span[] {
+  return joinSpans(items.map((item) => [{ text: gearName(readers, registry, strings, item), target: { kind: 'item', id: item } }]), ', ');
 }
 
 /** "Relations friends: Brynja Coldhammer; grudges: Orm Ashbrow" (10 § Relationships), or "Relations none yet". */

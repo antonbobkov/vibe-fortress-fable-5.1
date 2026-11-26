@@ -15,7 +15,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import { patternCell } from '@render/things';
-import { agedMaterial, buildingName, enchantedName, filterText, itemRotText, materialItemName, wrapHang, zoneName } from '../messages';
+import { agedMaterial, buildingName, enchantedName, filterText, itemRotText, materialItemName, qualityWord, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import { creatureName, creatureNameOf } from '../creature-name';
 import { goodsWaiting, goodsWaitText } from '../goods-wait';
@@ -207,7 +207,7 @@ export function tileContents(readers: ReaderSet, registry: Registry, strings: St
   const wait = buildingWait(readers, strings, i);
   if (others === 0) return summary + wait;
   if (others > 1) return strings.get('ui.status.here_more', { summary, n: others }) + wait;
-  const thing = items.length === 1 ? itemName(readers, registry, items[0] as EntityId) : creatureNameOf(readers, registry, creatures[1] as EntityId);
+  const thing = items.length === 1 ? itemName(readers, registry, strings, items[0] as EntityId) : creatureNameOf(readers, registry, creatures[1] as EntityId);
   return strings.get('ui.status.here_one', { summary, thing }) + wait;
 }
 
@@ -477,9 +477,9 @@ function itemRow(readers: ReaderSet, registry: Registry, strings: Strings, id: E
   const it = readers.of<ItemsReaderLike>('13');
   const rec = it.get(id);
   const def = rec === undefined ? undefined : it.def(rec.type);
-  const name = itemName(readers, registry, id).replace(/^\d+ /, '') + (def?.quality === true && rec !== undefined ? ` (${QUALITY_WORDS[rec.quality] ?? ''})` : '');
+  const name = itemName(readers, registry, strings, id).replace(/^\d+ /, '') + (def?.quality === true && rec !== undefined ? ` (${qualityWord(strings, rec.quality)})` : '');
   const notes: { text: string; tone: 'text' | 'dim' | 'alert' }[] = [];
-  const flags = FLAG_WORDS.filter(([flag]) => ((rec?.flags ?? 0) & flag) !== 0).map(([, word]) => word);
+  const flags = flagWords(strings, rec?.flags ?? 0);
   if (flags.length > 0) notes.push({ text: flags.join(', '), tone: 'dim' });
   // 13 § Rot: under a perishable item, its stage and the days it has left, in the alert colour once stale.
   const rot = itemRotText({ readers, strings }, id);
@@ -852,8 +852,8 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
 }
 
 /** An item's view is titled by its name without its count: "pine bed", "bellwine". */
-export function itemTitle(readers: ReaderSet, registry: Registry, id: EntityId): string {
-  return has(readers, '13') ? itemName(readers, registry, id).replace(/^\d+ /, '') : '';
+export function itemTitle(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string {
+  return has(readers, '13') ? itemName(readers, registry, strings, id).replace(/^\d+ /, '') : '';
 }
 
 /** The creature or item that holds an item at the last: its carrier's carrier, its container's; the item itself when it lies loose. */
@@ -890,20 +890,20 @@ function creatureLink(readers: ReaderSet, registry: Registry, id: EntityId): Spa
 }
 
 /** An item by its name (with its count when more than one), a link to its view. */
-function itemLink(readers: ReaderSet, registry: Registry, id: EntityId): Span[] {
+function itemLink(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): Span[] {
   const count = readers.of<ItemsReader>('13').get(id)?.count ?? 1;
-  return [{ text: count > 1 ? itemName(readers, registry, id) : itemTitle(readers, registry, id), target: { kind: 'item', id } }];
+  return [{ text: count > 1 ? itemName(readers, registry, strings, id) : itemTitle(readers, registry, strings, id), target: { kind: 'item', id } }];
 }
 
 /**
  * What a container holds, its stacks grouped by kind and material as named ("20 dimcap ale, 3 plump
  * helmet"), in the order each first appears; each group a link to its first stack.
  */
-function heldGroups(readers: ReaderSet, registry: Registry, held: readonly EntityId[]): Span[] {
+function heldGroups(readers: ReaderSet, registry: Registry, strings: Strings, held: readonly EntityId[]): Span[] {
   const it = readers.of<ItemsReader>('13');
   const groups = new Map<string, { first: EntityId; count: number }>();
   for (const inner of held) {
-    const key = itemTitle(readers, registry, inner);
+    const key = itemTitle(readers, registry, strings, inner);
     const group = groups.get(key);
     const count = it.get(inner)?.count ?? 1;
     if (group === undefined) groups.set(key, { first: inner, count });
@@ -938,7 +938,7 @@ export function heldSpans(readers: ReaderSet, registry: Registry, strings: Strin
   const zone: Span[] = zoneId === 0 ? [] : [{ text: zoneName({ readers, strings }, zoneId), target: { kind: 'zone', id: zoneId } }];
   if (rec.carriedBy !== 0) {
     const carrier = rec.carriedBy;
-    if (!readers.entities.has(carrier, C.Creature)) return stringSpans(strings, 'ui.look.item.carried', { who: itemLink(readers, registry, carrier) });
+    if (!readers.entities.has(carrier, C.Creature)) return stringSpans(strings, 'ui.look.item.carried', { who: itemLink(readers, registry, strings, carrier) });
     return stringSpans(strings, worn(readers, carrier, id) ? 'ui.look.item.worn' : 'ui.look.item.carried', { who: creatureLink(readers, registry, carrier) });
   }
   if (rec.containerId !== 0) {
@@ -947,7 +947,7 @@ export function heldSpans(readers: ReaderSet, registry: Registry, strings: Strin
       const building: Span[] = [{ text: buildingName({ readers, registry }, holder), target: { kind: 'building', id: holder } }];
       return stringSpans(strings, 'ui.look.item.in', { container: building });
     }
-    const container = itemLink(readers, registry, holder);
+    const container = itemLink(readers, registry, strings, holder);
     return zone.length === 0 ? stringSpans(strings, 'ui.look.item.in', { container }) : stringSpans(strings, 'ui.look.item.in_zone', { container, zone });
   }
   if (readers.entities.has(id, C.Position)) return zone.length === 0 ? [{ text: strings.get('ui.look.item.lying') }] : stringSpans(strings, 'ui.look.item.lying_in', { zone });
@@ -962,7 +962,7 @@ export function itemSummary(readers: ReaderSet, strings: Strings, id: EntityId):
   const def = it.def(rec.type);
   const top = it.categoryOf(rec.type).split('/')[0] ?? '';
   const parts = [capitalize(top.replace(/_/g, ' '))];
-  if (def?.quality === true) parts.push(QUALITY_WORDS[rec.quality] ?? '');
+  if (def?.quality === true) parts.push(qualityWord(strings, rec.quality));
   if (rec.count > 1) parts.push(strings.get('ui.look.item.count', { n: rec.count }));
   parts.push(strings.get('ui.look.item.value', { value: it.value(id) }));
   return parts.filter((part) => part !== '').join(' · ');
@@ -1042,14 +1042,14 @@ function itemFields(s: Surface, pen: Pen, readers: ReaderSet, registry: Registry
   const material = agedMaterial(strings, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
   rows.push({ name: 'type', value: [{ text: def?.name ?? '' }] });
   if (material !== '') rows.push({ name: 'material', value: [{ text: material }] });
-  if (def?.quality === true) rows.push({ name: 'quality', value: [{ text: QUALITY_WORDS[rec.quality] ?? '' }] });
+  if (def?.quality === true) rows.push({ name: 'quality', value: [{ text: qualityWord(strings, rec.quality) }] });
   rows.push({ name: 'count', value: [{ text: String(rec.count) }] });
   rows.push({ name: 'value', value: [{ text: strings.get('ui.look.item.value', { value: it.value(id) }) }] });
   const rot = itemRotText({ readers, strings }, id);
   if (rot !== '') rows.push({ name: 'rot', value: [{ text: rot }], fg: it.rotStage(id) >= 1 ? t.alert : t.dim });
   if (rec.crafterId !== 0 && readers.entities.has(rec.crafterId, C.Creature)) rows.push({ name: 'made_by', value: creatureLink(readers, registry, rec.crafterId) });
   rows.push({ name: 'owner', value: rec.ownerId !== 0 && readers.entities.has(rec.ownerId, C.Creature) ? creatureLink(readers, registry, rec.ownerId) : [{ text: strings.get('ui.look.item.no_one') }] });
-  const flags = FLAG_WORDS.filter(([flag]) => (rec.flags & flag) !== 0).map(([, word]) => word);
+  const flags = flagWords(strings, rec.flags);
   rows.push({ name: 'flags', value: [{ text: flags.length > 0 ? flags.join(', ') : strings.get('ui.look.item.none') }] });
   if (rec.reservedBy !== 0 && has(readers, '11')) {
     const jobs = readers.of<JobsReader>('11');
@@ -1059,7 +1059,7 @@ function itemFields(s: Surface, pen: Pen, readers: ReaderSet, registry: Registry
     rows.push({ name: 'for', value: worker !== 0 && readers.entities.has(worker, C.Creature) ? stringSpans(strings, 'ui.look.item.for_worker', { job: name, who: creatureLink(readers, registry, worker) }) : [{ text: name }] });
   }
   const held = (it.containerRecord(id)?.contents ?? []).filter((inner) => it.get(inner) !== undefined);
-  if (held.length > 0) rows.push({ name: 'holds', value: heldGroups(readers, registry, held) });
+  if (held.length > 0) rows.push({ name: 'holds', value: heldGroups(readers, registry, strings, held) });
   for (const r of rows) {
     // The labels dim, as the mock-ups draw them; a value that wraps hangs under the value column.
     const head = strings.get(`ui.look.item.field.${r.name}`).padEnd(pad);
@@ -1226,7 +1226,7 @@ export function channelLine(readers: ReaderSet, registry: Registry, strings: Str
   if (spell === null) return null;
   const it = readers.of<ItemsReaderLike>('13');
   const rec = it.get(weapon);
-  const quality = rec !== undefined && it.def(rec.type)?.quality === true ? ` (${QUALITY_WORDS[rec.quality] ?? ''})` : '';
+  const quality = rec !== undefined && it.def(rec.type)?.quality === true ? ` (${qualityWord(strings, rec.quality)})` : '';
   return strings.get('ui.look.channel', { item: `${channelName(readers, registry, weapon)}${quality}`, spell });
 }
 
@@ -1276,8 +1276,8 @@ export function itemsAt(readers: ReaderSet, i: TileIndex): EntityId[] {
 /** A wound's treatment flags in the order its line names them: `ui.look.wound.<flag>`. */
 const WOUND_FLAGS = ['bandaged', 'splinted', 'dressed', 'sutured', 'cleaned', 'infected'] as const;
 
-const QUALITY_WORDS = ['poor', 'common', 'fine', 'superior', 'exceptional', 'masterwork'];
-const FLAG_WORDS: [number, string][] = [
+/** An item's flags by bit, each named by `ui.look.item.flag.<flag>`. */
+const ITEM_FLAGS: [number, string][] = [
   [1, 'forbidden'],
   [2, 'dump'],
   [4, 'melt'],
@@ -1285,14 +1285,19 @@ const FLAG_WORDS: [number, string][] = [
   [16, 'owned'],
 ];
 
+/** The words of an item's flags: "forbidden, melt". */
+function flagWords(strings: Strings, flags: number): string[] {
+  return ITEM_FLAGS.filter(([flag]) => (flags & flag) !== 0).map(([, name]) => strings.get(`ui.look.item.flag.${name}`));
+}
+
 /** An item as a count and a name: "5 oak logs" is written "5 oak log", as the item section does. */
-function itemName(readers: ReaderSet, registry: Registry, id: EntityId): string {
+function itemName(readers: ReaderSet, registry: Registry, strings: Strings, id: EntityId): string {
   const it = readers.of<ItemsReaderLike>('13');
   const rec = it.get(id);
   if (rec === undefined) return '';
   const def = it.def(rec.type);
   // 13 § Aging in a cellar: "aged bellwine", "vintage cheese".
-  const material = agedMaterial(null, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
+  const material = agedMaterial(strings, registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '', rec.age);
   const meal = has(readers, '12') ? readers.of<{ mealName(itemId: EntityId): string | null }>('12').mealName(id) : null;
   const suffix = has(readers, '25') ? readers.of<MagicReader>('25').spellOf(id)?.suffix : undefined;
   const name = enchantedName(readers, id, meal ?? materialItemName(material, def ?? { name: '' }));

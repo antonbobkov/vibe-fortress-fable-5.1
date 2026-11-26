@@ -729,7 +729,7 @@ export class FortressScreen implements Screen {
       if (!readers.entities.has(id, C.Position) || !creatureShown(readers, id)) return null;
       return { id, kind: 'creature', name: creatureWords(this.strings, this.host.registry, creature.name, creature.species) };
     }
-    if (readers.entities.has(id, C.Item) && itemShown(readers, id)) return { id, kind: 'item', name: itemTitle(readers, this.host.registry, id) };
+    if (readers.entities.has(id, C.Item) && itemShown(readers, id)) return { id, kind: 'item', name: itemTitle(readers, this.host.registry, this.strings, id) };
     return null;
   }
 
@@ -1603,7 +1603,7 @@ export class FortressScreen implements Screen {
     const tile = readers.has('13') ? readers.of<ItemsReader>('13').tileOf(id) : -1;
     this.openPanel('look');
     if (from === 'fresh') this.lookBack.length = 0;
-    this.lookAt = { kind: 'item', id, name: itemTitle(readers, this.host.registry, id), last: tile >= 0 ? tile : null };
+    this.lookAt = { kind: 'item', id, name: itemTitle(readers, this.host.registry, this.strings, id), last: tile >= 0 ? tile : null };
     this.lookView.key = '';
     this.trackLook();
   }
@@ -1806,7 +1806,7 @@ export class FortressScreen implements Screen {
       tile = itemShown(readers, at.id) ? readers.of<ItemsReader>('13').tileOf(at.id) : -1;
       if (tile >= 0) {
         const rec = readers.of<ItemsReader>('13').get(at.id);
-        at.name = itemTitle(readers, this.host.registry, at.id) || at.name;
+        at.name = itemTitle(readers, this.host.registry, this.strings, at.id) || at.name;
         at.sub = itemSummary(readers, this.strings, at.id);
         at.holder = rec !== undefined && rec.carriedBy !== 0 && readers.entities.has(rec.carriedBy, C.Creature) ? rec.carriedBy : 0;
       } else if (this.mergedInto()) return;
@@ -1846,7 +1846,7 @@ export class FortressScreen implements Screen {
       if (next?.kind !== 'merged') break;
       into = next.into;
     }
-    this.lookAt = { kind: 'item', id: into, name: itemTitle(readers, this.host.registry, into) || at.name, last: at.last };
+    this.lookAt = { kind: 'item', id: into, name: itemTitle(readers, this.host.registry, this.strings, into) || at.name, last: at.last };
     this.lookView.key = '';
     this.trackLook();
     return true;
@@ -1940,7 +1940,7 @@ export class FortressScreen implements Screen {
       const sink = this.lookView.sink(key, open);
       this.lookView.key = key;
       const facts = { name: this.lookTitle(''), sub: at.sub ?? '', holder: at.kind === 'item' ? at.holder ?? 0 : 0, last: at.last };
-      drawGoneView(surface, body, readers, this.host.registry, this.strings, gone, facts, sink, this.lookFoot(), (id) => itemTitle(readers, this.host.registry, id));
+      drawGoneView(surface, body, readers, this.host.registry, this.strings, gone, facts, sink, this.lookFoot(), (id) => itemTitle(readers, this.host.registry, this.strings, id));
     } else if (at.kind === 'creature') {
       const submit = (cmds: readonly Command[]): void => { for (const c of cmds) this.host.submit(c); };
       const picker = this.lookPasture.showing(readers, at.id) ? (region: Rect): void => drawPastureChoice(surface, region, this.ctx, this.lookPasture, submit) : undefined;

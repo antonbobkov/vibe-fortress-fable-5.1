@@ -312,11 +312,11 @@ describe('T-640 a trade request names its material, merges with its twin, and it
   it('names a request by item and material, an animal by its species', () => {
     const { w } = setup('t640-request-names');
     const registry = w.game.registry;
-    expect(requestText(registry, { itemType: 'seed', material: 'dimcap' })).toBe('seed: dimcap');
-    expect(requestText(registry, { itemType: 'bar', material: 'iron' })).toBe('bar: iron');
-    expect(requestText(registry, { itemType: 'bar' })).toBe('bar');
-    expect(requestText(registry, { itemType: 'cow' })).toBe('cow');
-    expect(requestText(registry, { itemType: 'cloth', material: 'wool_cloth' })).toBe('wool cloth');
+    expect(requestText(registry, strings, { itemType: 'seed', material: 'dimcap' })).toBe('seed: dimcap');
+    expect(requestText(registry, strings, { itemType: 'bar', material: 'iron' })).toBe('bar: iron');
+    expect(requestText(registry, strings, { itemType: 'bar' })).toBe('bar');
+    expect(requestText(registry, strings, { itemType: 'cow' })).toBe('cow');
+    expect(requestText(registry, strings, { itemType: 'cloth', material: 'wool_cloth' })).toBe('wool cloth');
   });
 
   it('two requests of one item and material are one row at the higher priority', () => {

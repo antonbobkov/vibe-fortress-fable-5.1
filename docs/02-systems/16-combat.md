@@ -140,6 +140,7 @@ Order = kill { targetId } | station { tile } | patrol { tiles } | follow { dwarf
 - `CreateSquad { leaderId }` adds a nonzero leader as its first member with the same Soldier duty state as any member; a leader already in another squad rejects with `already_in_squad`. `SetSquadLeader` accepts 0 to clear the leader or a living adult member of that squad; a nonmember rejects with `not_found`.
 - `SetSquadEquipment` accepts partial preferences: `weaponClass` is `any` or an authored weapon class that is not only a channel's, `armor` is `metal`, `leather` or `any`, `ranged` is a boolean, and `draughts` is an ordered list of distinct draught item ids that soldiers drink (25 § Draughts; an empty list clears it). Invalid values or a non-record reject with `bad_setting` before any preference is stored.
 - The Warden, if any, is the leader of the first squad by default; leaders are chosen by the player otherwise. A squad without a leader still works.
+- A member that dies leaves its squad when its `CreatureDied` is handled, and a leader that dies leaves the squad without a leader, so no squad ever lists a dead member.
 
 ### Training
 
