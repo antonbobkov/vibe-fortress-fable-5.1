@@ -1,5 +1,5 @@
 /** The paused, two-column exchange of ui-screens/trade-session.md (T-M7-03). */
-import { C } from '@core/components';
+import { C, type Item } from '@core/components';
 import type { Command } from '@core/commands';
 import type { ReaderSet } from '@core/readers';
 import type { Registry } from '@core/registry';
@@ -48,7 +48,15 @@ export function tradeTotals(
 }
 
 interface GoodsMember { id: EntityId; count: number; value: number }
-interface GoodsRow extends GoodsMember { name: string; type: number; material: number; quality: number; members: readonly GoodsMember[] }
+interface GoodsRow extends GoodsMember { name: string; type: number; material: number; quality: number; key: string; members: readonly GoodsMember[] }
+
+/**
+ * What stacks that make one row share (`trade-session.md`): item type, material, quality and state
+ * (rot stage, wear, an enchantment, a cellar's age), as Stocks merges like stacks.
+ */
+function goodsKey(rec: Pick<Item, 'type' | 'material' | 'quality' | 'rotStage' | 'wear' | 'enchant' | 'age'>): string {
+  return `${rec.type}:${rec.material}:${rec.quality}:${rec.rotStage}:${rec.wear}:${rec.enchant?.id ?? ''}.${rec.enchant?.tier ?? ''}:${rec.age ?? 0}`;
+}
 
 export class TradeSessionScreen implements Screen {
   readonly id = 'trade_session' as const;
@@ -85,17 +93,19 @@ export class TradeSessionScreen implements Screen {
       const def = items.def(rec.type);
       const material = this.host.registry.table<{ id: string; name: string }>('materials').byIndex(rec.material)?.name ?? '';
       const value = side === 'merchant' ? trade.price(civ, id) : trade.valuation(civ, id);
-      return [{ id, count: rec.count, value, name: materialItemName(material, this.host.registry.table<{ id: string; name: string; plural?: string }>('items').byIndex(rec.type) ?? { name: def?.name ?? this.strings.get('ui.item.goods') }, rec.count), type: rec.type, material: rec.material, quality: rec.quality, members: [{ id, count: rec.count, value }] }];
+      return [{ id, count: rec.count, value, name: materialItemName(material, this.host.registry.table<{ id: string; name: string; plural?: string }>('items').byIndex(rec.type) ?? { name: def?.name ?? this.strings.get('ui.item.goods') }, rec.count), type: rec.type, material: rec.material, quality: rec.quality, key: goodsKey(rec), members: [{ id, count: rec.count, value }] }];
     });
   }
 
-  /** Display stacks retain the actual ids and per-item prices used by an offer. */
+  /**
+   * Display rows: like stacks merged into one row in the place of its first stack, on both sides; each
+   * retains the actual ids and per-item prices used by an offer.
+   */
   private goods(side: 'merchant' | 'fortress'): GoodsRow[] {
     const raw = this.rawGoods(side);
-    if (side === 'fortress') return raw;
     const groups = new Map<string, GoodsRow>();
     for (const row of raw) {
-      const key = `${row.type}:${row.material}:${row.quality}`;
+      const key = row.key;
       const group = groups.get(key);
       if (group === undefined) groups.set(key, { ...row });
       else { group.count += row.count; group.value += row.value; group.members = [...group.members, ...row.members]; }
@@ -187,6 +197,8 @@ export class TradeSessionScreen implements Screen {
     if (k === '-') { this.change(press.shift ? -10 : -1); return true; }
     if (k === 'Home') { const row = this.selected(); if (row) this.setQuantity(this.side, row.id, 0); return true; }
     if (k === 'End') { const row = this.selected(); if (row) this.setQuantity(this.side, row.id, row.count); return true; }
+    // `[a]`: all of the row, or none when all of it is chosen already.
+    if (k.toLowerCase() === 'a') { const row = this.selected(); if (row) this.setQuantity(this.side, row.id, this.quantity(this.side, row.id) >= row.count ? 0 : row.count); return true; }
     if (k === 'Enter') { this.offer(false); return true; }
     if (k.toLowerCase() === 'g') { this.offer(true); return true; }
     return false;

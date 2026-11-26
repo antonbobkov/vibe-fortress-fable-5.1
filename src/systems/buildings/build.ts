@@ -162,6 +162,15 @@ export function mayBeOfBlocks(row: BuildingRow): boolean {
   return row.category === 'workshop' && !row.tags.includes('logs_only') && row.inputs.some((input) => input.match === 'log');
 }
 
+/** 14 § Special buildings: a lamp is a placed statue of glowstone. */
+export const LAMP_BUILDING = 'statue';
+export const LAMP_MATERIAL = 'glowstone';
+
+/** Whether a building of this type and material is a lamp (14 § Special buildings). */
+export function isLamp(typeId: string, materialId: string | undefined): boolean {
+  return typeId === LAMP_BUILDING && materialId === LAMP_MATERIAL;
+}
+
 /** The inputs a building is built from: of blocks, each input of `n` `log` is `2n` `stone_block`. */
 export function inputsOf(row: BuildingRow, ofBlocks: boolean): BuildingRow['inputs'] {
   if (!ofBlocks) return row.inputs;
@@ -1171,7 +1180,7 @@ export class BuildingStore {
   /** The depots and coffins lists of `BuildingsState` follow the built buildings. */
   private noteSpecial(id: EntityId, row: BuildingRow, built: boolean): void {
     const b = this.get(id);
-    if (row.id === 'statue' && b?.state === 'built' && this.materials[b.material]?.id === 'glowstone') {
+    if (b?.state === 'built' && isLamp(row.id, this.materials[b.material]?.id)) {
       const centre = this.anchorOf(b);
       for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
         const tile = this.map.offset(centre, dx, dy, 0);

@@ -478,6 +478,7 @@ The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 | `Home` | none of the selected goods |
 | `End` | all of the selected goods |
 | `=` | quantity |
+| `a` | all of the selected goods, or none when all are chosen |
 
 ### Game menu
 
@@ -756,7 +757,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_food` | edible items in stock fall below `HINT_FOOD_DAYS` days for the population, hourly | "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]." |
 | `hint_starving` | the first `Starving` of the fortress for hunger, after that day's starving line | "Dwarves are starving, and there is food at hand: {food}." |
 | `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
-| `hint_glowcap` | glowcap seeds in stock | "Glowcap grows in the dark under a glowstone lamp." |
+| `hint_glowcap` | glowcap seeds in stock | "Glowcap grows in the dark under a glowstone lamp: order one at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot." |
 | `hint_runeforge` | a runeforge is placed | "The runeforge burns vials, not coal." |
 | `hint_staff` | a runeforge is built | "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." |
 | `hint_wand` | a wand or a staff in stock | "A wand is quick and soft; a shod staff is slow and hard." |

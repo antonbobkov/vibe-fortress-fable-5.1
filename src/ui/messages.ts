@@ -769,6 +769,19 @@ export function outOfReach(env: MessageEnv, reason: string | null): { match: str
   return { match, item: matchName(env.registry, match, 1, env.strings) };
 }
 
+/**
+ * What a `material_kept <match> <material> <recipe>` reason names (`12` § Materials kept for orders:
+ * an order whose input's units are all kept for another order): "rough gem", "glowstone", "Glowstone
+ * lamp"; null for any other reason.
+ */
+export function materialKept(env: MessageEnv, reason: string | null): { item: string; material: string; recipe: string } | null {
+  const kept = reason === null ? null : /^material_kept (\S+) (\S+) (\S*)$/.exec(reason);
+  if (kept === null) return null;
+  const material = env.registry.table<NamedRow>('materials').byId(kept[2] as string)?.name ?? (kept[2] as string);
+  const recipe = env.registry.table<NamedRow>('recipes').byId(kept[3] as string)?.name ?? (kept[3] as string);
+  return { item: matchName(env.registry, kept[1] as string, 1, env.strings), material, recipe };
+}
+
 /** The cloth to be had (12 § Cloth kept for dressings: an order waiting on the kept cloth names it). */
 export function clothInStock(env: MessageEnv): number {
   return env.readers.has('13') ? env.readers.of<ItemsReader>('13').countAvailable({ category: 'textile/cloth' }) : 0;
@@ -784,6 +797,8 @@ export function workshopBlockText(env: MessageEnv, reason: string | null): strin
   if (reason === null) return '';
   const far = outOfReach(env, reason);
   if (far !== null) return s.get('ui.block.out_of_reach', { item: far.item });
+  const kept = materialKept(env, reason);
+  if (kept !== null) return s.get('ui.block.material_kept', kept);
   // 12 § Cloth kept for dressings: the cloth there is, and how many dressings the fortress keeps.
   if (reason === CLOTH_KEPT) {
     const kept = keptDressings(env.readers.has('14') ? env.readers.of<BuildingsReader>('14') : null);

@@ -1,6 +1,8 @@
 # T-792 — The trade screen merges like stacks, and a category sent to the depot leaves rot behind
 
-**Source:** playtest 7 ([report](../../reports/data/2026-11-26-playtest-7.md), finding 9); T-738 (Stocks merges like stacks) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-26, in 8af74326.
+
+**Source:** playtest 7 ([report](../../../reports/data/2026-11-26-playtest-7.md), finding 9); T-738 (Stocks merges like stacks) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -19,8 +21,16 @@ Decisions taken here:
 - **Moving a category to the depot skips rotten food, corpses and refuse** unless the pick names them. The pick's count says "move 152 (12 rotten left)".
 - The seed piles stay: they are what the player asked for.
 
+Decisions taken while doing it:
+
+- **The merge key** is item type, material, quality, rot stage, wear, enchantment (id and tier) and cellar age, for both columns; the merchant column, which grouped by type, material and quality before, uses the same key. Value and price are summed from the stacks, so two stacks valued apart still make one row.
+- **`[a]`** sets all of the row, or none when all of it is chosen already. The keys line is shortened to fit 80 columns with it: "[Tab] side  [+]/[-] quantity  [a] all  [Enter] Offer  [g] Gift  [Esc] Close". The keymap table has the row (`a`, "all of the selected goods, or none when all are chosen", action `all_or_none`).
+- **"Rot" in the depot pick** is refuse (rotten food, corpses, skeletons, parts) and any stack that has begun to rot (stale). The playtest's "turnip rotten food" at the depot was raw turnip picked under "food" that rotted while it waited: rotten food is its own type under refuse, so a "food" pick never held it, and only leaving the stale stacks behind keeps it off the depot. A row under `refuse` takes refuse; a type's row, a row of like stacks or a stack's row takes its goods whatever their state.
+- **The pick's count is units**, not stacks: "[t] move 152 (12 rotten left)"; "(… rotten left)" only when a category left rot behind and nothing else marked it.
+- The Depot panel's own goods list already merged (by type, material and quality) and is unchanged.
+
 ## Done
 
-- [ ] The trade screen's merged rows and `[a]`; UI tests with five stacks of one meal.
-- [ ] The depot pick skips rot; a test.
-- [ ] `panels.md` § Trade session and § Stocks updated.
+- [x] The trade screen's merged rows and `[a]`; UI tests with five stacks of one meal.
+- [x] The depot pick skips rot; a test.
+- [x] `panels.md` § Trade session and § Stocks updated.

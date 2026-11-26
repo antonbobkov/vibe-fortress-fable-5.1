@@ -132,7 +132,7 @@ Job producer `trade` (`haul_to_depot`, `trade`); panel `civilizations` (reputati
 ## Player-facing behavior
 
 - Caravans render as `☺` in the civ's color (Mountainhome yellow, Hillfolk tan, Wildwood green), guards as the same with a shield glyph in the inspector, mules as `m`.
-- The trade session screen is the one place with a two-column table and quantity fields; keyboard: arrows and +/−, Tab between columns, Enter to offer; mouse: click rows, drag quantities.
+- The trade session screen is the one place with a two-column table and quantity fields; each column merges like stacks into one row (item type, material, quality and state), and an offer still names each stack; keyboard: arrows and +/−, `[a]` all of a row or none, Tab between columns, Enter to offer; mouse: click rows, drag quantities. A category picked for the depot in Stocks leaves its rotten and rotting goods behind unless its row names them ([panels.md](../04-implementation/ui-screens/panels.md) § Depot).
 - Hints: "Build a trade depot before summer", "The Wildwood pay poorly for wood and remember who sells it", "Ask for what you need: requests shape next year's caravan".
 
 ## Tuning constants

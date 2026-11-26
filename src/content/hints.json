@@ -147,7 +147,7 @@
   {
     "id": "hint_glowcap",
     "trigger": "glowcap seeds in stock",
-    "text": "Glowcap grows in the dark under a glowstone lamp."
+    "text": "Glowcap grows in the dark under a glowstone lamp: order one at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot."
   },
   {
     "id": "hint_runeforge",

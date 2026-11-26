@@ -45,6 +45,8 @@ export interface ItemFilter {
   materialId?: number;
   /** One of several materials (for a flux-tagged stone input). */
   materialIds?: readonly number[];
+  /** None of these materials: the units kept for another order (`12` § Materials kept for orders). */
+  excludeMaterialIds?: readonly number[];
   minQuality?: number;
   edible?: boolean;
   drinkable?: boolean;
@@ -99,6 +101,7 @@ export function matches(core: ItemCore, id: EntityId, it: Item, filter: ItemFilt
   if (filter.materialClass !== undefined && facts.materialClass(it.material) !== filter.materialClass) return false;
   if (filter.materialId !== undefined && it.material !== filter.materialId) return false;
   if (filter.materialIds !== undefined && !filter.materialIds.includes(it.material)) return false;
+  if (filter.excludeMaterialIds !== undefined && filter.excludeMaterialIds.includes(it.material)) return false;
   if (filter.minQuality !== undefined && (!row.quality || it.quality < filter.minQuality)) return false;
   if (filter.edible !== undefined && (row.edible === true) !== filter.edible) return false;
   if (filter.drinkable !== undefined && (row.drinkable === true) !== filter.drinkable) return false;

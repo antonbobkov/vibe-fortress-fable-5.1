@@ -15,8 +15,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-788 | [The hospital panel says what 80 dwarves need, before the wounded come](work/T-788-hospital-at-scale.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
 | T-789 | [A tomb keeps its own coffins ready, so burial is one setting, not a chore per death](work/T-789-tomb-keeps-coffins.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
 | T-790 | [Add order's "no bar" note says what is short, not only the item's name](work/T-790-order-note-says-shortfall.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
-| T-791 | [The way to a glowcap plot is named where the player looks, and the jeweler leaves the lamp's glowstone](work/T-791-glowstone-lamp-path.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
-| T-792 | [The trade screen merges like stacks, and a category sent to the depot leaves rot behind](work/T-792-trade-rows-merge-stacks.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
 | T-793 | [Decide what a settled fortress of 80 does with its idle half](work/T-793-late-game-idle.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
 | T-794 | [The Units list and a dwarf's view say when a dwarf is shut in](work/T-794-shut-in-dwarf-in-units.md) | [T-784](archive/tasks/T-784-trapped-dwarf-says-so.md) | — | open |
 

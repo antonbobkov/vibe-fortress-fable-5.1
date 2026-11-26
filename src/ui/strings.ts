@@ -146,7 +146,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.trade.verdict.wooden': 'We do not care for wooden things.',
   'ui.trade.verdict.short': 'Not enough. Add {n} ☼ of goods.',
   'ui.trade.verdict.fair': 'A fair offer.',
-  'ui.trade.keys': '[Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close',
+  'ui.trade.keys': '[Tab] side  [+]/[-] quantity  [a] all  [Enter] Offer  [g] Gift  [Esc] Close',
   // Lists in a line: "a, b and c" (`ui.list.and`), "a, b or c" (`ui.list.or`).
   'ui.list.and': '{rest} and {last}',
   'ui.list.or': '{rest} or {last}',
@@ -836,6 +836,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.build.stock.needs_workshop_item': 'build {workshop} to make {item}',
   'ui.build.stock.a_workshop': 'a workshop',
   'ui.build.count_none': 'no {item}',
+  'ui.build.lamp_row': '{name} / lamp',
   // A building input counted by the tiles it covers ("n blocks").
   'ui.build.input_tiles': 'n {item}',
   'ui.status.zone': '{tool} · drag a rectangle · [Esc] cancel',
@@ -1137,6 +1138,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stocks.melt': '[S-m] melt',
   'ui.stocks.to_depot': '[t] to depot',
   'ui.stocks.depot_pick': '[Space] pick  [t] move {n}  [Esc]',
+  'ui.stocks.depot_pick_left': '[Space] pick  [t] move {n} ({left} rotten left)  [Esc]',
   'ui.stocks.nothing_selected': 'Nothing is selected in the stocks list.',
   'ui.stocks.no_metal': 'Nothing here is metal: only metal items melt.',
   // Units panel (`fortress-screen.md` § Sidebar open).
@@ -1344,6 +1346,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.status.stocked': 'stocked ({n})',
   'ui.orders.status.waiting': 'waiting for {item} ({n})',
   'ui.orders.status.cloth_kept': 'cloth kept for wounds ({n})',
+  'ui.orders.status.material_kept': '{material} kept for {recipe}',
   'ui.orders.status.fuel': 'waiting for fuel',
   'ui.orders.status.out_of_reach': '{item} out of reach',
   'ui.orders.status.no_workshop': 'no {workshop}',
@@ -1394,6 +1397,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.orders.pick.no_input': '· no {item}',
   'ui.orders.pick.no_fuel': '· no fuel',
   'ui.orders.pick.cloth_kept': '· cloth kept for wounds',
+  'ui.orders.pick.material_kept': '· {material} kept for {recipe}',
   'ui.orders.pick.out_of_reach': '· {item} out of reach',
   // One step back for a missing input (`panels.md` § Add order): the recipe that makes it, or where it comes from.
   'ui.orders.pick.make_at': '· no {item}: {recipe} at {where}',
@@ -1667,6 +1671,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.building.unlinked': '{building} is no longer linked to {target}.',
   'ui.building.cage_holds': 'Holds {creature}',
   'ui.building.cage_holds_none': 'Empty',
+  'ui.building.lamp': 'Glowstone lamp: lights its 3 × 3 for glowcap.',
   'ui.building.cage_glows': 'Lights the four tiles beside its cage for glowcap.',
   'ui.building.cage_webs': 'Spins webs around its cage every day.',
   'ui.building.cage_empty': '{building} is empty.',
@@ -1778,6 +1783,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.advice.stone_trade': 'trade for stone or blocks',
   'ui.block.fuel': 'Needs fuel',
   'ui.block.out_of_reach': 'Skipped: {item} out of reach. Tried again later, or when a door opens.',
+  'ui.block.material_kept': "Waiting: the {material} {item} is kept for the {recipe} order. Set this order's material to {material} to take it anyway.",
   'ui.block.cloth_kept': "Waiting: the last {kept} cloth and bandages are kept to bandage wounds ({n} cloth in stock). Weave more cloth or lower a hospital's cloth supply; a bed can be stuffed with straw or wool instead.",
   'ui.block.inputs': 'Waiting for inputs',
   'ui.block.workshop_suspended': 'Suspended: [S-s] resume',

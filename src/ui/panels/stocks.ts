@@ -64,6 +64,9 @@ export function stocksCategory(category: string): string {
 /** The id prefix of a row of like stacks under a type: `stacks:<type>:<what they share>`. */
 const STACKS_ROW = 'stacks:';
 
+/** The category a category's pick for the depot leaves behind unless its row lies under it: rotten food, corpses, skeletons, parts (`panels.md` § Stocks). */
+const DEPOT_SKIPS = 'refuse';
+
 /** Whether a row is a stack or a row of like stacks, which a filter matches only by its material. */
 function isStackRow(id: string): boolean {
   return id.startsWith('item:') || id.startsWith(STACKS_ROW);
@@ -97,6 +100,8 @@ export class StocksPanel {
   readonly filter = new PanelFilter();
   depotSelection = 0;
   readonly depotChosen = new Set<EntityId>();
+  /** The rot a pick of a category left behind, for the pick's count ("12 rotten left"). */
+  readonly depotLeft = new Set<EntityId>();
   private forest: TreeNode[] | null = null;
   private cache: { tick: number; totals: Map<string, NodeTotals>; types: Map<string, number[]>; itemIds: Map<number, EntityId[]>; rot: Map<string, NodeRot> } | null = null;
   private forestCache: { totals: object; query: string; forest: TreeNode[] } | null = null;
@@ -285,15 +290,17 @@ export class StocksPanel {
   startDepot(depotId: EntityId): void {
     this.depotSelection = depotId;
     this.depotChosen.clear();
+    this.depotLeft.clear();
   }
 
   cancelDepot(): void {
     this.depotSelection = 0;
     this.depotChosen.clear();
+    this.depotLeft.clear();
   }
 
-  /** Eligible stacks under the current tree row, including a single expanded item row. */
-  depotChoices(ctx: PanelContext): EntityId[] {
+  /** The stacks under the current tree row that may go to the depot, including a single expanded item row. */
+  private depotEligible(ctx: PanelContext): EntityId[] {
     const node = this.selectedNode(ctx);
     const reader = items(ctx);
     if (!node || !reader) return [];
@@ -303,13 +310,51 @@ export class StocksPanel {
     });
   }
 
+  /**
+   * Whether a stack is rot a pick of the current row leaves behind: under a category row that does
+   * not lie under refuse itself, refuse (rotten food, a corpse) and a stack that has begun to rot
+   * (stale: it would rot at the depot). A type's row, a stack's and a row of like stacks name their
+   * goods, and take them.
+   */
+  private depotSkips(ctx: PanelContext, id: EntityId): boolean {
+    const node = this.selectedNode(ctx);
+    if (node === null || node.startsWith('item:') || node.startsWith(STACKS_ROW) || node.startsWith('type:')) return false;
+    if (categoryUnder(node, DEPOT_SKIPS)) return false;
+    const reader = items(ctx);
+    const rec = reader?.get(id);
+    if (rec === undefined) return false;
+    const category = reader?.def(rec.type)?.category;
+    return rec.rotStage >= 1 || (category !== undefined && categoryUnder(category, DEPOT_SKIPS));
+  }
+
+  /** Eligible stacks under the current tree row, less the refuse a category's pick leaves behind. */
+  depotChoices(ctx: PanelContext): EntityId[] {
+    return this.depotEligible(ctx).filter((id) => !this.depotSkips(ctx, id));
+  }
+
   toggleDepot(ctx: PanelContext): void {
     const ids = this.depotChoices(ctx);
-    const add = ids.some((id) => !this.depotChosen.has(id));
+    const left = this.depotEligible(ctx).filter((id) => this.depotSkips(ctx, id));
+    const add = ids.some((id) => !this.depotChosen.has(id)) || (ids.length === 0 && left.some((id) => !this.depotLeft.has(id)));
     for (const id of ids) {
       if (add) this.depotChosen.add(id);
       else this.depotChosen.delete(id);
     }
+    for (const id of left) {
+      if (add) this.depotLeft.add(id);
+      else this.depotLeft.delete(id);
+    }
+  }
+
+  /** The pick's count: the units chosen, and the units of rot its categories left behind and nothing chose. */
+  depotUnits(ctx: PanelContext): { n: number; left: number } {
+    const reader = items(ctx);
+    const units = (ids: Iterable<EntityId>): number => {
+      let n = 0;
+      for (const id of ids) n += reader?.get(id)?.count ?? 0;
+      return n;
+    };
+    return { n: units(this.depotChosen), left: units(Array.from(this.depotLeft).filter((id) => !this.depotChosen.has(id))) };
   }
 
   confirmDepot(ctx: PanelContext): void {
@@ -553,7 +598,8 @@ export function drawStocksPanel(s: Surface, rect: Rect, panel: StocksPanel, ctx:
     row += 1;
   }
   if (panel.depotSelection) {
-    label(s, rect.col + 1, row, strings.get('ui.stocks.depot_pick', { n: panel.depotChosen.size }), { fg: t.key, width: rect.cols - 2 });
+    const pick = panel.depotUnits(ctx);
+    label(s, rect.col + 1, row, strings.get(pick.left > 0 ? 'ui.stocks.depot_pick_left' : 'ui.stocks.depot_pick', pick), { fg: t.key, width: rect.cols - 2 });
     s.hit({ col: rect.col + 1, row, cols: rect.cols - 2, rows: 1 }, () => panel.confirmDepot(ctx));
     return;
   }

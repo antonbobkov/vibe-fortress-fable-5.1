@@ -26,7 +26,7 @@ import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
 import { jobLabor, jobWait } from '../job-wait';
-import { buildingName, capitalize, clothInStock, itemName, jobBlockText, keepCounts, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, withArticle, wrapHang, wrapText } from '../messages';
+import { buildingName, capitalize, clothInStock, itemName, jobBlockText, keepCounts, matchName, materialKept, outOfReach, waitingFor, whereMade, workshopBlockText, withArticle, wrapHang, wrapText } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -92,6 +92,8 @@ function clampCount(n: number): number {
 function missingNote(ctx: PanelContext, reason: string | null): string {
   if (reason === 'missing_input') return ctx.strings.get('ui.orders.pick.no_fuel');
   if (reason === CLOTH_KEPT) return ctx.strings.get('ui.orders.pick.cloth_kept');
+  const kept = materialKept(ctx, reason);
+  if (kept !== null) return ctx.strings.get('ui.orders.pick.material_kept', kept);
   const far = outOfReach(ctx, reason);
   if (far !== null) return ctx.strings.get('ui.orders.pick.out_of_reach', { item: far.item });
   const waiting = waitingFor(ctx, reason);
@@ -959,6 +961,8 @@ export class OrdersPanel {
     const far = outOfReach(ctx, reason);
     if (far !== null) return { kind: 'out_of_reach', short: s.get('ui.orders.status.out_of_reach', { item: far.item }), long };
     if (reason === CLOTH_KEPT) return { kind: 'waiting', short: s.get('ui.orders.status.cloth_kept', { n: clothInStock(ctx) }), long };
+    const kept = materialKept(ctx, reason);
+    if (kept !== null) return { kind: 'waiting', short: s.get('ui.orders.status.material_kept', kept), long };
     const waiting = waitingFor(ctx, reason);
     if (waiting !== null) return { kind: 'waiting', short: s.get('ui.orders.status.waiting', { item: waiting.item, n: waiting.n }), long };
     if (reason === 'missing_input') return plain('fuel', long);
