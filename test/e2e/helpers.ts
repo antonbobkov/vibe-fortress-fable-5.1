@@ -101,7 +101,7 @@ export async function hilliestRegion(page: Page): Promise<number> {
 
 /**
  * Where the world-map cursor is (`menus-and-world.md` § World map: it starts on the site nearest the
- * centre, passing over one with frostbite from the first night), read from the screen.
+ * centre with no frostbite from the first night and nothing missing, within its reach), read from the screen.
  */
 export async function cursorStart(page: Page): Promise<{ size: number; x: number; y: number }> {
   return page.evaluate(() => {

@@ -321,6 +321,7 @@ This entire document.
 | `EMBARK_WHEEL_ROWS` | 3 | Rows a mouse wheel notch scrolls an embark list (*unmeasured*) |
 | `EMBARK_LOADOUT_NAME_MAX` | 32 | Longest saved loadout name, characters (02 § Loadouts) |
 | `SITE_LIST_NAMES` | 2 | Names a row of the world map's site summary lists before "and N more" (*unmeasured*) |
+| `START_SITE_REACH_DIVISOR` | 4 | The world map's starting cursor looks for a site that lacks no essential no farther from the centre than the world's size divided by this (Chebyshev; 16 regions on a standard world), so it never starts in a corner; on thirty standard worlds the nearest such site lay at most 9 regions out (`ui-screens/menus-and-world.md` § World map) |
 | `SITE_LABEL_COLS` | 9 | Width of the site summary's row labels, cells |
 | `SETTINGS_VOLUME_STEP` | 10 | Step of the music and sound volumes |
 | `TUTORIAL_WORLD_SEED` | tutorial-vale | The seed of the tutorial's world (standard size) |

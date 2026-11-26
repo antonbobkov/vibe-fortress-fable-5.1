@@ -278,3 +278,9 @@ export const SITE_LIST_NAMES = 2;
 
 /** The width of the site summary's row labels in the region panel ("Wildlife" and a space). */
 export const SITE_LABEL_COLS = 9;
+
+/**
+ * The world map's starting cursor prefers a site that lacks no essential only within the world's size
+ * divided by this of the centre (Chebyshev), so it never starts in a corner.
+ */
+export const START_SITE_REACH_DIVISOR = 4;
