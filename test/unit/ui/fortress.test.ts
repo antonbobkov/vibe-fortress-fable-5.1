@@ -280,6 +280,8 @@ describe('T-M1-14 announcements', () => {
       HearthLit: 'note',
       DoorBroken: 'alert',
       FortressShutOut: 'danger',
+      AlertLocksHeld: 'note',
+      AlertLocksCleared: 'note',
       Buried: 'note',
       RoomQualityChanged: 'note',
       // T-M4-01: 07 § Registrations ("announcement `PlotNeedsSeeds` as a note").
