@@ -1822,5 +1822,13 @@
   {
     "table": "hints",
     "id": "hint_mood"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_lower_alert"
+  },
+  {
+    "table": "confirmations",
+    "id": "c_lower_alert_coming"
   }
 ]

@@ -350,6 +350,8 @@ The building panel's keys (`ui-screens/panels.md` § Building). The panel opens 
 | `[r]` | remove members |
 | `[j]` | ranged or melee |
 
+`1` and `2` lower the alert at once, except while a hostile party is on the map (from Hearth, also while one is announced as coming): then they ask first, default No (`c_lower_alert`, `c_lower_alert_coming`; `ui-screens/panels.md` § Military). Raising the alert never asks.
+
 ### Animals panel
 
 | Key | Action |
@@ -570,7 +572,7 @@ These keys act as described and cannot be rebound. The editor lists the `Esc` ro
 | Every key in Settings › Keybindings | the editor itself | The editor must work whatever the bindings are: `↑` `↓` `PageUp` `PageDown` move, `Enter` or a click captures the next key, `Delete` or `Backspace` restores the row's default, `[d]` restores every default, `Esc` backs out. |
 | `[letter]` and labor manager letters | panel accelerators, the labor manager's jump to a labor, a preset's first letter | They stand for every letter; each accelerator that a panel shows is its own row above. |
 | Any key, or a click | the intro | Whoever did not ask to watch it must be able to leave at once with whatever key the hand finds; a skip that had to be learned or could be rebound away would hold the player in front of a film of most of a minute. A modifier pressed alone does not count. |
-| Any key | a danger line pinned to the log strip | "Dismissed by any key", which then acts as it would have; `Space` and `Esc` (the pause and cancel keys, however bound) only dismiss, so reading the line does not unpause the game (`02-systems/24-ui-and-input.md` § Announcements and the log). |
+| Any key | a danger line pinned to the log strip | "Dismissed by any key", which then acts as it would have. `Space` (the pause key, however bound) only dismisses, so reading the line does not unpause the game. `Esc` (the cancel key, however bound) also backs out one step as it always does (cancels the tool, closes the panel), so `Esc` and then a letter reaches any panel; with nothing to back out of it only dismisses and opens no game menu (`02-systems/24-ui-and-input.md` § Announcements and the log). |
 | `Shift` held with a bound key | arrows, `+` `-`, `Shift+Enter` | A modifier of the key's own action (ten at a time, mark the rows passed, a corner), not a key of its own. |
 
 The mouse is not rebindable; § Mouse lists its gestures.
@@ -839,6 +841,8 @@ The tutorial's steps, in order (`../04-implementation/ui-screens/menus-and-world
 | `c_tutorial` | "Is this your first fortress? The tutorial sets up a friendly site and walks you through the basics, a step at a time. Play it?" | No |
 | `c_release_cage` | "Release {creature} from {cage}? It is set down beside the cage, as wild or hostile as it was." | No |
 | `c_first_ignite` | "Set a fire on purpose? Fire spreads to anything that burns, your own floors and fields too, and rain is the only thing that puts it out." | No |
+| `c_lower_alert` | "{threat}. Lower the alert to {level}?" | No |
+| `c_lower_alert_coming` | "{threat} Lower the alert to {level}?" | No |
 
 ## Settings
 

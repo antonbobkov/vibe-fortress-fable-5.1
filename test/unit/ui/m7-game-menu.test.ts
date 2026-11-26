@@ -142,7 +142,8 @@ describe('T-M7-09 game menu, main menu Continue, confirmations', () => {
       // and deleting a saved loadout (c_load_loadout, c_overwrite_loadout, c_delete_loadout). T-533:
       // and leaving the embark screen with edits (c_leave_embark). T-559: and the first fire set on
       // purpose (c_first_ignite). T-672: and abandoning the fortress for a new embark (c_abandon).
-      expect(table.ids()).toHaveLength(30);
+      // T-768: and lowering the alert under a threat (c_lower_alert, c_lower_alert_coming).
+      expect(table.ids()).toHaveLength(32);
       for (const id of table.ids()) {
         expect(sources.includes(`'${id}'`), `${id} is never asked for in src/`).toBe(true);
         const row = table.byId(id) as ConfirmRow;

@@ -1,5 +1,5 @@
 /**
- * T-637: the first key after a danger line acts (only `Space` and `Esc` merely dismiss it), a fight
+ * T-637: the first key after a danger line acts (only `Space` merely dismisses it), a fight
  * is one refreshed engagement line in the Alerts tab while its blows are the Combat tab's notes, a
  * fortress dwarf's death by a creature is one line, and a blow that does no damage says so
  * (24 § Announcements and the log, 16 § Combat log; `reports/audits/2026-11-19-t635-midgame-ux.md`,
@@ -62,14 +62,14 @@ describe('T-637 the first key after a danger line acts', () => {
     expect(speed()).not.toBe(0);
   });
 
-  it('`Esc` only dismisses: the open panel stays open', () => {
+  it('`Esc` dismisses and backs out: the open panel closes (T-768)', () => {
     const { ui, screen } = setup('t637-key-esc');
     screen.key(press('m'));
     expect(ui.panel).toBe('military');
     screen.pinned = DANGER;
     expect(screen.key(press('Escape'))).toBe(true);
     expect(screen.pinned).toBeNull();
-    expect(ui.panel).toBe('military');
+    expect(ui.panel).toBeNull();
   });
 
   it('a raid line pinned by the event, then `a` opens the log', () => {

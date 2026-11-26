@@ -96,6 +96,8 @@
   "confirm.c_leave_embark": "Go back to the world map? The skills and supplies you have set here are lost.",
   "confirm.c_load_loadout": "Load {loadout}? It replaces the skills and supplies you have set.",
   "confirm.c_load_snapshot": "Load the {season} snapshot? The current game continues to exist as its own saves.",
+  "confirm.c_lower_alert": "{threat}. Lower the alert to {level}?",
+  "confirm.c_lower_alert_coming": "{threat} Lower the alert to {level}?",
   "confirm.c_main_menu": "Return to the main menu? Unsaved progress since {time} will be lost.",
   "confirm.c_melt_items": "Mark {what} for melting? Melted items are gone; the smelter gives back part of their metal as bars.",
   "confirm.c_overwrite_loadout": "A loadout named {loadout} is saved already. Replace it with this one?",

@@ -24,6 +24,7 @@ function notes(rows: readonly HelpRow[], context: string): string[] {
  * says. A panel that is not listed has none.
  */
 const REMAINING: Readonly<Record<string, readonly { readonly id: string; readonly why: string }[]>> = {
+  global: [{ id: 'ui.help.global.danger', why: 'what the pause and cancel keys do while a danger line is pinned, which their rows do not say' }],
   map: [{ id: 'ui.help.map.wheel', why: 'the mouse: the wheel over the map changes the level, the way Settings chooses; Ctrl zooms, Shift pans' }],
   designate_panel: [{ id: 'ui.help.designate.undo', why: 'how many batches undo keeps and when they are cleared (limits); the row names the key' }],
   build_panel: [
@@ -50,6 +51,7 @@ const REMAINING: Readonly<Record<string, readonly { readonly id: string; readonl
   building_panel: [{ id: 'ui.help.building.rows', why: 'what the list keys choose in this panel' }],
   stocks_panel: [{ id: 'ui.help.stocks.filter', why: 'typing in the filter field, and how it ends' }],
   log_panel: [{ id: 'ui.help.log.filter', why: 'typing in the filter field, and how it ends' }],
+  military_panel: [{ id: 'ui.help.military.alert', why: 'when lowering the alert asks first, which the alert rows do not say' }],
   animals_panel: [
     { id: 'ui.help.animals.train', why: 'the War or Hunting choice that training opens' },
     { id: 'ui.help.animals.cap', why: 'the number field of the breeding cap: digits, steps, range, buttons' },

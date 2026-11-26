@@ -111,7 +111,7 @@ async function digPendingRoom(page: Page): Promise<void> {
   const level = (): Promise<number> => page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.ui.z);
   const start = await level();
   await closePanels(page);
-  // A death pins a danger line to the log strip; the first key after it dismisses it and acts, but Esc only dismisses (24).
+  // A death pins a danger line to the log strip; the first key after it dismisses it and acts, but Space only dismisses and Esc opens no game menu (24).
   for (let i = 0; i < 12 && (await level()) > room.z; i += 1) await page.keyboard.press('<');
   expect(await level(), 'the view is on the level of the room of rock').toBe(room.z);
   await page.keyboard.press('d');
@@ -244,7 +244,7 @@ async function setAlertThroughUi(page: Page, level: 'calm' | 'watchful' | 'heart
   const key = { calm: '1', watchful: '2', hearth: '3' }[level];
   const shown = { calm: 'Calm', watchful: 'Watchful', hearth: 'Hearth' }[level];
   await closePanels(page);
-  // A death pins a danger line to the log strip; the first key after it dismisses it and acts, but Esc only dismisses (24).
+  // A death pins a danger line to the log strip; the first key after it dismisses it and acts, but Space only dismisses and Esc opens no game menu (24).
   for (let attempt = 0; attempt < 2; attempt += 1) {
     await page.keyboard.press('m');
     const panel = await page.evaluate(() => (window as unknown as { __deepholm: FullYearHook }).__deepholm.readers.ui.panel);
