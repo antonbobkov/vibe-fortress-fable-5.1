@@ -1,0 +1,70 @@
+/** Playtest 11-25d driver (not committed): the three-year script at peril 3 on a new seed, saving at warnings and fixed days. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY, DAYS_PER_YEAR } from '@core/constants';
+import { C } from '@core/components';
+import { saveGame } from '@app/game-save';
+import { playThreeYears, setupThreeYearsFortress, threeYearsWorld, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense } from './three_years_fortress';
+
+const SEED = process.env['PT_SEED'] ?? 'playtest-1125-p3m';
+const PERIL = Number(process.env['PT_PERIL'] ?? 3);
+const OUT = process.env['PT_OUT'] ?? 'out/pt6';
+const SAVE_DAYS = (process.env['PT_SAVES'] ?? '60,100,113,140,170,200,225,240').split(',').map(Number);
+const END_DAY = Number(process.env['PT_END'] ?? 260);
+
+describe('playtest 6 drive', () => {
+  it('drives', async () => {
+    mkdirSync(OUT, { recursive: true });
+    const w = threeYearsWorld(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    const threats = w.game.world.scheduler.byId('18') as unknown as { schedule: Map<string, { nextTick: number; earliestTick: number }> };
+    const sched = [...threats.schedule].map(([k, e]) => `${k}: earliest d${Math.floor(e.earliestTick / TICKS_PER_DAY) + 1} next d${Math.floor(e.nextTick / TICKS_PER_DAY) + 1}`);
+    const counts: Record<string, number> = {};
+    const notable: string[] = [...sched];
+    const keep = /Raid|Siege|Threat|Immigr|Died|Ambush|Thief|Alert|Squad|Trap|ShutOut|Caged|Breach/;
+    let saveFlag = '';
+    w.game.world.onEvents((events) => {
+      const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+      for (const e of events) {
+        counts[e.type] = (counts[e.type] ?? 0) + 1;
+        if (keep.test(e.type) && e.type !== 'MoodTierChanged' && e.type !== 'SquadOrderIssued') {
+          const { type, ...rest } = e as unknown as Record<string, unknown>;
+          notable.push(`d${day} t${w.tick} ${String(type)} ${JSON.stringify(rest).slice(0, 220)}`);
+        }
+        if (e.type === 'ThreatWarning') saveFlag = `warn-${String((e as unknown as { kind: string }).kind)}`;
+      }
+    });
+    const saves = new Set(SAVE_DAYS);
+    const timing: string[] = [];
+    let last = performance.now();
+    const write = (): void => writeFileSync(`${OUT}/log.txt`, [`year length ${DAYS_PER_YEAR}`, ...timing, '', ...notable, '', JSON.stringify(counts, null, 1)].join('\n'));
+    for (let day = 1; day <= END_DAY; day++) {
+      const end = day * TICKS_PER_DAY;
+      while (w.tick < end) {
+        playThreeYears(w, state, Math.min(day <= 20 ? 100 : 300, end - w.tick));
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+        if (saveFlag !== '') {
+          const name = `d${day}-${saveFlag}`;
+          saveFlag = '';
+          writeFileSync(`${OUT}/${SEED}-${name}.bin`, await saveGame(w.game, { kind: 'manual', name: `pt6 ${name}` } as never));
+          console.log(`saved ${name}`);
+        }
+      }
+      const ent = w.game.world.entities;
+      const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const now = performance.now();
+      if (day % 7 === 0) timing.push(`d${day} pop ${pop} ms/day ${Math.round(now - last)}`);
+      last = now;
+      if (saves.has(day)) {
+        writeFileSync(`${OUT}/${SEED}-d${day}.bin`, await saveGame(w.game, { kind: 'manual', name: `pt6 d${day}` } as never));
+        console.log(`saved d${day} pop ${pop}`);
+      }
+      if (day % 10 === 0) write();
+    }
+    write();
+  }, 10_800_000);
+});
