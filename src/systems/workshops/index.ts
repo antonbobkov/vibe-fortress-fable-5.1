@@ -8,7 +8,6 @@ import { BaseSystem, type InitContext, type TickContext } from '@core/system';
 import { CLOTH_KEPT, WorkshopOperator } from './operate';
 import { applyOrderCommand, applyWorkerCommand } from './orders';
 import { makeReader, type WorkshopsReader } from './reader';
-import { keepTombOrders } from './tomb-orders';
 import type { WorkshopsStateV1 } from './state';
 
 export { qualityForRoll, rollQuality } from './quality';
@@ -23,7 +22,7 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
   readonly id = WORKSHOPS_ID;
   readonly order = 12;
   override readonly ownsCommands: readonly CommandType[] = ['AddWorkOrder', 'EditWorkOrder', 'RemoveWorkOrder', 'ReorderWorkOrder', 'SetWorkshopWorker', 'SuspendWorkshop'];
-  override readonly subscribes: readonly EventType[] = ['BuildingCompleted', 'BuildingRemoved', 'JobCancelled', 'JobCompleted', 'SkillLevelUp', 'CreatureDied', 'BuildingStateChanged', 'DayPassed'];
+  override readonly subscribes: readonly EventType[] = ['BuildingCompleted', 'BuildingRemoved', 'JobCancelled', 'JobCompleted', 'SkillLevelUp', 'CreatureDied', 'BuildingStateChanged'];
   private op: WorkshopOperator | null = null;
   private readerRef: WorkshopsReader | null = null;
   private ticked = false;
@@ -68,8 +67,6 @@ export class WorkshopsSystem extends BaseSystem<WorkshopsStateV1> {
     else if (event.type === 'SkillLevelUp') op.professionCache.delete(event['id'] as number);
     // 12 § Operation 2: a door, hatch or bridge that changes may bring inputs back within reach.
     else if (event.type === 'BuildingStateChanged') op.clearOutOfReach();
-    // 12 § Work orders, Coffins for a tomb: the tombs' standing coffin orders, once a day.
-    else if (event.type === 'DayPassed') keepTombOrders(op);
   }
 
   override applyCommand(cmd: Command, _ctx: TickContext): CommandResult {

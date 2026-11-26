@@ -202,13 +202,10 @@
     "requirements": [
       "a coffin"
     ],
-    "settings": [
-      "coffins ready"
-    ],
+    "settings": [],
     "consumers": [
       "14",
-      "15",
-      "12"
+      "15"
     ]
   }
 ]

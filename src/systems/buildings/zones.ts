@@ -295,9 +295,6 @@ export class ZoneStore {
       if (typeof value !== 'boolean') return reject('bad_setting');
     } else if (key === 'priority') {
       if (typeof value !== 'number' || !Number.isInteger(value) || value < PRIORITY_MIN || value > PRIORITY_MAX) return reject('bad_setting');
-    } else if (key === 'coffins_ready') {
-      // 14 § Burial: a tomb keeps 0 to its tiles' count of free coffins standing.
-      if (typeof value !== 'number' || !Number.isInteger(value) || value < 0 || value > zone.tiles.length) return reject('bad_setting');
     } else return reject('bad_setting');
     this.host.entities.add(id as EntityId, C.Zone, { ...zone, settings: { ...zone.settings, [storedKey]: value } });
     this.changed(id as EntityId, 'settings');

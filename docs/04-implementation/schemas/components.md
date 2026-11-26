@@ -108,8 +108,7 @@ interface Building { type: Idx<BuildingDef>; material: Idx<MaterialDef>; state: 
                      burnDays?: number /* a candle stand's days burned of its burning candle (14 § Candle stands and lanterns); absent: none */ }
 interface WorkOrder { serial?: number /* stable global identity */; recipe: Idx<RecipeDef>; remaining: number; mode: 'once'|'maintain'; threshold: number;
                       priority: Priority; materialFilter: Idx<MaterialDef> | string | null;
-                      targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */;
-                      forZoneId?: EntityId /* the tomb a standing coffin order makes coffins for (12 § Work orders); absent: none */ }
+                      targetType?: Idx<ItemTypeDef> /* a transform recipe's input 0 narrowed to one type; absent: any */ }
 interface OutOfReach { recipe: string /* recipe id */; material?: Idx<MaterialDef> | string /* the order's materialFilter; absent: null */;
                        target?: Idx<ItemTypeDef> /* the order's targetType; absent: none */; input: string /* item ids, '|'-joined */;
                        until: Tick /* skipped until; kept after it until such an order starts or none is left */ }

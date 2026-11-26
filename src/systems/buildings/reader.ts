@@ -12,7 +12,6 @@ import type { DryingRow, HolderWantView, RackItemView, RackStore } from './racks
 import { TALLOW, type CandleStore, type StandView } from './candles';
 import type { RoomStore, RoomScore, RoomDiagnostics } from './rooms';
 import type { ZoneStore } from './zones';
-import type { TombKeeper, TombShortfall } from './tombs';
 
 export interface BuildingView extends Building {
   readonly id: EntityId;
@@ -72,13 +71,6 @@ export interface BuildingsReader {
   freeCoffins(): EntityId[];
   /** A dead dwarf with no intact body can be named on a memorial slab. */
   memorialEligible(id: EntityId): boolean;
-  /**
-   * 14 § Burial, Coffins ready: a tomb's coffins ready (built with no body and kept for anyone, or
-   * placed and on their way) and the count it keeps (its `coffins ready`, or `TOMB_COFFINS_READY`).
-   */
-  tombCoffins(zoneId: EntityId): { readonly ready: number; readonly wanted: number };
-  /** The tombs short of coffins after the coffins in stock, ascending (12's standing coffin orders). */
-  tombShortfalls(): TombShortfall[];
   /** The creature held in a cage building, or 0. */
   cageOccupant(id: EntityId): EntityId;
   /** The tile a building's container contents lie on (the wagon), or -1. */
@@ -167,8 +159,7 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
   /** The items on their way to a building that holds items (13's hauls to it). */
   coming: (id: EntityId) => readonly EntityId[] = () => [],
   racks: RackStore | null = null,
-  candles: CandleStore | null = null,
-  tombs: TombKeeper | null = null): BuildingsReader {
+  candles: CandleStore | null = null): BuildingsReader {
   let wantsCache: { revision: number; ids: EntityId[] } | null = null;
   const view = (id: EntityId): ZoneView | undefined => {
     const z = zones.zone(id);
@@ -226,8 +217,6 @@ export function makeReader(zones: ZoneStore, buildings: BuildingStore, rooms: Ro
     wellWorking: (id) => buildings.wellWorking(id),
     freeCoffins: () => buildings.coffins.filter((id) => ((buildings.get(id)?.settings['occupantId'] as number | undefined) ?? 0) === 0),
     memorialEligible,
-    tombCoffins: (zoneId) => ({ ready: tombs?.ready(zoneId) ?? 0, wanted: tombs?.wanted(zoneId) ?? 0 }),
-    tombShortfalls: () => tombs?.shortfalls() ?? [],
     cageOccupant: (id) => (buildings.get(id)?.settings['occupantId'] as number | undefined) ?? 0,
     holderTile: (id) => buildings.holderTile(id),
     wagon: () => buildings.all().find((id) => buildings.typeIdOf(id) === 'wagon') ?? 0,

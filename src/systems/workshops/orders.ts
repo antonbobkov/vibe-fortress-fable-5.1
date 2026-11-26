@@ -49,8 +49,6 @@ export function applyOrderCommand(op: WorkshopOperator, cmd: Command): CommandRe
     if (order === 'bad_setting') return reject('bad_setting');
     if (order === null) return reject('precondition_failed');
     if (global) { op.ensureGlobalSerials(); order.serial = before.serial as number; }
-    // A tomb's standing coffin order stays the tomb's when the player edits it.
-    if (before.forZoneId !== undefined) order.forZoneId = before.forZoneId;
     cancelCurrent();
     orders[index] = order;
   } else if (cmd.type === 'RemoveWorkOrder') {

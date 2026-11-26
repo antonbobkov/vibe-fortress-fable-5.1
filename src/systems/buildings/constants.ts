@@ -40,9 +40,6 @@ export const HATCH_MODES: readonly string[] = Object.freeze(['open', 'locked']);
  */
 export const WAGON_CAPACITY = Number.MAX_SAFE_INTEGER;
 
-/** 14 § Burial: the free coffins a tomb keeps standing until the player sets its `coffins ready`. */
-export const TOMB_COFFINS_READY = 2;
-
 /** 14 § The drying rack: the units a rack holds over its drying rows. */
 export const RACK_CAPACITY = 5;
 
