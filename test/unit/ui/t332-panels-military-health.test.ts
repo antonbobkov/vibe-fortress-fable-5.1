@@ -170,15 +170,18 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(fgOfText(s, 5, 'Needs a bed')).toBe(hexOf(theme.bad));
     expect(fgOfText(s, 6, 'Needs a chest')).toBe(hexOf(theme.bad));
     expect(fgOfText(s, 2, 'Room:')).not.toBe(hexOf(theme.bad));
-    expect(rows[7]).toBe('Beds: 0  Traction: 0  Chests: 0');
-    expect(rows[8]).toBe('Supplies (current / wanted):');
-    expect(rows.slice(9, 18).map((row) => row.replace(/ +\[-\]\[\+\]$/, ''))).toEqual([
+    // T-788: the beds against the living dwarves, wrapped under itself, then the other furniture.
+    expect(rows.slice(7, 9)).toEqual(['Beds: 0 for 7 dwarves (aim for 1', '  in 10)']);
+    expect(fgOfText(s, 7, 'Beds:')).toBe(hexOf(theme.alert));
+    expect(rows[9]).toBe('Traction: 0  Chests: 0');
+    expect(rows[10]).toBe('Supplies (current / wanted):');
+    expect(rows.slice(11, 20).map((row) => row.replace(/ +\[-\]\[\+\]$/, ''))).toEqual([
       'Cloth: 0/10', 'Bandages: 0/0', 'Thread: 0/5', 'Splints: 0/4', 'Crutches: 0/2', 'Brightleaf: 0/6', 'Buckets: 0/2', 'Honey: 0/0',
       'Soap: 0/0',
     ]);
-    for (const row of rows.slice(9, 18)) expect(row).toMatch(/\[-\]\[\+\]$/);
-    expect(rows[18]).toBe('Patients:');
-    expect(rows[19]).toContain(`${patientName}: suture`);
+    for (const row of rows.slice(11, 20)) expect(row).toMatch(/\[-\]\[\+\]$/);
+    expect(rows[20]).toBe('Patients:');
+    expect(rows[21]).toContain(`${patientName}: suture`);
     expect(rows[31]).toBe('[x] remove zone  [e] resize');
   });
 

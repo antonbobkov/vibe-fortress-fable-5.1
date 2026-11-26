@@ -1,6 +1,8 @@
 # T-790 — Add order's "no bar" note says what is short, not only the item's name
 
-**Source:** playtest 7 ([report](../../reports/data/2026-11-26-playtest-7.md), finding 8) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-26, in 057b507a.
+
+**Source:** playtest 7 ([report](../../../reports/data/2026-11-26-playtest-7.md), finding 8) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -19,7 +21,15 @@ Decisions taken here:
 - When the missing units exist but are not usable, it says why: "· 4 rough glowstone at the depot", "· 4 rough glowstone reserved (Jeweler's workshop #1)", "· rough glowstone out of reach" (the last exists already).
 - The Orders list's "waiting for rough gem (0)" uses the same words.
 
+Decided while doing it:
+
+- The input's name comes from 12's input filter (`recipeInputFilter`, the order's material filter only on the input the first output takes its material from): one material reads as the lists name an item ("glowstone rough gem"), several as "iron or steel bar". The step back after the colon is today's (made at a smelter, render fat at a kitchen, from mining); "smelt at a smelter" in the example is the existing "made at a smelter".
+- Units held come before the shortfall: at the depot (the fortress's own: `AtDepot` less `Merchant`) first, then reserved, naming the building of the job that holds the first reserved unit; such a note names no maker. Out of reach keeps its existing note.
+- When the stock holds a craft's worth and the workshop still waits (same material for every unit, distinct items), the old words stay.
+- The status after adding an order says "Waiting: <the note's words>." when some is in stock or held, and "Waiting for iron or steel bar (0 in stock)." when none is; an Orders row likewise ("×1 Anvil · needs 5 iron or steel bars, 3 in stock", or "waiting for iron or steel bar (0)").
+- The work file's "4 rough glowstone" reads "4 glowstone rough gems": the item lists' name for a rough gem of glowstone.
+
 ## Done
 
-- [ ] `chainNote`/`missingNote` read the filter's material and count and the units' state; tests for the anvil (short) and the lamp (at the depot, reserved).
-- [ ] `panels.md` § Add order updated.
+- [x] `chainNote`/`missingNote` read the filter's material and count and the units' state; tests for the anvil (short) and the lamp (at the depot, reserved).
+- [x] `panels.md` § Add order updated.

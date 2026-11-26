@@ -25,7 +25,8 @@ import type { PlantRow } from '@systems/plants';
 import { ripeningOutlook, seasonAllows } from '@systems/plants/growth';
 import { lightMatches } from '@systems/plants/plots';
 import type { ItemsReader } from '@systems/items';
-import { HOSPITAL_DEFAULT_SUPPLIES } from '@systems/health/constants';
+import { HOSPITAL_BEDS_PER } from '@systems/health/constants';
+import { hospitalWants, noDressingToBeHad, zoneHolds } from '../hospital';
 import type { MagicReader } from '@systems/magic';
 import type { MaterialsReader } from '@systems/materials';
 import { NEAR_SURFACE_DEPTH } from '@systems/materials/constants';
@@ -40,7 +41,7 @@ import { acceleratorLabel } from '../keymap';
 import { seasonName } from './calendar';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
-import { stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
+import { itemPlace, stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
 import { feedDetailText, feedsText, overGrazed, pastureFeed } from '../pasture';
 import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building';
 import { dwarvesOf, nameOf } from './units';
@@ -812,6 +813,63 @@ function drawSanctumSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelC
   return row;
 }
 
+/** The built beds (any `sleep` building) standing on a zone's tiles. */
+function bedsIn(b: BuildingsReader, tiles: readonly TileIndex[]): number {
+  const sleep = new Set(b.types().filter((row) => row.tags.includes('sleep')).map((row) => row.id));
+  const ids = new Set(tiles.map((tile) => b.at(tile)).filter((id) => id !== 0));
+  let n = 0;
+  for (const id of ids) {
+    const view = b.get(id);
+    if (view !== undefined && view.state === 'built' && sleep.has(view.typeId)) n += 1;
+  }
+  return n;
+}
+
+/**
+ * 17 § Player-facing behavior: the hospital's Beds line against the living dwarves, "Beds: 1 for 80
+ * dwarves (aim for 1 in 10)", counting every hospital's beds when there are several; `short` while
+ * the beds × `HOSPITAL_BEDS_PER` are fewer than the dwarves.
+ */
+export function hospitalBedsLine(ctx: PanelContext, zone: ZoneView): { readonly text: string; readonly short: boolean } {
+  const b = buildings(ctx);
+  if (b === null) return { text: '', short: false };
+  const here = bedsIn(b, zone.tiles);
+  const hospitals = b.zonesOfType('hospital');
+  const all = hospitals.reduce((n, id) => n + (id === zone.id ? here : bedsIn(b, b.zone(id)?.tiles ?? [])), 0);
+  const n = dwarvesOf(ctx).length;
+  const params = { beds: here, all, n, per: HOSPITAL_BEDS_PER };
+  const text = ctx.strings.get(hospitals.length > 1 ? 'ui.zone.hospital.beds_all' : 'ui.zone.hospital.beds', params);
+  return { text, short: all * HOSPITAL_BEDS_PER < n };
+}
+
+/**
+ * 17 § Player-facing behavior: every dwarf under care, wherever it lies, this hospital's own first:
+ * "Kari Veinspark · in a bed in Bedroom #3 (14,17,z28) · stop_bleeding". Ascending id within each.
+ */
+export function hospitalPatientLines(ctx: PanelContext, zone: ZoneView): string[] {
+  const s = ctx.strings;
+  const entities = ctx.readers.entities;
+  const env = { readers: ctx.readers, registry: ctx.registry, strings: s };
+  const map = ctx.readers.map;
+  const b = buildings(ctx);
+  const patients = entities.with(C.Patient).filter((id) => entities.get(id, C.Creature)?.faction === 'fortress');
+  const here = (id: EntityId): boolean => entities.get(id, C.Patient)?.hospitalZoneId === zone.id;
+  const ordered = [...patients.filter(here), ...patients.filter((id) => !here(id))];
+  return ordered.map((id) => {
+    const p = entities.get(id, C.Patient);
+    const name = entities.get(id, C.Creature)?.name ?? s.get('ui.zone.hospital.a_patient');
+    const needs = p !== undefined && p.needs.length > 0 ? p.needs.join(', ') : s.get('ui.zone.hospital.resting');
+    if (here(id)) return s.get('ui.zone.hospital.patient', { name, needs });
+    const pos = entities.get(id, C.Position);
+    const coords = pos === undefined ? { x: 0, y: 0, z: 0 } : { x: pos.x, y: pos.y, z: pos.z };
+    const tile = pos === undefined ? -1 : map.index(pos.x, pos.y, pos.z);
+    const place = itemPlace(env, tile);
+    const inBed = p !== undefined && p.bedId !== 0 && b?.get(p.bedId)?.state === 'built';
+    const where = s.get(inBed ? 'ui.zone.hospital.where.bed' : 'ui.zone.hospital.where.lying', { place, ...coords });
+    return s.get('ui.zone.hospital.patient_at', { name, where, needs });
+  });
+}
+
 function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
   const t = s.theme;
   const b = buildings(ctx);
@@ -821,27 +879,26 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
   if (b !== null) {
     row = drawRoomSettings(s, rect, tool, ctx, zone);
 
-    // Furniture in zone
+    // The beds against the living dwarves, then the other furniture.
+    const beds = hospitalBedsLine(ctx, zone);
+    row += wrapLabel(s, rect.col + 1, row, beds.text, { width: rect.cols - 2, indent: 2, fg: beds.short ? t.alert : t.text, maxRows: Math.max(1, bottom - row) });
     const uniqueBuildingIds = Array.from(new Set(zone.tiles.map((tile) => b.at(tile)).filter((id) => id !== 0)));
-    let beds = 0;
     let traction = 0;
     let chests = 0;
     for (const bId of uniqueBuildingIds) {
       const bv = b.get(bId);
       if (!bv) continue;
-      if (bv.typeId === 'bed') beds += 1;
-      else if (bv.typeId === 'traction_bench') traction += 1;
+      if (bv.typeId === 'traction_bench') traction += 1;
       else if (bv.typeId === 'chest') chests += 1;
     }
     if (row < bottom) {
-      label(s, rect.col + 1, row, ctx.strings.get('ui.zone.hospital.furniture', { beds, traction, chests }), { width: rect.cols - 2 });
+      label(s, rect.col + 1, row, ctx.strings.get('ui.zone.hospital.furniture', { traction, chests }), { width: rect.cols - 2 });
       row += 1;
     }
   }
 
   // Wanted supplies
-  const defaultWants = HOSPITAL_DEFAULT_SUPPLIES;
-  const currentWants = ((zone.settings?.['desired supplies'] ?? zone.settings?.['wants'] ?? defaultWants) as Record<string, number>) ?? defaultWants;
+  const currentWants = hospitalWants(ctx, zone.id);
   // Each supply's setting key and item; its name is `ui.zone.hospital.supply.<key>`.
   const suppliesList: readonly { key: string; item: string }[] = [
     { key: 'cloth', item: 'cloth' },
@@ -856,8 +913,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
   ];
 
   // 17: with no bandage or cloth to be had anywhere in the fortress, no bleeding wound can be bandaged.
-  const it = items(ctx);
-  if (it !== null && it.countAvailable({ category: 'medical/bandage' }) + it.countAvailable({ category: 'textile/cloth' }) === 0) {
+  if (noDressingToBeHad(ctx)) {
     for (const line of wrapText(ctx.strings.get('ui.zone.hospital.no_dressing'), rect.cols - 2, 2)) {
       if (row >= bottom) break;
       label(s, rect.col + 1, row, line, { fg: t.alert, width: rect.cols - 2 });
@@ -872,7 +928,7 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
 
   for (const sup of suppliesList) {
     if (row >= bottom) break;
-    const currentCount = countHospitalSupplies(ctx, zone, sup.item);
+    const currentCount = zoneHolds(ctx, zone.tiles, sup.item);
     const wanted = currentWants[sup.key] ?? currentWants[sup.item] ?? 0;
     const lineText = ctx.strings.get('ui.zone.hospital.supply', { supply: ctx.strings.get(`ui.zone.hospital.supply.${sup.key}`), current: currentCount, wanted });
     // The two buttons end at the right edge and take the cells their names are drawn in.
@@ -894,60 +950,21 @@ function drawHospitalSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: Panel
     row += 1;
   }
 
-  // Patients
+  // Patients: every dwarf under care, wherever it lies, this hospital's first.
   if (row < bottom) {
     label(s, rect.col + 1, row, ctx.strings.get('ui.zone.hospital.patients'), { fg: t.key, width: rect.cols - 2 });
     row += 1;
-    const patients = ctx.readers.entities.with(C.Patient).filter((id) => {
-      const p = ctx.readers.entities.get(id, C.Patient);
-      return p && p.hospitalZoneId === zone.id;
-    });
-    if (patients.length === 0) {
+    const lines = hospitalPatientLines(ctx, zone);
+    if (lines.length === 0) {
       label(s, rect.col + 2, row, ctx.strings.get('ui.zone.hospital.no_patients'), { fg: t.dim, width: rect.cols - 3 });
       row += 1;
     } else {
-      for (const pId of patients) {
+      for (const line of lines) {
         if (row >= bottom) break;
-        const name = ctx.readers.entities.get(pId, C.Creature)?.name ?? ctx.strings.get('ui.zone.hospital.a_patient');
-        const p = ctx.readers.entities.get(pId, C.Patient);
-        const needs = p && p.needs.length > 0 ? p.needs.join(', ') : ctx.strings.get('ui.zone.hospital.resting');
-        label(s, rect.col + 2, row, ctx.strings.get('ui.zone.hospital.patient', { name, needs }), { width: rect.cols - 3 });
-        row += 1;
+        row += wrapLabel(s, rect.col + 2, row, line, { width: rect.cols - 3, indent: 2, maxRows: Math.max(1, bottom - row) });
       }
     }
   }
 
   return row;
-}
-
-function countHospitalSupplies(ctx: PanelContext, zone: ZoneView, typeName: string): number {
-  const it = items(ctx);
-  if (!it) return 0;
-  const itemIdx = ctx.registry.table<{ id: string }>('items').index(typeName);
-  if (itemIdx < 0) return 0;
-  const b = buildings(ctx);
-  let total = 0;
-  for (const t of zone.tiles) {
-    for (const itId of it.at(t)) {
-      const item = it.get(itId);
-      if (item && item.type === itemIdx) total += item.count;
-      for (const innerId of it.inContainer(itId)) {
-        const inner = it.get(innerId);
-        if (inner && inner.type === itemIdx) total += inner.count;
-      }
-    }
-    if (b) {
-      const bId = b.at(t);
-      if (bId !== 0) {
-        const building = ctx.readers.entities.get(bId, C.Building);
-        if (building && building.itemId !== 0) {
-          for (const innerId of it.inContainer(building.itemId)) {
-            const inner = it.get(innerId);
-            if (inner && inner.type === itemIdx) total += inner.count;
-          }
-        }
-      }
-    }
-  }
-  return total;
 }

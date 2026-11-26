@@ -33,6 +33,8 @@ export interface UiState {
   deepFound: boolean;
   /** The fortress's first named miasma line has said where rotten food belongs (24 § Announcements). */
   miasmaAdvised: boolean;
+  /** The fortress has admitted a patient (17's `PatientAdmitted`): the hospital's standing alert holds from then. */
+  patientSeen: boolean;
   /** Each breached cavern and its breach tile, `[cavern, tile]`, from `CavernBreached` (the threats panel says where). */
   breaches: [number, number][];
   cursor: { x: number; y: number } | null;
@@ -60,13 +62,14 @@ export interface SavedUiState {
   readonly wildlifeAlerted?: boolean;
   readonly deepFound?: boolean;
   readonly miasmaAdvised?: boolean;
+  readonly patientSeen?: boolean;
   readonly breaches?: readonly [number, number][];
   readonly logTail: readonly { tick: number; severity: string; text: string; count?: number; focus?: number; category?: string; subject?: number; key?: string; days?: number }[];
 }
 
 export function defaultUiState(z: number): UiState {
   return { camX: 0, camY: 0, z, zoom: 1, panel: null, sidebar: true, overlays: ['designations', 'zones'],
-    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], hintAlertTick: -1, workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, miasmaAdvised: false, breaches: [], cursor: null, mark: null };
+    hintsShown: [], hintPending: [], hintBareSince: [], hintUnreachableSince: [], hintAlertTick: -1, workshopIdleNotes: [], wildlifeAlerted: false, deepFound: false, miasmaAdvised: false, patientSeen: false, breaches: [], cursor: null, mark: null };
 }
 
 /** The saved form: the state's persistent fields and the last `LOG_SAVED_LINES` log lines. */
@@ -88,6 +91,7 @@ export function toSaved(ui: UiState, log: readonly LogLine[]): SavedUiState {
     ...(ui.wildlifeAlerted ? { wildlifeAlerted: true } : {}),
     deepFound: ui.deepFound,
     ...(ui.miasmaAdvised ? { miasmaAdvised: true } : {}),
+    ...(ui.patientSeen ? { patientSeen: true } : {}),
     ...(ui.breaches.length === 0 ? {} : { breaches: ui.breaches.map(([cavern, tile]): [number, number] => [cavern, tile]) }),
     logTail: tail.map((l) => ({ tick: l.tick, severity: l.severity, text: l.text,
       ...(l.count > 1 ? { count: l.count } : {}),
@@ -117,6 +121,7 @@ export function fromSaved(ui: UiState, saved: SavedUiState): LogLine[] {
   ui.wildlifeAlerted = saved.wildlifeAlerted === true;
   ui.deepFound = saved.deepFound ?? false;
   ui.miasmaAdvised = saved.miasmaAdvised === true;
+  ui.patientSeen = saved.patientSeen === true;
   ui.breaches = (saved.breaches ?? []).map(([cavern, tile]) => [cavern, tile]);
   ui.cursor = null;
   ui.mark = null;

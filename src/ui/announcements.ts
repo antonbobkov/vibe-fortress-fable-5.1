@@ -26,6 +26,8 @@ import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAG
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
 import { UNBURIED_DAYS } from '@systems/morale/constants';
+import { HOSPITAL_ALERT_DWARVES } from '@systems/health/constants';
+import { noDressingToBeHad } from './hospital';
 import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText, withArticle } from './messages';
 import { markFigure } from './panels/context';
@@ -1184,7 +1186,8 @@ export class AnnouncementLog {
    * 15 § Registrations, the unburied dead: the caller asks once a day, on `DayPassed`. While some
    * dwarf's body has lain unburied past `UNBURIED_DAYS` (the `unburied_dead` thought's condition),
    * an alert counts every unburied dwarf body and the free coffins (14's `freeCoffins`), says how
-   * many coffins are missing, and focuses the oldest body. A standing alert: it folds by day.
+   * many coffins are missing, and focuses the oldest body: build them while coffins are in stock,
+   * order them (or set the first tomb's coffins ready) while none are. A standing alert: it folds by day.
    * Returns what it appended, or null when no alert is due.
    */
   unburiedAlert(readers: ReaderSet, tick: number): Announced | null {
@@ -1198,13 +1201,45 @@ export class AnnouncementLog {
       if (oldest === null || corpse.diedTick < oldest.died) oldest = { id, died: corpse.diedTick };
     }
     if (oldest === null || tick - oldest.died <= UNBURIED_DAYS * TICKS_PER_DAY) return null;
-    const free = readers.of<BuildingsReader>('14').freeCoffins().length;
-    const key = free === 0 ? 'announce.unburied' : free < n ? 'announce.unburied.few' : 'announce.unburied.free';
-    const text = this.strings.get(key, { n, free, more: n - free });
+    const buildings = readers.of<BuildingsReader>('14');
+    const free = buildings.freeCoffins().length;
+    // 14 § Burial: with coffins in stock the line says to build them; with none, to order them.
+    const match = buildings.types().find((row) => row.tags.includes('coffin'))?.inputs[0]?.match;
+    const types = match === undefined ? [] : buildings.inputTypes(match);
+    const stock = types.length === 0 ? 0 : readers.of<ItemsReader>('13').countAvailable({ types, unoccupied: true });
+    const tomb = buildings.zonesOfType('tomb')[0];
+    const env = { readers, strings: this.strings };
+    const key = free >= n ? 'announce.unburied.free'
+      : stock > 0 ? (free === 0 ? 'announce.unburied' : 'announce.unburied.few')
+      : free > 0 ? 'announce.unburied.few_order'
+      : tomb === undefined ? 'announce.unburied.order_no_tomb' : 'announce.unburied.order';
+    const text = this.strings.get(key, { n, free, more: n - free, tomb: tomb === undefined ? '' : zoneName(env, tomb) });
     const tile = readers.of<ItemsReader>('13').tileOf(oldest.id);
     const focus = tile >= 0 ? tile : undefined;
     const done = this.appendStanding('alert', text, tick, focus, undefined, key);
     done.line.subject = oldest.id;
+    return done;
+  }
+
+  /**
+   * 17 § Player-facing behavior, the hospital's standing alert: the caller asks once a day, on
+   * `DayPassed`. Once a patient has been admitted (`patientSeen`, or one is under care now) or the
+   * fortress counts `HOSPITAL_ALERT_DWARVES` living dwarves: with no hospital zone, "No hospital";
+   * with one, while no bandage and no cloth is to be had, that the hospital has none. A standing
+   * alert: it folds by day. Returns what it appended, or null when no alert is due.
+   */
+  hospitalAlert(readers: ReaderSet, tick: number, patientSeen: boolean): Announced | null {
+    if (!readers.has('13') || !readers.has('14')) return null;
+    const dwarves = readers.has('10') ? readers.of<{ list(): readonly EntityId[] }>('10').list().length : 0;
+    const underCare = readers.entities.with(C.Patient).some((id) => readers.entities.get(id, C.Creature)?.faction === 'fortress');
+    if (!patientSeen && !underCare && dwarves < HOSPITAL_ALERT_DWARVES) return null;
+    const hospital = readers.of<BuildingsReader>('14').zonesOfType('hospital')[0];
+    const key = hospital === undefined ? 'announce.no_hospital'
+      : noDressingToBeHad({ readers, registry: this.registry }) ? 'announce.hospital_no_dressing' : null;
+    if (key === null) return null;
+    const tile = hospital === undefined ? undefined : readers.of<BuildingsReader>('14').zone(hospital)?.tiles[0];
+    const done = this.appendStanding('alert', this.strings.get(key), tick, tile, undefined, key);
+    if (hospital !== undefined) done.line.subject = hospital;
     return done;
   }
 
