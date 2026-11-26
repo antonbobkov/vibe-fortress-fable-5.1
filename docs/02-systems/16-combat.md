@@ -162,7 +162,7 @@ An explicit barracks zone setting takes precedence over a cached training zone. 
 
 ### Alerts
 
-`SetAlert { level }`. `AlertChanged { from, to }` on change. `hearth` additionally locks `lock_on_alert` doors (14), sends war animals to their chains or stations (08), and makes 10 retreat civilians (a civilian with no reachable shelter works on as under `watchful`; a civilian whose hunger, thirst or rest is critical still leaves the shelter to serve it, and one that can tend a patient still leaves it for that job, and returns while the alert lasts; 10 § Behavior selection). There is no automatic alert change; `ThreatWarning` and `RaidArrived` are `danger` announcements that pause the game so the player can choose.
+`SetAlert { level }`. `AlertChanged { from, to }` on change. `hearth` additionally locks `lock_on_alert` doors (14), which stay locked under a `watchful` alert and open only when the alert returns to `calm`, sends war animals to their chains or stations (08), and makes 10 retreat civilians (a civilian with no reachable shelter works on as under `watchful`; a civilian whose hunger, thirst or rest is critical still leaves the shelter to serve it, and one that can tend a patient still leaves it for that job, and returns while the alert lasts; 10 § Behavior selection). There is no automatic alert change; `ThreatWarning` and `RaidArrived` are `danger` announcements that pause the game so the player can choose.
 
 ### Kills and loot
 
