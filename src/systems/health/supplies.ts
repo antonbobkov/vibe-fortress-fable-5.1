@@ -16,6 +16,12 @@ export interface HospitalZones {
   zoneSetting(id: number, key: string): unknown;
 }
 
+/** One hospital's wanted supplies: its `desired supplies` setting, or `HOSPITAL_DEFAULT_SUPPLIES`. */
+export function hospitalWantsOf(buildings: HospitalZones, zoneId: number): Readonly<Record<string, number>> {
+  return (buildings.zoneSetting(zoneId, 'desired supplies') ?? buildings.zoneSetting(zoneId, 'wants') ??
+    HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
+}
+
 /**
  * 17 § Patients and hospitals: the dressings the fortress's hospitals keep, the sum of their `cloth`
  * and `bandages` supply settings (as 13's hospital chests read them); `none` without a hospital.
@@ -26,8 +32,7 @@ export function hospitalDressings(buildings: HospitalZones | null, none = 0): nu
   if (zones.length === 0) return none;
   let kept = 0;
   for (const zoneId of zones) {
-    const wants = (buildings.zoneSetting(zoneId, 'desired supplies') ?? buildings.zoneSetting(zoneId, 'wants') ??
-      HOSPITAL_DEFAULT_SUPPLIES) as Record<string, number>;
+    const wants = hospitalWantsOf(buildings, zoneId);
     kept += (wants['cloth'] ?? 0) + (wants['bandages'] ?? 0);
   }
   return kept;

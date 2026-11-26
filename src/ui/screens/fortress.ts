@@ -457,14 +457,16 @@ export class FortressScreen implements Screen {
         // A drag made while time runs: its zone exists from this tick's command phase.
         this.zoneMade(Number(event['zoneId']));
       }
-      // 13 § Rot and 15 § Registrations: once a day, the alert before food rots and the alert of
-      // the unburied dead (24 § Announcements and the log).
+      // 13 § Rot, 15 § Registrations and 17 § Player-facing behavior: once a day, the alert before
+      // food rots, the alert of the unburied dead and the hospital's (24 § Announcements and the log).
+      if (event.type === 'PatientAdmitted') this.ui.patientSeen = true;
       // 16 § Combat log: a blow opens or refreshes the fortress's engagement line, whatever the
       // combat log setting, which chooses only the blows the Combat tab lists.
       const fight = this.log.engage(event, readers, readers.calendar.tick);
       const blows = event.type !== 'AttackResolved' || this.settings.combatLog === 'all' || (this.settings.combatLog === 'hits only' && event['outcome'] === 'hit');
       const lines = !blows ? []
-        : event.type === 'DayPassed' ? [this.log.rotAlert(readers, readers.calendar.tick), this.log.unburiedAlert(readers, readers.calendar.tick)]
+        : event.type === 'DayPassed' ? [this.log.rotAlert(readers, readers.calendar.tick), this.log.unburiedAlert(readers, readers.calendar.tick),
+          this.log.hospitalAlert(readers, readers.calendar.tick, this.ui.patientSeen)]
         : [this.log.announce(event, readers, readers.calendar.tick)];
       for (const done of fight === null ? lines : [fight]) {
         if (done === null) continue;

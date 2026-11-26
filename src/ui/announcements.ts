@@ -26,6 +26,8 @@ import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAG
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
 import { UNBURIED_DAYS } from '@systems/morale/constants';
+import { HOSPITAL_ALERT_DWARVES } from '@systems/health/constants';
+import { noDressingToBeHad } from './hospital';
 import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText, withArticle } from './messages';
 import { markFigure } from './panels/context';
@@ -1076,6 +1078,28 @@ export class AnnouncementLog {
     const focus = tile >= 0 ? tile : undefined;
     const done = this.appendStanding('alert', text, tick, focus, undefined, key);
     done.line.subject = oldest.id;
+    return done;
+  }
+
+  /**
+   * 17 § Player-facing behavior, the hospital's standing alert: the caller asks once a day, on
+   * `DayPassed`. Once a patient has been admitted (`patientSeen`, or one is under care now) or the
+   * fortress counts `HOSPITAL_ALERT_DWARVES` living dwarves: with no hospital zone, "No hospital";
+   * with one, while no bandage and no cloth is to be had, that the hospital has none. A standing
+   * alert: it folds by day. Returns what it appended, or null when no alert is due.
+   */
+  hospitalAlert(readers: ReaderSet, tick: number, patientSeen: boolean): Announced | null {
+    if (!readers.has('13') || !readers.has('14')) return null;
+    const dwarves = readers.has('10') ? readers.of<{ list(): readonly EntityId[] }>('10').list().length : 0;
+    const underCare = readers.entities.with(C.Patient).some((id) => readers.entities.get(id, C.Creature)?.faction === 'fortress');
+    if (!patientSeen && !underCare && dwarves < HOSPITAL_ALERT_DWARVES) return null;
+    const hospital = readers.of<BuildingsReader>('14').zonesOfType('hospital')[0];
+    const key = hospital === undefined ? 'announce.no_hospital'
+      : noDressingToBeHad({ readers, registry: this.registry }) ? 'announce.hospital_no_dressing' : null;
+    if (key === null) return null;
+    const tile = hospital === undefined ? undefined : readers.of<BuildingsReader>('14').zone(hospital)?.tiles[0];
+    const done = this.appendStanding('alert', this.strings.get(key), tick, tile, undefined, key);
+    if (hospital !== undefined) done.line.subject = hospital;
     return done;
   }
 

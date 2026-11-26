@@ -35,6 +35,10 @@ export const PAIN_DISCHARGE = 30;
 export const FRACTURE_PERCENT = 30;
 
 export const HOSPITAL_SUPPLY_MAX = 999;
+/** 17 § Player-facing behavior: a hospital bed for this many living dwarves; fewer, and the Beds line is in the alert colour. */
+export const HOSPITAL_BEDS_PER = 10;
+/** 17 § Player-facing behavior: the living dwarves from which the hospital's standing alert holds, if no wound has come first. */
+export const HOSPITAL_ALERT_DWARVES = 30;
 
 export const HOSPITAL_DEFAULT_SUPPLIES: Readonly<Record<string, number>> = Object.freeze({
   cloth: 10,

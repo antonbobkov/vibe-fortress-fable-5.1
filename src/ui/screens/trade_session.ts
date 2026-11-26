@@ -13,6 +13,7 @@ import { Strings } from '../strings';
 import type { KeyContext } from '../keymap';
 import type { Surface } from '../surface';
 import { materialItemName } from '../messages';
+import { hospitalWantsItem } from '../hospital';
 import { clampList, keyCells, label, type ListState } from '../widgets';
 
 export interface TradeSessionHost {
@@ -262,8 +263,11 @@ export class TradeSessionScreen implements Screen {
         const drawn = label(surface, col + 2, y + 1, caption, captionOptions);
         // 20 § The scarcity price: a merchant good the site lacks says so beside its quantity.
         const scarce = side === 'merchant' && row.members.some((member) => this.trade().isScarce(member.id));
+        // 17 § Player-facing behavior: cloth or bandages while the hospitals hold fewer dressings than they want.
+        const wanted = side === 'merchant' && row.members.some((member) => hospitalWantsItem(this.host, member.id));
+        const mark = scarce && wanted ? 'ui.trade.scarce_hospital' : wanted ? 'ui.trade.hospital_wants' : scarce ? 'ui.trade.scarce' : null;
         const scarceCol = col + 2 + drawn + 2;
-        if (scarce && scarceCol < col + width - 1) label(surface, scarceCol, y + 1, this.strings.get('ui.trade.scarce'), { fg: t.alert, width: col + width - 1 - scarceCol });
+        if (mark !== null && scarceCol < col + width - 1) label(surface, scarceCol, y + 1, this.strings.get(mark), { fg: t.alert, width: col + width - 1 - scarceCol });
         const cells = keyCells(surface, caption, captionOptions);
         const minus = cells.find((c) => c.key === '-');
         const plus = cells.find((c) => c.key === '+');
