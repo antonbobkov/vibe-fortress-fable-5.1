@@ -26,7 +26,7 @@ import {
   ORDER_COUNT_BIG_STEP, ORDER_COUNT_MAX, ORDER_COUNT_MIN, ORDER_FINISHED_MAX, ORDER_KEEP_DEFAULT, ORDER_RECENT_MAX,
 } from '../constants';
 import { jobLabor, jobWait } from '../job-wait';
-import { buildingName, capitalize, clothInStock, itemName, jobBlockText, keepCounts, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, withArticle, wrapHang, wrapText, zoneName } from '../messages';
+import { buildingName, capitalize, clothInStock, inputLack, itemName, jobBlockText, keepCounts, lackHeld, lackText, matchName, outOfReach, waitingFor, whereMade, workshopBlockText, withArticle, wrapHang, wrapText, zoneName } from '../messages';
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
@@ -88,14 +88,26 @@ function clampCount(n: number): number {
   return Math.max(ORDER_COUNT_MIN, Math.min(ORDER_COUNT_MAX, n));
 }
 
+/**
+ * What a `○` recipe lacks of the input its workshop waits for, as the recipe takes it: "no iron or
+ * steel bar", "needs 5 iron or steel bars, 3 in stock", "4 glowstone rough gems at the depot"; null
+ * when the reason names no input.
+ */
+function lackWords(ctx: PanelContext, reason: string | null, recipe?: RecipeRow): { readonly text: string; readonly held: boolean } | null {
+  const lack = recipe === undefined ? null : inputLack(ctx, recipe, reason);
+  if (lack !== null) return { text: lackText(ctx.strings, lack), held: lackHeld(lack) };
+  const waiting = waitingFor(ctx, reason);
+  return waiting === null ? null : { text: ctx.strings.get('ui.orders.lack.none', { item: waiting.item }), held: false };
+}
+
 /** A `○` recipe's missing input, from its workshop's waiting reason: "· no tallow", "· no fuel"; '' for any other reason. */
-function missingNote(ctx: PanelContext, reason: string | null): string {
+function missingNote(ctx: PanelContext, reason: string | null, recipe?: RecipeRow): string {
   if (reason === 'missing_input') return ctx.strings.get('ui.orders.pick.no_fuel');
   if (reason === CLOTH_KEPT) return ctx.strings.get('ui.orders.pick.cloth_kept');
   const far = outOfReach(ctx, reason);
   if (far !== null) return ctx.strings.get('ui.orders.pick.out_of_reach', { item: far.item });
-  const waiting = waitingFor(ctx, reason);
-  return waiting === null ? '' : ctx.strings.get('ui.orders.pick.no_input', { item: waiting.item });
+  const lack = lackWords(ctx, reason, recipe);
+  return lack === null ? '' : ctx.strings.get('ui.orders.pick.no_input', { lack: lack.text });
 }
 
 /**
@@ -107,7 +119,10 @@ function missingNote(ctx: PanelContext, reason: string | null): string {
 function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null): string {
   const s = ctx.strings;
   const waiting = waitingFor(ctx, reason);
-  if (waiting === null) return missingNote(ctx, reason);
+  const lack = lackWords(ctx, reason, recipe);
+  if (waiting === null || lack === null) return missingNote(ctx, reason, recipe);
+  // Units that exist but cannot be used (at the depot, reserved) are the step: no maker is named.
+  if (lack.held) return s.get('ui.orders.pick.no_input', { lack: lack.text });
   const parts = waiting.match.split('|');
   const reader = ctx.readers.has('12') ? ctx.readers.of<WorkshopsReader>('12') : null;
   const table = ctx.registry.table<RecipeRow>('recipes');
@@ -117,11 +132,11 @@ function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null):
   const source = (id: string): string | null => (s.has(`ui.orders.pick.source.${id}`) ? s.get(`ui.orders.pick.source.${id}`) : null);
   if (makers.length === 0) {
     const from = parts.length === 1 ? source(parts[0] as string) : null;
-    return from === null ? s.get('ui.orders.pick.no_input', { item: waiting.item }) : s.get('ui.orders.pick.no_input_from', { item: waiting.item, source: from });
+    return from === null ? s.get('ui.orders.pick.no_input', { lack: lack.text }) : s.get('ui.orders.pick.no_input_from', { lack: lack.text, source: from });
   }
   if (makers.length > 1) {
     const where = whereMade(ctx.registry, parts, s);
-    return where === '' ? s.get('ui.orders.pick.no_input', { item: waiting.item }) : s.get('ui.orders.pick.made_at', { item: waiting.item, where });
+    return where === '' ? s.get('ui.orders.pick.no_input', { lack: lack.text }) : s.get('ui.orders.pick.made_at', { lack: lack.text, where });
   }
   const maker = makers[0] as RecipeRow;
   const workshop = (ctx.registry.table<{ id: string; name: string }>('buildings').byId(maker.workshop)?.name ?? maker.workshop.replace(/_/g, ' ')).toLowerCase();
@@ -141,8 +156,8 @@ function chainNote(ctx: PanelContext, recipe: RecipeRow, reason: string | null):
     return from === null ? item : s.get('ui.orders.pick.from', { item, source: from });
   });
   return needs.length === 0
-    ? s.get('ui.orders.pick.make_at', { item: waiting.item, recipe: name, where })
-    : s.get('ui.orders.pick.make_at_needs', { item: waiting.item, recipe: name, where, needs: needs.join(s.get('ui.orders.pick.and')) });
+    ? s.get('ui.orders.pick.make_at', { lack: lack.text, recipe: name, where })
+    : s.get('ui.orders.pick.make_at_needs', { lack: lack.text, recipe: name, where, needs: needs.join(s.get('ui.orders.pick.and')) });
 }
 
 /**
@@ -155,7 +170,7 @@ function sharedNote(ctx: PanelContext, lacking: readonly { readonly recipe: Reci
   const first = lacking[0];
   if (first === undefined || lacking.length < 2 || lacking.some((x) => x.reason !== first.reason)) return null;
   const note = chainNote(ctx, first.recipe, first.reason);
-  const short = missingNote(ctx, first.reason);
+  const short = missingNote(ctx, first.reason, first.recipe);
   if (note === '' || note === short) return null;
   return lacking.every((x, k) => k === 0 || chainNote(ctx, x.recipe, x.reason) === note) ? { note, short } : null;
 }
@@ -567,8 +582,12 @@ export class OrdersPanel {
       return s.get('ui.orders.added_no_workshop', { qty, recipe: recipe.name, workshop });
     }
     if (reader !== null && !where.some((id) => reader.isRunnable(recipe.id, id).runnable)) {
-      const waiting = waitingFor(ctx, reader.isRunnable(recipe.id, where[0] as EntityId).reason);
-      if (waiting !== null) return s.get('ui.orders.added_waiting', { qty, recipe: recipe.name, item: waiting.item, n: waiting.n });
+      const reason = reader.isRunnable(recipe.id, where[0] as EntityId).reason;
+      // What is short, as the recipe takes it: "Waiting: needs 5 iron or steel bars, 3 in stock."
+      const lack = inputLack(ctx, recipe, reason);
+      if (lack !== null && (lack.have > 0 || lackHeld(lack))) return s.get('ui.orders.added_lacking', { qty, recipe: recipe.name, lack: lackText(s, lack) });
+      const waiting = waitingFor(ctx, reason);
+      if (waiting !== null) return s.get('ui.orders.added_waiting', { qty, recipe: recipe.name, item: lack?.item ?? waiting.item, n: lack?.have ?? waiting.n });
     }
     return s.get('ui.orders.added', { qty, recipe: recipe.name, where: this.whereName(ctx, workshopId, recipe) });
   }
@@ -959,8 +978,11 @@ export class OrdersPanel {
     const far = outOfReach(ctx, reason);
     if (far !== null) return { kind: 'out_of_reach', short: s.get('ui.orders.status.out_of_reach', { item: far.item }), long };
     if (reason === CLOTH_KEPT) return { kind: 'waiting', short: s.get('ui.orders.status.cloth_kept', { n: clothInStock(ctx) }), long };
+    // What is short, by the order's own material filter: "needs 5 iron or steel bars, 3 in stock".
+    const lack = inputLack(ctx, recipe, reason, order);
+    if (lack !== null && (lack.have > 0 || lackHeld(lack))) return { kind: 'waiting', short: lackText(s, lack), long };
     const waiting = waitingFor(ctx, reason);
-    if (waiting !== null) return { kind: 'waiting', short: s.get('ui.orders.status.waiting', { item: waiting.item, n: waiting.n }), long };
+    if (waiting !== null) return { kind: 'waiting', short: s.get('ui.orders.status.waiting', { item: lack?.item ?? waiting.item, n: lack?.have ?? waiting.n }), long };
     if (reason === 'missing_input') return plain('fuel', long);
     if (reason === 'workshop_suspended') return plain('suspended', long);
     if (reason === 'no_magma') return plain('no_magma', long);

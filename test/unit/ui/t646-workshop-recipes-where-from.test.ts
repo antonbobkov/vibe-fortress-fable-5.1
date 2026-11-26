@@ -40,7 +40,7 @@ function panel(ctx: PanelContext, orders: OrdersPanel, id: EntityId, recipeId: s
   orders.workshopList(id).selected = ordered.indexOf(recipeId);
   const s = surface(36, ROWS);
   drawWorkshopPanel(s, { col: 0, row: 0, cols: 36, rows: ROWS }, id, orders, ctx);
-  return s.lines().map((line) => line.slice(1).replace(/\s*[│█]$/, '').trimEnd());
+  return s.lines().map((line) => line.slice(1).replace(/\s*[│█]\s*$/, '').trimEnd());
 }
 
 /** The row starting with `start` and the lines hung under it, joined. */

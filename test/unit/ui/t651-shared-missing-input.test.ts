@@ -84,7 +84,8 @@ describe('T-651 a missing input every recipe shares is said once', () => {
     const ordered = orders.groupRecipes(ctx, reader.recipesFor('carpenter')).flatMap((row) => ('recipe' in row ? [row.recipe.id] : []));
     orders.workshopList(shop).selected = ordered.indexOf('make_cabinet_wood');
     rows = workshop(ctx, orders, shop);
-    expect(joined(rows)).toContain('○ Cabinet · no log (from felling trees)');
+    // T-790: one log of the two a cabinet takes says the shortfall.
+    expect(joined(rows)).toContain('○ Cabinet · needs 2 logs, 1 in stock (from felling trees)');
   });
 
   it('Add order opened from the woodless carpenter says it once too', () => {

@@ -16,7 +16,7 @@
  * Presentation only: every function reads, none writes.
  */
 
-import { C, type StockpileFilter } from '@core/components';
+import { C, ItemFlag, type StockpileFilter, type WorkOrder } from '@core/components';
 import { Designation } from '@core/map3d';
 import type { Command } from '@core/commands';
 import type { ReaderSet } from '@core/readers';
@@ -25,7 +25,8 @@ import type { EntityId, TileIndex } from '@core/types';
 import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
-import { CLOTH_KEPT } from '@systems/workshops';
+import { CLOTH_KEPT, recipeInputFilter, type RecipeRow as WorkshopRecipe } from '@systems/workshops';
+import type { ItemFilter } from '@systems/items/search';
 import { keptDressings } from '@systems/health/supplies';
 import type { ItemsReader, RotOutlook } from '@systems/items';
 import { STOCKPILE_PRESETS } from '@systems/items';
@@ -755,6 +756,99 @@ export function waitingFor(env: MessageEnv, reason: string | null): { match: str
   let n = 0;
   for (const part of match.split('|')) if (items !== null && table.has(part)) n += items.countAvailable({ type: table.index(part) });
   return { match, item: matchName(env.registry, match, 1, env.strings), n };
+}
+
+/**
+ * What an order lacks of one input, as the recipe takes it (`panels.md` § Add order): the input
+ * named with the materials it takes ("iron or steel bar"), the units one craft needs, the units in
+ * stock (available), and the units that exist but cannot be used: the fortress's own at the trade
+ * depot, and those reserved, with the building the first one is reserved for.
+ */
+export interface InputLack {
+  /** The input in the singular: "iron or steel bar". */
+  readonly item: string;
+  readonly need: number;
+  readonly have: number;
+  readonly depot: number;
+  readonly reserved: number;
+  /** The building whose job holds the first reserved unit ("Jeweler's workshop #1"), or ''. */
+  readonly reservedAt: string;
+  /** The input named for `n` units: "5 iron or steel bars". */
+  readonly units: (n: number) => string;
+}
+
+/** A recipe input's name with the materials its filter takes: "iron or steel bar", "glowstone rough gem", "metal bars". */
+function inputName(env: MessageEnv, match: string, filter: ItemFilter, n: number): string {
+  const s = env.strings;
+  const materials = env.registry.table<NamedRow>('materials');
+  const items = env.registry.table<NamedRow & { readonly category?: string }>('items');
+  const ids = filter.materialIds ?? (filter.materialId === undefined ? undefined : [filter.materialId]);
+  const plain = matchName(env.registry, match, n, s);
+  // Several alternatives ("salt|honey|plant") keep their own names: a material list before them would read as one of them.
+  if (match.includes('|')) return plain;
+  if (ids !== undefined && ids.length > 0) {
+    const names = ids.map((id) => materials.byIndex(id)?.name ?? '').filter((name) => name !== '');
+    const row = items.has(match) ? items.byId(match) : undefined;
+    if (names.length === 1 && row !== undefined) return materialItemName(names[0] as string, row, n);
+    return names.length === 0 ? plain : `${listText(s, names, 'or')} ${plain}`;
+  }
+  if (filter.materialClass !== undefined) return `${materialClassWord(s, filter.materialClass)} ${plain}`;
+  return plain;
+}
+
+export function inputLack(env: MessageEnv, recipe: WorkshopRecipe, reason: string | null, order?: WorkOrder): InputLack | null {
+  const waiting = reason === null ? null : /^waiting for (.+)$/.exec(reason);
+  const input = waiting === null ? undefined : recipe.inputs.find((i) => i.match === waiting[1]);
+  if (input === undefined || !env.readers.has('13')) return null;
+  const items = env.readers.of<ItemsReader>('13');
+  // 12's input filter: the order's material filter binds only the input the first output takes its material from.
+  const of: WorkOrder = order ?? { recipe: 0 as WorkOrder['recipe'], remaining: 1, mode: 'once', threshold: 0, priority: 5, materialFilter: null };
+  const first = recipe.outputs[0];
+  const target = first !== undefined && 'from' in first.material ? first.material.index : 0;
+  const bound = recipe.inputs.indexOf(input) === target ? of : { ...of, materialFilter: null };
+  const filter = recipeInputFilter(env.registry, input, bound);
+  // The name gives the materials the recipe or the order names, not those a property picks (brewable, flux).
+  const { materialProperty: _property, ...plainInput } = input;
+  const named = recipeInputFilter(env.registry, input.material === 'flux' ? { ...plainInput, material: 'any' } : plainInput, bound);
+  const have = items.countAvailable(filter);
+  // Enough in stock: the wait is another (the same material for every unit, distinct items), told as before.
+  if (have >= input.count) return null;
+  const depot = items.countMatching({ ...filter, requiredFlags: ItemFlag.AtDepot }) - items.countMatching({ ...filter, requiredFlags: ItemFlag.AtDepot | ItemFlag.Merchant });
+  const reserved = items.countMatching({ ...filter, requiredFlags: ItemFlag.Reserved });
+  let reservedAt = '';
+  if (reserved > 0 && env.readers.has('11')) {
+    const jobs = env.readers.of<JobsReader>('11');
+    for (const id of env.readers.entities.with(C.Item)) {
+      const it = items.get(id);
+      if (it === undefined || (it.flags & ItemFlag.Reserved) === 0 || it.reservedBy === 0) continue;
+      if (items.countMatching({ ...filter, itemId: id }) === 0) continue;
+      const job = jobs.get(it.reservedBy);
+      if (job?.target.kind === 'building') reservedAt = buildingName(env, job.target.ref);
+      break;
+    }
+  }
+  return { item: inputName(env, input.match, named, 1), need: input.count, have, depot, reserved, reservedAt,
+    units: (n) => `${n} ${inputName(env, input.match, named, n)}` };
+}
+
+/**
+ * An input's lack in words: "4 glowstone rough gems at the depot", "1 glowstone rough gem reserved
+ * (Jeweler's workshop #1)", "needs 5 iron or steel bars, 3 in stock", "no iron or steel bar". The
+ * units that cannot be used come first, since they are what the player can act on.
+ */
+export function lackText(strings: Strings, lack: InputLack): string {
+  if (lack.depot > 0) return strings.get('ui.orders.lack.depot', { what: lack.units(lack.depot) });
+  if (lack.reserved > 0) {
+    return lack.reservedAt === '' ? strings.get('ui.orders.lack.reserved', { what: lack.units(lack.reserved) })
+      : strings.get('ui.orders.lack.reserved_at', { what: lack.units(lack.reserved), where: lack.reservedAt });
+  }
+  if (lack.have > 0) return strings.get('ui.orders.lack.short', { what: lack.units(lack.need), n: lack.have });
+  return strings.get('ui.orders.lack.none', { item: lack.item });
+}
+
+/** Whether a lack's units exist but cannot be used (at the depot, reserved): then no step back is named. */
+export function lackHeld(lack: InputLack): boolean {
+  return lack.depot > 0 || lack.reserved > 0;
 }
 
 /**
