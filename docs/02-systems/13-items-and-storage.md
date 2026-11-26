@@ -29,13 +29,13 @@ stone/     raw  block  gem_rough  gem_cut  soil  fossil
 ore/
 wood/      log  block
 bar/       metal  coal  charcoal  peat  dung
-furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow  beehive  lantern
+furniture/ bed  table  chair  door  hatch  cabinet  chest  coffin  statue  cage  mechanism  floodgate  anvil  nest_box  weapon_rack  armor_stand  memorial_slab  trap_part  stone_bed  bedding  pillow  beehive  lantern  archery_target  chain
 container/ barrel  bag  bin  bucket  pot  basket
 weapon/    melee  ranged
 ammo/
 armor/     head  body  arms  legs  feet  shield
 clothing/  body  legs  feet
-tool/      pick  axe  fishing_rod  crutch  candle  firebrand
+tool/      pick  axe  fishing_rod  crutch  candle  firebrand  quiver
 craft/     figurine  ring  amulet  mug  totem
 textile/   fiber  thread  cloth  wool  hide  leather  bone  shell  skull  horn  tusk  feather  straw  reed
 medical/   splint  bandage  brightleaf  glowcap  vial  draught  wyrmscale  ichor  venom  gland  soap
@@ -43,7 +43,7 @@ farm/      bone_ash  potash  dung  compost  guano
 refuse/    corpse  skeleton  rotten  part
 ```
 
-Stockpile filters select any node; selecting a node selects its subtree. Material class and quality range refine the selection.
+Every item type's category is a node of this tree, so each type has a place in it: a melee weapon (a training weapon too) is `weapon/melee`, a launcher or a channel `weapon/ranged`, and every ammunition `ammo`; a weapon's class is a column of its row, not a node. Stockpile filters select any node; selecting a node selects its subtree. Material class and quality range refine the selection.
 
 ### Value
 

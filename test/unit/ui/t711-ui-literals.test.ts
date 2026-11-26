@@ -32,7 +32,7 @@ const RECORD: LegendRecord = {
 
 describe('T-711 the UI outside the panels writes no text in its code', () => {
   it('scans all of src/ui and skips no file', () => {
-    expect(LITERAL_DIRS).toEqual(['src/ui']);
+    expect(LITERAL_DIRS).toEqual(['src/ui', 'src/app']);
     expect(LITERAL_FILES_SKIPPED.size).toBe(0);
     expect((check() as { literals: string[] }).literals).toEqual([]);
   });

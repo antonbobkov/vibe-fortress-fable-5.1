@@ -1,6 +1,8 @@
 # T-773 — After a massacre the dead lie unburied for days, and nothing says a coffin is missing
 
-**Source:** playtest 2026-11-25 (military) ([report](../../reports/data/2026-11-25-playtest-6.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 66a5311e.
+
+**Source:** playtest 2026-11-25 (military) ([report](../../../reports/data/2026-11-25-playtest-6.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -15,10 +17,11 @@ Decisions:
 - **A Helps line for `unburied_dead`**: "a coffin [b > Furniture] in a tomb zone [z] for each body, or a memorial slab for one who is lost" (`ui.mood.helps.unburied_dead`), shown as T-760's other helps.
 - **An alert once a day while some dwarf has lain unburied past `UNBURIED_DAYS`** (`announce.unburied`), its focus the oldest body, folded by day as the other standing alerts are (T-741). With no free coffin: "5 dead wait for burial and no coffin is free: build coffins [b > Furniture], best in a tomb [z]." With fewer free coffins than bodies: "5 dead wait for burial and only 2 coffins are free: build 3 more [b > Furniture]." With enough (no path, no hauler, a forbidden body): "5 dead wait for burial: 5 coffins are free." A coffin outside a tomb also takes a burial (14, the `coffin` row), so the line asks for coffins first.
 - The burial rules are unchanged.
+- **Decided while doing it:** the alert counts every unburied dwarf body (a corpse or skeleton with a dwarf's name, not memorialized), of any age, since each needs a coffin; it comes while the oldest has lain past `UNBURIED_DAYS`. Its three wordings are three keys, `announce.unburied`, `announce.unburied.few` and `announce.unburied.free` (content rows in `ui-keymap-and-screens.md`), and all three are standing alerts with no condition placeholders (`LOG_STANDING_ALERTS`), so a line folds by day while its wording holds; a change of wording (a coffin built) starts a new line, which is news. One dead dwarf reads "1 dead dwarf waits for burial". The UI asks on `DayPassed`, after the rot alert; the fortress screen now handles more than one line from one event.
 
 Spec: 15 § Registrations (the alert), 24 § Announcements and the log, `ui-screens/panels.md` § Mood, `03-content/ui-keymap-and-screens.md` (strings).
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): three dwarf corpses past `UNBURIED_DAYS` give the alert in its three wordings with no free coffin, with one ("only 1 coffin is free: build 2 more") and with three; none before `UNBURIED_DAYS`; the Mood panel shows the Helps line under "The dead lie unburied.".
-- [ ] UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): three dwarf corpses past `UNBURIED_DAYS` give the alert in its three wordings with no free coffin, with one ("only 1 coffin is free: build 2 more") and with three; none before `UNBURIED_DAYS`; the Mood panel shows the Helps line under "The dead lie unburied.".
+- [x] UI only: no world hash moves.

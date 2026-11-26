@@ -40,17 +40,19 @@ import {
   manualSaveId,
   slugify,
   newestManualId,
+  errorWords,
   readSaveHeader,
   rollAutosaves,
   rollSnapshots,
   SNAPSHOTS_KEPT,
   finalSaveId,
+  WordedError,
   type SaveEnd,
   type SaveHeader,
   type SaveKind,
   type SaveThumbnail,
 } from '@app/save-manager';
-import { validateImport, SaveLoadError, type LoadedGame } from '@app/game-save';
+import { validateImport, type LoadedGame } from '@app/game-save';
 import { browserFiles, type FileBridge } from '@platform/files';
 import { bytesToBase64 } from '@core/serialize';
 import { SIM_TICKS_PER_SECOND, STATUS_ROWS } from '@core/constants';
@@ -378,7 +380,7 @@ export class Game {
           // The legend's last words name the killer as the death's line does (24 § The legend record).
           const killer = Number(e['killerId'] ?? 0) === 0 ? '' : killerWords(this.strings, this.registry,
             typeof e['killerName'] === 'string' ? e['killerName'] : undefined, typeof e['killerSpecies'] === 'number' ? e['killerSpecies'] : undefined);
-          this.lastDwarfDeath = { name: String(e['name'] ?? 'Unknown'), cause: String(e['cause'] ?? 'wounds'), killer };
+          this.lastDwarfDeath = { name: String(e['name'] ?? this.strings.get('ui.legend.unknown_dwarf')), cause: String(e['cause'] ?? 'wounds'), killer };
         }
       }
     });
@@ -938,7 +940,8 @@ export class Game {
           this.lastSaveTick = this.host.readers.calendar.tick;
           this.lastSaveCommands = 0;
         } catch (error) {
-          const reason = error instanceof SaveLoadError ? error.section : error instanceof Error ? error.message : String(error);
+          // `persistence.md` § Failure handling: the save's fault in the player's words (`ui.load.error.*`).
+          const reason = errorWords(this.strings, error);
           const row = this.listing.find((s) => s.id === id);
           if (row) {
             const at = this.listing.indexOf(row);
@@ -1049,7 +1052,7 @@ export class Game {
         this.render();
       }
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
+      const message = errorWords(this.strings, error);
       this.note('alert', this.strings.get('ui.load.import_failed', { reason: message }));
       if (this.top() instanceof LoadScreen) {
         (this.top() as LoadScreen).setMessage(this.strings.get('ui.load.import_failed', { reason: message }));
@@ -1061,7 +1064,7 @@ export class Game {
   /** "Import reads a file, validates magic and version, checks the content hash … and stores it as a manual save." */
   async importBlob(blob: Uint8Array): Promise<string> {
     const saves = this.saves;
-    if (saves === null) throw new Error('no save store');
+    if (saves === null) throw new WordedError('no save store', 'ui.load.error.no_store');
     await validateImport(blob, this.registry);
     const id = manualSaveId(Date.now());
     await saves.write(id, blob);
@@ -1204,7 +1207,7 @@ export class Game {
     try {
       const newest = newestPlayable(await this.saves.list());
       if (newest === null) return null;
-      return `${newest.header.fortress} · Year ${newest.header.calendar.year}`;
+      return this.strings.get('ui.menu.continue_sub', { fortress: newest.header.fortress, year: newest.header.calendar.year });
     } catch {
       return null;
     }

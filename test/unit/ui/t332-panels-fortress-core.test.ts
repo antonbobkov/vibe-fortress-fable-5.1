@@ -134,8 +134,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     }
     // The value column is 15 cells, five digits and ☼ (T-703).
     expect(rows.find((row) => row.includes(' food '))).toBe('► food                60    190 ☼');
-    // A category with nothing inside has no arrow; the others can be opened.
-    expect(rows.find((row) => row.includes(' ammo '))).toMatch(/^ {2}ammo/);
+    // Every category with stock inside can be opened: ammunition files under `ammo` itself (T-774).
+    expect(rows.find((row) => row.includes(' ammo '))).toMatch(/^► ammo/);
     expect(rows.find((row) => row.includes(' food '))).toMatch(/^► food/);
     expect(rows[37]).toBe('Wealth 1,691 ☼   (buildings 2 ☼)');
     expect(rows[38]).toBe('[f] forbid  [S-d] dump');

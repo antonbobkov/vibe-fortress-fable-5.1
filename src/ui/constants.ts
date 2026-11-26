@@ -50,6 +50,9 @@ export const LOG_STANDING_ALERTS: Readonly<Record<string, readonly string[]>> = 
   'announce.miasma_from': ['place'],
   'announce.animal_starving': ['animal'],
   'announce.animal_starving.pasture': ['animal', 'pasture'],
+  'announce.unburied': [],
+  'announce.unburied.few': [],
+  'announce.unburied.free': [],
 });
 
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */

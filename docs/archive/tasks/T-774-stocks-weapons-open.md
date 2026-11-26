@@ -1,6 +1,8 @@
 # T-774 — Stocks cannot open weapons or ammunition
 
-**Source:** playtest 2026-11-25 (military) ([report](../../reports/data/2026-11-25-playtest-6.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 38d8a397.
+
+**Source:** playtest 2026-11-25 (military) ([report](../../../reports/data/2026-11-25-playtest-6.md), finding 7) · **Size:** S · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -15,10 +17,11 @@ Decisions:
 - **Melee weapons and ammunition file under 13's tree.** The export writes `weapon/melee` for every weapon that is not a launcher (training weapons included) and `ammo` for every ammunition row; launchers stay `weapon/ranged`. The class stays on the weapon's row, where the squad's weapon list reads it; any code that reads a class from the category path reads the row's class instead. Only a column's value changes, so no row number moves (`npm run content:export`, `content:check`). Stocks then opens `weapon` to `melee` and `ranged` and those to their types (`short sword`, `spear`), and `ammo` to its types (`arrow`, `bolt`), as every other category does.
 - **Check the stockpile filters on the same tree:** a stockpile set to `weapon/melee` alone takes swords and spears and not crossbows; a test pins it.
 - If the change moves which stockpile a weapon goes to in the economy fixture, the sweep says so; it should not.
+- **Decided while doing it:** the two places that read the old paths now read the new ones: the ranged kit's ammunition check (`jobs/items-adapter.ts`, `startsWith('ammo/')` to `=== 'ammo'`) and the ruins' valuable prefixes (`app/ruins.ts`, `ammo/` to `ammo`); both pick exactly the same items as before. A stockpile filter saved with an old class node (`weapon/sword`) is not migrated: the stockpile editor offers only `CATEGORY_TREE`'s nodes, so only a hand-made command could have set one. 13's spec tree also lacked three leaves items use (`furniture/archery_target`, `furniture/chain`, `tool/quiver`); they are added, and the spec now says every item type's category is a node of the tree. The code's `CATEGORY_TREE` lacks nine of the spec's leaves, which the stockpile editor therefore cannot pick alone: a follow-up (`T-781-stockpile-tree-misses-leaves.md`). No world hash moves (the flat-test golden passes and nothing that steers the simulation reads a class from a path), so no sweep.
 
 Spec: 13 § Categories (check that its tree is the one items use), `ui-screens/panels.md` § Stocks (unchanged).
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a fortress holding a short sword, a spear, a crossbow and arrows shows `weapon ►`, `melee ►` with `short sword` and `spear`, `ranged ►` with `crossbow`, and `ammo ►` with `arrow`. A stockpile accepting only `weapon/melee` takes the sword and not the crossbow.
-- [ ] If any world hash moves (stockpile placement), the sweep on GitHub.
+- [x] Tests (`describe` with the task id): a fortress holding a short sword, a spear, a crossbow and arrows shows `weapon ►`, `melee ►` with `short sword` and `spear`, `ranged ►` with `crossbow`, and `ammo ►` with `arrow`. A stockpile accepting only `weapon/melee` takes the sword and not the crossbow.
+- [x] If any world hash moves (stockpile placement), the sweep on GitHub: none moves, so none ran.

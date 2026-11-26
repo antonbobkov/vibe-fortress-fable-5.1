@@ -69,7 +69,8 @@ export function itemSourceOf(api: ItemsApi, reader: ItemsReader, entities: Entit
   const holdsAmmo = (workerId: EntityId, kind: string | null): boolean => {
     const isAmmo = (id: EntityId): boolean => {
       const it = reader.get(id);
-      if (it === undefined || it.count <= 0 || !reader.categoryOf(it.type).startsWith('ammo/')) return false;
+      // 13 § Category tree: every ammunition is filed under `ammo`.
+      if (it === undefined || it.count <= 0 || reader.categoryOf(it.type) !== 'ammo') return false;
       return kind === null || reader.def(it.type)?.id === kind;
     };
     const quiver = entities.get(workerId, C.Equipment)?.quiver ?? 0;

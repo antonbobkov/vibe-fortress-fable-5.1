@@ -37,6 +37,7 @@ import {
   readTypedSection,
   typedSection,
   writeSave,
+  WordedError,
   type ContentCheck,
   type LoadedSave,
   type SaveHeader,
@@ -237,12 +238,14 @@ export async function saveGame(game: HeadlessGame, options: SaveOptions): Promis
 }
 
 /** Refused by the load procedure; the message names what failed (`persistence.md` § Failure handling). */
-export class SaveLoadError extends Error {
+export class SaveLoadError extends WordedError {
   readonly section: string;
   readonly missing: readonly string[];
 
+  /** The player reads "the {section} section is damaged" (`ui.load.error.section`), or that content is missing (`ui.load.error.missing_content`). */
   constructor(section: string, message: string, missing: readonly string[] = []) {
-    super(message);
+    super(message, missing.length > 0 ? 'ui.load.error.missing_content' : 'ui.load.error.section',
+      missing.length > 0 ? { ids: missing.join(', ') } : { section });
     this.name = 'SaveLoadError';
     this.section = section;
     this.missing = missing;

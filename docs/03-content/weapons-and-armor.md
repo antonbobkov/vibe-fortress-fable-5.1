@@ -4,6 +4,8 @@
 
 ## Weapons
 
+Each weapon is also an item type. A melee weapon's item, a training weapon's too, is filed under `weapon/melee` and a launcher's under `weapon/ranged` ([13](../02-systems/13-items-and-storage.md) § Category tree); the class is the weapon row's own, and what reads a class (a squad's weapon setting, its list) reads the row. Every ammunition's item is filed under `ammo`.
+
 Columns: `skill` is the combat skill used; `type` the damage type; `damage` the base damage before metal, quality and strength; `size` scales the attack cooldown (`size × 3 + 10 − Agility/10`); `hands`; `bars` are metal bars to forge (or logs for wooden items); `mult` the item value multiplier; `range` for launchers with the `power` multiplier applied to ammunition damage.
 
 ### Melee

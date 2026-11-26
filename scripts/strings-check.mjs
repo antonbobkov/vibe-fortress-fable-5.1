@@ -281,11 +281,11 @@ export function drawnWord(literal) {
 }
 
 /**
- * The UI's code, where every player-facing text is a strings key (`content-pipeline.md` § Strings):
- * `strings:check` fails on a literal there that reads as text. The default table itself
- * (`LITERAL_TABLE`) is the one place the texts are written.
+ * The UI's code and the app's, where every player-facing text is a strings key
+ * (`content-pipeline.md` § Strings): `strings:check` fails on a literal there that reads as text.
+ * The default table itself (`LITERAL_TABLE`) is the one place the texts are written.
  */
-export const LITERAL_DIRS = ['src/ui'];
+export const LITERAL_DIRS = ['src/ui', 'src/app'];
 const LITERAL_TABLE = 'src/ui/strings.ts';
 
 /**
@@ -318,6 +318,41 @@ export const LITERAL_ALLOWED = new Map([
   ['src/ui/screens/embark.ts', [' or ', '@loadouts']],
   // The close button's caption measured for its column; `button` draws it from the key and the string.
   ['src/ui/screens/labor_manager.ts', ['[Esc] ${}']],
+  // src/app. Error names (`error.name`), and errors thrown to the console, the tests and the
+  // scripts: a save's faults reach the player as their `WordedError` key (`ui.load.error.*`), never
+  // as these messages.
+  ['src/app/save-manager.ts', [
+    'SaveFormatError', 'SaveVersionError',
+    'this save needs a newer game version (save format ${}, this build reads ${})',
+    'a JSON section name may not carry a type: ${}', 'section ${} carries no element type', 'section ${} is not JSON',
+    'section ${} is not a typed array', 'the section stream is truncated', 'section ${} is truncated',
+    'not a Deepholm save: too short', 'not a Deepholm save: bad magic', 'the header is truncated', 'the header JSON is corrupt',
+    'the container says format ${} and the header says ${}', 'the body is truncated', 'failed to decompress save body: ${}',
+  ]],
+  ['src/app/game-save.ts', [
+    'SaveLoadError', 'the save has no ${} section', 'section ${} is unreadable: ${}',
+    'the save needs content that is missing: ${}', 'map.${} has ${} tiles, the map ${}',
+  ]],
+  // `no save store` is a `WordedError` the player reads as `ui.load.error.no_store`; `first time` is a
+  // Settings value (above); a page without the canvas fails before the strings load, and `main.ts` says so.
+  ['src/app/game.ts', ['no save store', 'first time', 'boot: no canvas element']],
+  // The headless game's faults (a world, a biome or an embark preset the content does not give),
+  // thrown to the tests and the scripts; and the region stream's seed, `${seed}|region`.
+  ['src/app/headless.ts', [
+    'world ${} has no region that can be embarked on', 'regionSpec: unknown biome ${}', '${}|region',
+    "headless: world 'local' needs a spec", 'rejected', 'headless embark: preset ${}: ${}',
+  ]],
+  // The fold keys of the legend's last words (24 § The legend record), never drawn.
+  ['src/app/legend.ts', ['text|${}']],
+  // Before the game boots there is no strings table: the CSS font spec, and the one failure page
+  // the browser shows when the font or the boot fails, in English.
+  ['src/app/main.ts', [
+    '${}px ${}', 'Bundled font did not load',
+    '<pre style="color:#FF5555;font:14px monospace;padding:16px">Deepholm failed to start: ${}</pre>',
+  ]],
+  // The screenshot script's and the simulation host's programming faults, thrown to their callers.
+  ['src/app/screenshot.ts', ['screenshot: bad scale ${}', 'screenshot: the game drew no screen']],
+  ['src/app/sim-host.ts', ['host: no game; call newGame() first']],
   // The keymap loader: key names and the key column's notation (`Ctrl+`, `[letter]`, `Bksp`), the
   // binding names of older saves (`global/Ctrl+S`), its errors on a bad keymap row (a content error,
   // thrown, never drawn) and a regular expression's source.

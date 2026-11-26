@@ -68,7 +68,7 @@
   {
     "id": "arrow",
     "name": "arrow",
-    "category": "ammo/arrow",
+    "category": "ammo",
     "mult": 200,
     "stack": 50,
     "container": "bin",
@@ -267,7 +267,7 @@
   {
     "id": "bolt",
     "name": "bolt",
-    "category": "ammo/bolt",
+    "category": "ammo",
     "mult": 200,
     "stack": 50,
     "container": "bin",
@@ -669,7 +669,7 @@
   {
     "id": "club",
     "name": "club",
-    "category": "weapon/mace",
+    "category": "weapon/melee",
     "mult": 2000,
     "stack": 1,
     "container": "none",
@@ -840,7 +840,7 @@
   {
     "id": "dagger",
     "name": "dagger",
-    "category": "weapon/dagger",
+    "category": "weapon/melee",
     "mult": 4000,
     "stack": 1,
     "container": "none",
@@ -1222,7 +1222,7 @@
   {
     "id": "great_axe",
     "name": "great axe",
-    "category": "weapon/axe",
+    "category": "weapon/melee",
     "mult": 12000,
     "stack": 1,
     "container": "none",
@@ -1529,7 +1529,7 @@
   {
     "id": "mace",
     "name": "mace",
-    "category": "weapon/mace",
+    "category": "weapon/melee",
     "mult": 7000,
     "stack": 1,
     "container": "none",
@@ -1567,7 +1567,7 @@
   {
     "id": "maul",
     "name": "maul",
-    "category": "weapon/hammer",
+    "category": "weapon/melee",
     "mult": 12000,
     "stack": 1,
     "container": "none",
@@ -1768,7 +1768,7 @@
   {
     "id": "pike",
     "name": "pike",
-    "category": "weapon/spear",
+    "category": "weapon/melee",
     "mult": 9000,
     "stack": 1,
     "container": "none",
@@ -2183,7 +2183,7 @@
   {
     "id": "short_sword",
     "name": "short sword",
-    "category": "weapon/sword",
+    "category": "weapon/melee",
     "mult": 8000,
     "stack": 1,
     "container": "none",
@@ -2251,7 +2251,7 @@
   {
     "id": "sling_stone",
     "name": "sling stone",
-    "category": "ammo/sling_stone",
+    "category": "ammo",
     "mult": 50,
     "stack": 50,
     "container": "bin",
@@ -2298,7 +2298,7 @@
   {
     "id": "spear",
     "name": "spear",
-    "category": "weapon/spear",
+    "category": "weapon/melee",
     "mult": 6000,
     "stack": 1,
     "container": "none",
@@ -2526,7 +2526,7 @@
   {
     "id": "training_axe",
     "name": "training axe",
-    "category": "weapon/axe",
+    "category": "weapon/melee",
     "mult": 2000,
     "stack": 1,
     "container": "none",
@@ -2545,7 +2545,7 @@
   {
     "id": "training_spear",
     "name": "training spear",
-    "category": "weapon/spear",
+    "category": "weapon/melee",
     "mult": 2000,
     "stack": 1,
     "container": "none",
@@ -2564,7 +2564,7 @@
   {
     "id": "training_sword",
     "name": "training sword",
-    "category": "weapon/sword",
+    "category": "weapon/melee",
     "mult": 2000,
     "stack": 1,
     "container": "none",
@@ -2648,7 +2648,7 @@
   {
     "id": "warhammer",
     "name": "warhammer",
-    "category": "weapon/hammer",
+    "category": "weapon/melee",
     "mult": 8000,
     "stack": 1,
     "container": "none",

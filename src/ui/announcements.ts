@@ -25,6 +25,7 @@ import { TICKS_PER_DAY } from '@core/constants';
 import { HINT_FOOD_DAYS_PER_ITEM, LOG_BLEEDING_NAMES, LOG_DEDUP_TICKS, LOG_ENGAGEMENT_TICKS, LOG_IMMIGRANT_NAMES, LOG_MAX_LINES, LOG_MISERABLE_REASONS, LOG_STANDING_ALERTS, ROT_ALERT_DAYS } from './constants';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { MoraleReader } from '@systems/morale';
+import { UNBURIED_DAYS } from '@systems/morale/constants';
 import type { WorkshopsReader } from '@systems/workshops';
 import { capitalize, enchantedName, itemName, matchName, materialItemName, stockpileName, buildingName, zoneName, itemPlace, speciesPlural, stackName, tradeWaitFor, whimProgressText, withArticle } from './messages';
 import { markFigure } from './panels/context';
@@ -1026,6 +1027,34 @@ export class AnnouncementLog {
     const focus = tile >= 0 ? tile : undefined;
     const done = this.appendStanding('alert', text, tick, focus, undefined, 'announce.rot_soon');
     done.line.subject = largest.id;
+    return done;
+  }
+
+  /**
+   * 15 § Registrations, the unburied dead: the caller asks once a day, on `DayPassed`. While some
+   * dwarf's body has lain unburied past `UNBURIED_DAYS` (the `unburied_dead` thought's condition),
+   * an alert counts every unburied dwarf body and the free coffins (14's `freeCoffins`), says how
+   * many coffins are missing, and focuses the oldest body. A standing alert: it folds by day.
+   * Returns what it appended, or null when no alert is due.
+   */
+  unburiedAlert(readers: ReaderSet, tick: number): Announced | null {
+    if (!readers.has('13') || !readers.has('14')) return null;
+    let n = 0;
+    let oldest: { id: EntityId; died: number } | null = null;
+    for (const id of readers.entities.with(C.Corpse, C.Item)) {
+      const corpse = readers.entities.get(id, C.Corpse);
+      if (corpse === undefined || corpse.dwarfName === null || corpse.memorialized === true) continue;
+      n += 1;
+      if (oldest === null || corpse.diedTick < oldest.died) oldest = { id, died: corpse.diedTick };
+    }
+    if (oldest === null || tick - oldest.died <= UNBURIED_DAYS * TICKS_PER_DAY) return null;
+    const free = readers.of<BuildingsReader>('14').freeCoffins().length;
+    const key = free === 0 ? 'announce.unburied' : free < n ? 'announce.unburied.few' : 'announce.unburied.free';
+    const text = this.strings.get(key, { n, free, more: n - free });
+    const tile = readers.of<ItemsReader>('13').tileOf(oldest.id);
+    const focus = tile >= 0 ? tile : undefined;
+    const done = this.appendStanding('alert', text, tick, focus, undefined, key);
+    done.line.subject = oldest.id;
     return done;
   }
 

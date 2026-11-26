@@ -45,7 +45,7 @@ function held(w: TestWorld, id: EntityId): { launcher: string; ammo: string[] } 
     if (it === undefined || it.carriedBy !== id) continue;
     const def = reader.def(it.type);
     if (def?.category === 'weapon/ranged') out.launcher = def.id;
-    else if (def?.category.startsWith('ammo/')) out.ammo.push(def.id);
+    else if (def?.category === 'ammo') out.ammo.push(def.id);
   }
   return out;
 }
