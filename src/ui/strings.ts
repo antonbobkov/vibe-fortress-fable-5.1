@@ -1501,6 +1501,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.mood.helps.slept_on_floor': 'a bed or a pallet for each dwarf [b > Furniture]',
   'ui.mood.helps.hungry': 'food they can reach; see Stocks [s]',
   'ui.mood.helps.thirsty': 'drink they can reach; see Stocks [s]',
+  'ui.mood.helps.unburied_dead': 'a coffin [b > Furniture] in a tomb zone [z] for each body, or a memorial slab for one who is lost',
   'ui.mood.name': 'Name',
   'ui.mood.tier': 'Tier',
   'ui.depot.move': '[m] move',

@@ -457,40 +457,43 @@ export class FortressScreen implements Screen {
         // A drag made while time runs: its zone exists from this tick's command phase.
         this.zoneMade(Number(event['zoneId']));
       }
-      // 13 § Rot: once a day, the alert before food rots (24 § Announcements and the log).
+      // 13 § Rot and 15 § Registrations: once a day, the alert before food rots and the alert of
+      // the unburied dead (24 § Announcements and the log).
       // 16 § Combat log: a blow opens or refreshes the fortress's engagement line, whatever the
       // combat log setting, which chooses only the blows the Combat tab lists.
       const fight = this.log.engage(event, readers, readers.calendar.tick);
       const blows = event.type !== 'AttackResolved' || this.settings.combatLog === 'all' || (this.settings.combatLog === 'hits only' && event['outcome'] === 'hit');
-      const line = !blows ? null
-        : event.type === 'DayPassed' ? this.log.rotAlert(readers, readers.calendar.tick) : this.log.announce(event, readers, readers.calendar.tick);
-      const done = fight ?? line;
-      if (done === null) continue;
-      // 03 § Caverns: a breach marks its tile on the map, and the threats panel says where it is.
-      if (event.type === 'CavernBreached' && typeof event['tile'] === 'number') {
-        const cavern = Number(event['cavern']);
-        const breaches: [number, number][] = [...this.ui.breaches.filter(([c]) => c !== cavern), [cavern, event['tile']]];
-        this.ui.breaches = breaches.sort((a, b) => a[0] - b[0]);
-        this.markTile(event['tile']);
-      }
-      if (event.type === 'AnimalSpawned' && done.severity === 'alert') {
-        const row = this.host.registry.table<{ id: string; name: string; plural?: string }>('creatures').byId(species);
-        arrivals.set(species, { line: done.line, count: 1, plural: row === undefined ? pluralName(species.replace(/_/g, ' ')) : speciesPlural(row) });
-        // The first sighting pauses once per fortress, as a first raid does; later ones never do.
-        if (!this.ui.wildlifeAlerted) {
-          this.ui.wildlifeAlerted = true;
-          if (this.settings.autoPauseDanger) this.host.setSpeed(0);
+      const lines = !blows ? []
+        : event.type === 'DayPassed' ? [this.log.rotAlert(readers, readers.calendar.tick), this.log.unburiedAlert(readers, readers.calendar.tick)]
+        : [this.log.announce(event, readers, readers.calendar.tick)];
+      for (const done of fight === null ? lines : [fight]) {
+        if (done === null) continue;
+        // 03 § Caverns: a breach marks its tile on the map, and the threats panel says where it is.
+        if (event.type === 'CavernBreached' && typeof event['tile'] === 'number') {
+          const cavern = Number(event['cavern']);
+          const breaches: [number, number][] = [...this.ui.breaches.filter(([c]) => c !== cavern), [cavern, event['tile']]];
+          this.ui.breaches = breaches.sort((a, b) => a[0] - b[0]);
+          this.markTile(event['tile']);
         }
-      }
-      // T-741: a standing alert folded into its line of the day before is no news: no flash, no pause.
-      if (done.severity === 'alert' && done.folded !== true) {
-        this.flashUntil = this.host.now() + ALERT_FLASH_MS;
-        if (this.settings.autoPauseAlert) this.host.setSpeed(0);
-      }
-      if (done.severity === 'danger') {
-        this.pinned = done.line;
-        if (this.settings.autoPauseDanger) this.host.setSpeed(0);
-        if (done.focus !== undefined) this.focusLine(done.focus);
+        if (event.type === 'AnimalSpawned' && done.severity === 'alert') {
+          const row = this.host.registry.table<{ id: string; name: string; plural?: string }>('creatures').byId(species);
+          arrivals.set(species, { line: done.line, count: 1, plural: row === undefined ? pluralName(species.replace(/_/g, ' ')) : speciesPlural(row) });
+          // The first sighting pauses once per fortress, as a first raid does; later ones never do.
+          if (!this.ui.wildlifeAlerted) {
+            this.ui.wildlifeAlerted = true;
+            if (this.settings.autoPauseDanger) this.host.setSpeed(0);
+          }
+        }
+        // T-741: a standing alert folded into its line of the day before is no news: no flash, no pause.
+        if (done.severity === 'alert' && done.folded !== true) {
+          this.flashUntil = this.host.now() + ALERT_FLASH_MS;
+          if (this.settings.autoPauseAlert) this.host.setSpeed(0);
+        }
+        if (done.severity === 'danger') {
+          this.pinned = done.line;
+          if (this.settings.autoPauseDanger) this.host.setSpeed(0);
+          if (done.focus !== undefined) this.focusLine(done.focus);
+        }
       }
     }
     // T-684: a line naming a stack that merged names the stack it joined.
