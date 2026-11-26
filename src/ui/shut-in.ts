@@ -5,8 +5,8 @@
  * The lock rule does not change: a locked door does not open for a drink. These readers only say
  * so. The rule holds under a `hearth` alert while some door stands locked, and under a `watchful`
  * alert while a Lock on alert door the Hearth alert locked still holds (14 § Doors and hatches).
- * A dwarf counts while it is a civilian (not on duty) with a shelter (not one of 10's
- * `unsheltered()`), its hunger or thirst is at 10's critical mark, its brain serves nothing for the
+ * A dwarf counts while it is a civilian with a shelter (not one of 10's `unsheltered()`) or a
+ * soldier on duty, its hunger or thirst is at 10's critical mark, its brain serves nothing for the
  * need (10 found no reachable item, well or water, so it shelters, works or stands its post
  * instead; a patient is served in bed and does not count) and the fortress stores some of it, none
  * of which the dwarf can reach. Read-only: every reader it calls is a pure query.
@@ -45,15 +45,15 @@ export function locksHold(readers: ReaderSet): boolean {
 }
 
 /**
- * The civilians cut off from `need` now, ascending, sheltering or working. Empty unless the locks hold ({@link locksHold}) and the fortress stores some of it.
+ * The dwarves cut off from `need` now, ascending: sheltered civilians and soldiers on duty alike.
+ * Empty unless the locks hold ({@link locksHold}) and the fortress stores some of it.
  */
 export function cutOff(readers: ReaderSet, need: ShutNeed): EntityId[] {
   if (!readers.has('10') || !readers.has('13') || !locksHold(readers)) return [];
   const critical = CRITICAL[need] as number;
   const dwarves = readers.of<DwarvesReader>('10');
-  const combat = readers.of<CombatReader>('16');
   const candidates = dwarves.list().filter((id) => {
-    if (combat.onDuty(id) || dwarves.isUnsheltered(id)) return false;
+    if (dwarves.isUnsheltered(id)) return false;
     if ((readers.entities.get(id, C.Needs)?.[need] ?? 0) < critical) return false;
     const brain = readers.entities.get(id, C.Brain);
     if (brain === undefined || brain.behavior === 'patient') return false;

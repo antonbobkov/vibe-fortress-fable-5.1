@@ -25,7 +25,15 @@ Decisions:
 
 Spec: `ui-screens/panels.md` § Military (Station row, squad rows, Thirsty lines), 24 § Announcements and the log (Shut in), 19 § Player-facing behavior.
 
+## Decisions made while implementing
+
+- **The out-of-reach line names Calm, not Watch.** Since T-769 the Hearth lock holds through Watch and only Calm opens the doors (14 § Doors and hatches), so lowering the alert to Watch would not let the squad out. The line reads "Out of reach behind the locked doors: the squad waits where it is until Calm [1] opens them.", as the Watch alert line ("… stay locked until Calm [1].") and the shut-in line ("[m] [1] opens them") do.
+- **How the locks are found to explain it.** From the walker labels alone: the regions on either side of each alert-locked `lock_on_alert` door (and of doors that touch one another) are joined, so a station two locked doors away (the airlock) reads as behind the locked doors too. A door locked by hand is not joined: the line then reads "no path". The members' region is the one most members who are not down stand in.
+- **On duty, for the line,** is a squad under Watch or Hearth, or set `active`; the point is a `station` order's point, else the squad's station while it has no other order (as 16's `fixedPost`). A squad training under Calm goes to its barracks, so no line.
+- **One shut-in rule with T-780.** A soldier on duty counts by the same test as a civilian: critical need, its brain serving nothing for it (not `need` with that need, not a patient), the locks holding (Hearth with a door locked, or Watch with a held Hearth lock) and none of the stored drink or food on its walker label. Under an alert every member is on duty, so the rule reads: every dwarf but 10's `unsheltered()`. The soldiers line names their squads in the squads' order ("3 of them are soldiers of The Gate Guard.").
+- **The Mode column reads `off→act` (`trn→act`), not "off (active under Hearth)".** The column has eight cells (the squads table's widths are kept so the names and sizes do not move); the full words are on the Mode line, "Mode: off · active while the alert is Hearth" ("… Watchful" under Watch, the alert's own name). A squad set `train` is treated as active under an alert too (16 § Squads), so it reads the same way.
+
 ## Done
 
-- [ ] Tests (`describe` with the task id): a squad stationed outside a locked `lock_on_alert` door shows the out-of-reach line under Hearth and not under Calm. A soldier on duty shut between two locked doors at critical thirst is counted in the shut-in alert and the Thirsty line. A squad with mode `off` reads "off (active under Hearth)" under Hearth.
-- [ ] UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): a squad stationed outside a locked `lock_on_alert` door shows the out-of-reach line under Hearth and not under Calm. A soldier on duty shut between two locked doors at critical thirst is counted in the shut-in alert and the Thirsty line. A squad with mode `off` reads "off (active under Hearth)" under Hearth.
+- [x] UI only: no world hash moves.
