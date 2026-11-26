@@ -19,6 +19,7 @@ import { TileFlag } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { BuildingsReader, ZoneView } from '@systems/buildings';
+import { COFFINS_READY_SETTING } from '@systems/buildings/tombs';
 import type { PlantsReader } from '@systems/plants';
 import { SEASON_NAMES } from '@core/calendar';
 import type { PlantRow } from '@systems/plants';
@@ -40,7 +41,7 @@ import { acceleratorLabel } from '../keymap';
 import { seasonName } from './calendar';
 import { accel, buildings, items, type PanelContext } from './context';
 import { rectTiles, type TilePoint } from './designate';
-import { stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
+import { buildingName, stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
 import { feedDetailText, feedsText, overGrazed, pastureFeed } from '../pasture';
 import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building';
 import { dwarvesOf, nameOf } from './units';
@@ -272,6 +273,13 @@ export class ZoneTool {
     }
     if (zone.type === 'stockpile' && this.stockpile.key(ctx, zone.id, key)) return true;
     if ((zone.type === 'bedroom' || zone.type === 'sanctum') && accel(ctx, key) === 'o') { this.startOwner(ctx); return true; }
+    // 14 § Burial, Coffins ready: `+` and `-` step a tomb's setting, as its [+] and [-] do.
+    if (zone.type === 'tomb' && (key.key === '+' || key.key === '=' || key.key === '-')) {
+      const wanted = buildings(ctx)?.tombCoffins(zone.id).wanted ?? 0;
+      const value = Math.max(0, Math.min(zone.tiles.length, wanted + (key.key === '-' ? -1 : 1)));
+      if (value !== wanted) ctx.submit({ type: 'SetZoneSetting', zoneId: zone.id, key: COFFINS_READY_SETTING, value });
+      return true;
+    }
     if (accel(ctx, key) === 'y') { this.menu(); return true; }
     return false;
   }
@@ -572,6 +580,8 @@ export function drawZonesPanel(s: Surface, rect: Rect, tool: ZoneTool, ctx: Pane
     }
   } else if (zone.type === 'hospital') {
     row = drawHospitalSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
+  } else if (zone.type === 'tomb') {
+    row = drawTombSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   } else if (zone.type === 'sanctum') {
     row = drawSanctumSettings(s, { col: rect.col, row, cols: rect.cols, rows: bottom - row }, tool, ctx, zone);
   } else if (zone.type === 'compost') {
@@ -808,6 +818,51 @@ function drawSanctumSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelC
     const caption = `${acceleratorLabel('o', ctx.shiftLetters)} ${ctx.strings.get('ui.zone.apprentices_caption')}`;
     label(s, col, row, caption, { width });
     s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
+  }
+  return row;
+}
+
+/**
+ * 14 § Burial, Coffins ready: the tomb's room facts, then its coffins ready against its setting with
+ * `[-]`/`[+]`, the standing coffin order 12 keeps for it, and what the setting does.
+ */
+export function tombLines(ctx: PanelContext, zone: ZoneView): { readonly ready: number; readonly wanted: number; readonly lines: readonly string[] } {
+  const b = buildings(ctx);
+  const { ready, wanted } = b?.tombCoffins(zone.id) ?? { ready: 0, wanted: 0 };
+  const lines: string[] = [];
+  const env = { readers: ctx.readers, registry: ctx.registry, strings: ctx.strings };
+  for (const id of ctx.readers.entities.with(C.Workshop)) {
+    for (const order of ctx.readers.entities.get(id, C.Workshop)?.orders ?? []) {
+      if (order.forZoneId !== zone.id) continue;
+      lines.push(ctx.strings.get('ui.zone.tomb.ordered', { n: order.remaining, workshop: buildingName(env, id) }));
+    }
+  }
+  lines.push(ctx.strings.get(wanted === 0 ? 'ui.zone.tomb.coffins_off' : 'ui.zone.tomb.coffins_help', { zone: zoneTitle(env, zone.id) }));
+  return { ready, wanted, lines };
+}
+
+function drawTombSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelContext, zone: ZoneView): number {
+  const t = s.theme;
+  let row = drawRoomSettings(s, rect, tool, ctx, zone);
+  const bottom = rect.row + rect.rows;
+  if (row >= bottom) return row;
+  const { ready, wanted, lines } = tombLines(ctx, zone);
+  const text = ctx.strings.get('ui.zone.tomb.coffins_ready', { ready, wanted });
+  const plusCol = rect.col + rect.cols - 1 - drawnCols(s, '[+]');
+  const minusCol = plusCol - drawnCols(s, '[-]');
+  label(s, rect.col + 1, row, text, { width: minusCol - rect.col - 1, fg: ready < wanted ? t.bad : t.value });
+  const set = (value: number): void => {
+    ctx.submit({ type: 'SetZoneSetting', zoneId: zone.id, key: COFFINS_READY_SETTING, value: Math.max(0, Math.min(zone.tiles.length, value)) });
+  };
+  const minus = label(s, minusCol, row, '[-]');
+  s.hit({ col: minusCol, row, cols: minus, rows: 1 }, () => set(wanted - 1));
+  const plus = label(s, plusCol, row, '[+]');
+  s.hit({ col: plusCol, row, cols: plus, rows: 1 }, () => set(wanted + 1));
+  row += 1;
+  for (const line of lines.flatMap((l) => wrapText(l, rect.cols - 2, 2))) {
+    if (row >= bottom) break;
+    label(s, rect.col + 1, row, line, { fg: t.dim, width: rect.cols - 2 });
+    row += 1;
   }
   return row;
 }

@@ -656,6 +656,9 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.unburied` | "{n\|dead dwarf waits\|dead wait} for burial and no coffin is free: build coffins [b > Furniture], best in a tomb [z]." |
 | `announce.unburied.few` | "{n\|dead dwarf waits\|dead wait} for burial and only {free\|coffin is\|coffins are} free: build {more} more [b > Furniture]." |
 | `announce.unburied.free` | "{n\|dead dwarf waits\|dead wait} for burial: {free\|coffin is\|coffins are} free." |
+| `announce.unburied.order` | "{n\|dead dwarf waits\|dead wait} for burial and no coffin is free or in stock: [o] order coffins, or set {tomb}'s coffins ready [z]." |
+| `announce.unburied.order_no_tomb` | "{n\|dead dwarf waits\|dead wait} for burial and no coffin is free or in stock: [o] order coffins, and zone a tomb [z] to keep them ready." |
+| `announce.unburied.few_order` | "{n\|dead dwarf waits\|dead wait} for burial, only {free\|coffin is\|coffins are} free and none in stock: [o] order {more} more." |
 | `announce.starving_many` | "{n} dwarves are starving: {names}." |
 | `announce.thirsting` | "{dwarf} is dying of thirst." |
 | `announce.thirsting_many` | "{n} dwarves are dying of thirst: {names}." |

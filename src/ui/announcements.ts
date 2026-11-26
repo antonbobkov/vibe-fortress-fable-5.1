@@ -1044,7 +1044,8 @@ export class AnnouncementLog {
    * 15 § Registrations, the unburied dead: the caller asks once a day, on `DayPassed`. While some
    * dwarf's body has lain unburied past `UNBURIED_DAYS` (the `unburied_dead` thought's condition),
    * an alert counts every unburied dwarf body and the free coffins (14's `freeCoffins`), says how
-   * many coffins are missing, and focuses the oldest body. A standing alert: it folds by day.
+   * many coffins are missing, and focuses the oldest body: build them while coffins are in stock,
+   * order them (or set the first tomb's coffins ready) while none are. A standing alert: it folds by day.
    * Returns what it appended, or null when no alert is due.
    */
   unburiedAlert(readers: ReaderSet, tick: number): Announced | null {
@@ -1058,9 +1059,19 @@ export class AnnouncementLog {
       if (oldest === null || corpse.diedTick < oldest.died) oldest = { id, died: corpse.diedTick };
     }
     if (oldest === null || tick - oldest.died <= UNBURIED_DAYS * TICKS_PER_DAY) return null;
-    const free = readers.of<BuildingsReader>('14').freeCoffins().length;
-    const key = free === 0 ? 'announce.unburied' : free < n ? 'announce.unburied.few' : 'announce.unburied.free';
-    const text = this.strings.get(key, { n, free, more: n - free });
+    const buildings = readers.of<BuildingsReader>('14');
+    const free = buildings.freeCoffins().length;
+    // 14 § Burial: with coffins in stock the line says to build them; with none, to order them.
+    const match = buildings.types().find((row) => row.tags.includes('coffin'))?.inputs[0]?.match;
+    const types = match === undefined ? [] : buildings.inputTypes(match);
+    const stock = types.length === 0 ? 0 : readers.of<ItemsReader>('13').countAvailable({ types, unoccupied: true });
+    const tomb = buildings.zonesOfType('tomb')[0];
+    const env = { readers, strings: this.strings };
+    const key = free >= n ? 'announce.unburied.free'
+      : stock > 0 ? (free === 0 ? 'announce.unburied' : 'announce.unburied.few')
+      : free > 0 ? 'announce.unburied.few_order'
+      : tomb === undefined ? 'announce.unburied.order_no_tomb' : 'announce.unburied.order';
+    const text = this.strings.get(key, { n, free, more: n - free, tomb: tomb === undefined ? '' : zoneName(env, tomb) });
     const tile = readers.of<ItemsReader>('13').tileOf(oldest.id);
     const focus = tile >= 0 ? tile : undefined;
     const done = this.appendStanding('alert', text, tick, focus, undefined, key);

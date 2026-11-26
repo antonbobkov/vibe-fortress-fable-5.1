@@ -44,6 +44,8 @@ function threeDead(w: TestWorld): { corpses: EntityId[]; died: number } {
     corpses.push(w.events('CorpseCreated').find((e) => e['creatureId'] === dwarf)!['id'] as EntityId);
     w.step(5);
   }
+  // A coffin in stock: with none, the line says to order coffins rather than build them (T-789).
+  w.spawnItem('coffin', 'granite', w.index(30, 40, Z));
   return { corpses, died: w.tick };
 }
 

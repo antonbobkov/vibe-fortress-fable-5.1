@@ -53,6 +53,9 @@ export const LOG_STANDING_ALERTS: Readonly<Record<string, readonly string[]>> = 
   'announce.unburied': [],
   'announce.unburied.few': [],
   'announce.unburied.free': [],
+  'announce.unburied.order': [],
+  'announce.unburied.order_no_tomb': [],
+  'announce.unburied.few_order': [],
 });
 
 /** The keyboard cursor keeps at least this many tiles between itself and the edge of the map view; the camera scrolls to keep it. */
