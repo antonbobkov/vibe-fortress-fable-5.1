@@ -1,10 +1,10 @@
 # T-NEW — A gloomy dwarf turns Miserable at the first point of ordinary tiredness or thirst
 
-**Source:** T-763 ([report](../../reports/audits/2026-11-25-t763-first-week-misery.md), § After) · **Size:** M · **Needs:** — · **Status:** open
+**Source:** T-763 ([report](../../reports/audits/2026-11-25-t763-first-week-misery.md), § With `lonely` counted once) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
-15 § Mood: `mood = max(raw, MOOD_NEEDS_MET_FLOOR − needPressure)`. A dwarf whose negative thoughts have reached `NEGATIVE_CAP` sits on the floor at 20, and the floor drops by every point of need pressure. One point is an evening's tiredness (rest just over 60) or thirst just over 50 on the way to a drink: the ordinary daily cycle, not neglect. In T-763's 40 first-fortnight timelines, after `lonely` stopped counting as pressure, the first miserable dwarf by day 4 was still this case in 12: a restless, sensitive dwarf with nothing it may do (`restless` −10.4, `bored` −9.7), or a gregarious one holding `lonely` −13, tipped below 20 by tired −3 or thirsty −4. The same mechanism makes the tier flap through the day (T-714).
+15 § Mood: `mood = max(raw, MOOD_NEEDS_MET_FLOOR − needPressure)`. A dwarf whose negative thoughts have reached `NEGATIVE_CAP` sits on the floor at 20, and the floor drops by every point of need pressure. One point is an evening's tiredness (rest just over 60) or thirst just over 50 on the way to a drink: the ordinary daily cycle, not neglect. In T-763's 40 first-fortnight timelines, with `lonely` counted once as T-763 tried, the first miserable dwarf by day 4 was still this case in 12: a restless, sensitive dwarf with nothing it may do (`restless` −10.4, `bored` −9.7), or a gregarious one holding `lonely` −13, tipped below 20 by tired −3 or thirsty −4. The same mechanism makes the tier flap through the day (T-714).
 
 ## What to do
 

@@ -1,6 +1,6 @@
 # T-763: a busy first fortnight and its moods
 
-**Task:** T-763 · **Date:** 2026-11-25 · **Code:** master `a2713f8d`; the rule change on branch `t763-first-week-misery` (`c9b55c27`) · **Source:** [the T-763 work file](../../docs/work/T-763-busy-first-week-misery.md), [the newcomer playtest](../data/2026-11-25-playtest-5.md) finding 6
+**Task:** T-763 · **Date:** 2026-11-25 · **Code:** master `a2713f8d`; the trial rule change at `c9b55c27` on branch `t763-first-week-misery`, not merged · **Source:** [the T-763 work file](../../docs/work/T-763-busy-first-week-misery.md), [the newcomer playtest](../data/2026-11-25-playtest-5.md) finding 6
 
 ## How
 
@@ -29,13 +29,13 @@ A meeting area zoned on day 1 does not help: a dwarf with work never goes to it.
 
 The other early misery is a dwarf whose thoughts have reached `NEGATIVE_CAP` (a restless, sensitive dwarf with nothing it may do: `restless` −10.4, `bored` −9.7, `uncomfortable` −5.2, `slept_outdoors` −6) sitting on the needs-met floor at 20, which gives way to any point of need pressure: an evening's tiredness (`probe-2`'s Ottar Darkpick, tired −7.8 on day 4 in five timelines) or thirst. From day 12 the embark's drink runs out (no still was ordered) and `thirsty` makes most of the misery (16.7% of dwarf-hours on day 14): neglect, as 15 means it.
 
-## The decision
+## The rule that would keep the promise
 
-15 promises that only neglect takes a dwarf below 20, and that a fortress without chairs or a meeting area is gloomier, not miserable. A busy first week with no time to talk is not neglect: company is the dwarves' own errand, and the player cannot order it, only provide a place, which the measurement shows working dwarves do not use. Of the options in the work file, the smallest that keeps the promise is **`lonely` counts once**: a standing negative like `uncomfortable`, `restless` and `bored`, no longer need pressure. Talks in passing at work or the wagon as a meeting area would change behaviour and timing across the whole game, and a slower onset only delays the same line. 15 § Mood and § Interaction with 10 needs and `balance.md` § Mood floor now say so.
+15 promises that only neglect takes a dwarf below 20, and that a fortress without chairs or a meeting area is gloomier, not miserable. A busy first week with no time to talk is not neglect: company is the dwarves' own errand, and the player cannot order it, only provide a place, which the measurement shows working dwarves do not use. So the promise is broken. Of the options in the work file, the smallest rule that keeps it is **`lonely` counts once**: a standing negative like `uncomfortable`, `restless` and `bored`, no longer need pressure (`NEED_PRESSURE_THOUGHTS` without `lonely`, 15 § Mood and `balance.md` § Mood floor to match). Talks in passing at work or the wagon as a meeting area would change behaviour and timing across the whole game, and a slower onset only delays the same line. It was built and measured at `c9b55c27`.
 
-## After
+## With `lonely` counted once
 
-The same 40 runs on the branch:
+The same 40 runs at `c9b55c27`:
 
 | | busy | with a meeting area |
 |---|---|---|
@@ -44,10 +44,24 @@ The same 40 runs on the branch:
 | Miserable dwarf-hours, 14 days (lonely-made) | 683 (21) | 623 (31) |
 | Mean mood, days 1 / 4 / 7 / 14 | 52.7 / 43.7 / 38.3 / 30.5 (master 52.4 / 43.6 / 38.2 / 30.0) | 52.8 / 44.0 / 39.0 / 33.7 (52.5 / 43.8 / 38.8 / 33.3) |
 
-Misery in the first four days falls from 111 dwarf-hours to 24, Ulfar is not Miserable in the first four days of any timeline, and mean moods barely move. A lonely dwarf is still gloomier: Dain Brighteye's −13 still counts among his negatives, and in four timelines an evening's tiredness on day 2 or 3 still takes him to 18–19.8 through the floor. That, and Ottar's and Knud's early lines, are the floor giving way to a point of ordinary need pressure, recorded as a follow-up rather than changed here (`docs/work/T-NEW-needs-met-floor-gives-way.md`).
+Misery in the first four days falls from 111 dwarf-hours to 24, Ulfar is not Miserable in the first four days of any timeline, and mean moods barely move. A lonely dwarf is still gloomier: Dain Brighteye's −13 still counts among his negatives, and in four timelines an evening's tiredness on day 2 or 3 still takes him to 18–19.8 through the floor. That, and Ottar's and Knud's early lines (on master too), are the floor giving way to a point of ordinary need pressure, recorded as a follow-up rather than changed here (`docs/work/T-NEW-needs-met-floor-gives-way.md`).
 
 ## Seen in passing
 
 `probe-5`'s default embark (alpine) loses most of its party in the first week: 144 light frost wounds on dwarves, then grievous cuts (amputations), and six to seven dwarves bleed out by day 7 in the busy runs; `probe-3`'s (alpine too) loses one. Recorded as `docs/work/T-NEW-alpine-embark-frostbite.md`.
 
-The sweep of the rule change and its verdict are in the commit that closes T-763.
+## The sweep, and the decision
+
+Sweep [45717560405](https://github.com/antonbobkov/vibe-fortress-fable-5.1/actions/runs/45717560405) of `c9b55c27`, four shifts:
+
+| Shift | Living at year 3 | Dwarf deaths | Need deaths |
+|---|---|---|---|
+| 0 | 1193 | 104 | 2 |
+| 50 | 1149 | 156 | 5 |
+| 100 | 1153 | 114 | 0 |
+| 150 | 1152 | 142 | 1 |
+| **Pooled** | **1161.75** | **129** | 2 |
+
+The verdict job passes (bounds ≥ 1046.63 living, ≤ 132.5 deaths) and flags dwarf deaths as worth tracing (26.5 over the best accepted 102.5). Master's latest sweep was about 1169 living and 110 deaths. Living holds; deaths are 19 above master's. The spread across shifts (104 to 156) is as wide as the difference, and no rule in the change touches fighting, but the task's bar was deaths not above about 118, so **the rule change is not merged**: the game keeps `lonely` as need pressure, and 15's promise stays broken in the first week as measured above. The T-760 Mood lines ("Helps: a hearth hall or a meeting area …") remain the only answer a player has.
+
+Recommendation: adopt `lonely` counts once after a second sweep of the same commit confirms or clears the deaths (`docs/work/T-NEW-lonely-counts-once.md`).

@@ -9,12 +9,7 @@ import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
 import { baseValue, type ThoughtDef } from './thoughts';
 
-/**
- * `15` § Mood: the survival needs, whose standing thoughts count twice. `lonely` counts once, as a
- * thought: company is the dwarves' own errand, so a busy fortress with nowhere to talk is gloomier,
- * not miserable.
- */
-export const NEED_PRESSURE_THOUGHTS: ReadonlySet<string> = new Set(['hungry', 'thirsty', 'tired']);
+export const NEED_PRESSURE_THOUGHTS: ReadonlySet<string> = new Set(['hungry', 'thirsty', 'tired', 'lonely']);
 
 const NEEDS = [
   ['hungry', 'hunger', 50, 5, 10], ['thirsty', 'thirst', 50, 5, 10], ['tired', 'rest', 60, 5, 8],

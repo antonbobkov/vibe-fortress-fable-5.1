@@ -19,5 +19,5 @@ Measure before deciding. Do not retune in this task.
 
 ## Done
 
-- [ ] A dated audit report under `reports/audits/` with the probe, its seeds and the commit.
-- [ ] Either a spec and code change, with tests and an instrument run, or a note in the report that the design stands.
+- [x] A dated audit report under `reports/audits/` with the probe, its seeds and the commit.
+- [x] Either a spec and code change, with tests and an instrument run, or a note in the report that the design stands. (The change, `lonely` counts once, was built and swept; its deaths were above the bar, so it is not merged and the design stands for now: `T-NEW-lonely-counts-once.md`.)
