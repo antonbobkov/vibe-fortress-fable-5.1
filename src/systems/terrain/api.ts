@@ -549,6 +549,14 @@ export class TerrainCore implements TerrainApi {
       const tiles = Array.from(new Set(this.discovered)).sort((a, b) => a - b);
       this.discovered = [];
       emit({ type: 'TilesDiscovered', tiles });
+      // `03` § Discovery: deepsilver seen is deepsilver found. The first discovered tile of a vein not
+      // yet found emits `VeinFound` with no finder; mining that vein later emits nothing more.
+      const facts = this.host.facts;
+      for (const t of tiles) {
+        const material = this.map.materialAt(t);
+        if (!facts.isDeepsilver(material) || !isRock(this.map.kindAt(t))) continue;
+        if (this.findVein(t)) emit({ type: 'VeinFound', material: facts.materialId(material), tile: t, finderId: 0 });
+      }
     }
   }
 

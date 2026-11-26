@@ -19,7 +19,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `YearPassed` | `year` | core | 10, 20 |
 | `TilesChanged` | `tiles[]` | 03 (also on behalf of 04, 05, 14 through the terrain API) | 04, 07, 08, 11, 13, 14, 18, 22, 23 |
 | `TilesDiscovered` | `tiles[]` | 03 | 23 |
-| `VeinFound` | `material, tile, finderId` | 03 (first mined tile of a new face-connected mineral vein key) | 15, 18 (deepsilver gauge unlock), ui |
+| `VeinFound` | `material, tile, finderId` | 03 (first mined tile of a new face-connected mineral vein key; for deepsilver, its first discovered tile, `finderId` 0) | ui (the line, `hint_deep`, and the Deep gauge's unlock, 18 § Player-facing behavior) |
 | `MineralMined` | `tile, material, minerId` | 03 (an ore, gem or bone tile dug) | 13 (item spawn is done by 03 via spawn API; 13 counts) |
 | `FossilFound` | `dwarfId, tile` | 03 (the first tile of class `bone` dug in a fortress, once) | 15, ui |
 | `DeepsilverMined` | `tile, minerId` | 03 | 18, ui |

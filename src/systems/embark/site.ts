@@ -7,7 +7,7 @@
  * map will have. Counts and ores are estimates: generation rolls them, and the screen says so.
  */
 
-import { LOCAL_MAP_H, LOCAL_MAP_W, MAGMA_SEA_TOP_Z } from '@core/constants';
+import { DEEPSILVER_Z_MAX, LOCAL_MAP_H, LOCAL_MAP_W, MAGMA_SEA_TOP_Z } from '@core/constants';
 import { FIXED_SCALE, type Fixed } from '@core/fixed';
 import type { Registry } from '@core/registry';
 import type { Edge } from '@core/types';
@@ -53,6 +53,8 @@ export interface SiteSummary {
   readonly ores: readonly string[];
   /** The wealth gives deepsilver veins by the Sea of Fire. */
   readonly deepsilver: boolean;
+  /** About how many levels below the surface deepsilver lies: the base surface less `DEEPSILVER_Z_MAX` (03 stage 7). */
+  readonly deepsilverDepth: number;
   readonly climate: {
     readonly band: TemperatureBand;
     readonly meanC: number;
@@ -405,6 +407,7 @@ export function siteSummary(spec: LocalMapSpec, registry: Registry): SiteSummary
     stone: { geology: spec.geology, layers },
     ores: byWeight(ores),
     deepsilver: (mult?.deepsilverVeins ?? 0) > 0,
+    deepsilverDepth: baseSurfaceZ(spec.elevation) - DEEPSILVER_Z_MAX,
     climate: {
       band: temperatureBandOf(climate.tempC),
       meanC: climate.tempC,

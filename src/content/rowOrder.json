@@ -1830,5 +1830,9 @@
   {
     "table": "confirmations",
     "id": "c_lower_alert_coming"
+  },
+  {
+    "table": "hints",
+    "id": "hint_deep_cavern"
   }
 ]

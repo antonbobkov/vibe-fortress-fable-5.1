@@ -321,8 +321,9 @@ export class AnnouncementLog {
       const name = readers.has('12') ? readers.of<WorkshopsReader>('12').recipe(recipeId)?.name : undefined;
       out['recipe'] = name === undefined ? String(recipeId).replace(/_/g, ' ') : name.charAt(0).toLowerCase() + name.slice(1);
     }
-    // 18 § Player-facing behavior: a breach names its place ("Cavern 2 is open at (2,14,z13).").
-    if (event.type === 'CavernBreached' && typeof e['tile'] === 'number' && e['tile'] >= 0) {
+    // 18 § Player-facing behavior: a breach names its place ("Cavern 2 is open at (2,14,z13)."), as
+    // does a vein seen and not dug (03 § Discovery: "Deepsilver has been seen at (20,21,z4).").
+    if ((event.type === 'CavernBreached' || event.type === 'VeinFound') && typeof e['tile'] === 'number' && e['tile'] >= 0) {
       const at = readers.map.unpack(e['tile']);
       out['x'] = at.x;
       out['y'] = at.y;
@@ -596,6 +597,8 @@ export class AnnouncementLog {
     // A breach that names no cavern or place keeps the plain line.
     if (event.type === 'CavernBreached' && (typeof fields['cavern'] !== 'number' || params['x'] === undefined)) key = 'announce.cavern_breached_unplaced';
     if (event.type === 'AnimalStarving') key = this.animalStarvingKey(creatureId, readers, params);
+    // 03 § Discovery: a vein seen when its tiles were discovered has no finder.
+    if (event.type === 'VeinFound' && fields['finderId'] === 0 && params['x'] !== undefined) key = 'announce.vein_seen';
     const said = this.strings.get(key, params);
     // 18 § Registrations: under a Calm alert a raid's danger line says what the alert does and its keys, as true then.
     const tail = raidArrival(fields) ? calmTail(this.strings, readers) : null;

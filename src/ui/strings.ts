@@ -360,7 +360,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.site.geology.mixed': 'mixed',
   'ui.site.ores_value': 'likely {ores}',
   'ui.site.ores_none': 'none likely',
-  'ui.site.deepsilver': 'deepsilver deep down',
+  'ui.site.deepsilver': 'deepsilver likely, beside the Sea of Fire (about {n} levels down)',
   'ui.site.climate_value': '{band}, about {mean}°C; summer {summer}°C, winter {winter}°C',
   'ui.site.band.frozen': 'frozen',
   'ui.site.band.cold': 'cold',
@@ -2512,6 +2512,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.kind.11': 'boulder',
   // Announcements (`03` § Registrations; texts D-065).
   'announce.vein_found': '{dwarf} has found {material}.',
+  'announce.vein_seen': '{material} has been seen at ({x},{y},z{z}).',
   'announce.first_fossil': '{dwarf} has found the bones of something old.',
   'announce.cavern_breached': 'Cavern {cavern} is open at ({x},{y},z{z}). What lives there can walk in.',
   'announce.cavern_breached_unplaced': 'A cavern has been breached.',

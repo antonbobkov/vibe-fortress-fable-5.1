@@ -168,7 +168,9 @@ Generate runs synchronously. On return, the screen shows the completed preview a
 │                                                            │          andesite and 4 more      │
 │                                                            │ Ores     likely cassiterite,      │
 │                                                            │          magnetite and 5 more;    │
-│                                                            │          deepsilver deep down     │
+│                                                            │          deepsilver likely, beside│
+│                                                            │          the Sea of Fire (about 26│
+│                                                            │          levels down)             │
 │                                                            │ Climate  cold, about 2°C; summer  │
 │                                                            │          17°C, winter -13°C; spring│
 │                                                            │          and autumn as cold       │
