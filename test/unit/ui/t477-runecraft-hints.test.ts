@@ -48,7 +48,8 @@ describe('T-477 runecraft hints', () => {
 
     const sanctum = world();
     sanctum.zone('sanctum', [sanctum.index(20, 20, z), sanctum.index(21, 20, z)]);
-    expect(shown(sanctum)).toEqual(['hint_sanctum']);
+    // T-798: a sanctum with no glowcap seeds in stock also says where glowcap comes from.
+    expect(shown(sanctum)).toEqual(['hint_glowcap', 'hint_sanctum']);
 
     const caster = world();
     const id = caster.spawnDwarf({ at: caster.index(20, 20, z) });
@@ -60,7 +61,7 @@ describe('T-477 runecraft hints', () => {
     expect(shown(draught)).toEqual(['hint_draught']);
 
     const text = (id: string): string => glowcap.game.registry.table<{ id: string; text: string }>('hints').byId(id)?.text ?? '';
-    expect(text('hint_glowcap')).toBe("Glowcap grows in the dark under a glowstone lamp: order one at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot.");
+    expect(text('hint_glowcap')).toBe("Glowcap grows in the dark under a glowstone lamp, from seeds the Mountainhome sells in spring or from a glowcap patch in the caverns: order a lamp at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot.");
     expect(text('hint_staff')).toBe('A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel.');
     expect(text('hint_wand')).toBe('A wand is quick and soft; a shod staff is slow and hard.');
     expect(text('hint_sanctum')).toBe('Build the sanctum in stone.');

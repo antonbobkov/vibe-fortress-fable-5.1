@@ -119,7 +119,7 @@ A room inspector shows current tier and score parts, named missing requirements,
 
 A room line too long for the panel wraps under itself, indented two cells, each count kept with its word ("Not enclosed: 48 open" / "border tiles"). Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin / a rune circle, as appropriate. A bedroom's owner button or `o` opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
 
-A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in stock, the mishap chance of a new apprentice, each apprentice with its level and rune and, under it, the sessions left today and its own mishap chance, the last mishap, and the apprentice button:
+A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap, the mishap chance of a new apprentice, each apprentice with its level and rune and, under it, the sessions left today and its own mishap chance, the last mishap, and the apprentice button. Each line too long for the panel wraps under itself, indented two cells. The glowcap line says what the sanctum lacks: with no glowcap available it replaces "Requirements met", in the alert colour: "No glowcap: apprentices wait. Glowcap grows in the dark under a glowstone lamp, from seeds the Mountainhome sells in spring or a glowcap patch in the caverns."; with glowcap but no glowcap crop on any plot it says how long the stock lasts, "14 glowcap: enough for 14 sessions."; with a crop growing, "Glowcap in stock: 14":
 
 ```
 │ [y] zones menu                    │
@@ -129,15 +129,17 @@ A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap in
 │ Enclosed                          │
 │ Requirements met                  │
 │ Glowcap in stock: 14              │
-│ Mishaps, new apprentice: one sessi│
+│ Mishaps, new apprentice: one      │
+│   session in 17                   │
 │ Urist: Runecraft 3, rune 2/15      │
-│   1 sessions left today; mishaps o│
+│   1 sessions left today; mishaps  │
+│   one session in 19               │
 │ Last mishap: singed (Urist), today │
 │ [o] apprentices…                │
 │ [x] remove zone  [e] resize      │
 ```
 
-`[o]` or a click on the button opens the apprentice picker: a title with the count ("Apprentices of Sanctum #1 (1/4):") and every adult dwarf, `●` for an apprentice and `○` for the rest. `Enter` or a click adds or removes the dwarf through `SetSanctumApprentices`, and the picker stays open; a fifth is refused in the status row. `Esc` closes it.
+`[o]` or a click on the button opens the apprentice picker: a title with the count ("Apprentices of Sanctum #1 (1/4):") and every adult dwarf with profession and Wits ("○ Kolbein Frosthelm · Mason · Wits 61"), the highest Wits first, `●` for an apprentice and `○` for the rest. `Enter` or a click adds or removes the dwarf through `SetSanctumApprentices`, and the picker stays open; a fifth is refused in the status row. `Esc` closes it.
 
 ## Units (u)
 

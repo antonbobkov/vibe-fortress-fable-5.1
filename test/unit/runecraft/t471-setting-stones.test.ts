@@ -392,7 +392,8 @@ describe('T-471 trade: rune vials and preferences', () => {
   it('a request finds the rune-vial row only at the reputation it needs', () => {
     const request = [{ itemType: 'rune_vial', priority: 3 as const }];
     expect(vials(generateGoods(registry, 'mountainhome', 0, 40, request, new RngStream(5), new RngStream(6)))).toEqual([]);
-    expect(vials(generateGoods(registry, 'mountainhome', 0, 60, request, new RngStream(5), new RngStream(6))).filter((g) => !g.extra).length).toBeGreaterThan(0);
+    // T-798: a request for an extra good is honoured by its roll (1000‰ at high), not from the request share.
+    expect(vials(generateGoods(registry, 'mountainhome', 0, 60, request, new RngStream(5), new RngStream(6))).filter((g) => g.extra).length).toBe(1);
   });
 
   it('the Mountainhome values vials and draughts at 150', () => {

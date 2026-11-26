@@ -104,7 +104,8 @@ test('T-477 runecraft screens', async ({ page }) => {
   await page.keyboard.press('z');
   await clickTile(page, site.x, site.y);
   // The apprentice's first session has already counted one glowcap off the stock.
-  await expect.poll(() => textOf(page)).toMatch(/Glowcap in stock: [34]/);
+  // T-798: no plot grows glowcap here, so the line says how many sessions the stock lasts.
+  await expect.poll(() => textOf(page)).toMatch(/[34] glowcap: enough for [34] sessions\./);
   let text = await textOf(page);
   expect(text).toContain('Sanctum #');
   expect(text).toContain('Mishaps, new apprentice:');

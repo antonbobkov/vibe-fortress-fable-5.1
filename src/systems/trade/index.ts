@@ -20,7 +20,7 @@ import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
 import { STEP_COST } from '@core/path-constants';
-import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, TRADE_JOB_PRIORITY, TRADER_AWAY_TICKS, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
+import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, TRADE_JOB_PRIORITY, TRADER_AWAY_TICKS, RAIDING, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
 import { edgeReaches, edgeSurface, spawnCaravan, wayGap, type WayGap } from './caravan';
 import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
@@ -732,6 +732,17 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     this.returnDepotGoods(ctx);
   }
 
+  /** A raiding party (a raid, a siege or bandits) is warned of and still to come, or on the map (18). */
+  private raidOn(ctx: TickContext): boolean {
+    if (!ctx.readers.has('18')) return false;
+    const threats = ctx.readers.of<ThreatsReader>('18');
+    if (threats.coming().some((party) => RAIDING.includes(party.kind))) return true;
+    return threats.activeParties().some((id) => {
+      const party = threats.party(id);
+      return party !== undefined && RAIDING.includes(party.purpose);
+    });
+  }
+
   override tick(ctx: TickContext): void {
     const a = this.active;
     if (!a) return;
@@ -740,6 +751,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       return;
     }
     if (a.state === 'atDepot') {
+      // § Movement step 4: the stay's clock waits while a raid is warned or on the map.
+      if (this.raidOn(ctx)) { a.stateSince += 1; return; }
       if (ctx.tick - a.stateSince >= CARAVAN_STAY_DAYS * TICKS_PER_DAY) {
         this.missed(ctx, a);
         this.pack(ctx, a);

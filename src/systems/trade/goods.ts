@@ -168,10 +168,39 @@ function drawGood(registry: Registry, entry: GoodsEntry, reputation: number, rng
   return { type, material, count, value, ...(container ? { container } : {}), ...(companion ? { companion } : {}), ...(entry.units !== undefined ? { units: entry.units } : {}) };
 }
 
+/** The entry's goods: one item key or several. */
+function keysOf(entry: GoodsEntry): string[] {
+  return Array.isArray(entry.item) ? entry.item : [entry.item];
+}
+
+/**
+ * The entry a request names (20 § Requests): one of the entry's items, and, when the request names a
+ * material, preferably an entry whose material pool holds it; else the first entry of that item.
+ */
+export function requestedEntry(entries: readonly GoodsEntry[], request: TradeRequest): GoodsEntry | undefined {
+  const ofItem = entries.filter((e) => keysOf(e).includes(request.itemType));
+  if (request.material === undefined) return ofItem[0];
+  return ofItem.find((e) => e.materials.some((m) => m.material === request.material)) ?? ofItem[0];
+}
+
+/**
+ * An extra good's roll (`caravan-goods.md` § Extra goods): its permille, raised when a request names
+ * it (the entry `requestedEntry` finds for the request among `entries`: "seed: glowcap", "rune vial",
+ * not a bare "seed"): to 1000 at high priority, by half of the rest at medium.
+ */
+export function extraPermille(entry: GoodsEntry, requests: readonly TradeRequest[], entries: readonly GoodsEntry[]): number {
+  const base = entry.extra?.permille ?? 0;
+  let asked = 0;
+  for (const request of requests) {
+    if (requestedEntry(entries, request) === entry) asked = Math.max(asked, request.priority);
+  }
+  return asked === 3 ? 1000 : asked === 2 ? base + Math.floor((1000 - base) / 2) : base;
+}
+
 /**
  * Requests spend their separate share first; ordinary weighted draws spend the remainder. Each
- * `extra` entry then rolls once on `extraRng` and adds one good past the budget, so the budget and
- * the ordinary draws are what they would be without it.
+ * `extra` entry then rolls once on `extraRng` (raised when a request names it) and adds one good past
+ * the budget, so the budget and the ordinary draws are what they would be without it.
  */
 export function generateGoods(registry: Registry, civ: Civ, renown: number, reputation: number, requests: readonly TradeRequest[], rng: RngStream, extraRng: RngStream, site: GoodsSite = {}): PlannedGood[] {
   const entries = eligibleGoodsEntries(registry, civ, reputation, site);
@@ -182,10 +211,9 @@ export function generateGoods(registry: Registry, civ: Civ, renown: number, repu
   for (const request of priorities) {
     // A never-sold good is refused when it is asked for; one asked for earlier is not brought.
     if (neverSold(request.itemType, request.material, reputation)) continue;
-    // An extra good below its reputation is not on offer, to a request either.
-    const entry = entries.find((e) => (Array.isArray(e.item) ? e.item : [e.item]).includes(request.itemType)
-      && (e.extra === undefined || reputation >= (e.extra.minReputation ?? reputation)));
-    if (!entry) continue;
+    // A request that names an extra good is honoured by the extra's roll, not from the share.
+    const entry = requestedEntry(entries, request);
+    if (!entry || entry.extra !== undefined) continue;
     let attempts = 0;
     while (requestRemaining > 0 && attempts < 20) {
       attempts += 1;
@@ -211,7 +239,7 @@ export function generateGoods(registry: Registry, civ: Civ, renown: number, repu
   }
   for (const entry of entries) {
     if (entry.extra === undefined || reputation < (entry.extra.minReputation ?? reputation)) continue;
-    if (!extraRng.chance(entry.extra.permille)) continue;
+    if (!extraRng.chance(extraPermille(entry, requests, entries))) continue;
     const good = drawGood(registry, entry, reputation, extraRng);
     if (good) result.push({ ...good, extra: true });
   }

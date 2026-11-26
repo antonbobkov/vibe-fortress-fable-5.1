@@ -11,6 +11,7 @@ import type { BuildingsReader } from '@systems/buildings';
 import type { CombatReader } from '@systems/combat';
 import type { ItemsReader } from '@systems/items';
 import type { JobsReader } from '@systems/jobs';
+import type { PlantsReader } from '@systems/plants';
 import { HAULER_WARNING_MIN_WORKERS, IDLE_HAULER_WARNING } from '@systems/jobs/constants';
 import type { WorkshopsReader } from '@systems/workshops';
 import type { UiState } from './ui-state';
@@ -47,6 +48,10 @@ export interface HintFacts {
   noPath?: boolean;
   /** 25 § Player-facing behavior: the runecraft hints, each on stock or buildings. */
   glowcapSeeds?: boolean;
+  /** A sanctum zone or a rune circle exists while no glowcap seeds are in stock (`hint_glowcap`). */
+  runecraftWithoutSeeds?: boolean;
+  /** The first glowcap patch was discovered (`hint_glowcap_patch`). */
+  glowcapPatch?: boolean;
   runeforgePlaced?: boolean;
   runeforgeBuilt?: boolean;
   channelInStock?: boolean;
@@ -111,7 +116,8 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_troll': return f.doorBroken;
     case 'hint_deep': return f.deepsilverFound;
     case 'hint_magma': return f.cavernTwoBreached;
-    case 'hint_glowcap': return f.glowcapSeeds === true;
+    case 'hint_glowcap': return f.glowcapSeeds === true || f.runecraftWithoutSeeds === true;
+    case 'hint_glowcap_patch': return f.glowcapPatch === true;
     case 'hint_runeforge': return f.runeforgePlaced === true;
     case 'hint_staff': return f.runeforgeBuilt === true;
     case 'hint_wand': return f.channelInStock === true;
@@ -247,6 +253,9 @@ export class HintEngine {
     if (event.type === 'DoorBroken') this.markId('hint_troll');
     if (event.type === 'CavernBreached' && fields['cavern'] === 2) this.markId('hint_magma');
     if (event.type === 'CavernBreached') this.markId('hint_breach');
+    // 25 § Player-facing behavior: the first glowcap patch seen says what it gives.
+    if (event.type === 'TilesDiscovered' && Array.isArray(fields['tiles']) && readers.has('07') &&
+      (fields['tiles'] as unknown[]).some((tile) => typeof tile === 'number' && readers.of<PlantsReader>('07').speciesAt(tile) === 'glowcap_patch')) this.markId('hint_glowcap_patch');
     // 13 § Rot: stage 1 is stale; a corpse is not food.
     if (event.type === 'ItemRotStage' && fields['stage'] === 1 && this.isFood(readers, Number(fields['id']))) this.markId('hint_rot');
     if (event.type === 'VeinFound' && typeof fields['material'] === 'string' &&
@@ -403,6 +412,7 @@ export class HintEngine {
     const glowcap = this.registry.table('materials').has('glowcap') ? this.registry.table('materials').index('glowcap') : -1;
     const hunting = this.registry.table('labors').has('hunting') ? this.registry.table('labors').index('hunting') : 0;
     const hunterLabor = hunting > 0 && this.laborEnabledByDwarf(readers, hunting);
+    const glowcapSeeds = items !== null && seed >= 0 && glowcap >= 0 && items.countMatching({ type: seed, materialId: glowcap }) > 0;
     return {
       noMiners: this.noMiners(readers), noPath: this.noPath(readers),
       squadExists: readers.has('16') && readers.of<CombatReader>('16').squads().length > 0,
@@ -423,7 +433,9 @@ export class HintEngine {
       immigrationSkipped: this.pending('hint_immigration'), raidEnded: this.pending('hint_gate'),
       cageTrapBuilt: this.pending('hint_cage'), doorBroken: this.pending('hint_troll'),
       deepsilverFound: this.pending('hint_deep'), cavernTwoBreached: this.pending('hint_magma'),
-      glowcapSeeds: items !== null && seed >= 0 && glowcap >= 0 && items.countMatching({ type: seed, materialId: glowcap }) > 0,
+      glowcapSeeds,
+      runecraftWithoutSeeds: !glowcapSeeds && (zones('sanctum').length > 0 || (buildings?.byTag('rune_circle').length ?? 0) > 0),
+      glowcapPatch: this.pending('hint_glowcap_patch'),
       runeforgePlaced: runeforges.length > 0,
       runeforgeBuilt: runeforges.some((id) => buildings?.get(id)?.state === 'built'),
       channelInStock: (items?.count('wand') ?? 0) + (items?.count('staff') ?? 0) > 0,
