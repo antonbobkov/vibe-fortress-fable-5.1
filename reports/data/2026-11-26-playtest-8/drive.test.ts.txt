@@ -1,0 +1,85 @@
+/** Playtest 8 driver (not committed): the three-year script at peril 2 on a wealth-3 region, saving on fixed days and warnings. */
+import { describe, it } from 'vitest';
+import { mkdirSync, writeFileSync } from 'node:fs';
+import { TICKS_PER_DAY, DAYS_PER_YEAR, LOCAL_MAP_Z } from '@core/constants';
+import { C } from '@core/components';
+import { Map3D } from '@core/map3d';
+import { saveGame } from '@app/game-save';
+import { HeadlessGame, regionSpec } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { generateLocal } from '@systems/terrain/generate';
+import { TestWorld } from './test-world';
+import { attachThreeYearsMeasurements, observeImmigration, type ThreeYearsMeasurements } from './three_years_measurements';
+import { playThreeYears, setupThreeYearsFortress, threeYearsEmbark, checkFortressWorkOrders, checkFortressRooms,
+  checkFortressCaveFarm, checkFortressDefense, THREE_YEARS_RELIEF } from './three_years_fortress';
+
+const SEED = process.env['PT_SEED'] ?? 'pt8-9';
+const PERIL = Number(process.env['PT_PERIL'] ?? 2);
+const WEALTH = Number(process.env['PT_WEALTH'] ?? 3);
+const OUT = process.env['PT_OUT'] ?? 'out/pt8';
+const SAVE_DAYS = (process.env['PT_SAVES'] ?? '1,56,112,168,224,280,336').split(',').map(Number);
+const END_DAY = Number(process.env['PT_END'] ?? 336);
+
+function world(seed: string, peril: number): TestWorld {
+  const registry = contentRegistry();
+  const spec = regionSpec(seed, { peril, wealth: WEALTH as never, biome: 'temperate_forest', geology: 'mixed', traits: [], relief: THREE_YEARS_RELIEF,
+    river: { class: 'brook', inflow: ['w'], outflow: 's' } } as never, registry);
+  const map = new Map3D(48, 48, LOCAL_MAP_Z);
+  const local = generateLocal(spec, map, registry);
+  let instrument: ThreeYearsMeasurements | null = null;
+  const systems = HeadlessGame.standardSystems(spec, local.layerStack, local).map((s) =>
+    s.id === '21' ? observeImmigration(s, () => instrument) : s);
+  const w = new TestWorld({ seed, registry, map, spec, systems, embark: threeYearsEmbark(registry, seed, peril) });
+  instrument = attachThreeYearsMeasurements(w, seed);
+  return w;
+}
+
+describe('playtest 8 drive', () => {
+  it('drives', async () => {
+    mkdirSync(OUT, { recursive: true });
+    const w = world(SEED, PERIL);
+    const state = setupThreeYearsFortress(w);
+    console.log(`fortress ${w.game.fortressName?.() ?? ''} wagon ${JSON.stringify(w.game.arrival?.wagon)}`);
+    const counts: Record<string, number> = {};
+    const notable: string[] = [];
+    const keep = /Raid|Siege|Immigr|Caravan|TradeCompleted|Died|Ambush|Thief|Cavern|Breach|Monster|DeepStirred|Deepsilver|Title|Artifact|Masterwork|Legendary|Restless|FirstRunecaster|Summon|Collapsed|Mishap|VeinFound/;
+    let saveFlag = '';
+    w.game.world.onEvents((events) => {
+      const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
+      for (const e of events) {
+        counts[e.type] = (counts[e.type] ?? 0) + 1;
+        if (keep.test(e.type) && e.type !== 'ThreatNearby') {
+          const { type, ...rest } = e as unknown as Record<string, unknown>;
+          notable.push(`d${day} ${String(type)} ${JSON.stringify(rest).slice(0, 200)}`);
+        }
+        if (e.type === 'ThreatWarning') saveFlag = `${e.type}`;
+      }
+    });
+    const saves = new Set(SAVE_DAYS);
+    const timing: string[] = [];
+    let last = performance.now();
+    const write = (): void => writeFileSync(`${OUT}/log.txt`, [`year length ${DAYS_PER_YEAR}`, ...timing, '', ...notable, '', JSON.stringify(counts, null, 1)].join('\n'));
+    for (let day = 1; day <= END_DAY; day++) {
+      const end = day * TICKS_PER_DAY;
+      while (w.tick < end) {
+        playThreeYears(w, state, Math.min(day <= 20 ? 100 : 300, end - w.tick));
+        checkFortressWorkOrders(w, state);
+        checkFortressRooms(w, state);
+        checkFortressCaveFarm(w, state);
+        checkFortressDefense(w, state);
+        saveFlag = '';
+      }
+      const ent = w.game.world.entities;
+      const pop = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress').length;
+      const now = performance.now();
+      if (day % 7 === 0) timing.push(`d${day} pop ${pop} ents ${ent.with(C.Position).length} items ${ent.with(C.Item).length} ms/day ${Math.round(now - last)}`);
+      last = now;
+      if (saves.has(day)) {
+        writeFileSync(`${OUT}/${SEED}-d${day}.bin`, await saveGame(w.game, { kind: 'manual', name: `pt8 d${day}` } as never));
+        console.log(`saved d${day} pop ${pop}`);
+      }
+      if (day % 7 === 0) write();
+    }
+    write();
+  }, 14_400_000);
+});

@@ -1,0 +1,20 @@
+/** Playtest 8 (not committed): where cavern 3's water came from in fortress A. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+
+async function scan(path: string): Promise<string> {
+  const { game } = await loadGame(new Uint8Array(readFileSync(path)));
+  const m = game.map;
+  const col: string[] = [];
+  for (let z = 23; z >= 3; z--) { const i = m.index(21, 21, z); col.push(`${z}:${m.kindAt(i)}/${m.fluidLevelAt(i)}`); }
+  const water: number[] = [];
+  for (let z = 0; z < m.d; z++) { let n = 0; for (let y = 0; y < m.h; y++) for (let x = 0; x < m.w; x++) { const i = m.index(x, y, z); if (m.fluidLevelAt(i) > 0 && m.fluidTypeAt(i) === 0) n += m.fluidLevelAt(i); } water.push(n); }
+  return `col(21,21) ${col.join(' ')}\nwater by z ${water.map((n, z) => `${z}:${n}`).filter((s) => !s.endsWith(':0')).join(' ')}`;
+}
+
+describe('pt8 water', () => {
+  it('scans', async () => {
+    for (const p of ['out/pt8/frostwatch-y4.bin', 'out/pt8/frostwatch-y4-au5-stair-stuck.bin', 'out/pt8/frostwatch-y5-sp22.bin']) console.log(p + '\n' + await scan(p));
+  }, 600_000);
+});

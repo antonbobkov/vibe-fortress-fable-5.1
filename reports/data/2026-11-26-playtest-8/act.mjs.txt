@@ -1,0 +1,50 @@
+// usage: node act.mjs '<json steps>' | node act.mjs @file.json
+// steps: {k:'key',n:repeat} {type:'text'} {click:[x,y]} {cell:[col,row]} {wait:ms} {step:ticks} {eval:'js'} {shot:'path'} {text:1} {file:'path',key:'i'}
+import { chromium } from 'playwright';
+import { readFileSync } from 'node:fs';
+const arg = process.argv[2];
+const steps = JSON.parse(arg.startsWith('@') ? readFileSync(arg.slice(1), 'utf8') : arg);
+const browser = await chromium.connectOverCDP('http://localhost:9333');
+const page = browser.contexts()[0].pages()[0];
+const out = [];
+const textRows = async () => {
+  const rows = await page.evaluate(() => window.__deepholm.text());
+  return (Array.isArray(rows) ? rows : [String(rows)]).map((r) => r.replace(/\s+$/, '')).join('\n');
+};
+for (const s of steps) {
+  if (s.k !== undefined) { for (let r = 0; r < (s.n ?? 1); r++) { await page.keyboard.press(s.k); await page.waitForTimeout(s.w ?? 50); } }
+  else if (s.type !== undefined) { await page.keyboard.type(s.type, { delay: 20 }); await page.waitForTimeout(60); }
+  else if (s.click !== undefined) { await page.mouse.click(s.click[0], s.click[1], s.right ? { button: 'right' } : {}); await page.waitForTimeout(80); }
+  else if (s.cell !== undefined) { const c = await page.evaluate(([a, b]) => window.__deepholm.cellCenter(a, b), s.cell); await page.mouse.click(c.x, c.y, s.right ? { button: 'right' } : {}); await page.waitForTimeout(80); }
+  else if (s.at !== undefined || s.hover !== undefined) {
+    const p = s.at ?? s.hover;
+    const c = await page.evaluate(([x, y]) => { const u = window.__deepholm.readers.ui; return window.__deepholm.cellCenter(x - u.camX, y - u.camY); }, p);
+    if (s.at !== undefined) await page.mouse.click(c.x, c.y, s.right ? { button: 'right' } : {}); else await page.mouse.move(c.x, c.y);
+    await page.waitForTimeout(80);
+  }
+  else if (s.z !== undefined) {
+    const cur = await page.evaluate(() => window.__deepholm.readers.ui.z);
+    const d = s.z - cur;
+    for (let i = 0; i < Math.abs(d); i++) { await page.keyboard.press(d < 0 ? '<' : '>'); await page.waitForTimeout(30); }
+  }
+  else if (s.center !== undefined) { await page.evaluate(([x, y, z]) => { const u = window.__deepholm.readers.ui; u.camX = x - 22; u.camY = y - 22; u.z = z; }, s.center); await page.keyboard.press('Shift+ArrowLeft'); await page.keyboard.press('Shift+ArrowRight'); }
+  else if (s.wait !== undefined) await page.waitForTimeout(s.wait);
+  else if (s.step !== undefined) { await page.evaluate((n) => { for (let i = 0; i < n; i += 300) window.__deepholm.step(Math.min(300, n - i)); }, s.step); }
+  else if (s.save !== undefined) {
+    const b64 = await page.evaluate(async (name) => { const u = await window.__deepholm.host.save({ kind: 'manual', name }); let s = ''; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }, s.name ?? 'pt8');
+    (await import('node:fs')).writeFileSync(s.save, Buffer.from(b64, 'base64')); out.push('saved ' + s.save);
+  }
+  else if (s.js !== undefined) { await page.evaluate(readFileSync(new URL('./lib.js', import.meta.url), 'utf8')); const r = await page.evaluate(s.js); out.push(typeof r === 'string' ? r : JSON.stringify(r)); }
+  else if (s.eval !== undefined) out.push(JSON.stringify(await page.evaluate(s.eval)));
+  else if (s.shot !== undefined) { await page.screenshot({ path: s.shot }); out.push('shot ' + s.shot); }
+  else if (s.text !== undefined) out.push(await textRows());
+  else if (s.side !== undefined) {
+    const rows = (await textRows()).split('\n');
+    const side = rows.map((r) => { const i = Math.max(r.lastIndexOf('│'), r.lastIndexOf('║')); return i >= 0 && i < rows[0].length - 2 ? r.slice(i + 1).trimEnd() : ''; }).filter((r) => r.trim() !== '');
+    out.push([...side, ...rows.slice(-3).filter((r) => r.trim() !== '')].join('\n'));
+  }
+  else if (s.grep !== undefined) { const t = await textRows(); out.push(t.split('\n').filter((l) => new RegExp(s.grep, 'i').test(l)).join('\n')); }
+  else if (s.file !== undefined) { const [fc] = await Promise.all([page.waitForEvent('filechooser'), page.keyboard.press(s.key ?? 'i')]); await fc.setFiles(s.file); await page.waitForTimeout(2000); }
+}
+console.log(out.join('\n----\n'));
+process.exit(0);

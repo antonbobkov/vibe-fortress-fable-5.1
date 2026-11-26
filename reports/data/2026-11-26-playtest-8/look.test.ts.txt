@@ -1,0 +1,39 @@
+/** Playtest 8 (not committed): facts from a save — cavern shrubs, deepsilver, stairs, gems. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { TileKind } from '@core/map3d';
+import { C } from '@core/components';
+
+const SAVE = process.env['PT_SAVE'] ?? 'out/pt8/pt8-9-d224.bin';
+
+describe('pt8 look', () => {
+  it('looks', async () => {
+    const { game } = await loadGame(new Uint8Array(readFileSync(SAVE)));
+    const map = game.map;
+    const mats = game.registry.table<{ id: string }>('materials');
+    const items = game.registry.table<{ id: string }>('items');
+    const shrubs: Record<string, number> = {};
+    const stairs: string[] = [];
+    const glow: string[] = [];
+    for (let z = 0; z < map.d; z++) for (let y = 0; y < map.h; y++) for (let x = 0; x < map.w; x++) {
+      const t = map.index(x, y, z);
+      const k = map.kindAt(t);
+      const m = mats.rows[map.materialAt(t)]?.id ?? '?';
+      if (k === TileKind.Shrub && z < 30) { shrubs[`z${z} ${m}`] = (shrubs[`z${z} ${m}`] ?? 0) + 1; if (/glow/.test(m)) glow.push(`${x},${y},${z}`); }
+      if ((k === TileKind.StairsDown || k === TileKind.StairsUpDown || k === TileKind.StairsUp) && z < 31) stairs.push(`${TileKind[k]}@${x},${y},${z}`);
+      if (k === TileKind.Wall && /glowstone|garnet|ruby|emerald|amethyst|sapphire|diamond|quartz/.test(m) && z < 34) glow.push(`${m}@${x},${y},${z}`);
+    }
+    console.log('SHRUBS', JSON.stringify(shrubs));
+    console.log('STAIRS', stairs.join(' '));
+    console.log('GLOW/GEMS', glow.join(' '));
+    const ent = game.world.entities;
+    const inv: Record<string, number> = {};
+    for (const id of ent.with(C.Item)) {
+      const it = ent.get(id, C.Item)!;
+      const k = `${items.rows[it.type]?.id}:${mats.rows[it.material]?.id}`;
+      if (/gem|glow|anvil|rune|vial|seed:glow|bar/.test(k)) inv[k] = (inv[k] ?? 0) + it.count;
+    }
+    console.log('ITEMS', JSON.stringify(inv));
+  }, 600_000);
+});

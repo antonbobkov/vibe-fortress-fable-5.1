@@ -1,0 +1,55 @@
+/** Playtest 8 (not committed): where deepsilver lies on the three-year region at wealth 3 or 4, per seed. */
+import { describe, it } from 'vitest';
+import { regionSpec } from '@app/headless';
+import { contentRegistry } from '@content/loader';
+import { Map3D, TileKind } from '@core/map3d';
+import { LOCAL_MAP_Z } from '@core/constants';
+import { generateLocal } from '@systems/terrain/generate';
+
+const SEEDS = (process.env['PT_SEEDS'] ?? Array.from({ length: 30 }, (_, k) => `pt8-${k}`).join(',')).split(',');
+const WEALTH = Number(process.env['PT_WEALTH'] ?? 3);
+const TRAITS = (process.env['PT_TRAITS'] ?? '').split(',').filter((t) => t !== '');
+
+describe('pt8 seeds', () => {
+  it('scans', () => {
+    const registry = contentRegistry();
+    const mats = registry.table<{ id: string }>('materials');
+    const out: string[] = [];
+    for (const seed of SEEDS) {
+      const spec = regionSpec(seed, { peril: 2, wealth: WEALTH as never, biome: 'temperate_forest', geology: 'mixed', traits: TRAITS as never, relief: 1,
+        river: { class: 'brook', inflow: ['w'], outflow: 's' } } as never, registry);
+      const map = new Map3D(48, 48, LOCAL_MAP_Z);
+      generateLocal(spec, map, registry);
+      // surface at centre
+      let surf = -1;
+      for (let z = map.d - 1; z >= 0; z--) { const k = map.kindAt(map.index(24, 24, z)); if (k !== TileKind.Open) { surf = z; break; } }
+      const ds: string[] = [];
+      let best = 999;
+      let inCave = 0;
+      for (let z = 0; z < 10; z++) for (let y = 0; y < map.h; y++) for (let x = 0; x < map.w; x++) {
+        const t = map.index(x, y, z);
+        if (map.kindAt(t) !== TileKind.Wall) continue;
+        if (!/deepsilver/.test(mats.rows[map.materialAt(t)]?.id ?? '')) continue;
+        let open = false;
+        for (const [dx, dy, dz] of [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1]] as const) {
+          if (!map.inBounds(x + dx, y + dy, z + dz)) continue;
+          const n = map.index(x + dx, y + dy, z + dz);
+          if ((map.kindAt(n) === TileKind.Open || map.kindAt(n) === TileKind.Floor) && map.fluidLevelAt(n) === 0) open = true;
+        }
+        if (open) inCave++;
+        const d = Math.max(Math.abs(x - 24), Math.abs(y - 24));
+        best = Math.min(best, d);
+        ds.push(`${x},${y},${z}${open ? '*' : ''}`);
+      }
+      // cavern 3 open and magma pools above the sea
+      let c3 = 0; let pools = 0;
+      for (let z = 5; z <= 14; z++) for (let i = 0; i < map.w * map.h; i++) {
+        const t = z * map.w * map.h + i;
+        if (z <= 8 && map.kindAt(t) === TileKind.Open) c3++;
+        if (map.fluidLevelAt(t) > 0 && map.fluidTypeAt(t) === 1) pools++;
+      }
+      out.push(`${seed}: surf ${surf} ds ${ds.length} nearest-centre ${best} touching-open ${inCave} c3open ${c3} magma>z4 ${pools} | ${ds.slice(0, 12).join(' ')}`);
+    }
+    console.log(out.join('\n'));
+  }, 600_000);
+});

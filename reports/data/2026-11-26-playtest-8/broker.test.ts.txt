@@ -1,0 +1,96 @@
+/** Playtest 11-26 (not committed): why the Broker never reaches a waiting caravan. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { C } from '@core/components';
+
+const SAVE = process.env['PT_SAVE'] ?? 'out/pt8/frostwatch-y4.bin';
+const MAX_PRE = Number(process.env['PT_PRE'] ?? 30000);
+const TRACE = Number(process.env['PT_TRACE'] ?? 6000);
+
+describe('pt8 broker', () => {
+  it('traces', async () => {
+    const { game } = await loadGame(new Uint8Array(readFileSync(SAVE)));
+    const map = game.map;
+    const ent = game.world.entities;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const board = (game.world.scheduler.byId('11') as any).board;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const dw = game.world.scheduler.byId('10') as any;
+    const p = (t: number): string => t < 0 ? String(t) : `(${map.xOf(t)},${map.yOf(t)},z${map.zOf(t)})`;
+    const now = (): number => game.world.calendar.tick;
+    const events: string[] = [];
+    let atDepot: Record<string, unknown> | null = null;
+    let departed = false;
+    game.world.onEvents((evs) => {
+      for (const e of evs) {
+        const t = e.type as string;
+        if (/Caravan|Trade|Title/.test(t)) events.push(`t${now()} ${t} ${JSON.stringify(e).slice(0, 200)}`);
+        if (t === 'CaravanAtDepot') atDepot = e as unknown as Record<string, unknown>;
+        if (t === 'CaravanDeparted') departed = true;
+      }
+    });
+    const t0 = now();
+    for (let i = 0; i < MAX_PRE && atDepot === null; i++) game.step(1);
+    for (const e of events) console.log(e);
+    if (atDepot === null) { console.log('no CaravanAtDepot'); return; }
+    const depotId = (atDepot as Record<string, unknown>)['depotId'] as number;
+    console.log(`atDepot after ${now() - t0} ticks, depot ${depotId} titles=${JSON.stringify(dw.titles)}`);
+    const broker = dw.titles.broker as number;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const bld = (game.world.readers.of('14') as any).get(depotId);
+    console.log('depot footprint', bld.footprint.map(p).join(' '));
+    const needs = (w: number): string => { const n = ent.get(w, C.Needs) as Record<string, number> | undefined; return n ? Object.entries(n).map(([k, v]) => `${k[0]}${k[1]}${Math.round(v)}`).join(' ') : ''; };
+    const sched = ent.get(broker, C.Schedule);
+    console.log('broker', broker, 'schedule', JSON.stringify(sched), 'labors trading', board.laborPriorities?.['trading'], 'laborEnabled', game.world.readers.of<{ laborEnabled(id: number, l: string): boolean }>('11').laborEnabled(broker, 'trading'));
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const morale = game.world.readers.of('15') as any;
+    for (let i = 0; i < Number(process.env["PT_DELAY"] ?? 0) && !departed; i++) game.step(1);
+    console.log(`TradeOpen at t${now()} needs ${needs(broker)} brain ${JSON.stringify(ent.get(broker, C.Brain))?.slice(0, 160)}`);
+    game.world.submit({ type: "TradeOpen", depotId } as never);
+    const stack = (): string => (new Error().stack ?? '').split('\n').slice(3, 8).map((s) => s.trim().replace(/\(.*src/, '(src')).join(' <- ');
+    const origInterrupt = board.interrupt.bind(board);
+    board.interrupt = (w: number, keep: boolean): void => {
+      if (w === broker) console.log(`t${now()} INTERRUPT broker job=${board.workerOf(w).jobId} keep=${keep} :: ${stack()}`);
+      origInterrupt(w, keep);
+    };
+    const origClaim = board.claim.bind(board);
+    board.claim = (w: number, job: { id: number; key: string }): boolean => {
+      const r = origClaim(w, job);
+      if (String(job.key).startsWith('trade:')) console.log(`t${now()} CLAIM ${job.key} by w${w} -> ${r}`);
+      return r;
+    };
+    let last = '';
+    const start = now();
+    let cancelled = 0;
+    for (let i = 0; i < TRACE && !departed; i++) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const trs = game.world.scheduler.byId('20') as any;
+      if (process.env['PT_CANCEL'] && trs.sessionState !== null && cancelled < Number(process.env['PT_CANCEL'])) {
+        cancelled++;
+        console.log(`t${now()} SESSION OPEN -> player closes it (TradeCancel #${cancelled})`);
+        game.world.submit({ type: 'TradeCancel' } as never);
+      }
+      if (process.env['PT_CANCEL'] && cancelled > 0 && i % 180 === 0 && trs.sessionState === null) {
+        game.world.submit({ type: 'TradeOpen', depotId } as never);
+      }
+      game.step(1);
+      const b = ent.get(broker, C.Brain) as { behavior: string; activity: unknown; targetTile: number } | undefined;
+      const pos = ent.get(broker, C.Position) as { x: number; y: number; z: number };
+      const job = board.byKeyMap.get(`trade:${depotId}`);
+      const j = job ? board.jobs.get(job) : undefined;
+      const hour = Math.floor(((now() % 1200) / 1200) * 24);
+      const s = `${b?.behavior}/${String(b?.activity)} job=${j ? `${j.state} w${j.workerId}` : 'none'} wjob=${board.workerOf(broker).jobId} dayOff=${morale.dayOff?.(broker)} session=${(game.world.scheduler.byId("20") as any).sessionState !== null}`;
+      if (s !== last || i % 300 === 0) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const tr = game.world.scheduler.byId('20') as any;
+        const a = tr.active;
+        const ms = a ? a.merchants.map((m: number) => { const q = ent.get(m, C.Position) as { x: number; y: number; z: number } | undefined; return `${m}@${q ? `(${q.x},${q.y},z${q.z})` : '-'} dest=${p(a.destinations[m] ?? -1)}`; }).join(' ') : '';
+        if (process.env["PT_V"]) console.log(`   caravan=${a?.state} session=${JSON.stringify(tr.sessionState)?.slice(0, 120)} retry=${tr.retryTradeRequest} holderTile=${p((game.world.readers.of('14') as any).holderTile(depotId))} merchants: ${ms}`);
+        console.log(`t${now()} +${now() - start} h${hour} ${s} at (${pos.x},${pos.y},z${pos.z}) tgt=${p(b?.targetTile ?? -1)} urgent=${board.hasUrgent(broker, 2)} ${needs(broker)}`);
+        last = s;
+      }
+    }
+    for (const e of events.slice(-5)) console.log(e);
+  }, 900_000);
+});
