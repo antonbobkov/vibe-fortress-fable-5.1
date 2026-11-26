@@ -12,7 +12,6 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | Id | Title | Source | Needs | Status |
 |---|---|---|---|---|
 | T-766 | [Lonely counts once: confirm the sweep's deaths and adopt](work/T-766-lonely-counts-once.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
-| T-767 | [A gloomy dwarf turns Miserable at the first point of ordinary tiredness or thirst](work/T-767-needs-met-floor-gives-way.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
 | T-784 | [A dwarf walled in starves for two weeks, and nothing says she is shut in](work/T-784-trapped-dwarf-says-so.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
 | T-785 | [The Thane and the Broker die, and their titles empty without a word](work/T-785-title-holder-death-says-so.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
 | T-786 | [The cavern lines say which cavern, where, and what lives there](work/T-786-cavern-lines-say-where.md) | playtest 2026-11-26 ([report](../reports/data/2026-11-26-playtest-7.md)) | — | open |
