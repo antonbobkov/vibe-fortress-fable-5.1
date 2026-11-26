@@ -93,7 +93,7 @@ describe('T-638 the Threats panel lists a warned party until it arrives', () => 
     const raid: ComingParty = { kind: 'raid', civ: 'gloam', sizeBand: 'horde', edge: 'n', arrivalTick: TICKS_PER_DAY + 10 };
     expect(comingText(strings, registry, raid, 10)).toBe('Coming: a horde of Gloam from the north, tomorrow.');
     expect(comingText(strings, registry, { ...raid, sizeBand: 'few', arrivalTick: 20 }, 10)).toBe('Coming: a few Gloam from the north, today.');
-    expect(comingText(strings, registry, { ...raid, kind: 'siege', edge: 'e', arrivalTick: 2 * TICKS_PER_DAY }, 0)).toBe('Coming: a Gloam siege from the east, in 2 days.');
+    expect(comingText(strings, registry, { ...raid, kind: 'siege', edge: 'e', arrivalTick: 2 * TICKS_PER_DAY }, 0)).toBe('Coming: a Gloam siege, a horde, from the east, in 2 days.');
   });
 
   it('the panel shows the coming party under the Active line', () => {

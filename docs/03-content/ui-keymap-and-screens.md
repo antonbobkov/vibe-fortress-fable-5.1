@@ -691,6 +691,13 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `announce.list_and` | "{list} and {last}" |
 | `announce.immigrants_counted` | "{count} dwarves have come to join the hall. [u] lists them." |
 | `announce.immigrants_counted_children` | "{count} dwarves have come to join the hall, {children\|of them a child\|of them children}. [u] lists them." |
+| `announce.threat_warning.few` | "A few {civ} raiders have been seen at {edge}. They will come {when}." |
+| `announce.threat_warning.band` | "A band of {civ} raiders has been seen at {edge}. They will come {when}." |
+| `announce.threat_warning.horde` | "A horde of {civ} raiders has been seen at {edge}. They will come {when}." |
+| `announce.threat_warning.siege` | "A {civ} siege, {band}, has been seen at {edge}, with trollkin. They will come {when}." |
+| `ui.threats.size.few` | "a few" |
+| `ui.threats.size.band` | "a band" |
+| `ui.threats.size.horde` | "a horde" |
 | `ui.threats.cavern_breached_at` | "{n}: breached at ({x},{y},z{z})" |
 | `ui.threats.cavern_monsters` | "monsters {n}" |
 | `ui.rot.fresh` | "fresh" |

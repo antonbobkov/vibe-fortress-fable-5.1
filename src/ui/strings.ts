@@ -661,7 +661,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.threats.doing.looting': 'looting',
   'ui.threats.doing.retreat': 'leaving',
   'ui.threats.coming': 'Coming: {party} from the {edge}, {when}.',
-  'ui.threats.coming_siege': 'Coming: a {civ} siege from the {edge}, {when}.',
+  'ui.threats.coming_siege': 'Coming: a {civ} siege, {band}, from the {edge}, {when}.',
+  'ui.threats.makeup': '  {list}',
   'ui.threats.band_few': 'a few {civ}',
   'ui.threats.band_band': 'a band of {civ}',
   'ui.threats.band_horde': 'a horde of {civ}',
@@ -2604,7 +2605,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.alert_changed': 'The fortress alert is now {to}.',
   'announce.kill_recorded': '{killer} has slain {victim}.',
   // 18 Threats announcements
-  'announce.threat_warning': 'Gloam scouts have been seen at {edge}. They will come tomorrow.',
+  'announce.threat_warning': 'Gloam scouts have been seen at {edge}. They will come {when}.',
   'announce.raid_arrived': 'A raid has arrived!',
   'announce.raid_arrived.raid': 'A Gloam raid has come from the {edge}!',
   'announce.raid_arrived.siege': 'A Gloam siege has come from the {edge}!',

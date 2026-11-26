@@ -186,7 +186,7 @@ describe('T-768 lowering the alert under a threat asks first', () => {
     const { asked, keys, alertNow } = setup('t768-coming', 'hearth', { onMap: false, coming: true });
     keys('m', '2');
     expect(asked.map((a) => a.id)).toEqual(['c_lower_alert_coming']);
-    expect(strings.get(`confirm.${asked[0]!.id}`, asked[0]!.params)).toBe('Coming: a Gloam siege from the north, today. Lower the alert to Watchful?');
+    expect(strings.get(`confirm.${asked[0]!.id}`, asked[0]!.params)).toBe('Coming: a Gloam siege, a horde, from the north, today. Lower the alert to Watchful?');
     asked[0]!.answer(true);
     keys();
     expect(alertNow()).toBe('watchful');

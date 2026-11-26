@@ -31,7 +31,7 @@ import { capitalize, enchantedName, itemName, matchName, materialItemName, stock
 import { markFigure } from './panels/context';
 import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
-import { calmTail, raidArrival, raidEndedText, raidGone, stolenGoodsText, stolenOf, theftKey, type Stolen } from './raid-lines';
+import { calmTail, raidArrival, raidEndedText, raidGone, sizeWords, stolenGoodsText, stolenOf, theftKey, warningWhen, type Stolen } from './raid-lines';
 import { ShutInWatch } from './shut-in';
 import type { Strings } from './strings';
 
@@ -260,6 +260,11 @@ export class AnnouncementLog {
     if ((event.type === 'CaravanWaiting' || event.type === 'RaidArrived') && typeof edge === 'string' && this.strings.has(`ui.edge.${edge}`)) out['edge'] = this.strings.get(`ui.edge.${edge}`);
     // 18 § Arrival and warning: a warning names the edge as a place ("the eastern edge").
     if (event.type === 'ThreatWarning' && typeof edge === 'string' && this.strings.has(`ui.edge.side.${edge}`)) out['edge'] = this.strings.get(`ui.edge.side.${edge}`);
+    // A warning words its size band ("a horde") and the day its party comes, as the Coming line does.
+    if (event.type === 'ThreatWarning') {
+      if (typeof e['sizeBand'] === 'string') out['band'] = sizeWords(this.strings, e['sizeBand']);
+      out['when'] = warningWhen(this.strings, readers, e);
+    }
     // 18 § Morale, Nerve: "A gloam warrior has lost its nerve and runs."
     if (event.type === 'HostileFled') {
       const species = typeof speciesOf === 'number' ? speciesOf : readers.entities.get(Number(e['id']), C.Creature)?.species;
@@ -538,6 +543,11 @@ export class AnnouncementLog {
     let key = spec.keyField === undefined ? spec.stringKey : `${spec.stringKey}.${String(fields[spec.keyField])}`;
     // §4.5: "drop the clause when 0" children came.
     if (event.type === 'ImmigrantsArrived' && fields['children'] === 0) key = 'announce.immigrants_arrived_adults';
+    // 18 § Arrival and warning: a raid's warning by its size band, a siege's by its kind.
+    if (event.type === 'ThreatWarning') {
+      const which = fields['kind'] === 'siege' ? 'siege' : fields['kind'] === 'raid' ? String(fields['sizeBand']) : '';
+      if (this.strings.has(`announce.threat_warning.${which}`)) key = `announce.threat_warning.${which}`;
+    }
     if (event.type === 'CreatureDied' && typeof creatureId === 'number' && !dwarfDeath) {
       key = fields['cause'] === 'faded' ? 'announce.summon_faded'
         : petDeath ? 'announce.pet_died' : 'announce.creature_died';

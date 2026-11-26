@@ -14,10 +14,8 @@ Every open item, and nothing else. A row is added when an item is accepted and d
 | T-753 | [A civilian already in the only room behind a door finds no shelter there](work/T-753-shelter-from-inside.md) | [T-745](archive/tasks/T-745-locked-in-thirst.md) | — | open |
 | T-766 | [Lonely counts once: confirm the sweep's deaths and adopt](work/T-766-lonely-counts-once.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
 | T-767 | [A gloomy dwarf turns Miserable at the first point of ordinary tiredness or thirst](work/T-767-needs-met-floor-gives-way.md) | [T-763](archive/tasks/T-763-busy-first-week-misery.md) | — | open |
-| T-772 | [The raid warning says only "Gloam scouts", and the Threats panel never says what a party is made of](work/T-772-warning-says-what-comes.md) | [the military playtest of 2026-11-25](../reports/data/2026-11-25-playtest-6.md) | — | open |
 | T-777 | [With no hearth, a door locks on the alert's 20th tick and shuts out the dwarves walking to it](work/T-777-hearthless-door-shuts-out.md) | [T-752](archive/tasks/T-752-ui-words-still-in-code.md) | — | open |
 | T-778 | [A first bed order eats the embark's linen, the only dressing the fortress has](work/T-778-bed-order-eats-the-linen.md) | [T-765](archive/tasks/T-765-alpine-embark-frostbite.md) | — | open |
 | T-779 | [The world map often starts a newcomer on a site that freezes from the first night](work/T-779-default-site-frostbite.md) | [T-765](archive/tasks/T-765-alpine-embark-frostbite.md) | — | open |
-| T-781 | [The stockpile editor's tree lacks nine of 13's leaves, so a player cannot pick them alone](work/T-781-stockpile-tree-misses-leaves.md) | [T-774](archive/tasks/T-774-stocks-weapons-open.md) | — | open |
 
 The latest balance evidence is in [balance-status.md](balance-status.md). Walking speed is ×1.5 since T-140's measurement. Of B-008 to B-012, read against T-145's peril-0 sweep (2026-10-17): B-009, B-011 and B-012 are closed; B-008 (year-1 wealth above the model) is T-380 and B-010 (raid sizes at peril 2) is T-381. Their older measurement journal is in the [decision archive](archive/decisions-archive.md).
