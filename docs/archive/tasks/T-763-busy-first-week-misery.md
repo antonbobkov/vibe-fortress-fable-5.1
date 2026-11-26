@@ -1,6 +1,8 @@
 # T-763 — A busy first week makes a gregarious dwarf miserable before anything can help: measure it
 
-**Source:** T-760 (playtest 2026-11-25 ([report](../../reports/data/2026-11-25-playtest-5.md), finding 6), checked while T-760 was done) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in ec80733e,8d2c1b99,19e0d092,c9b55c27.
+
+**Source:** T-760 (playtest 2026-11-25 ([report](../../../reports/data/2026-11-25-playtest-5.md), finding 6), checked while T-760 was done) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -19,5 +21,5 @@ Measure before deciding. Do not retune in this task.
 
 ## Done
 
-- [ ] A dated audit report under `reports/audits/` with the probe, its seeds and the commit.
-- [ ] Either a spec and code change, with tests and an instrument run, or a note in the report that the design stands.
+- [x] A dated audit report under `reports/audits/` with the probe, its seeds and the commit.
+- [x] Either a spec and code change, with tests and an instrument run, or a note in the report that the design stands. (The change, `lonely` counts once, was built and swept; its deaths were above the bar, so it is not merged and the design stands for now: `T-766-lonely-counts-once.md`.)

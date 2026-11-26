@@ -1,0 +1,55 @@
+# playtest-1125-p3m, peril 3: the three-year script alone (drive.test.ts.txt), days 1 to 260. A year is 112 days.
+
+## Threat schedule at embark
+thief: earliest d29 next d37
+bandits: earliest d57 next d72
+ambush: earliest d57 next d68
+raid: earliest d57 next d76
+siege: earliest d225 next d229
+
+## Population every 14 days
+d14 7; d28 7; d42 11; d56 11; d70 13; d84 13; d98 15; d112 15; d126 15; d140 15; d154 23; d168 23; d182 27; d196 27; d210 27; d224 27; d238 38; d252 37
+
+## Parties, and dwarves of the fortress who died (the script's own play)
+d37 t43201 RaidArrived {"partyId":16777864,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d37 t43319 RaidEnded {"partyId":16777864,"outcome":"withdrew"}
+d68 t80559 AmbushSprung {"partyId":117441413}
+d69 t81601 RaidArrived {"partyId":50332505,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d69 t81911 RaidEnded {"partyId":50332505,"outcome":"looted"}
+d70 t83412 RaidEnded {"partyId":117441413,"outcome":"looted"}
+d72 t85201 RaidArrived {"partyId":117441461,"kind":"bandits","size":3,"tile":76032,"edge":"n"}
+d72 t85620 RaidEnded {"partyId":117441461,"outcome":"repelled"}
+d76 t90001 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"band","edge":"n"}
+d77 t91201 RaidArrived {"partyId":117441344,"kind":"raid","size":10,"tile":76032,"edge":"n"}
+d79 t94072 RaidEnded {"partyId":117441344,"outcome":"looted"}
+d99 t117601 RaidArrived {"partyId":150996027,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d99 t117871 RaidEnded {"partyId":150996027,"outcome":"looted"}
+d118 t140548 AmbushSprung {"partyId":385876023}
+d120 t143484 RaidEnded {"partyId":385876023,"outcome":"looted"}
+d124 t147601 RaidArrived {"partyId":83886765,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d124 t147783 RaidEnded {"partyId":83886765,"outcome":"looted"}
+d154 t183601 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"band","edge":"n"}
+d155 t184801 RaidArrived {"partyId":285213344,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d155 t184801 RaidArrived {"partyId":117441332,"kind":"raid","size":13,"tile":76032,"edge":"n"}
+d155 t185094 RaidEnded {"partyId":285213344,"outcome":"looted"}
+d157 t187428 RaidEnded {"partyId":117441332,"outcome":"looted"}
+d175 t208964 AmbushSprung {"partyId":50332809}
+d175 Asa Elkstair bled_out (gloam_archer)
+d175 Gerd Grimward bled_out (gloam_archer)
+d175 Rolf Runegate bled_out (gloam_archer)
+d177 t211725 RaidEnded {"partyId":50332809,"outcome":"looted"}
+d180 t214801 RaidArrived {"partyId":318768259,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d180 t215094 RaidEnded {"partyId":318768259,"outcome":"looted"}
+d220 t262801 RaidArrived {"partyId":150996142,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d220 t263081 RaidEnded {"partyId":150996142,"outcome":"looted"}
+d229 t273601 ThreatWarning {"kind":"siege","civ":"gloam","sizeBand":"horde","edge":"n"}
+d230 t274801 RaidArrived {"partyId":385876754,"kind":"siege","size":23,"tile":76032,"edge":"n"}
+d235 t281056 RaidEnded {"partyId":385876754,"outcome":"looted"}
+d242 t289330 AmbushSprung {"partyId":520094460}
+d242 Frida Ashcloak bled_out ()
+d242 t289698 RaidEnded {"partyId":520094460,"outcome":"repelled"}
+d245 t292801 ThreatWarning {"kind":"raid","civ":"gloam","sizeBand":"band","edge":"n"}
+d246 t294001 RaidArrived {"partyId":184550610,"kind":"raid","size":15,"tile":76032,"edge":"n"}
+d248 t296656 RaidEnded {"partyId":184550610,"outcome":"looted"}
+d257 t307201 RaidArrived {"partyId":150996405,"kind":"thief","size":1,"tile":76032,"edge":"n"}
+d257 t307368 RaidEnded {"partyId":150996405,"outcome":"withdrew"}
