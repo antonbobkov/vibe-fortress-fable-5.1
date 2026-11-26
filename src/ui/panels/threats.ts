@@ -19,6 +19,7 @@ import type { EntityId } from '@core/types';
 import { visibleHostileIds } from '../status';
 import { speciesPlural, withArticle } from '../messages';
 import { comingText, memberShown, partyActiveText, partyMakeupText } from '../raid-lines';
+import { fortressLabels, reachesFortress } from '../cavern-reach';
 
 /** The Deep's line under its gauge, by level (18 § The Deep): `ui.threats.deep_quote.<level>`, the last for every level above. */
 export function deepQuote(level: number, strings: Strings): string {
@@ -55,6 +56,15 @@ export function wildlifeRows(ctx: PanelContext): WildlifeRow[] {
     rows.set(row.id, { count: old.count + 1, near: old.near || near });
   }
   return Array.from(rows, ([id, v]) => ({ name: (creatures.byId(id)?.name ?? id).toLowerCase(), ...v })).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** A breached cavern's monsters and how many can walk to the halls: "5 monsters, 1 can reach the halls", "no monsters". */
+export function cavernMonstersText(ctx: PanelContext, threats: ThreatsReader | null, cavern: number): string {
+  const ids = threats?.cavernMonsters(cavern) ?? [];
+  if (ids.length === 0) return ctx.strings.get('ui.threats.cavern_no_monsters');
+  const labels = fortressLabels(ctx.readers);
+  const reach = ids.filter((id) => reachesFortress(ctx.readers, id, labels)).length;
+  return ctx.strings.get('ui.threats.cavern_monsters', { n: ids.length, reach: reach === 0 ? ctx.strings.get('ui.threats.reach_none') : reach });
 }
 
 /** How many kinds of hostile the Active line names before "and n more". */
@@ -220,17 +230,15 @@ export function drawThreatsPanel(
     if (row >= rect.row + rect.rows) break;
     const breached = terrain ? terrain.cavernBreached(c) : false;
     if (breached) {
-      const monsterCount = threats ? threats.monstersInCavern(c) : 0;
-      // Where the cavern lies open, "1: breached at (84,73,z22)", and its monsters on the row under it.
+      // Where the cavern lies open, "1: open at (84,73,z22)", and its monsters on the row under it,
+      // with how many can walk to the halls: "5 monsters, 1 can reach the halls".
       const tile = breaches.find(([cavern]) => cavern === c)?.[1];
       const at = tile === undefined ? null : ctx.readers.map.unpack(tile);
-      if (at === null) label(s, col, row, ctx.strings.get('ui.threats.cavern_breached', { n: c, monsters: monsterCount }), { width });
-      else {
-        label(s, col, row, ctx.strings.get('ui.threats.cavern_breached_at', { n: c, x: at.x, y: at.y, z: at.z }), { width });
-        row += 1;
-        if (row >= rect.row + rect.rows) break;
-        label(s, col + 3, row, ctx.strings.get('ui.threats.cavern_monsters', { n: monsterCount }), { width: width - 3 });
-      }
+      label(s, col, row, at === null ? ctx.strings.get('ui.threats.cavern_breached', { n: c })
+        : ctx.strings.get('ui.threats.cavern_breached_at', { n: c, x: at.x, y: at.y, z: at.z }), { width });
+      row += 1;
+      if (row >= rect.row + rect.rows) break;
+      label(s, col + 3, row, cavernMonstersText(ctx, threats, c), { width: width - 3 });
     } else {
       label(s, col, row, ctx.strings.get('ui.threats.cavern_sealed', { n: c }), { fg: t.dim, width });
     }

@@ -614,7 +614,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Announcements
 
-`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines of one need are one (`announce.starving_many`; thirst's lines are `announce.thirsting` and `announce.thirsting_many`), and so are a day's falls to Miserable (`announce.mood_tier_many`, 15 § Registrations) and a thought many dwarves gain in one tick (`announce.thought_pair`, `announce.thought_many`); the alert before food rots is `announce.rot_soon` (24 § Announcements and the log), and the alert of the unburied dead is `announce.unburied`, `.few` or `.free` by the free coffins (15 § Registrations). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), a title holder's names its titles (`announce.titled_name`) and the alert under it says they are vacant (`announce.title_vacated_died`, `_many`; 24 § Announcements and the log), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations). The once-per-alert line of sheltering dwarves locked away from their drink or their food is `announce.shut_in.thirst` or `announce.shut_in.hunger` (19 § Hearth alert retreat).
+`MiasmaSpread` uses alert severity and the line "Miasma spreads.", which names what rots and where when rotting items lie on its tiles (`announce.miasma_from`); the first such line of a fortress adds `announce.miasma_advice`. A day's `Starving` lines of one need are one (`announce.starving_many`; thirst's lines are `announce.thirsting` and `announce.thirsting_many`), and so are a day's falls to Miserable (`announce.mood_tier_many`, 15 § Registrations) and a thought many dwarves gain in one tick (`announce.thought_pair`, `announce.thought_many`); the alert before food rots is `announce.rot_soon` (24 § Announcements and the log), and the alert of the unburied dead is `announce.unburied`, `.few` or `.free` by the free coffins (15 § Registrations). A death's line is `announce.died.<cause>` where its cause has one (17 § Registrations), a title holder's names its titles (`announce.titled_name`) and the alert under it says they are vacant (`announce.title_vacated_died`, `_many`; 24 § Announcements and the log), and the immigrants line names a small wave (`announce.immigrants_named`) and counts a larger one (`announce.immigrants_counted`) (21 § Registrations). A breach names its cavern and place (`announce.cavern_breached`; `announce.cavern_breached_unplaced` without them), and a day's monsters of one cavern are one line (`announce.monster_spawned`, `announce.monster_spawned_many`; 18 § Cavern monsters). The once-per-alert line of sheltering dwarves locked away from their drink or their food is `announce.shut_in.thirst` or `announce.shut_in.hunger` (19 § Hearth alert retreat).
 
 ### Announcement strings
 
@@ -702,8 +702,10 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 | `ui.threats.size.few` | "a few" |
 | `ui.threats.size.band` | "a band" |
 | `ui.threats.size.horde` | "a horde" |
-| `ui.threats.cavern_breached_at` | "{n}: breached at ({x},{y},z{z})" |
-| `ui.threats.cavern_monsters` | "monsters {n}" |
+| `ui.threats.cavern_breached_at` | "{n}: open at ({x},{y},z{z})" |
+| `ui.threats.cavern_monsters` | "{n\|monster\|monsters}, {reach} can reach the halls" |
+| `ui.threats.cavern_no_monsters` | "no monsters" |
+| `ui.threats.reach_none` | "none" |
 | `ui.rot.fresh` | "fresh" |
 | `ui.rot.stale` | "stale" |
 | `ui.rot.rotten` | "rotten" |

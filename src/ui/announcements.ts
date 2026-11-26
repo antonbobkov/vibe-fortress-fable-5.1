@@ -33,6 +33,7 @@ import { moodTierName } from './panels/mood';
 import { overGrazed, pastureFeed } from './pasture';
 import { calmTail, raidArrival, raidEndedText, raidGone, sizeWords, stolenGoodsText, stolenOf, theftKey, warningWhen, type Stolen } from './raid-lines';
 import { ShutInWatch } from './shut-in';
+import { fortressLabels, reachesFortress } from './cavern-reach';
 import type { Strings } from './strings';
 
 export type Severity = 'note' | 'alert' | 'danger';
@@ -168,6 +169,8 @@ export class AnnouncementLog {
   private readonly thoughtLines = new Map<string, { line: LogLine; tick: number; ids: number[]; names: string[] }>();
   /** Where each party's last line put it, for a line that comes after it left the map (a theft, its raid's end; not saved). */
   private readonly partyTiles = new Map<number, TileIndex>();
+  /** The day's line of each cavern's monsters and the species it counts, in the order they came (`announceMonster`; not saved). */
+  private readonly monsterLines = new Map<number, { line: LogLine; counts: Map<number, number> }>();
   /** The fortress dwarves whose death lines came within the day, by id (`rememberDeath`; not saved). */
   private readonly deaths = new Map<number, DeathRecord>();
   /** The standing alerts' templates as patterns (`templateOf`). */
@@ -315,6 +318,13 @@ export class AnnouncementLog {
     if (event.type === 'WorkOrderSkipped' && (typeof recipeId === 'string' || typeof recipeId === 'number')) {
       const name = readers.has('12') ? readers.of<WorkshopsReader>('12').recipe(recipeId)?.name : undefined;
       out['recipe'] = name === undefined ? String(recipeId).replace(/_/g, ' ') : name.charAt(0).toLowerCase() + name.slice(1);
+    }
+    // 18 § Player-facing behavior: a breach names its place ("Cavern 2 is open at (2,14,z13).").
+    if (event.type === 'CavernBreached' && typeof e['tile'] === 'number' && e['tile'] >= 0) {
+      const at = readers.map.unpack(e['tile']);
+      out['x'] = at.x;
+      out['y'] = at.y;
+      out['z'] = at.z;
     }
     if (event.type === 'IceMelted') out['place'] = this.icePlace(readers, (e['tiles'] as readonly TileIndex[] | undefined) ?? []);
     if (event.type === 'PlotNeedsSeeds') out['plot'] = zoneName({ readers, strings: this.strings }, Number(e['zoneId'])) || this.strings.get('ui.zone.type.farm_plot');
@@ -548,6 +558,7 @@ export class AnnouncementLog {
     if (event.type === 'MiasmaSpread') return this.announceMiasma(fields, readers, tick, spec);
     if (event.type === 'ThiefEscaped') return this.announceTheft(fields, readers, tick, spec);
     if (event.type === 'RaidEnded') return this.announceRaidEnded(fields, readers, tick, spec);
+    if (event.type === 'MonsterSpawned') return this.announceMonster(fields, readers, tick, spec);
     if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
@@ -579,6 +590,8 @@ export class AnnouncementLog {
     const killTold = dwarfDeath && key === 'announce.died.killed_by' && typeof creatureId === 'number';
     if (killTold) this.killsTold.add(creatureId);
     if (event.type === 'ImmigrantsArrived') key = this.immigrantsLine(fields, readers, params) ?? key;
+    // A breach that names no cavern or place keeps the plain line.
+    if (event.type === 'CavernBreached' && (typeof fields['cavern'] !== 'number' || params['x'] === undefined)) key = 'announce.cavern_breached_unplaced';
     if (event.type === 'AnimalStarving') key = this.animalStarvingKey(creatureId, readers, params);
     const said = this.strings.get(key, params);
     // 18 § Registrations: under a Calm alert a raid's danger line says what the alert does and its keys, as true then.
@@ -828,6 +841,42 @@ export class AnnouncementLog {
     const gone = raidGone(readers, partyId) ? this.append('alert', this.strings.get('announce.raid_gone'), tick, undefined, undefined, 'announce.raid_gone') : null;
     const shown = gone ?? line;
     return shown === null ? null : { line: shown, severity: shown.severity, focus: undefined };
+  }
+
+  /**
+   * 18 § Player-facing behavior: a `MonsterSpawned` names its species and its cavern ("A blind stalker
+   * has appeared in cavern 2."). The monsters of one cavern on one day are one line, counted by
+   * species in the order they came ("2 cave crawlers and a giant cave spider have appeared in cavern
+   * 1."). A monster that cannot walk to any fortress dwarf ({@link reachesFortress}) makes no line;
+   * the Threats panel counts it. A later monster of the line changes it in place and returns null.
+   */
+  private announceMonster(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const id = Number(fields['id'] ?? 0);
+    const creature = readers.entities.get(id, C.Creature);
+    if (creature === undefined || !reachesFortress(readers, id, fortressLabels(readers))) return null;
+    const cavern = Number(fields['cavern'] ?? 0);
+    const open = this.monsterLines.get(cavern);
+    const same = open !== undefined && this.lines.includes(open.line) && dayIndexOf(open.line.tick) === dayIndexOf(tick);
+    const counts = same ? open.counts : new Map<number, number>();
+    counts.set(creature.species, (counts.get(creature.species) ?? 0) + 1);
+    const table = this.registry.table<NamedRow & { plural?: string }>('creatures');
+    const parts = Array.from(counts, ([species, n]) => n === 1
+      ? creatureWords(this.strings, this.registry, undefined, species)
+      : `${n} ${speciesPlural(table.byIndex(species))}`);
+    const monsters = parts.length === 1 ? parts[0] as string
+      : this.strings.get('announce.list_and', { list: parts.slice(0, -1).join(', '), last: parts[parts.length - 1] as string });
+    const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
+    const said = this.say(total === 1 ? spec.stringKey : 'announce.monster_spawned_many', { monsters, cavern });
+    if (same) {
+      open.line.text = capitalize(said.text);
+      open.line.key = said.key;
+      open.line.tick = tick;
+      return null;
+    }
+    const line = this.append(spec.severity, said.text, tick, focusOf({ type: 'MonsterSpawned', id } as unknown as GameEvent, readers), spec.category, said.key);
+    line.subject = id;
+    this.monsterLines.set(cavern, { line, counts });
+    return { line, severity: spec.severity, focus: line.focus };
   }
 
   /**

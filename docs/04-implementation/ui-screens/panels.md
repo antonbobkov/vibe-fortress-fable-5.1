@@ -583,8 +583,8 @@ The clickable `[c] cap` action opens an inline number field for the selected spe
 │ bear ×1  near the hall              │
 │ wolf ×3  far                        │
 │ ── Caverns ─────────────────────── │
-│ 1: breached at (84,73,z22)          │
-│    monsters 4                       │
+│ 1: open at (84,73,z22)              │
+│    4 monsters, 1 can reach the halls│
 │ 2: sealed                           │
 │ ── The Deep ────────────────────── │
 │ Pressure ▓▓▓░░░░░░░ 30 / 50 (lvl 0) │
