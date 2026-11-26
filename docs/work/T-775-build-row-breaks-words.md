@@ -28,10 +28,11 @@ Decisions:
 
 - **The count may go to its own row.** The no-break space between the last input and the count is an ordinary space, so a row that does not fit puts "(no mechanism)" on the next row: "1 mechanism+1 cage" / "(no mechanism)". Inside the count the spaces stay no-break, and each input stays whole with its number, as now.
 - **A token longer than the row is still cut**, but only one that is longer alone (an input name of more than a row's cells), never two joined tokens.
+- **Made in the work (2026-11-25):** the inputs of a row ("1 mechanism+1 cage") stay one word, as before: the `+` is not a break. Every list of inputs in the six categories fits a 29-cell hanging row, and the test over all six at 31 cells would catch one that did not. Where the inputs fit beside the name, the name keeps them on its first row ("Cage trap 1 mechanism+1 cage" / "(no mechanism)"); a longer one goes under the name ("Weapon trap" / "1 mechanism+1 weapon" / "(no mechanism)").
 
 Spec: `ui-screens/fortress-screen.md` § Build tool (a sentence on how a row too long for its line wraps).
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): the Traps rows at 31 cells with no mechanism wrap as "1 mechanism+1 cage" / "(no mechanism)", and no row of Build's six categories at 31 cells has a line that ends inside a word.
-- [ ] UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): the Traps rows at 31 cells with no mechanism wrap as "1 mechanism+1 cage" / "(no mechanism)", and no row of Build's six categories at 31 cells has a line that ends inside a word.
+- [x] UI only: no world hash moves.

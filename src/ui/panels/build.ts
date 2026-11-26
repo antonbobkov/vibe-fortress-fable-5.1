@@ -80,12 +80,14 @@ export function buildRowText(name: string, inputs: string, count: string, width:
 /**
  * A row of the build list: one row laid out by {@link buildRowText} when the name, the inputs and the
  * count fit `width` cells; otherwise the whole text, to be wrapped under the name, each input kept
- * with its number and the count whole with the last input (no-break spaces): "(no stone)" is not cut.
+ * with its number and the count kept whole (no-break spaces). The space before the count is an
+ * ordinary one, so a count that does not fit after the last input goes to a row of its own:
+ * "1 mechanism+1 cage" / "(no mechanism)", never "(no mechanis" / "m)".
  */
 export function buildRowLines(name: string, inputs: string, count: string, width: number): string {
   if (Array.from(`${name} ${inputs}${count}`).length <= width) return buildRowText(name, inputs, count, width);
   const kept = inputs.replace(/(^|\+)(\d+|n) /g, '$1$2\u00a0');
-  return `${name} ${kept}${count.replace(/ /g, '\u00a0')}`;
+  return `${name} ${kept}${count.replace(/(?<=\S) /g, '\u00a0')}`;
 }
 
 /**
