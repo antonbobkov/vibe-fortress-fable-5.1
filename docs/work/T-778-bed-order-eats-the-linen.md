@@ -35,6 +35,14 @@ T763_PROBE=1 T763_SEEDS=probe-5,probe-3 T763_VARIANTS=busy T763_SHIFTS=0,17,331,
 
 The one death after the change is not a missing dressing: the cloth was there, a medic claimed the `stop_bleeding` job at hour 105 and had not started it when the dwarf bled out at hour 108 (`T763_DAMAGE=1` and a log of the job's events). Filed as a follow-up (`T-NEW-bandage-claimed-not-brought.md`).
 
+The rule does not move the long measurements, at `92ff4a9b`. Every seed, sample and verdict job passed on GitHub (the verdicts were also run locally on the downloaded samples while their jobs stood queued, with the same figures).
+
+| | Pooled | Shifts | Master | Bounds | Verdict |
+|---|---|---|---|---|---|
+| Sweep [45776716702](https://github.com/antonbobkov/vibe-fortress-fable-5.1/actions/runs/45776716702): living at year 3 | 1171 | 1152, 1179, 1169, 1184 | about 1169.25 | ≥ 1046.63 | pass |
+| Sweep: dwarf deaths | 110.5 | 122, 115, 110, 95 | about 110.25 | ≤ 132.5 | pass |
+| Instrument [45776720362](https://github.com/antonbobkov/vibe-fortress-fable-5.1/actions/runs/45776720362): median, worst, second-worst, sum of the living, wildlife-free | 13, 8.25, 9.13, 150.25, 9 | | T-765's 13, 8.25, 9.13, 150.25, 9 | | pass |
+
 ## Done
 
 - [x] A decision in 17 or 12, with a test. (12 § Cloth kept for dressings, with 17 § Bandages first, `workshops-and-recipes.md`, `embark-catalog.md`, panels.md and the event catalog; `test/unit/workshops/t778-cloth-kept.test.ts`.)
