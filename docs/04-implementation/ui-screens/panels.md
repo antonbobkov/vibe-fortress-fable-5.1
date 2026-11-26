@@ -589,10 +589,15 @@ The clickable `[c] cap` action opens an inline number field for the selected spe
 │    4 monsters, 1 can reach the halls│
 │ 2: sealed                           │
 │ ── The Deep ────────────────────── │
-│ Pressure ▓▓▓░░░░░░░ 30 / 50 (lvl 0) │
-│ "Something below has not yet       │
-│  noticed."                          │
+│ Pressure ▓▓▓▓▓▓░░░░ 60 / 150        │
+│   (level 1)                         │
+│ "The Deep stirs. Something has      │
+│  noticed the pale metal being       │
+│  taken."                            │
+│ 3 hollow crawlers at the vein       │
 ```
+
+The Deep section shows once deepsilver has been found (18 § Player-facing behavior). Its pressure line ("Pressure ▓▓▓▓▓▓░░░░ 60 / 150 (level 1)") and the Deep's quote for its level wrap rather than cut. Under them, the Hollow-born on the map are named by species as the Active line names hostiles (one hiding and not yet spotted is left out), in the bad colour: "3 hollow crawlers at the vein" while every one stands within `HOLLOW_AT_VEIN_RADIUS` of the emergence base (18's `threats.emergenceBase()`, on its level or two above or below), else "… in the halls"; a click centres on the first. A breached cavern's row counts that cavern's own monsters, never the Hollow-born.
 
 The Wildlife section lists one row per dangerous species on the map (08 § Registrations) with its count and "near the hall" when one of them is within `NEAR_DWARF_RADIUS` of a dwarf on its level, else "far"; it is absent when none is on the map. With a row there, "Active: none" reads "Active: wildlife" (a hostile creature in view still reads as the hostiles it names).
 

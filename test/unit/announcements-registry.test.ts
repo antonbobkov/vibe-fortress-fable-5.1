@@ -96,6 +96,7 @@ const DOCUMENTED: readonly { event: string; severity: 'note' | 'alert' | 'danger
   { event: 'AmbushSprung', severity: 'danger', doc: '18' },
   { event: 'MonsterSpawned', severity: 'note', doc: '18' },
   { event: 'DeepStirred', severity: 'danger', doc: '18' },
+  { event: 'MonsterEmerged', severity: 'danger', doc: '18' },
   { event: 'RestlessRose', severity: 'alert', doc: '18' },
   // `19` § Registrations ("`TrapTriggered` (note; alert when a creature is caged)").
   { event: 'TrapTriggered', severity: 'note', doc: '19' },
@@ -152,7 +153,6 @@ const CONSUMED_ELSEWHERE: Readonly<Record<string, string>> = {
   PatientDischarged: 'the health section of the look panel',
   PatientHealed: 'the health section of the look panel',
   InfectionCured: 'the health section of the look panel',
-  MonsterEmerged: 'the threats panel',
   TrapRearmed: 'the look panel’s trap section',
   CaravanAtDepot: 'the depot and civilizations panels',
   CaravanAttacked: 'the civilizations panel (the catalog: "attacked → nothing")',

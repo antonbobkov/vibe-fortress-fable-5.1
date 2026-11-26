@@ -20,6 +20,7 @@ import { visibleHostileIds } from '../status';
 import { speciesPlural, withArticle } from '../messages';
 import { comingText, memberShown, partyActiveText, partyMakeupText } from '../raid-lines';
 import { fortressLabels, reachesFortress } from '../cavern-reach';
+import { HOLLOW_AT_VEIN_RADIUS } from '../constants';
 
 /** The Deep's line under its gauge, by level (18 § The Deep): `ui.threats.deep_quote.<level>`, the last for every level above. */
 export function deepQuote(level: number, strings: Strings): string {
@@ -257,30 +258,48 @@ export function drawThreatsPanel(
 
     const filled = Math.min(10, Math.max(0, Math.floor((pressure / Math.max(1, nextThresh)) * 10)));
     const bar = '▓'.repeat(filled) + '░'.repeat(10 - filled);
-    label(s, col, row, ctx.strings.get('ui.threats.pressure', { bar, pressure, next: nextThresh, level }), { width });
-    row += 1;
-
-    const quote = `"${deepQuote(level, ctx.strings)}"`;
-    if (quote.length <= width) {
-      label(s, col, row, quote, { fg: t.dim, width });
+    // The pressure line and the Deep's quote wrap rather than cut.
+    for (const part of wrapHang(ctx.strings.get('ui.threats.pressure', { bar, pressure, next: nextThresh, level }), width, 2)) {
+      if (row >= rect.row + rect.rows) break;
+      label(s, col, row, part, { width, keys: false });
       row += 1;
-    } else {
-      const words = quote.split(' ');
-      let line1 = '';
-      let line2 = '';
-      for (const w of words) {
-        if ((line1 + ' ' + w).trim().length <= width) {
-          line1 = (line1 + ' ' + w).trim();
-        } else {
-          line2 = (line2 + ' ' + w).trim();
+    }
+    for (const part of wrapHang(`"${deepQuote(level, ctx.strings)}"`, width, 1)) {
+      if (row >= rect.row + rect.rows) break;
+      label(s, col, row, part, { fg: t.dim, width, keys: false });
+      row += 1;
+    }
+    // The Hollow-born on the map, by species, at the vein or in the halls; a click centres on the first.
+    const hollow = hollowText(ctx, threats);
+    if (hollow !== null) {
+      for (const part of wrapHang(hollow.text, width, 2)) {
+        if (row >= rect.row + rect.rows) break;
+        label(s, col, row, part, { fg: t.bad, width, keys: false });
+        if (hollow.first !== null) {
+          const first = hollow.first;
+          s.hit({ col, row, cols: width, rows: 1 }, () => ctx.focusOn(first));
         }
-      }
-      label(s, col, row, line1, { fg: t.dim, width });
-      row += 1;
-      if (line2.length > 0 && row < rect.row + rect.rows) {
-        label(s, col, row, ` ${line2}`, { fg: t.dim, width });
         row += 1;
       }
     }
   }
+}
+
+/**
+ * The Deep's Hollow-born on the map and in view (18 § Player-facing behavior): "3 hollow crawlers at the vein" while
+ * every one stands within `HOLLOW_AT_VEIN_RADIUS` of the emergence base, on its level or two above or
+ * below; else "… in the halls". Null with none.
+ */
+export function hollowText(ctx: PanelContext, threats: ThreatsReader | null): { text: string; first: number | null } | null {
+  // A stalker that hides and is not yet spotted is not told.
+  const ids = (threats?.hollowBorn() ?? []).filter((id) => threats === null || !threats.isStealthed(id) || threats.isSpotted(id));
+  if (ids.length === 0) return null;
+  const base = threats?.emergenceBase() ?? -1;
+  const at = base < 0 ? null : ctx.readers.map.unpack(base);
+  const atVein = at !== null && ids.every((id) => {
+    const p = ctx.readers.entities.get(id, C.Position);
+    return p !== undefined && Math.abs(p.z - at.z) <= 2 && Math.max(Math.abs(p.x - at.x), Math.abs(p.y - at.y)) <= HOLLOW_AT_VEIN_RADIUS;
+  });
+  const list = hostilesText(ctx, ids);
+  return { text: ctx.strings.get(atVein ? 'ui.threats.hollow_vein' : 'ui.threats.hollow_halls', { list }), first: tileOf(ctx, ids[0] as EntityId) };
 }

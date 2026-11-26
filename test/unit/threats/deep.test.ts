@@ -21,7 +21,6 @@ import {
   checkHollowWave,
   findEmergenceBaseTile,
   findNearestFortressTarget,
-  findNearestWallTiles,
   handleDeepsilverMined,
   magmaWyrmLives,
   nextDeepThreshold,
@@ -156,7 +155,7 @@ describe('T-M6-11 The Deep', () => {
       expect(baseTile).toBe(t3);
     });
 
-    it('triggerDeepEmergence cracks nearest 4 wall tiles to Open and spawns Hollow-born', () => {
+    it('triggerDeepEmergence cracks the walls beside the base to floor and spawns Hollow-born', () => {
       const w = new TestWorld({ world: 'flat-test', seed: 'deep-emergence' });
       const events: GameEvent[] = [];
       const ctx = makeCtx(w, events);
@@ -198,9 +197,13 @@ describe('T-M6-11 The Deep', () => {
       expect(emergedEvent!['tile']).toBe(baseTile);
       expect(emergedEvent!['ids']).toEqual(spawnedIds);
 
-      // Check nearest walls were cracked to Open
-      const crackedTiles = findNearestWallTiles(w.map, baseTile, EMERGENCE_TILES);
-      expect(crackedTiles.length).toBeLessThanOrEqual(4);
+      // T-797: the four walls beside the base cracked to floor, each a spawn tile.
+      for (const wall of [wall1, wall2, wall3, wall4]) expect(w.map.kindAt(wall)).toBe(TileKind.Floor);
+      expect(EMERGENCE_TILES).toBe(4);
+      for (const id of spawnedIds) {
+        const p = w.game.world.entities.get(id, C.Position)!;
+        expect([wall1, wall2, wall3, wall4]).toContain(w.index(p.x, p.y, p.z));
+      }
     });
 
     it('handleDeepsilverMined accumulates pressure and triggers level 1 at 50 pressure', () => {

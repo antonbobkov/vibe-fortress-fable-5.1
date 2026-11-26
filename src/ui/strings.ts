@@ -685,7 +685,9 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.threats.cavern_breached': '{n}: open',
   'ui.threats.cavern_sealed': '{n}: sealed',
   'ui.threats.deep': 'The Deep',
-  'ui.threats.pressure': 'Pressure {bar} {pressure} / {next} (lvl {level})',
+  'ui.threats.pressure': 'Pressure {bar} {pressure} / {next} (level {level})',
+  'ui.threats.hollow_vein': '{list} at the vein',
+  'ui.threats.hollow_halls': '{list} in the halls',
   'ui.threats.deep_quote.0': 'Something below has not yet noticed.',
   'ui.threats.deep_quote.1': 'The Deep stirs. Something has noticed the pale metal being taken.',
   'ui.threats.deep_quote.2': 'The rock cracks below. The Hollow sends its hunters.',
@@ -2692,6 +2694,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.monster_spawned': '{monsters} has appeared in cavern {cavern}.',
   'announce.monster_spawned_many': '{monsters} have appeared in cavern {cavern}.',
   'announce.deep_stirred': 'The Deep stirs. Something has noticed the pale metal being taken.',
+  'announce.monster_emerged': 'The rock cracks at ({x},{y},z{z}): {monsters} comes up.',
+  'announce.monster_emerged_many': 'The rock cracks at ({x},{y},z{z}): {monsters} come up.',
   'announce.restless_rose': 'The restless dead rise.',
 });
 

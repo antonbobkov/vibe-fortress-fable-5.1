@@ -339,6 +339,7 @@ describe('T-M1-14 announcements', () => {
       AmbushSprung: 'danger',
       MonsterSpawned: 'note',
       DeepStirred: 'danger',
+      MonsterEmerged: 'danger',
       RestlessRose: 'alert',
       // T-504: 18 § Registrations (a raider that lost its nerve; a flight on blood is not announced).
       HostileFled: 'note',

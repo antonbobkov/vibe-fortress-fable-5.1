@@ -18,6 +18,9 @@ export const BREEDING_CAP_BIG_STEP = 10;
 /** Threat interruptions of one job within a day after which the Jobs panel says dwarves flee from it. */
 export const JOB_THREAT_FLIGHTS = 3;
 
+/** Tiles from the emergence base within which the Threats panel counts the Hollow-born "at the vein". */
+export const HOLLOW_AT_VEIN_RADIUS = 8;
+
 /** Log lines kept in memory. */
 export const LOG_MAX_LINES = 2000;
 

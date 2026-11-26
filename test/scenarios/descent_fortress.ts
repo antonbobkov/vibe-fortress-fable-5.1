@@ -56,22 +56,31 @@ export function setupDescentSurface(w: TestWorld): void {
     const sTile = map.index(21, 51 + i, hz);
     const sId = w.spawnDwarf({
       at: sTile,
-      skills: { crossbow: 15, armor_use: 15, dodge: 15 },
+      skills: { axe: 15, armor_use: 15, dodge: 15 },
       name: `Soldier ${i + 1}`,
     });
-    const xbow = w.spawnItem('crossbow', 'iron', sTile);
-    const bolts = w.spawnItem('bolt', 'iron', sTile, 50, 1);
+    // T-797: the Hollow-born walk out of the vein and up the shaft to the squad, where no bolt flies
+    // between levels: the squad goes armoured, with axes.
+    const axe = w.spawnItem('axe', 'iron', sTile, 1, 3);
+    const armor = { head: w.spawnItem('helm', 'iron', sTile), body: w.spawnItem('breastplate', 'iron', sTile),
+      arms: w.spawnItem('gauntlets', 'iron', sTile), legs: w.spawnItem('greaves', 'iron', sTile), feet: w.spawnItem('metal_boots', 'iron', sTile) };
+    for (const piece of Object.values(armor)) {
+      const item = w.game.world.entities.get(piece, C.Item)!;
+      item.carriedBy = sId;
+      item.flags |= ItemFlag.Owned;
+      item.ownerId = sId;
+    }
     w.game.world.entities.add(sId, C.Equipment, {
-      weapon: xbow,
+      weapon: axe,
       shield: 0,
-      armor: { head: 0, body: 0, arms: 0, legs: 0, feet: 0 },
+      armor,
       clothing: { body: 0, legs: 0, feet: 0, over: 0 },
       quiver: 0,
     });
-    const boltItem = w.game.world.entities.get(bolts, C.Item)!;
-    boltItem.carriedBy = sId;
-    boltItem.flags |= ItemFlag.Owned;
-    boltItem.ownerId = sId;
+    const axeItem = w.game.world.entities.get(axe, C.Item)!;
+    axeItem.carriedBy = sId;
+    axeItem.flags |= ItemFlag.Owned;
+    axeItem.ownerId = sId;
   }
 
   // Stockpiles & supplies at surface
