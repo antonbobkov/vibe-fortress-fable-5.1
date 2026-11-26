@@ -30,7 +30,7 @@ import type { RuinBuilding, RuinItem, RuinLoaded, RuinRecord, RuinWreck, WorldMa
 import type { HeadlessGame } from './headless';
 
 /** Item categories the looters favour (`02` § Ruins). */
-const VALUABLE = ['bar/metal', 'stone/gem', 'craft/', 'weapon/', 'armor/', 'ammo/'];
+const VALUABLE = ['bar/metal', 'stone/gem', 'craft/', 'weapon/', 'armor/', 'ammo'];
 /** Item categories that outlast the years between (`02` § Ruins); anything else rots or is gone. */
 const ORDINARY = ['furniture/', 'stone/raw', 'stone/block', 'stone/fossil', 'wood/', 'container/', 'tool/', 'bar/', 'ore'];
 

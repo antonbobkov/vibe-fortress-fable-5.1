@@ -143,7 +143,9 @@ function weaponItemType(w) {
   return compact({
     id: w.id,
     name: w.name,
-    category: w.launcher === undefined ? `weapon/${w.weaponClass}` : `weapon/ranged`,
+    // 13 § Category tree: a melee weapon (a training one too) under `weapon/melee`, a launcher under
+    // `weapon/ranged`; the class stays on the weapon's row.
+    category: w.launcher === undefined ? 'weapon/melee' : 'weapon/ranged',
     mult: w.mult,
     stack: 1,
     container: 'none',
@@ -165,7 +167,8 @@ function ammoItemType(a) {
   return compact({
     id: a.id,
     name: a.name,
-    category: `ammo/${a.id}`,
+    // 13 § Category tree: every ammunition under `ammo`, which has no child node.
+    category: 'ammo',
     mult: a.mult,
     stack: a.stack,
     container: 'bin',
