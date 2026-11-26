@@ -14,6 +14,12 @@ T-774 checked 13's category tree against the categories items use. Every item ty
 
 Spec: 13 § Category tree (unchanged), `ui-screens/panels.md` § Zones (unchanged).
 
+Found and decided while doing it:
+
+- **Stocks did not show these leaves either.** Stocks builds its tree from `CATEGORY_TREE` too (`src/ui/panels/stocks.ts`), so an item of a missing leaf counted toward its parent's total but had no row of its own: the embark's quiver made `tool` read 5 with rows for 2 picks and 2 axes only. With the leaves in the tree it has a `quiver` row under `tool`. This is what `panels.md` § Stocks already says (every node of the tree), so the spec is unchanged; the T-332 Stocks test now expects the quiver row before `textile`.
+- **No preset changes.** Every preset names a top node or an explicit leaf that was already in the tree; a test pins that every preset's nodes are nodes of the tree.
+- **No world hash moves.** `CATEGORY_TREE` is read by the UI (editor, Stocks, the goods-wait and building panels' ordering) and by `categoryNodes()`, which already added every prefix of an item type's path, so no command is accepted or refused differently and no item goes to another stockpile.
+
 ## Done
 
-- [ ] `CATEGORY_TREE` has every leaf of 13's tree; the test above passes.
+- [x] `CATEGORY_TREE` has every leaf of 13's tree; the test above passes.
