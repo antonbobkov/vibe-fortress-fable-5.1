@@ -25,6 +25,8 @@ export interface TradeSessionHost {
   /** Apply a queued command while the modal keeps the game paused. */
   commandTick(): void;
   back(): void;
+  /** Hide the open session until the player asks for it again (`Esc`); the session stays open. */
+  hide?(): void;
 }
 
 export interface TradeTotals {
@@ -180,7 +182,14 @@ export class TradeSessionScreen implements Screen {
     }
   }
 
-  private close(): void {
+  /** `Esc`: the screen hides and the game runs on; the trader waits at the depot, and `[t]` shows the screen again (20 § The session). */
+  private hide(): void {
+    this.host.hide?.();
+    this.host.back();
+  }
+
+  /** `[x]` done trading: the session ends for this visit and the trader goes back to work. */
+  private done(): void {
     this.host.submit({ type: 'TradeCancel' });
     this.host.commandTick();
     this.host.back();
@@ -188,7 +197,8 @@ export class TradeSessionScreen implements Screen {
 
   key(press: KeyPress): boolean {
     const k = press.key;
-    if (k === 'Esc' || k === 'Escape') { this.close(); return true; }
+    if (k === 'Esc' || k === 'Escape') { this.hide(); return true; }
+    if (k.toLowerCase() === 'x') { this.done(); return true; }
     if (k === 'Tab') { this.side = this.side === 'merchant' ? 'fortress' : 'merchant'; return true; }
     const state = this.side === 'merchant' ? this.left : this.right;
     const rows = this.goods(this.side);

@@ -474,7 +474,8 @@ The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 | `+` `-` | quantity |
 | `Enter` | offer |
 | `g` | gift (offer with nothing taken) |
-| `Esc` | close |
+| `Esc` | hide (the trader waits at the depot) |
+| `x` | done trading |
 | `Home` | none of the selected goods |
 | `End` | all of the selected goods |
 | `=` | quantity |

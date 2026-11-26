@@ -19,13 +19,14 @@ export const REQUEST_MAX = 8;
 export const DEPOT_WAIT_DAYS = 3;
 /** Tiles the search for where a caravan's way to the depot breaks visits at most (20 § Movement step 6). */
 export const CARAVAN_GAP_SEARCH_TILES = 40000;
-export const CARAVAN_STAY_DAYS = 5;
-/** T-517: a leave's limit, and how long within it a guard keeps fighting. */
+export const CARAVAN_STAY_DAYS = 5;/** T-517: a leave's limit, and how long within it a guard keeps fighting. */
 export const CARAVAN_LEAVE_DAYS = 2;
 export const CARAVAN_GUARD_FIGHT_DAYS = 1;
 export const DEPOT_HAUL_PRIORITY = 3;
 /** The `trade` job's priority, above the depot's hauls, so the trader does not wait behind the goods (20 § The session). */
 export const TRADE_JOB_PRIORITY = 2;
+/** Ticks of walking from the depot beyond which a Broker at a need leaves the trade to another trading dwarf (20 § The session); *unmeasured*. */
+export const TRADER_AWAY_TICKS = 200;
 export const MERCHANT_MARKUP = 120;
 /** Percent: a merchant good whose material the site lacks costs this much more (20 § The scarcity price). */
 export const SCARCITY_MARKUP = 250;

@@ -161,6 +161,8 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   offer: 'offer',
   'gift (offer with nothing taken)': 'gift',
   close: 'cancel',
+  'hide (the trader waits at the depot)': 'cancel',
+  'done trading': 'done_trading',
   'none of the selected goods': 'none',
   'all of the selected goods': 'all',
   'all of the selected goods, or none when all are chosen': 'all_or_none',

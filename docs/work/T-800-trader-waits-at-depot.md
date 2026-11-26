@@ -1,6 +1,6 @@
 # T-800 — The trader waits at the depot while the caravan does
 
-**Source:** playtest 8 ([report](../../reports/data/2026-11-26-playtest-8.md), finding 6) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** playtest 8 ([report](../../reports/data/2026-11-26-playtest-8.md), finding 6) · **Size:** S · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -26,9 +26,17 @@ Decisions taken here:
 - **The status line says when the trader has gone:** "Bjarni Marblehammer, the Broker, left the depot to sleep; back after."
 - **A dropped job retries.** A trade job that completes with the merchant away re-queues once.
 
+Decided in the work (ambiguity protocol):
+
+- **How the trader is held.** The `trade` job's producer holds completion back (`canComplete`) while the session is open, so the job stays `working`; no new job state. The session opens at that hold, not at completion. `[x]` "done trading" is `TradeCancel`, which now also cancels the held job (reason `player`); `Esc` only hides the screen (a UI flag, cleared by the next `TradeOpen`). The keys line is shortened to fit 80 columns: "[Tab] side [+]/[-] qty [a] all [Enter] Offer [g] Gift [x] Done [Esc] Hide".
+- **A trader called away.** When the held job is interrupted (a critical need or a threat), the session ends; the job keeps `traded` (the dwarf who opened a session with it) and its assigned worker, the depot's line says "… left the depot to sleep; back after.", and the session opens again when they are back. A stay that ends then raises no `TradeMissed`.
+- **Another trader goes** only when another dwarf with the trading labor is free of squad duty; otherwise the job waits for the Broker as before ("is asleep: on the way after."). "200 ticks from the depot" is `TRADER_AWAY_TICKS` = 200, read as straight-line tiles (the larger of the x and y distances, plus levels) × `STEP_COST` / the Broker's speed. A stand-in who has taken the job keeps it when the Broker wakes.
+- **The retry** re-queues once (`retried` on the new job) when the job completes with its trader eligible but no merchant or trader on the depot's footprint.
+- The spring caravan meeting the spring raid is decided in T-798.
+
 ## Done
 
-- [ ] The trader held at the depot through closed and reopened sessions; a test that closes and reopens the screen with no new trip.
-- [ ] Another trader takes over from a sleeping Broker; a test.
-- [ ] The status line; the retry; tests.
-- [ ] 20 § The session and `panels.md` § Trade session updated.
+- [x] The trader held at the depot through closed and reopened sessions; a test that closes and reopens the screen with no new trip.
+- [x] Another trader takes over from a sleeping Broker; a test.
+- [x] The status line; the retry; tests.
+- [x] 20 § The session and `panels.md` § Trade session updated (also § Depot's waiting line, `trade-session.md` and the keymap table).
