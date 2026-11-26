@@ -775,8 +775,8 @@ export class AnnouncementLog {
   }
 
   /**
-   * 19 § Hearth alert retreat: once in a Hearth alert for each need, the alert that its sheltering
-   * dwarves cannot reach their drink or their food behind the locked doors, with the count cut off
+   * 19 § Hearth alert retreat: once in a Hearth or Watch alert for each need, the alert that the dwarves
+   * the locks hold in cannot reach their drink or their food behind the locked doors, with the count cut off
    * now and what to do ("The drink is outside the locked doors: 8 dwarves are thirsty. [m] [1] opens
    * them; …"). Checked each game hour (`ShutInWatch`); its focus is the first such dwarf's tile.
    */

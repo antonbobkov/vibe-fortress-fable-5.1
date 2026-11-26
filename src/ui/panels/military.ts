@@ -30,7 +30,7 @@ import { creaturesAt } from './look';
 import { creatureWords } from '../announcements';
 import { listText, militaryNoSquad, wrapHang, wrapText, zoneName } from '../messages';
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
-import { cutOff, SHUT_NEEDS } from '../shut-in';
+import { cutOff, SHUT_NEEDS, type ShutNeed } from '../shut-in';
 import type { BuildingsReader } from '@systems/buildings';
 import { dwarvesOf, isDown } from './units';
 import type { MagicReader } from '@systems/magic';
@@ -284,6 +284,111 @@ export function alertLine(strings: Strings, alert: Alert, squads: readonly Pick<
   ]));
   if (parts.length === 0) return strings.get(doors === 'none' ? 'ui.military.alert_calm' : 'ui.military.alert_calm_doors');
   return strings.get(doors === 'none' ? 'ui.military.alert_calm_but' : 'ui.military.alert_calm_but_doors', { list: listText(strings, parts, 'and') });
+}
+
+/**
+ * The Thirsty or Hungry line while the locked doors keep dwarves from the fortress's drink or food
+ * (`shut-in.ts`), and, when soldiers on duty are among them, a second line naming their squads in
+ * the squads' order: "Thirsty: 5 cannot reach drink behind the locked doors.", "3 of them are
+ * soldiers of Gate Guard."; empty when nobody is cut off.
+ */
+export function cutOffLines(ctx: PanelContext, need: ShutNeed): string[] {
+  const ids = cutOff(ctx.readers, need);
+  if (ids.length === 0) return [];
+  const lines = [ctx.strings.get(`ui.military.cut_off.${need}`, { n: ids.length })];
+  const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : null;
+  const soldiers = combat === null ? [] : ids.filter((id) => combat.onDuty(id));
+  if (combat !== null && soldiers.length > 0) {
+    const squads = combat.squads().filter((sq) => soldiers.some((id) => sq.members.includes(id))).map((sq) => sq.name);
+    lines.push(ctx.strings.get('ui.military.cut_off_soldiers', { n: soldiers.length, squads: listText(ctx.strings, squads, 'and') }));
+  }
+  return lines;
+}
+
+/**
+ * The squad's mode as the alert makes it (16 § Squads: under a `watchful` or `hearth` alert every
+ * squad is treated as `active`): the set mode alone ("off") under Calm or for an active squad, else
+ * the set mode and what the alert makes it, "off→act" (or "trn→act") in the squads table's eight
+ * cells and "Mode: off · active while the alert is Hearth" on the Mode line.
+ */
+export function modeText(strings: Strings, alert: Alert, mode: SquadWithId['mode'], where: 'cell' | 'line'): string {
+  const raised = alert !== 'calm' && mode !== 'active';
+  if (where === 'cell') return raised ? strings.get(`ui.military.mode_cell_alert.${mode}`) : mode;
+  return raised
+    ? strings.get('ui.military.mode_alert', { mode, level: strings.get(`ui.military.alert_level.${alert}`) })
+    : strings.get('ui.military.mode', { mode });
+}
+
+/**
+ * The point a squad on duty stands at by its station: a `station` order's point, else the squad's
+ * station while it has no other order (16 § Squads, `fixedPost`); null with neither, and for a squad
+ * that is not on duty (off, or training, under a calm alert).
+ */
+function stationPoint(squad: SquadWithId, alert: Alert): TileIndex | null {
+  if (alert === 'calm' && squad.mode !== 'active') return null;
+  const order = squad.orders[0];
+  if (order !== undefined) return order.kind === 'station' ? order.tile : null;
+  return squad.station;
+}
+
+/**
+ * Whether the squad's members can walk to its station (`ui-screens/panels.md` § Military): `reach`
+ * when they can, or there is no station or nobody standing; `locked` when the alert's locked Lock on
+ * alert doors stand between (the station would be reachable with those locks ignored); `none`
+ * otherwise. Read from the walker connectivity labels where most members stand, not by a search:
+ * the regions the locked doors border are joined across them.
+ */
+export function stationReach(ctx: PanelContext, squad: SquadWithId): 'reach' | 'locked' | 'none' {
+  const { readers } = ctx;
+  if (!readers.has('16')) return 'reach';
+  const point = stationPoint(squad, readers.of<CombatReader>('16').alert());
+  if (point === null) return 'reach';
+  const map = readers.map;
+  const counts = new Map<number, number>();
+  for (const id of squad.members) {
+    if (isDown(ctx, id)) continue;
+    const p = readers.entities.get(id, C.Position);
+    const label = p === undefined ? 0 : readers.pathing.labelOf(map.index(p.x, p.y, p.z), 'walker');
+    if (label !== 0) counts.set(label, (counts.get(label) ?? 0) + 1);
+  }
+  let from = 0;
+  let most = 0;
+  for (const [label, n] of counts) if (n > most) { from = label; most = n; }
+  if (from === 0) return 'reach';
+  const to = readers.pathing.labelOf(point, 'walker');
+  if (to === from) return 'reach';
+  if (to === 0 || !readers.has('14')) return 'none';
+  // Join the regions on either side of each alert-locked door (and doors that touch one another).
+  const parent = new Map<number, number>();
+  const find = (k: number): number => {
+    let r = k;
+    while (parent.has(r) && parent.get(r) !== r) r = parent.get(r) as number;
+    return r;
+  };
+  const join = (a: number, b: number): void => { const ra = find(a); const rb = find(b); if (ra !== rb) parent.set(ra, rb); };
+  const buildings = readers.of<BuildingsReader>('14');
+  const doorTiles = new Set<TileIndex>();
+  for (const door of buildings.byTag('door')) {
+    const b = buildings.get(door);
+    if (b === undefined || b.mode !== 'lock_on_alert' || buildings.mechanismState(door) !== 'locked') continue;
+    for (const t of b.footprint) doorTiles.add(t);
+  }
+  // A door tile is keyed below zero, a region by its label.
+  for (const t of doorTiles) {
+    const x = t % map.w;
+    const y = Math.floor(t / map.w) % map.h;
+    const z = Math.floor(t / (map.w * map.h));
+    for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+      if ((dx === 0 && dy === 0) || x + dx < 0 || y + dy < 0 || x + dx >= map.w || y + dy >= map.h) continue;
+      const n = map.index(x + dx, y + dy, z);
+      if (doorTiles.has(n)) join(-1 - t, -1 - n);
+      else {
+        const label = readers.pathing.labelOf(n, 'walker');
+        if (label !== 0) join(-1 - t, label);
+      }
+    }
+  }
+  return find(from) === find(to) ? 'locked' : 'none';
 }
 
 export function shortDwarfName(fullName: string): string {
@@ -789,11 +894,9 @@ export function drawMilitaryPanel(
       row += 1;
     }
   }
-  // 19 § Hearth alert retreat: the sheltering civilians the locked doors keep from their drink or food.
-  for (const need of currentAlert === 'hearth' ? SHUT_NEEDS : []) {
-    const n = cutOff(ctx.readers, need).length;
-    if (n === 0) continue;
-    for (const line of wrapHang(ctx.strings.get(`ui.military.cut_off.${need}`, { n }), width, 2)) {
+  // 19 § Hearth alert retreat: the sheltered civilians and the soldiers on duty the locked doors keep from their drink or food.
+  for (const need of SHUT_NEEDS) {
+    for (const line of cutOffLines(ctx, need).flatMap((text) => wrapHang(text, width, 2))) {
       label(s, col, row, line, { fg: t.alert, width });
       row += 1;
     }
@@ -822,7 +925,7 @@ export function drawMilitaryPanel(
     squads.map((sq) => [
       sq.name,
       `${sq.members.length}/${SQUAD_MAX_SIZE}`,
-      sq.mode,
+      modeText(ctx.strings, currentAlert, sq.mode, 'cell'),
     ]),
     panel.list,
     (idx) => { panel.list.selected = idx; }
@@ -865,8 +968,11 @@ export function drawMilitaryPanel(
   captionButtons(s, col, row, ctx.strings.get('ui.military.leader_keys'), [() => panel.openChoice(ctx, 'leader'), () => panel.rename(ctx)], { width });
   row += 1;
 
-  label(s, col, row, ctx.strings.get('ui.military.mode', { mode: squad.mode }), { width });
-  row += 1;
+  // Under Watch or Hearth every squad is treated as active (16 § Squads): the line says so.
+  for (const part of wrapHang(modeText(ctx.strings, currentAlert, squad.mode, 'line'), width, 2)) {
+    label(s, col, row, part, { width });
+    row += 1;
+  }
   captionButtons(s, col, row, ctx.strings.get('ui.military.mode_keys'), [
     () => panel.changeMode(ctx, 'off', host),
     () => panel.changeMode(ctx, 'train', host),
@@ -964,6 +1070,14 @@ export function drawMilitaryPanel(
     },
   ], { width });
   row += 1;
+  // A station the members cannot walk to: the alert's locked doors, or no path at all.
+  const reach = panel.settingStation ? 'reach' : stationReach(ctx, squad);
+  if (reach !== 'reach') {
+    for (const part of wrapHang(ctx.strings.get(reach === 'locked' ? 'ui.military.station_locked_out' : 'ui.military.station_no_path'), width, 2)) {
+      label(s, col, row, part, { fg: t.alert, width });
+      row += 1;
+    }
+  }
 
   // Patrol line
   const patrolStr = squad.patrol && squad.patrol.length > 0 ? ctx.strings.get('ui.military.patrol_points', { n: squad.patrol.length }) : ctx.strings.get('ui.military.none');
