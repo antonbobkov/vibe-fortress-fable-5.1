@@ -478,6 +478,7 @@ The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 | `Home` | none of the selected goods |
 | `End` | all of the selected goods |
 | `=` | quantity |
+| `a` | all of the selected goods, or none when all are chosen |
 
 ### Game menu
 

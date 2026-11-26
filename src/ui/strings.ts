@@ -146,7 +146,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.trade.verdict.wooden': 'We do not care for wooden things.',
   'ui.trade.verdict.short': 'Not enough. Add {n} ☼ of goods.',
   'ui.trade.verdict.fair': 'A fair offer.',
-  'ui.trade.keys': '[Tab] switch side  [+]/[-] quantity  [Enter] Offer  [g] Gift  [Esc] Close',
+  'ui.trade.keys': '[Tab] side  [+]/[-] quantity  [a] all  [Enter] Offer  [g] Gift  [Esc] Close',
   // Lists in a line: "a, b and c" (`ui.list.and`), "a, b or c" (`ui.list.or`).
   'ui.list.and': '{rest} and {last}',
   'ui.list.or': '{rest} or {last}',
@@ -1138,6 +1138,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.stocks.melt': '[S-m] melt',
   'ui.stocks.to_depot': '[t] to depot',
   'ui.stocks.depot_pick': '[Space] pick  [t] move {n}  [Esc]',
+  'ui.stocks.depot_pick_left': '[Space] pick  [t] move {n} ({left} rotten left)  [Esc]',
   'ui.stocks.nothing_selected': 'Nothing is selected in the stocks list.',
   'ui.stocks.no_metal': 'Nothing here is metal: only metal items melt.',
   // Units panel (`fortress-screen.md` § Sidebar open).

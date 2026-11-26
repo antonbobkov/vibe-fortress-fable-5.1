@@ -115,7 +115,7 @@ describe('T-332 panels: civilizations, trade depot and trade session', () => {
     expect(rows[24]).toMatch(/Not enough\. Add 14 ☼ of goods\.$/);
     // The shortfall is drawn in the warning colour.
     expect(fgOfText(draw('trade_session'), 24, 'Not enough')).toBe(hexOf(theme.bad));
-    expect(rows[25]).toMatch(/\[Tab\] switch side {2}\[\+\]\/\[-\] quantity {2}\[Enter\] Offer {2}\[g\] Gift {2}\[Esc\] Close$/);
+    expect(rows[25]).toMatch(/\[Tab\] side {2}\[\+\]\/\[-\] quantity {2}\[a\] all {2}\[Enter\] Offer {2}\[g\] Gift {2}\[Esc\] Close$/);
   });
 });
 

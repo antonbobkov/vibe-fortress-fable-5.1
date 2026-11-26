@@ -108,7 +108,8 @@ describe('T-715 the trade does not wait behind the depot hauls', () => {
     const after = reader.depotItems().length;
     expect(after).toBeGreaterThan(before);
     const shown = text((s) => screen.draw(s), 100, 40);
-    expect(shown.match(/ 1 oak log /g)?.length ?? 0).toBe(Math.min(after, 17));
+    // Like stacks are one row (T-792): every log at the depot so far, on one row.
+    expect(shown).toContain(after === 1 ? ' 1 oak log ' : ` ${after} oak logs `);
     const left = reader.depotHauls(depot);
     if (left > 0) expect(shown).toContain(`${left} more on the way`);
     else expect(shown).not.toContain('more on the way');

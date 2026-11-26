@@ -1250,6 +1250,11 @@
     "action": "quantity"
   },
   {
+    "context": "trade_session",
+    "key": "a",
+    "action": "all of the selected goods, or none when all are chosen"
+  },
+  {
     "context": "game_menu",
     "key": "r",
     "action": "Resume"

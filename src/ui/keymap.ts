@@ -163,6 +163,7 @@ export const ACTION_IDS: Readonly<Record<string, string>> = Object.freeze({
   close: 'cancel',
   'none of the selected goods': 'none',
   'all of the selected goods': 'all',
+  'all of the selected goods, or none when all are chosen': 'all_or_none',
   // U-06: the labor manager and the multi-select lists of the units and military panels.
   'move the labor cursor (Shift+↑↓: mark the rows passed)': 'cursor',
   'mark the dwarf': 'mark',
