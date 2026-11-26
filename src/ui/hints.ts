@@ -34,6 +34,8 @@ export interface HintFacts {
   immigrationSkipped: boolean; raidEnded: boolean; cageTrapBuilt: boolean; doorBroken: boolean;
   deepsilverFound: boolean; cavernTwoBreached: boolean;
   haulingPressure?: boolean;
+  /** The third cavern was breached (the way to deepsilver). */
+  cavernThreeBreached?: boolean;
   squadExists?: boolean;
   predatorArrived?: boolean;
   /** A beast that hunts dwarves came while the fortress had no shelter for the Hearth alert. */
@@ -111,6 +113,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_troll': return f.doorBroken;
     case 'hint_deep': return f.deepsilverFound;
     case 'hint_magma': return f.cavernTwoBreached;
+    case 'hint_deep_cavern': return f.cavernThreeBreached === true;
     case 'hint_glowcap': return f.glowcapSeeds === true;
     case 'hint_runeforge': return f.runeforgePlaced === true;
     case 'hint_staff': return f.runeforgeBuilt === true;
@@ -246,6 +249,8 @@ export class HintEngine {
     if (event.type === 'Slept' && fields['onFloor'] === true && this.palletMaterials(readers)) this.markId('hint_pallet');
     if (event.type === 'DoorBroken') this.markId('hint_troll');
     if (event.type === 'CavernBreached' && fields['cavern'] === 2) this.markId('hint_magma');
+    // 03 stage 7: deepsilver lies within two tiles of magma, at z6 and below; the third cavern is the way there.
+    if (event.type === 'CavernBreached' && fields['cavern'] === 3) this.markId('hint_deep_cavern');
     if (event.type === 'CavernBreached') this.markId('hint_breach');
     // 13 § Rot: stage 1 is stale; a corpse is not food.
     if (event.type === 'ItemRotStage' && fields['stage'] === 1 && this.isFood(readers, Number(fields['id']))) this.markId('hint_rot');
@@ -423,6 +428,7 @@ export class HintEngine {
       immigrationSkipped: this.pending('hint_immigration'), raidEnded: this.pending('hint_gate'),
       cageTrapBuilt: this.pending('hint_cage'), doorBroken: this.pending('hint_troll'),
       deepsilverFound: this.pending('hint_deep'), cavernTwoBreached: this.pending('hint_magma'),
+      cavernThreeBreached: this.pending('hint_deep_cavern'),
       glowcapSeeds: items !== null && seed >= 0 && glowcap >= 0 && items.countMatching({ type: seed, materialId: glowcap }) > 0,
       runeforgePlaced: runeforges.length > 0,
       runeforgeBuilt: runeforges.some((id) => buildings?.get(id)?.state === 'built'),

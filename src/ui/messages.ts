@@ -682,6 +682,28 @@ export interface BlockedJob {
   readonly blockedReason: string | null;
   readonly tool: string | null;
   readonly inputs: readonly { readonly filter: object; readonly count: number; readonly reserved?: readonly number[]; readonly delivered: readonly number[] }[];
+  /** The job's data: a `threatened` job's hostile and its tile (`threatHostile`, `threatTile`). */
+  readonly data?: Readonly<Record<string, unknown>>;
+}
+
+/**
+ * The hostile a job remembers and where it stood, in words: "a cave crawler at (18,29,z21)"; '' when
+ * the job remembers none (11 § Job steps: a threat's interruption).
+ */
+export function jobThreatText(env: MessageEnv, data: Readonly<Record<string, unknown>> | undefined): string {
+  const hostile = data?.['threatHostile'];
+  const tile = data?.['threatTile'];
+  if (typeof hostile !== 'number' || typeof tile !== 'number' || tile < 0) return '';
+  return threatAtText(env, hostile, tile);
+}
+
+/** A hostile and a tile in words: "a cave crawler at (18,29,z21)". */
+export function threatAtText(env: MessageEnv, hostile: EntityId, tile: TileIndex): string {
+  const c = env.readers.entities.get(hostile, C.Creature);
+  const species = c === undefined ? undefined : env.registry.table<NamedRow>('creatures').byIndex(c.species);
+  const name = (species?.name ?? env.strings.get('ui.creature.unknown')).toLowerCase();
+  const at = env.readers.map.unpack(tile);
+  return env.strings.get('ui.jobs.threat_at', { creature: withArticle(env.strings, name), x: at.x, y: at.y, z: at.z });
 }
 
 /**
@@ -730,6 +752,11 @@ export function jobBlockText(env: MessageEnv, job: BlockedJob): { short: string;
     const tool = s.has(`ui.jobs.tool.${job.tool ?? ''}`) ? s.get(`ui.jobs.tool.${job.tool ?? ''}`) : s.get('ui.jobs.tool.any');
     const short = s.get('ui.jobs.reason.no_tool', { tool });
     return { short, long: s.get('ui.jobs.reason_long.no_tool', { tool }) };
+  }
+  if (reason === 'threatened') {
+    const what = jobThreatText(env, job.data);
+    const short = s.get('ui.jobs.reason.threatened');
+    return { short, long: what === '' ? s.get('ui.jobs.reason_long.threatened_any') : s.get('ui.jobs.reason_long.threatened', { what }) };
   }
   if (reason === 'no_worker') {
     const laborId = env.registry.table<{ id: string; labor?: string }>('jobTypes').byIndex(job.type)?.labor ?? '';

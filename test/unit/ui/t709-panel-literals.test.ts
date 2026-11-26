@@ -67,6 +67,6 @@ describe('T-709 panel texts are in the strings table', () => {
     expect([0, 1, 2, 3, 4].map((tier) => moodTierName(strings, tier))).toEqual(['Miserable', 'Unhappy', 'Fine', 'Content', 'Ecstatic']);
     expect(squadPresetNames(strings)[0]).toBe('The Hearthguard');
     expect(squadPresetNames(strings)).toHaveLength(8);
-    expect(strings.get('ui.threats.pressure', { bar: '▓░', pressure: 12, next: 50, level: 0 })).toBe('Pressure ▓░ 12 / 50 (lvl 0)');
+    expect(strings.get('ui.threats.pressure', { bar: '▓░', pressure: 12, next: 50, level: 0 })).toBe('Pressure ▓░ 12 / 50 (level 0)');
   });
 });

@@ -321,8 +321,9 @@ export class AnnouncementLog {
       const name = readers.has('12') ? readers.of<WorkshopsReader>('12').recipe(recipeId)?.name : undefined;
       out['recipe'] = name === undefined ? String(recipeId).replace(/_/g, ' ') : name.charAt(0).toLowerCase() + name.slice(1);
     }
-    // 18 § Player-facing behavior: a breach names its place ("Cavern 2 is open at (2,14,z13).").
-    if (event.type === 'CavernBreached' && typeof e['tile'] === 'number' && e['tile'] >= 0) {
+    // 18 § Player-facing behavior: a breach names its place ("Cavern 2 is open at (2,14,z13)."), as
+    // does a vein seen and not dug (03 § Discovery: "Deepsilver has been seen at (20,21,z4).").
+    if ((event.type === 'CavernBreached' || event.type === 'VeinFound') && typeof e['tile'] === 'number' && e['tile'] >= 0) {
       const at = readers.map.unpack(e['tile']);
       out['x'] = at.x;
       out['y'] = at.y;
@@ -561,6 +562,7 @@ export class AnnouncementLog {
     if (event.type === 'ThiefEscaped') return this.announceTheft(fields, readers, tick, spec);
     if (event.type === 'RaidEnded') return this.announceRaidEnded(fields, readers, tick, spec);
     if (event.type === 'MonsterSpawned') return this.announceMonster(fields, readers, tick, spec);
+    if (event.type === 'MonsterEmerged') return this.announceEmerged(fields, readers, tick, spec);
     if (typeof idleWorkshop === 'number') { this.history.workshopIdleNotes.push(idleWorkshop); this.history.workshopIdleNotes.sort((a, b) => a - b); }
     const creatureId = fields['id'];
     const dwarfDeath = event.type === 'CreatureDied' && typeof creatureId === 'number' &&
@@ -595,6 +597,8 @@ export class AnnouncementLog {
     // A breach that names no cavern or place keeps the plain line.
     if (event.type === 'CavernBreached' && (typeof fields['cavern'] !== 'number' || params['x'] === undefined)) key = 'announce.cavern_breached_unplaced';
     if (event.type === 'AnimalStarving') key = this.animalStarvingKey(creatureId, readers, params);
+    // 03 § Discovery: a vein seen when its tiles were discovered has no finder.
+    if (event.type === 'VeinFound' && fields['finderId'] === 0 && params['x'] !== undefined) key = 'announce.vein_seen';
     const said = this.strings.get(key, params);
     // 18 § Registrations: under a Calm alert a raid's danger line says what the alert does and its keys, as true then.
     const tail = raidArrival(fields) ? calmTail(this.strings, readers) : null;
@@ -843,6 +847,34 @@ export class AnnouncementLog {
     const gone = raidGone(readers, partyId) ? this.append('alert', this.strings.get('announce.raid_gone'), tick, undefined, undefined, 'announce.raid_gone') : null;
     const shown = gone ?? line;
     return shown === null ? null : { line: shown, severity: shown.severity, focus: undefined };
+  }
+
+  /**
+   * 18 § The Deep: an emergence says where the rock cracked and what came up, counted by species in
+   * the order they came: "The rock cracks at (20,23,z5): 3 hollow crawlers come up." Its focus is the
+   * emergence base, so [Enter] goes there.
+   */
+  private announceEmerged(fields: Record<string, unknown>, readers: ReaderSet, tick: number, spec: AnnouncementSpec): Announced | null {
+    const tile = fields['tile'];
+    const ids = Array.isArray(fields['ids']) ? (fields['ids'] as unknown[]).filter((id): id is number => typeof id === 'number') : [];
+    if (typeof tile !== 'number' || tile < 0 || ids.length === 0) return null;
+    const counts = new Map<number, number>();
+    for (const id of ids) {
+      const species = readers.entities.get(id, C.Creature)?.species;
+      if (species !== undefined) counts.set(species, (counts.get(species) ?? 0) + 1);
+    }
+    const table = this.registry.table<NamedRow & { plural?: string }>('creatures');
+    const parts = Array.from(counts, ([species, n]) => n === 1
+      ? creatureWords(this.strings, this.registry, undefined, species)
+      : `${n} ${speciesPlural(table.byIndex(species))}`);
+    if (parts.length === 0) return null;
+    const monsters = parts.length === 1 ? parts[0] as string
+      : this.strings.get('announce.list_and', { list: parts.slice(0, -1).join(', '), last: parts[parts.length - 1] as string });
+    const at = readers.map.unpack(tile);
+    const total = Array.from(counts.values()).reduce((a, b) => a + b, 0);
+    const said = this.say(total === 1 ? 'announce.monster_emerged' : 'announce.monster_emerged_many', { monsters, x: at.x, y: at.y, z: at.z });
+    const line = this.append(spec.severity, said.text, tick, tile, spec.category, said.key);
+    return { line, severity: spec.severity, focus: tile };
   }
 
   /**

@@ -339,6 +339,7 @@ describe('T-M1-14 announcements', () => {
       AmbushSprung: 'danger',
       MonsterSpawned: 'note',
       DeepStirred: 'danger',
+      MonsterEmerged: 'danger',
       RestlessRose: 'alert',
       // T-504: 18 § Registrations (a raider that lost its nerve; a flight on blood is not announced).
       HostileFled: 'note',
@@ -383,7 +384,8 @@ describe('T-M1-14 announcements', () => {
     const hematite = registry.table('materials').index('hematite');
     game.fortress.onEvents([{ type: 'VeinFound', material: hematite, tile: 5, finderId: 0 } as never]);
     expect(log.lines[0]?.severity).toBe('note');
-    expect(log.lines[0]?.text).toMatch(/has found hematite\.$/);
+    // T-801: a vein with no finder was seen, not dug.
+    expect(log.lines[0]?.text).toBe('Hematite has been seen at (5,0,z0).');
     game.fortress.onEvents([{ type: 'VeinFound', material: hematite, tile: 5, finderId: 0 } as never]);
     expect(log.lines).toHaveLength(1);
     expect(lineText(log.lines[0]!, strings)).toMatch(/ ×2$/);

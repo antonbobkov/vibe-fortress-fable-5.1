@@ -48,6 +48,7 @@ const positive: Record<string, Partial<HintFacts>> = {
   hint_troll: { doorBroken: true },
   hint_deep: { deepsilverFound: true },
   hint_magma: { cavernTwoBreached: true },
+  hint_deep_cavern: { cavernThreeBreached: true },
   hint_glowcap: { glowcapSeeds: true },
   hint_runeforge: { runeforgePlaced: true },
   hint_staff: { runeforgeBuilt: true },
@@ -72,7 +73,7 @@ const positive: Record<string, Partial<HintFacts>> = {
 describe('T-M4-16 year-one hints', () => {
   it('has an exact positive and negative predicate fixture for every authored hint', () => {
     const rows = contentRegistry().table('hints').ids();
-    expect(rows).toHaveLength(49);
+    expect(rows).toHaveLength(50);
     expect(rows.slice().sort()).toEqual(Object.keys(positive).sort());
     for (const id of rows) {
       expect(hintPredicate(id, base), `${id} baseline`).toBe(false);
@@ -88,7 +89,7 @@ describe('T-M4-16 year-one hints', () => {
     const ui = defaultUiState(32);
     const log = new AnnouncementLog(new Strings(registry), registry);
     const hints = new HintEngine(registry, ui, log);
-    expect(hints.registered).toHaveLength(49);
+    expect(hints.registered).toHaveLength(50);
     expect(hints.show('hint_dig', 1, false)).toBe(false);
     expect(ui.hintsShown).toEqual([]);
     expect(hints.show('hint_dig', 1)).toBe(true);

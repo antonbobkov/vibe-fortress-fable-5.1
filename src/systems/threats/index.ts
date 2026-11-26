@@ -79,6 +79,7 @@ import {
 import {
   type DeepState,
   checkHollowWave,
+  findEmergenceBaseTile,
   handleDeepsilverMined,
   handleDeepsilverWorked,
   spawnedHollowBorn,
@@ -185,6 +186,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       () => nextDeepThreshold(this.deepState.level),
       () => this.pendingArrivals,
       (n: number) => this.cavernMonsters(n),
+      () => Array.from(this.hollowBorn).filter((id) => ctx.world.entities.alive(id)).sort((a, b) => a - b),
+      () => findEmergenceBaseTile(ctx.world.map, this.deepsilverTiles),
     );
     ctx.register.panel({ id: 'threats', title: 'Threats', hotkey: 't' });
     ctx.register.announcement('ThreatWarning', {
@@ -228,6 +231,10 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     ctx.register.announcement('DeepStirred', {
       severity: 'danger',
       stringKey: 'announce.deep_stirred',
+    });
+    ctx.register.announcement('MonsterEmerged', {
+      severity: 'danger',
+      stringKey: 'announce.monster_emerged',
     });
     ctx.register.announcement('RestlessRose', {
       severity: 'alert',

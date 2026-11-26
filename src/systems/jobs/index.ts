@@ -215,6 +215,7 @@ export class JobsSystem extends BaseSystem<JobsStateV1> {
         // § Job steps, interruptions (T-660): a critical need lets a worker carrying an input to a
         // building deliver it first; the job is interrupted when it has been put down.
         if (type === 'NeedCritical' && board.carriesInput(job, id)) job.data['interruptOnDelivery'] = true;
+        else if (type === 'ThreatNearby') board.threatInterrupt(id, event['hostileId'] as EntityId);
         else board.interrupt(id, true);
       }
     } else if (type === 'AlertChanged') {

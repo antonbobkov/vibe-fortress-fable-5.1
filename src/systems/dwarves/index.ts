@@ -389,7 +389,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
         if (!ctx.readers.has('17') || ctx.readers.of<HealthReader>('17').isConscious(id)) return null;
         const carry = ctx.readers.has('11') ? ctx.readers.of<JobsReader>('11').byKey(`carry_patient:${id}`) : undefined;
         return carry !== undefined && carry.workerId !== 0 ? CARRIED_ACTIVITY : UNCONSCIOUS_ACTIVITY;
-      });
+      },
+      (id) => (ctx.world.entities.get(id, C.Soldier)?.onDuty || this.threatTile(id) < 0 ? 0 : this.threatened.get(id)?.hostileId ?? 0));
     const jobTypes = ctx.registry.table<JobTypeRow>('jobTypes');
     this.host = {
       get hasJobs(): boolean {

@@ -5,7 +5,7 @@
  */
 
 import { C } from '@core/components';
-import { TileKind, type Map3D } from '@core/map3d';
+import { TileFlag, TileKind, type Map3D } from '@core/map3d';
 import type { TickContext } from '@core/system';
 import type { EntityId, TileIndex } from '@core/types';
 import { TICKS_PER_DAY } from '@core/constants';
@@ -15,6 +15,7 @@ import {
   EMERGENCE_TILES,
   HOLLOW_WAVE_DAYS,
 } from './constants';
+import { TerrainFacts } from '@systems/terrain/facts';
 import { findAdjacentLockedDoor } from './ai';
 
 export interface DeepThresholdRow {
@@ -80,41 +81,59 @@ export function findEmergenceBaseTile(
 }
 
 /**
- * Finds the nearest wall tiles around the emergence base tile.
+ * 18 § The Deep: where the rock cracks. A breadth-first walk through natural walls on the base's level,
+ * from the base and its walkable face neighbours (or, when the base is not walkable, from its first
+ * walkable neighbour on its level), each step to a face neighbour. The first `count` walls it meets crack, so every cracked tile is joined to the base's
+ * open side by the ones before it. A wall that `spared` names (deepsilver: the Hollow do not break the
+ * pale metal) and a constructed wall are neither cracked nor walked through. `spawn` is the cracked
+ * tiles, or, with none, the walk's first root (the base itself when it is walkable), or the base.
  */
-export function findNearestWallTiles(
+export function findCrackTiles(
   map: Map3D,
   baseTile: TileIndex,
   count: number,
-): TileIndex[] {
-  if (!map.validIndex(baseTile)) return [];
-  const baseX = map.xOf(baseTile);
-  const baseY = map.yOf(baseTile);
-  const baseZ = map.zOf(baseTile);
-
-  const candidates: { tile: TileIndex; dist: number }[] = [];
-
-  const zMin = Math.max(0, baseZ - 2);
-  const zMax = Math.min(map.d - 1, baseZ + 2);
-
-  for (let z = zMin; z <= zMax; z++) {
-    for (let dy = -15; dy <= 15; dy++) {
-      for (let dx = -15; dx <= 15; dx++) {
-        const x = baseX + dx;
-        const y = baseY + dy;
-        if (!map.inBounds(x, y, z)) continue;
-        const i = map.index(x, y, z);
-        if (map.kindAt(i) === TileKind.Wall) {
-          const dist = Math.max(Math.abs(dx), Math.abs(dy)) + Math.abs(z - baseZ) * 4;
-          candidates.push({ tile: i, dist });
-        }
-      }
+  walkable: (tile: TileIndex) => boolean,
+  spared: (material: number) => boolean = () => false,
+): { cracked: TileIndex[]; spawn: TileIndex[] } {
+  if (!map.validIndex(baseTile)) return { cracked: [], spawn: [] };
+  const z = map.zOf(baseTile);
+  const face = (t: TileIndex): TileIndex[] => {
+    const x = map.xOf(t);
+    const y = map.yOf(t);
+    const out: TileIndex[] = [];
+    for (const [dx, dy] of FACE_STEPS) {
+      const nx = x + dx;
+      const ny = y + dy;
+      if (map.inBounds(nx, ny, z)) out.push(map.index(nx, ny, z));
+    }
+    return out;
+  };
+  let roots: TileIndex[];
+  if (walkable(baseTile)) roots = [baseTile, ...face(baseTile).filter(walkable)];
+  else {
+    const first = map.neighbors8(baseTile).filter((t) => map.zOf(t) === z && walkable(t)).sort((a, b) => a - b)[0];
+    roots = first === undefined ? [] : [first];
+  }
+  const crackable = (t: TileIndex): boolean =>
+    map.kindAt(t) === TileKind.Wall && !map.hasFlag(t, TileFlag.Constructed) && !spared(map.materialAt(t));
+  const cracked: TileIndex[] = [];
+  const seen = new Set<TileIndex>(roots);
+  const queue = [...roots];
+  for (let head = 0; head < queue.length && cracked.length < count; head += 1) {
+    for (const n of face(queue[head] as TileIndex)) {
+      if (cracked.length >= count) break;
+      if (seen.has(n)) continue;
+      seen.add(n);
+      if (!crackable(n)) continue;
+      cracked.push(n);
+      queue.push(n);
     }
   }
-
-  candidates.sort((a, b) => a.dist - b.dist);
-  return candidates.slice(0, count).map((c) => c.tile);
+  return { cracked, spawn: cracked.length > 0 ? cracked : [roots[0] ?? baseTile] };
 }
+
+/** Face steps on a level, in a fixed order: west, east, north, south. */
+const FACE_STEPS: readonly (readonly [number, number])[] = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
 /**
  * Finds the nearest living fortress creature anywhere on the map.
@@ -152,7 +171,7 @@ export function findNearestFortressTarget(
 
 /**
  * Triggers a Deep emergence at the deepsilver location:
- * - Cracks EMERGENCE_TILES (4) wall tiles to open via terrain API
+ * - Cracks up to EMERGENCE_TILES (4) wall tiles joined to the base into floor via terrain API
  * - Spawns Hollow-born in them with faction 'deep'
  * - Targets nearest fortress creature anywhere on map
  * - Emits MonsterEmerged { ids, tile }
@@ -166,13 +185,16 @@ export function triggerDeepEmergence(
   const map = ctx.world.map;
   const baseTile = findEmergenceBaseTile(map, deepsilverTiles);
   if (baseTile < 0) return [];
-  const crackedWalls = findNearestWallTiles(map, baseTile, EMERGENCE_TILES);
+  const facts = new TerrainFacts(ctx.registry);
+  const { cracked, spawn } = findCrackTiles(map, baseTile, EMERGENCE_TILES, (t) => ctx.readers.map.isWalkable(t, 'walker'), (m) => facts.isDeepsilver(m));
 
-  for (const wt of crackedWalls) {
-    ctx.terrain.setKind(wt, TileKind.Open, 0);
+  // "The rock cracks": each cracked wall becomes what digging makes (03 § Tile transitions), a floor of
+  // its own material, the tile below kept; nothing drops.
+  for (const wt of cracked) {
+    ctx.terrain.setKind(wt, TileKind.Floor, map.materialAt(wt));
   }
 
-  const emergenceTiles = crackedWalls.length > 0 ? crackedWalls : [baseTile];
+  const emergenceTiles = spawn;
   const speciesTable = ctx.registry.table<{
     id: string;
     flags?: { stealth?: boolean; breaksDoors?: boolean };

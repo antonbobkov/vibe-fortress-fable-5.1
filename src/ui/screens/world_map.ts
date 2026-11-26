@@ -324,7 +324,7 @@ export class WorldMapScreen implements Screen {
       [s.get('ui.site.shrubs'), `${count(site.shrubs)}; ${s.get(site.grass ? 'ui.site.grass' : 'ui.site.no_grass')}`],
       [s.get('ui.site.water'), water.length > 0 ? water.join('; ') : s.get('ui.site.water_none')],
       [s.get('ui.site.stone'), s.get('ui.site.stone_value', { geology: s.get(`ui.site.geology.${site.stone.geology}`), layers: this.listOf(site.stone.layers.map(material)) })],
-      [s.get('ui.site.ores'), site.deepsilver ? `${ores}; ${s.get('ui.site.deepsilver')}` : ores],
+      [s.get('ui.site.ores'), site.deepsilver ? `${ores}; ${s.get('ui.site.deepsilver', { n: site.deepsilverDepth })}` : ores],
       [
         s.get('ui.site.climate'),
         s.get('ui.site.climate_value', { band: s.get(`ui.site.band.${c.band}`), mean: c.meanC, summer: c.summerC, winter: c.winterC }) +

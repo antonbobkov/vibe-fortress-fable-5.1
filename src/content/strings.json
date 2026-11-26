@@ -148,6 +148,7 @@
   "hint.hint_cellar": "A cellar must be dark and between 2 and 14 °C. Oak barrels age in a year, other wood in two.",
   "hint.hint_containers": "Stockpiles need barrels for drink and bags for seeds. The carpenter makes barrels; the clothier makes bags.",
   "hint.hint_deep": "Deepsilver lies beside the Sea of Fire. Taking it wakes the Hollow. The threats panel shows the Deep gauge.",
+  "hint.hint_deep_cavern": "The third cavern lies open. Deepsilver lies within two tiles of magma, at the bottom of the world: the Sea of Fire's rim and the magma pools of the deep caverns.",
   "hint.hint_depot": "Build a trade depot [b > Special] before the caravan arrives.",
   "hint.hint_dig": "Designate a place to dig with [d]. Dwarves dig into rock faces from the side.",
   "hint.hint_draught": "One draught, then three days' rest.",

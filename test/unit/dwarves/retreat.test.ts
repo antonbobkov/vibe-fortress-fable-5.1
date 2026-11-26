@@ -43,8 +43,8 @@ describe('F-16 retreat without shelter', () => {
 
   it('a nearby hostile still makes the shut-out civilian flee', () => {
     const { w, brain } = shutOut();
-    w.spawnCreature('gloam_warrior', w.index(36, 5, 32), 'hostile:gloam');
-    // Threat perception is geometric; the locked gate does not change flee precedence.
+    w.spawnCreature('gloam_warrior', w.index(40, 0, 32), 'hostile:gloam');
+    // A hostile on its own side of the locked gate can come at it (16 § Threat detection); shelter does not change flee precedence.
     w.until(() => brain()?.behavior === 'flee', 10);
     expect(brain()?.targetTile).toBeGreaterThanOrEqual(0);
   });

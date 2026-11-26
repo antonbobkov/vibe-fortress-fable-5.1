@@ -6,7 +6,7 @@ import { SEASON_NAMES } from '@core/calendar';
 import { C, type Party } from '@core/components';
 import { DAYS_PER_SEASON, DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import type { EntityStore } from '@core/entities';
-import type { EntityId } from '@core/types';
+import type { EntityId, TileIndex } from '@core/types';
 import type { ThreatScheduleEntry } from './schedule';
 import type { PendingArrivalState } from './state';
 import { hasMorale, moraleOf, moraleWord, type MoraleWord } from './morale';
@@ -55,6 +55,10 @@ export interface ThreatsReader {
   cavernMonsters(n: number): EntityId[];
   /** The warned parties still to come, soonest first. */
   coming(): readonly ComingParty[];
+  /** The living Hollow-born, ascending (the Threats panel's Deep count). */
+  hollowBorn(): EntityId[];
+  /** The tile the next emergence would crack at (§ The Deep), or -1 with no base. */
+  emergenceBase(): TileIndex;
 }
 
 export function makeThreatsReader(
@@ -67,6 +71,8 @@ export function makeThreatsReader(
   getDeepNextThreshold?: () => number,
   getPendingArrivals?: () => readonly PendingArrivalState[],
   getCavernMonsters?: (n: number) => EntityId[],
+  getHollowBorn?: () => EntityId[],
+  getEmergenceBase?: () => TileIndex,
 ): ThreatsReader {
   return {
     activeParties: () => {
@@ -111,6 +117,8 @@ export function makeThreatsReader(
     deepNextThreshold: () => getDeepNextThreshold?.() ?? 50,
     monstersInCavern: (n: number) => getMonstersInCavern?.(n) ?? 0,
     cavernMonsters: (n: number) => getCavernMonsters?.(n) ?? [],
+    hollowBorn: () => getHollowBorn?.() ?? [],
+    emergenceBase: () => getEmergenceBase?.() ?? -1,
     coming: () => (getPendingArrivals?.() ?? [])
       .filter((a) => a.warningEmitted)
       .map((a) => ({ kind: a.kind, civ: a.civ, sizeBand: sizeBandOf(a.size), edge: a.edge, arrivalTick: a.arrivalTick }))

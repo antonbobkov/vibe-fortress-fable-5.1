@@ -65,14 +65,16 @@ describe('T-332 screens: what each outside screen says', () => {
     expect(panel[11]).toBe('Water    none on the surface');
     expect(panel[12]).toMatch(/^Stone {4}metamorphic: /);
     expect(panel[14]).toMatch(/^Ores {5}likely /);
-    expect(panel[17]).toMatch(/^Climate {2}warm, about \d+°C; summer$/);
-    expect(panel[19]).toMatch(/^Wildlife dangerous: /);
+    // T-801: the Ores row ends with where and how deep deepsilver lies, two rows more.
+    expect(panel.slice(16, 19).join(' ')).toMatch(/^deepsilver likely, beside the Sea of Fire \(about \d+ levels down\)$/);
+    expect(panel[19]).toMatch(/^Climate {2}warm, about \d+°C; summer$/);
+    expect(panel[21]).toMatch(/^Wildlife dangerous: /);
     // T-550: what the site has and lacks, after Wildlife; the lacks in the alert colour; the soil goods first (T-599).
-    expect(panel.slice(22, 26)).toEqual(['This site has: clay, wood, honey,', 'nettle fiber, copper, gems.', 'This site lacks: salt crust, sand,', 'flux stone.']);
+    expect(panel.slice(24, 28).map((line) => line.replace(/ +▼$/, ''))).toEqual(['This site has: clay, wood, honey,', 'nettle fiber, copper, gems.', 'This site lacks: salt crust, sand,', 'flux stone.']);
     // The ratings, the trait and the neighbours are below the fold of this 32-row window: the panel scrolls.
-    expect(panel[26]).toMatch(/^Wealth +[▓░]{5} \d +▼$/);
-    expect(panel[27]).toBe('[f] filter  [?] legend');
-    expect(panel[28]).toBe('[Enter] Embark here');
+    expect(panel[27]).toMatch(/▼$/);
+    expect(panel[28]).toBe('[f] filter  [?] legend');
+    expect(panel[29]).toBe('[Enter] Embark here');
   });
 
   it('the Dwarves tab lists the seven dwarves with the cursor on the first, and details that dwarf: name, age, attributes, traits and skills', () => {

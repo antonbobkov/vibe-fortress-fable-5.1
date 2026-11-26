@@ -7,11 +7,12 @@
  */
 
 import { C, ItemFlag, type Worker } from '@core/components';
-import { PRIORITY_DEFAULT, TICKS_PER_YEAR } from '@core/constants';
+import { PRIORITY_DEFAULT, TICKS_PER_DAY, TICKS_PER_YEAR } from '@core/constants';
 import type { GameEvent } from '@core/events';
 import type { JobProducer, JobsApi, MovementApi, ReaderSetLike, TickContext, WorldLike } from '@core/system';
 import type { Registry } from '@core/registry';
 import type { EntityId, Priority, TileIndex } from '@core/types';
+import { hostileReaches } from '@systems/combat/threats';
 import { ADULT_AGE_YEARS, THREAT_RADIUS } from '@systems/dwarves/constants';
 import { burnsNear } from '@systems/dwarves/fire';
 import { shelterArea } from '@systems/dwarves/shelter';
@@ -686,6 +687,12 @@ export class JobBoard implements JobsApi, JobSink {
           continue;
         }
       }
+      if (reason === 'threatened') {
+        if (this.threatHolds(job)) {
+          job.retryTick = this.now + BLOCKED_RETRY_TICKS;
+          continue;
+        }
+      }
       if (reason === 'missing_input' || reason === 'no_tool') {
         if (!this.inputsAvailable(job)) {
           job.retryTick = this.now + BLOCKED_RETRY_TICKS;
@@ -1226,11 +1233,7 @@ export class JobBoard implements JobsApi, JobSink {
   private eligible(job: Job, workerId: EntityId): boolean {
     if (this.shelteredFrom(job, workerId)) return false;
     const threat = this.avoidedThreatTile(workerId);
-    if (threat >= 0) {
-      const map = this.world.map;
-      const target = this.anchorTile(job);
-      if (map.zOf(target) === map.zOf(threat) && Math.max(Math.abs(map.xOf(target) - map.xOf(threat)), Math.abs(map.yOf(target) - map.yOf(threat))) <= THREAT_RADIUS) return false;
-    }
+    if (threat >= 0 && this.avoidsThreat(job, threat)) return false;
     if (this.nearFire(job, workerId)) return false;
     const assigned = job.data['assignedWorker'];
     if (typeof assigned === 'number' && assigned !== 0 && assigned !== workerId) return false;
@@ -1246,10 +1249,81 @@ export class JobBoard implements JobsApi, JobSink {
     return this.hasReachableStand(job, workerId);
   }
 
+  /**
+   * `11` § Assignment: a civilian with a remembered threat skips a job whose anchor, or every one of whose
+   * stand tiles, lies on the threat's level within `THREAT_RADIUS` of its last seen tile. The stand tiles
+   * count because a stair is cut from the level above it.
+   */
+  avoidsThreat(job: Job, threat: TileIndex): boolean {
+    const anchor = this.anchorTile(job);
+    if (this.nearTile(anchor, threat)) return true;
+    // Stand tiles lie beside the anchor or one level above it (a stair's): nothing farther can be near.
+    const map = this.world.map;
+    if (!map.validIndex(anchor) || !map.validIndex(threat) || Math.abs(map.zOf(anchor) - map.zOf(threat)) > 1 ||
+      Math.max(Math.abs(map.xOf(anchor) - map.xOf(threat)), Math.abs(map.yOf(anchor) - map.yOf(threat))) > THREAT_RADIUS + 1) return false;
+    const stands = this.standTiles(job);
+    return stands.length > 0 && stands.every((t) => this.nearTile(t, threat));
+  }
+
+  /** Whether two tiles share a level and lie within `THREAT_RADIUS` of each other horizontally. */
+  private nearTile(a: TileIndex, b: TileIndex): boolean {
+    const map = this.world.map;
+    if (!map.validIndex(a) || !map.validIndex(b) || map.zOf(a) !== map.zOf(b)) return false;
+    return Math.max(Math.abs(map.xOf(a) - map.xOf(b)), Math.abs(map.yOf(a) - map.yOf(b))) <= THREAT_RADIUS;
+  }
+
+  /**
+   * `11` § Job steps, interruptions: a worker flees a hostile (`ThreatNearby`, 16). The job is interrupted
+   * with its progress kept, and remembers the hostile, where it stood and how many threats interrupted it
+   * within the day (the Jobs panel's "Interrupted: dwarves flee …"). When the hostile threatens every
+   * tile the job can be worked from ({@link threatHolds}), the job is blocked `threatened` and offered to
+   * nobody until the hostile is gone or no longer threatens it.
+   */
+  threatInterrupt(workerId: EntityId, hostileId: EntityId): void {
+    const jobId = this.workerOf(workerId).jobId;
+    const job = jobId === 0 ? undefined : this.jobs.get(jobId);
+    this.interrupt(workerId, true);
+    if (job === undefined || job.state !== 'open') return;
+    const since = job.data['threatSince'];
+    const fresh = typeof since !== 'number' || this.now - since >= TICKS_PER_DAY;
+    if (fresh) job.data['threatSince'] = this.now;
+    job.data['threatHits'] = (fresh ? 0 : Number(job.data['threatHits'] ?? 0)) + 1;
+    job.data['threatHostile'] = hostileId;
+    const pos = this.world.entities.get(hostileId, C.Position);
+    if (pos !== undefined) job.data['threatTile'] = this.world.map.index(pos.x, pos.y, pos.z);
+    if (this.threatHolds(job)) {
+      // As an unclaim: undelivered inputs go back to the fortress while the job waits; site inputs stay.
+      this.releaseReservations(job, true);
+      this.block(job, 'threatened');
+    }
+  }
+
+  /**
+   * Whether the hostile a job remembers (`data.threatHostile`) still threatens it: it lives, and every
+   * stand tile of the job (its anchor when it has none) lies on its level within `THREAT_RADIUS` and is
+   * one it can come at (16 § Threat detection).
+   */
+  threatHolds(job: Job): boolean {
+    const hostile = job.data['threatHostile'];
+    if (typeof hostile !== 'number' || hostile === 0 || !this.world.entities.alive(hostile)) return false;
+    const pos = this.world.entities.get(hostile, C.Position);
+    if (pos === undefined) return false;
+    const map = this.world.map;
+    const at = map.index(pos.x, pos.y, pos.z);
+    const stands = this.standTiles(job);
+    const tiles = stands.length > 0 ? stands : [this.anchorTile(job)];
+    return tiles.every((t) => this.nearTile(t, at) && hostileReaches(this.readers, this.world.entities, this.registry, hostile, at, t));
+  }
+
   /** A dwarf that fled a fire lately is offered no job whose tile lies within `FIRE_AVOID_RADIUS` of a burning tile (10 § Behavior selection, step 1). */
   private nearFire(job: Job, workerId: EntityId): boolean {
     if (!this.readers.has('10') || !this.readers.of<{ avoidsFire?(id: EntityId): boolean }>('10').avoidsFire?.(workerId)) return false;
     return burnsNear(this.world.map, this.anchorTile(job));
+  }
+
+  /** 10's `avoidedThreatTile` for a worker, or -1 (the jobs reader's `keptByThreat`). */
+  avoidedThreatTileOf(workerId: EntityId): TileIndex {
+    return this.avoidedThreatTile(workerId);
   }
 
   private avoidedThreatTile(workerId: EntityId): TileIndex {

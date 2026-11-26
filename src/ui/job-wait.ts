@@ -17,18 +17,19 @@
  */
 
 import { C } from '@core/components';
-import { PRIORITY_DEFAULT } from '@core/constants';
+import { PRIORITY_DEFAULT, TICKS_PER_DAY } from '@core/constants';
 import type { EntityId, TileIndex } from '@core/types';
 import type { CombatReader } from '@systems/combat';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { HealthReader } from '@systems/health';
 import type { ItemsReader } from '@systems/items';
 import type { Job, JobsReader } from '@systems/jobs';
-import { jobBlockText, type MessageEnv } from './messages';
+import { JOB_THREAT_FLIGHTS } from './constants';
+import { jobBlockText, jobThreatText, threatAtText, type MessageEnv } from './messages';
 import { activityLabel } from './panels/units';
 
 /** Why an open job waits, most decisive first. */
-export type JobWaitReason = 'no_labor' | 'on_duty' | 'hurt' | 'sheltering' | 'away' | 'tool_held' | 'tool_short' | 'ahead' | 'busy' | 'unreachable' | 'needs' | 'not_taken';
+export type JobWaitReason = 'no_labor' | 'on_duty' | 'hurt' | 'sheltering' | 'away' | 'fled' | 'tool_held' | 'tool_short' | 'ahead' | 'busy' | 'unreachable' | 'needs' | 'kept_by_threat' | 'not_taken';
 
 export interface JobWait {
   readonly reason: JobWaitReason;
@@ -137,6 +138,10 @@ export function jobWait(env: MessageEnv, job: Job): JobWait | null {
     return { reason: 'away', text: s.get('ui.job_wait.away', { whom, labor }) };
   }
 
+  // 11 § Job steps: a job that threats interrupted `JOB_THREAT_FLIGHTS` times within the day, its hostile alive.
+  const fled = fledText(env, job);
+  if (fled !== null) return { reason: 'fled', text: fled };
+
   const held = toolHeld(env, job, workers, available) ?? (assigned === 0 ? toolShort(env, job, workers, available) : null);
   if (held !== null) return held;
 
@@ -168,6 +173,15 @@ export function jobWait(env: MessageEnv, job: Job): JobWait | null {
   if (!free.some((id) => canReach(env, id, tile))) return { reason: 'unreachable', text: s.get('ui.job_wait.unreachable', { labor }) };
   if (free.every((id) => { const b = dwarves?.behavior(id) ?? ''; return b === 'need' || b === 'social'; })) {
     return { reason: 'needs', text: s.get(`ui.job_wait.needs.${free.length === available.length ? number : 'many'}`, { who, whom, labor }) };
+  }
+  // 11 § Assignment: every free one keeps clear of a remembered hostile near the job.
+  if (dwarves !== null && free.every((id) => jobs.keptByThreat(job.id, id))) {
+    const first = free[0] as EntityId;
+    const hostile = dwarves.avoidedThreat(first);
+    const tile = dwarves.avoidedThreatTile(first);
+    if (hostile !== 0 && tile >= 0) {
+      return { reason: 'kept_by_threat', text: s.get(`ui.job_wait.kept_by_threat.${free.length === 1 ? 'one' : 'many'}`, { name: name(first), n: free.length, labor, what: threatAtText(env, hostile, tile) }) };
+    }
   }
   const idle = free.length === 1 ? 'one' : 'many';
   return { reason: 'not_taken', text: s.get(`ui.job_wait.not_taken.${idle}`, { name: name(free[0] as EntityId), n: free.length, labor }) };
@@ -268,4 +282,16 @@ function toolShort(env: MessageEnv, job: Job, workers: readonly EntityId[], avai
     others: s.get(`ui.job_wait.tool_others.${n === 1 ? 'one' : 'many'}`, { n, labor }),
   };
   return { reason: 'tool_short', text: s.get(`ui.job_wait.tool_short.${holders.length === 1 ? 'one' : 'many'}`, params) };
+}
+
+/** "Interrupted: dwarves flee a cave crawler at (18,29,z21)." for a job threats interrupted often today; null otherwise. */
+function fledText(env: MessageEnv, job: Job): string | null {
+  const hits = job.data['threatHits'];
+  const since = job.data['threatSince'];
+  const hostile = job.data['threatHostile'];
+  if (typeof hits !== 'number' || hits < JOB_THREAT_FLIGHTS || typeof since !== 'number') return null;
+  if (env.readers.calendar.tick - since >= TICKS_PER_DAY) return null;
+  if (typeof hostile !== 'number' || !env.readers.entities.alive(hostile)) return null;
+  const what = jobThreatText(env, job.data);
+  return what === '' ? null : env.strings.get('ui.job_wait.fled', { what });
 }
