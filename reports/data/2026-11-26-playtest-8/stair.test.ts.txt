@@ -1,0 +1,110 @@
+/** Playtest 11-26 (not committed): why carve_stairs:47109 changes hands. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { C } from '@core/components';
+
+const SAVE = process.env['PT_SAVE'] ?? 'out/pt8/frostwatch-y4-au5-stair-stuck.bin';
+const KEY = 'carve_stairs:47109';
+const TICKS = Number(process.env['PT_TICKS'] ?? 3000);
+
+describe('pt8 stair', () => {
+  it('traces', async () => {
+    const { game } = await loadGame(new Uint8Array(readFileSync(SAVE)));
+    const map = game.map;
+    const ent = game.world.entities;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const board = (game.world.scheduler.byId('11') as any).board;
+    const jobId = board.byKeyMap.get(KEY) as number;
+    const p = (t: number): string => t < 0 ? String(t) : `(${map.xOf(t)},${map.yOf(t)},z${map.zOf(t)})`;
+    const now = (): number => game.world.calendar.tick;
+    const wt = (w: number): string => p(board.workerTile(w));
+    const job0 = board.jobs.get(jobId);
+    console.log('job', jobId, JSON.stringify(job0));
+    const stack = (): string => (new Error().stack ?? '').split('\n').slice(3, 9).map((s) => s.trim().replace(/\(.*src/, '(src')).join(' <- ');
+    const tool = (w: number): string => { const wk = ent.get(w, C.Worker) as { toolId: number } | undefined; return `tool=${wk?.toolId ?? '?'}`; };
+    const beh = (w: number): string => { const b = ent.get(w, C.Brain) as { behavior: string; activity: unknown } | undefined; return `${b?.behavior}/${String(b?.activity)}`; };
+
+    const origInterrupt = board.interrupt.bind(board);
+    board.interrupt = (w: number, keep: boolean): void => {
+      if (board.workerOf(w).jobId === jobId) console.log(`t${now()} INTERRUPT w${w} at ${wt(w)} ${tool(w)} ${beh(w)} :: ${stack()}`);
+      origInterrupt(w, keep);
+    };
+    const origUnclaim = board.unclaim.bind(board);
+    board.unclaim = (job: { id: number; workerId: number }, reason: string, ...rest: unknown[]): void => {
+      if (job.id === jobId) console.log(`t${now()} UNCLAIM w${job.workerId} ${reason} ${JSON.stringify(rest)} at ${wt(job.workerId)} :: ${stack()}`);
+      origUnclaim(job, reason, ...rest);
+    };
+    const origClaim = board.claim.bind(board);
+    board.claim = (w: number, job: { id: number; state: string; data: Record<string, unknown> }): boolean => {
+      const r = origClaim(w, job);
+      if (job.id === jobId) console.log(`t${now()} CLAIM w${w} -> ${r} at ${wt(w)} ${tool(w)} hasPick=${board.items.hasTool(w, 'pick')} data=${JSON.stringify(job.data)}`);
+      return r;
+    };
+    const origCancel = board.cancel.bind(board);
+    board.cancel = (id: number, reason: string): void => {
+      if (id === jobId) console.log(`t${now()} CANCEL ${reason} :: ${stack()}`);
+      origCancel(id, reason);
+    };
+    const origDied = board.workerDied.bind(board);
+    board.workerDied = (w: number, ...rest: unknown[]): void => {
+      if (board.workerOf(w).jobId === jobId) console.log(`t${now()} DIED w${w}`);
+      origDied(w, ...rest);
+    };
+    // Who else sets a worker's job to 0 (setWorker jobId:0) for our job?
+    const origSet = board.setWorker.bind(board);
+    board.setWorker = (w: number, patch: { jobId?: number }): void => {
+      if (patch.jobId === 0 && board.workerOf(w).jobId === jobId) console.log(`t${now()} SETWORKER0 w${w} :: ${stack()}`);
+      origSet(w, patch);
+    };
+
+    const needs = (w: number): string => { const n = ent.get(w, C.Needs) as Record<string, number> | undefined; return n ? `h${Math.round(n.hunger)} t${Math.round(n.thirst)} r${Math.round(n.rest)}` : ''; };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sys = game.world.scheduler.byId('11') as any;
+    const origHandle = sys.handle.bind(sys);
+    sys.handle = (ev: Record<string, unknown>, ctx: unknown): unknown => {
+      const id = ev['id'] as number;
+      if ((ev['type'] === 'NeedCritical' || ev['type'] === 'ThreatNearby') && typeof id === 'number' && board.workerOf(id).jobId === jobId) {
+        console.log(`t${now()} EVENT ${JSON.stringify(ev)} w at ${wt(id)} needs ${needs(id)}`);
+      }
+      return origHandle(ev, ctx);
+    };
+    const HOSTILE = Number(process.env['PT_HOSTILE'] ?? 16777222);
+    const probeHostile = (): void => {
+      const species = game.registry.table<{ id: string }>('creatures');
+      const cr = ent.get(HOSTILE, C.Creature) as unknown as { species: number; faction: string } | undefined;
+      const pos = ent.get(HOSTILE, C.Position) as { x: number; y: number; z: number } | undefined;
+      const hs = ent.get(HOSTILE, C.Hostile) as unknown;
+      const wild = ent.get(HOSTILE, C.Wild) as unknown;
+      const pathing = game.world.readers.pathing;
+      const ht = pos ? map.index(pos.x, pos.y, pos.z) : -1;
+      console.log(`HOSTILE ${HOSTILE} alive=${ent.alive(HOSTILE)} ${cr?.faction}:${species.rows[cr?.species ?? -1]?.id} at ${p(ht)} hostile=${JSON.stringify(hs)} wild=${JSON.stringify(wild)} label=${ht >= 0 ? pathing.labelOf(ht, 'walker') : '-'} standLabel=${pathing.labelOf(49413, 'walker')} brain=${JSON.stringify(ent.get(HOSTILE, C.Brain))}`);
+      if (pos) {
+        // the rows between the hostile and the stand tile on its z
+        for (let y = Math.min(pos.y, 21) - 1; y <= Math.max(pos.y, 21) + 1; y++) {
+          let row = '';
+          for (let x = Math.min(pos.x, 21) - 2; x <= Math.max(pos.x, 21) + 2; x++) {
+            const t = map.index(x, y, pos.z);
+            row += x === pos.x && y === pos.y ? 'H' : x === 21 && y === 21 ? 'S' : String(map.kindAt(t));
+          }
+          console.log(`  y${y} ${row}`);
+        }
+      }
+    };
+    probeHostile();
+    let last = '';
+    for (let i = 0; i < TICKS; i += 1) {
+      if (i > 0 && i % 2000 === 0) probeHostile();
+      game.step(1);
+      const job = board.jobs.get(jobId);
+      if (job === undefined) { console.log(`t${now()} job gone`); break; }
+      const s = `${job.state} w${job.workerId} stand=${String(job.data['standTile'])} prog=${job.progress} ttf=${String(job.data['toolToFetch'])}`;
+      if (s !== last || i % 100 === 0) {
+        const w = job.workerId;
+        const mv = w !== 0 ? (game.movement as unknown as { isWalking?(id: number): boolean }) : null;
+        console.log(`t${now()} ${s}${w ? ` at ${wt(w)} ${tool(w)} ${beh(w)} ${needs(w)} wjob=${board.workerOf(w).jobId} walking=${mv?.isWalking?.(w)}` : ''}`);
+        last = s;
+      }
+    }
+  }, 900_000);
+});
