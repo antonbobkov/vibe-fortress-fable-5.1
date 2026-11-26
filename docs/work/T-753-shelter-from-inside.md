@@ -31,8 +31,18 @@ Reading (not traced): the rule fires only for dwarves the search finds nothing f
 
 Found while trying it: with no hearth, the door locks 20 ticks into the alert on a dwarf walking to it from a few tiles out (`T-777-hearthless-door-shuts-out.md`, added with T-752–T-754). A squad member killed the tick before an invariant sample was still listed (sweep seed p4-1 at shift 50): fixed with T-752–T-754, a dead member or leader leaves its squad when its `CreatureDied` is handled (16 § Squads; `test/unit/combat/t753-dead-member-leaves-squad.test.ts`).
 
+**Narrowed rule (this pass).** When step 2's search finds no tile behind a door, a dwarf shelters on its own tile only when it stands in a room the alert shuts: its tile is indoor and not a doorway, and the indoor tiles it walks to without passing a door, hatch, floodgate or drawbridge (within `RETREAT_SEARCH_LIMIT`) reach at least one door, every door they reach is `lock_on_alert` or `locked`, and none of them steps onto an `outdoor` tile. Decided beyond the brief: the last clause (no open way out) is the same reading as the doors one, since a room open to the outdoors is not shut whatever its doors do; and a room too large to walk within the limit is not judged shut. Hatches, floodgates and drawbridges bound the room but are not judged.
+
 ## Done
 
-- [ ] Decide in 19 (and 10's step 2) whether a civilian already on the inner side of a door shelters where it stands, and under which doors.
-- [ ] Test: a civilian inside a one-door room shelters there under Hearth; the panel's no-shelter line does not count it.
-- [ ] If the rule changes the simulation: the sweep (against a probe with the rule off) and the defence check on GitHub.
+- [x] Decide in 19 (and 10's step 2) whether a civilian already on the inner side of a door shelters where it stands, and under which doors: only in a room the alert shuts (19 § Hearth alert retreat step 2; 10 § Behavior selection step 2).
+- [x] Test: a civilian inside a one-door room shelters there under Hearth (`lock_on_alert`, and a door locked by hand); the panel's no-shelter line does not count it; behind an `open` door, in a room with an open side, or under a roof with no door it has no shelter (`test/unit/defense/t753-shelter-from-inside.test.ts`).
+- [x] The sweep and the defence check on GitHub, the narrowed rule alone on master (branch `probe-t753-only`, 1d52842f), against the master figures and a sweep of the same master with only T-777 on (the rule off):
+
+  | Sweep | Run | Pooled living | Pooled deaths |
+  |---|---|---|---|
+  | Narrowed rule on (1d52842f) | 45775758880 | 1169.5 | 111 |
+  | Rule off, T-777 on (f9ba0194) | 45775769548 | 1171.25 | 110 |
+  | Master (as given) | — | about 1169.25 | 110.25 |
+
+  Verdict pass, every seed job passed; the two sweeps differ in two seed-shifts only (p4-4 at 100, p4-6 at 150), so the narrowed rule rarely fires in the sweep. Defence check (run 45775763301): raids turned back 7.25 of 8, a soldier killed 6.38 of 8, pass. Adopted.
