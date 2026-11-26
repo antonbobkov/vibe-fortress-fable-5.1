@@ -14,7 +14,13 @@ Decisions taken here:
 - The dwarf's view's Helps line for hunger or thirst reads "Helps: a way out: food is stored but none is on this dwarf's side (a wall, a coffin or a locked door)" while it holds, and its Activity line keeps what 10 says.
 - The check is the same one the starving line uses; it runs when the panel draws, for the dwarves at a critical hunger or thirst only.
 
+## Decisions made in the work
+
+- **Both, not either.** The Units list shows "Shut in" (`ui.units.shut_in`) in the alert colour in place of the activity, and puts such dwarves first on the Dwarves tab, before the `[w]` wounded order; no new filter key. The All tab gives a dwarf's activity as the Dwarves tab does, so it reads "Shut in" there too, in the alert colour, without the reordering. A dwarf that is down reads as down.
+- **The check** (`shutInNeed`, `shutInFrom` in `ui/shut-in.ts`) is `shutAway` for hunger or thirst at 10's critical mark, skipping a dwarf whose brain is on its way to serve that need (a brook or a well on its side serves thirst without a stored drink). It runs as the panels draw, and calls the reach search only for a dwarf at a critical mark.
+- **The Helps line** is per need: under `hungry` "a way out: food is stored but none is on this dwarf's side (a wall, a coffin or a locked door)", under `thirsty` the same with drink. It shows in the creature view and in the Mood panel's per-dwarf rows (both are "a dwarf's view"); the Mood summary, which speaks for many dwarves, keeps the stocks text. The view's Activity line is unchanged.
+
 ## Done
 
-- [ ] The Units mark and the view's Helps line; a test with a dwarf walled into a pocket and food on the surface.
-- [ ] `ui-screens/panels.md` § Units and the creature view describe it.
+- [x] The Units mark and the view's Helps line; a test with a dwarf walled into a pocket and food on the surface (`test/unit/ui/t794-shut-in-units.test.ts`).
+- [x] `ui-screens/panels.md` § Units and § Mood, and `fortress-screen.md` § Sidebar open and the creature view, describe it.

@@ -28,7 +28,7 @@ import type { MagicReader, SpellView } from '@systems/magic';
 import type { PlantsReader } from '@systems/plants';
 import { bodyPartNames, permanentText } from '@systems/health';
 import { DREAD_MAX_TARGETS, FIREBLOOM_DELAY_TICKS, FROSTBIND_SLOW_PERCENT, MAX_SUMMONS_PER_CASTER, METAL_RUNE_PENALTY_PERCENT, VIALS_PER_DAY } from '@systems/magic/constants';
-import { helpedThought, helpsText, moodTierName, thoughtText, weighedThoughts } from './mood';
+import { dwarfHelpsText, helpedThought, moodTierName, thoughtText, weighedThoughts } from './mood';
 import type { Surface } from '../surface';
 import { captionButtons, label, separator, wrapLabel } from '../widgets';
 import { HEALTH_PART_BAR_CELLS } from '../constants';
@@ -775,7 +775,7 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
       for (const thought of morale.thoughts(id)) {
         if (Math.round(thought.value) === 0) continue;
         wrapped('  ', thoughtText(thought));
-        const helps = thought.id === helped ? helpsText(strings, thought.id) : null;
+        const helps = thought.id === helped ? dwarfHelpsText(readers, strings, id, thought.id) : null;
         if (helps !== null) { wrapped('    ', helps, t.dim); helped = null; }
       }
     }

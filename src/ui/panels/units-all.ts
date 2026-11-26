@@ -14,7 +14,7 @@ import { creatureName, hasOwnName } from '../creature-name';
 import type { Strings } from '../strings';
 import type { PanelContext } from './context';
 import { creatureShown } from './look';
-import { activityLabel, idleLabel, isDown, isIdle } from './units';
+import { isDown, unitsActivity } from './units';
 
 /** The kinds of creature, in the All tab's order (the owner's: dwarves, tame, wild, visitors, hostiles), then the rest. */
 export const CREATURE_KINDS = ['dwarf', 'tame', 'wild', 'visitor', 'hostile', 'other'] as const;
@@ -107,7 +107,7 @@ export function creatureFact(ctx: PanelContext, row: CreatureRow): string {
   const e = readers.entities;
   const id = row.id;
   let fact = '';
-  if (row.kind === 'dwarf') fact = isIdle(ctx, id) ? idleLabel(ctx, id) : activityLabel(ctx, id);
+  if (row.kind === 'dwarf') fact = unitsActivity(ctx, id);
   else if (row.kind === 'tame') fact = strings.get((e.get(id, C.Tame)?.petOf ?? 0) !== 0 ? 'ui.units.fact.pet' : 'ui.units.fact.tame');
   else if (row.kind === 'visitor') fact = strings.get(e.has(id, C.Merchant) ? 'ui.units.fact.merchant' : 'ui.units.fact.caravan');
   else if (row.kind === 'wild' || row.kind === 'hostile') {
