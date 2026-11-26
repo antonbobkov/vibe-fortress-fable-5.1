@@ -28,7 +28,7 @@ import { listText, militaryNoSquad, wrapHang, wrapText, zoneName } from '../mess
 import { SQUAD_NAME_MAX_CHARS } from '../constants';
 import { cutOff, SHUT_NEEDS } from '../shut-in';
 import type { BuildingsReader } from '@systems/buildings';
-import { dwarvesOf } from './units';
+import { dwarvesOf, isDown } from './units';
 import type { MagicReader } from '@systems/magic';
 import { soldierTrigger } from '@systems/magic/draughts';
 import { armorStock, gearName, heldWeapon, isChannel, realWeaponFree, weaponRowOf, weaponStock, whereWeaponMade } from './gear';
@@ -68,11 +68,13 @@ export function squadPresetNames(strings: Strings): string[] {
  * alert colour while a member holds no weapon or one that is not of the squad's choice, or fights
  * with a training weapon ("wooden weapon, no harm done: …", 16 § Training), or holds one with no
  * real weapon free to take up in a fight; and, while the line is in the alert colour, "No spear in
- * stock: …" when none of the chosen class is free in stock but tools and training weapons. Null
- * for a squad with no members.
+ * stock: …" when none of the chosen class is free in stock but tools and training weapons. Only
+ * the members who are not down are counted; null when there are none.
  */
 export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly text: string; readonly alert: boolean; readonly stock: string | null } | null {
-  if (squad.members.length === 0) return null;
+  // A member who is down is counted in the status line ({@link squadStatus}), not here.
+  const members = squad.members.filter((id) => !isDown(ctx, id));
+  if (members.length === 0) return null;
   const { readers, registry, strings } = ctx;
   const pref = squad.equipment.weaponClass;
   const ranged = squad.equipment.ranged;
@@ -84,7 +86,7 @@ export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly te
   const without: EntityId[] = [];
   const harmless: EntityId[] = [];
   let wooden = 0;
-  for (const id of squad.members) {
+  for (const id of members) {
     const weapon = heldWeapon(readers, registry, id);
     const row = weapon === 0 ? undefined : weaponRowOf(readers, registry, weapon);
     if (row === undefined) unarmed.push(id);
@@ -94,7 +96,7 @@ export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly te
     if (row?.training === true && (readers.entities.get(id, C.Soldier)?.targetId ?? 0) !== 0) harmless.push(id);
   }
   const noun = wanted === 'any' ? strings.get(ranged ? 'ui.military.ranged_weapon_word' : 'ui.military.weapon_word') : wanted;
-  const counts = { n: squad.members.length - unarmed.length, m: squad.members.length, k: wooden };
+  const counts = { n: members.length - unarmed.length, m: members.length, k: wooden };
   const parts = [strings.get(wooden > 0 ? 'ui.military.armed_wooden' : 'ui.military.armed', counts)];
   if (unarmed.length > 0) parts.push(strings.get('ui.military.unarmed', { names: unarmed.map(name).join(', ') }));
   if (without.length > 0) parts.push(strings.get('ui.military.without', { weapon: noun, names: without.map(name).join(', ') }));
@@ -110,6 +112,62 @@ export function armedLines(ctx: PanelContext, squad: SquadWithId): { readonly te
     stockText = where === '' ? strings.get('ui.military.no_weapon_stock_any', { weapon: noun }) : strings.get('ui.military.no_weapon_stock', { weapon: noun, where });
   }
   return { text: parts.join(' · '), alert: lacking, stock: stockText };
+}
+
+/** What a member of a squad on duty is doing, in the order the status line counts them. */
+const SQUAD_STATES = ['at_post', 'standing', 'fighting', 'on_the_way', 'eating', 'drinking', 'asleep', 'on_break', 'in_hospital', 'down', 'fled'] as const;
+type SquadState = typeof SQUAD_STATES[number];
+
+/** The need errands a member on duty may leave its post for, by the activity 10 gives them. */
+const NEED_STATES: Readonly<Record<string, SquadState>> = { hunger: 'eating', thirst: 'drinking', sleep: 'asleep' };
+
+/**
+ * One member's part of the status line (`ui-screens/panels.md` § Military): down (17), in hospital,
+ * fled, serving a need (its brain behavior, 16 § Squads), fighting (a target), else by its post
+ * (`combat.postOf`): at it or within one tile of it, on the way to it, or standing with no post
+ * (on the way, under a patrol, a follow or a kill order).
+ */
+function memberState(ctx: PanelContext, squad: SquadWithId, id: EntityId): SquadState {
+  const { readers } = ctx;
+  if (isDown(ctx, id)) return 'down';
+  const brain = readers.entities.get(id, C.Brain);
+  if (brain?.behavior === 'patient') return 'in_hospital';
+  if (brain?.behavior === 'flee' || brain?.behavior === 'retreat') return 'fled';
+  if (brain?.behavior === 'need') return NEED_STATES[brain.activity] ?? 'on_break';
+  const combat = readers.of<CombatReader>('16');
+  if (combat.targetOf(id) !== 0) return 'fighting';
+  const post = combat.postOf(id);
+  if (post === null) return squad.orders.length > 0 || (squad.patrol?.length ?? 0) > 0 ? 'on_the_way' : 'standing';
+  const pos = readers.entities.get(id, C.Position);
+  const map = readers.map;
+  const near = pos !== undefined && pos.z === Math.floor(post / (map.w * map.h)) &&
+    Math.max(Math.abs(pos.x - post % map.w), Math.abs(pos.y - Math.floor(post / map.w) % map.h)) <= 1;
+  return near ? 'at_post' : 'on_the_way';
+}
+
+/**
+ * The squad's status line under its members' keys (`ui-screens/panels.md` § Military): how many
+ * stand at their post and what the others do, "Now: 2 at post · 1 on the way · 1 eating · 1 down
+ * (Fundin F.)", in the alert colour while a member is down or fled; "Off duty: at work." for a squad
+ * that is off under a calm alert. Null for a squad with no members.
+ */
+export function squadStatus(ctx: PanelContext, squad: SquadWithId): { readonly text: string; readonly alert: boolean } | null {
+  if (squad.members.length === 0 || !ctx.readers.has('16')) return null;
+  const strings = ctx.strings;
+  if (squad.mode === 'off' && ctx.readers.of<CombatReader>('16').alert() === 'calm') return { text: strings.get('ui.military.off_duty'), alert: false };
+  const counts = new Map<SquadState, EntityId[]>();
+  for (const id of squad.members) {
+    const state = memberState(ctx, squad, id);
+    counts.set(state, [...(counts.get(state) ?? []), id]);
+  }
+  const name = (id: EntityId): string => shortDwarfName(ctx.readers.entities.get(id, C.Creature)?.name ?? '');
+  const parts = SQUAD_STATES.filter((state) => counts.has(state)).map((state) => {
+    const ids = counts.get(state) ?? [];
+    return strings.get(`ui.military.now.${state}`, { n: ids.length, names: ids.map(name).join(', ') });
+  });
+  const list = parts.join(' · ');
+  const text = strings.get(counts.has('standing') ? 'ui.military.now_no_post' : 'ui.military.now', { list });
+  return { text, alert: counts.has('down') || counts.has('fled') };
 }
 
 /** A gear list's row: "spear (0)", "axe (1, a tool)", "sword (3, one wooden)", "any (4, 3 tools, one wooden)", "any (4, current)" (`ui-screens/panels.md` § Military). */
@@ -774,10 +832,21 @@ export function drawMilitaryPanel(
     return c ? `${shortDwarfName(c.name)}${mark === '' ? '' : ` ${mark}`}` : '?';
   });
   const membersStr = memberNames.length > 0 ? memberNames.join(', ') : ctx.strings.get('ui.military.none');
-  label(s, col, row, ctx.strings.get('ui.military.members', { list: membersStr }), { width });
-  row += 1;
+  // The members wrap under the caption, so every name is read.
+  for (const part of wrapHang(ctx.strings.get('ui.military.members', { list: membersStr }), width, 2)) {
+    label(s, col, row, part, { width });
+    row += 1;
+  }
   captionButtons(s, col, row, ctx.strings.get('ui.military.members_keys'), [() => panel.openChoice(ctx, 'add'), () => panel.openChoice(ctx, 'remove')], { width });
   row += 1;
+  // What the members are doing now: at their post, on the way, eating, down (16 § Squads).
+  const status = squadStatus(ctx, squad);
+  if (status !== null) {
+    for (const part of wrapHang(status.text, width, 2)) {
+      label(s, col, row, part, { fg: status.alert ? t.alert : t.text, width, keys: false });
+      row += 1;
+    }
+  }
   // What the members hold, and what to do when the stock has no weapon for them.
   const armed = armedLines(ctx, squad);
   if (armed !== null) {

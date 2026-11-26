@@ -193,6 +193,7 @@ The alert is the fortress's **engagement line**, one at a time. A blow between a
 - `combat.isHostile(a, b)`, `combat.factionOf(id)`, `combat.targetOf(id)`
 - `combat.lastEngagementTick(id)` — the last recorded melee or ranged attack opportunity, or undefined; reads the saved engagement map
 - `combat.squads()`, `combat.squad(id)`, `combat.squadOf(dwarfId)`, `combat.onDuty(dwarfId)`
+- `combat.postOf(dwarfId)` — the member's post as § Squads positions it now (its tile at a `station` order's point or the squad's station, its station shift's or barracks tile while the squad trains, its barracks tile), or null: under a patrol, follow or kill order, with nowhere to stand, and for a creature in no squad. A read: it moves no one
 - `combat.alert()`
 - `combat.weaponOf(id)`, `combat.armorOf(id)`, `combat.armorValue(id, part, damageType)` (for the inspector)
 - `combat.lineOfSight(from, to)` (delegates to 22; a glass wall does not block it)
@@ -220,7 +221,7 @@ Panel `military`; inspector section `creature › combat` (weapon, armor per par
 
 ## Player-facing behavior
 
-- Military panel: squads list; per squad: members (add several at once from a multi-select list, or from the marked dwarves of the units panel), how many hold a weapon and who holds none or one not of the squad's choice, with what to do when the stock has none of the chosen class (`ui-screens/panels.md` § Military), leader, name, barracks zone (the one it trains at by default when none is assigned), mode (on `train`, how many dwarves it takes off work, and, with no barracks at all, a warning that they cannot drill), equipment preferences, station and patrol placement on the map, orders (kill: click a creature; station: click a tile; patrol: click several tiles), alert selector at the top, with a line that says what the alert does and, under a calm alert, names the squads on duty, whose members work no job.
+- Military panel: squads list; per squad: members (add several at once from a multi-select list, or from the marked dwarves of the units panel), what they are doing now (how many stand at their post, and how many are fighting, on the way, eating, drinking, asleep, in hospital, down, named, or fled), how many of those not down hold a weapon and who holds none or one not of the squad's choice, with what to do when the stock has none of the chosen class (`ui-screens/panels.md` § Military), leader, name, barracks zone (the one it trains at by default when none is assigned), mode (on `train`, how many dwarves it takes off work, and, with no barracks at all, a warning that they cannot drill), equipment preferences, station and patrol placement on the map, orders (kill: click a creature; station: click a tile; patrol: click several tiles), alert selector at the top, with a line that says what the alert does and, under a calm alert, names the squads on duty, whose members work no job.
 - Combat log tab.
 - Glyphs: soldiers on duty are `☺` in green; projectiles `-`, `|`, `/`, `\` by direction.
 - Hints: "Make a squad and give it a station at the gate", "Training weapons let recruits spar safely", "Fortifications let crossbows shoot without being reached".
