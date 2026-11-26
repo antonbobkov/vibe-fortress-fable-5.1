@@ -19,6 +19,9 @@ import type { TargetManager } from './targets';
 import { soldierTrigger } from '@systems/magic/draughts';
 import { getBarracksForSquad, isOnStationShift } from './training';
 
+/** What a post is worked out from: the map, the readers and the tick (a tick's context, or the reader's view of the world). */
+type PostContext = Pick<TickContext, 'world' | 'readers' | 'tick'>;
+
 /**
  * Whether the squad controls a member now: not while its brain serves a need (travel to a bed and
  * sleep included), flees, retreats or is a patient (16 § Squads).
@@ -368,7 +371,7 @@ export function renameSquad(entities: EntityStore, cmd: Command): CommandResult 
  * 16 § Squads: the posts around a station: the point, then outward on its level through tiles a walker can
  * stand on, nearest first and ties by index, without passing through a door. As many as `count`, if there are.
  */
-function stationPosts(ctx: TickContext, point: TileIndex, count: number): TileIndex[] {
+function stationPosts(ctx: PostContext, point: TileIndex, count: number): TileIndex[] {
   const map = ctx.world.map;
   const pathing = ctx.readers.pathing;
   const doorAt = (t: TileIndex): boolean => ctx.readers.has('14') && ctx.readers.of<{ doorAt(i: TileIndex): boolean }>('14').doorAt(t);
@@ -395,7 +398,7 @@ function stationPosts(ctx: TickContext, point: TileIndex, count: number): TileIn
  * 16 § Squads: the posts of a squad at its barracks: the zone's tiles a walker can stand on, in the zone's
  * order, so no member is posted to a tile an archery target or other blocking building fills.
  */
-function barracksPosts(ctx: TickContext, tiles: readonly TileIndex[]): TileIndex[] {
+function barracksPosts(ctx: PostContext, tiles: readonly TileIndex[]): TileIndex[] {
   const map = ctx.world.map;
   const pathing = ctx.readers.pathing;
   const doorAt = (t: TileIndex): boolean => ctx.readers.has('14') && ctx.readers.of<{ doorAt(i: TileIndex): boolean }>('14').doorAt(t);
@@ -438,7 +441,7 @@ export function dropOrdersOf(entities: EntityStore, id: EntityId): void {
  * with nowhere to stand.
  */
 function fixedPost(
-  ctx: TickContext,
+  ctx: PostContext,
   squadId: EntityId,
   squad: Squad,
   m: EntityId,
@@ -475,6 +478,19 @@ function fixedPost(
     }
   }
   return null;
+}
+
+/**
+ * A member's fixed post now, as positioning gives it (`combat.postOf`, 16 § Squads): null for a
+ * creature in no squad, and as {@link fixedPost} says. A read: nothing moves, nothing is stored.
+ */
+export function memberPost(ctx: PostContext, alert: Alert, m: EntityId): TileIndex | null {
+  const entities = ctx.world.entities;
+  const squadId = entities.get(m, C.Soldier)?.squadId ?? 0;
+  const squad = squadId === 0 ? undefined : entities.get(squadId, C.Squad);
+  const pos = entities.get(m, C.Position);
+  if (squad === undefined || pos === undefined || !squad.members.includes(m)) return null;
+  return fixedPost(ctx, squadId, squad, m, ctx.world.map.index(pos.x, pos.y, pos.z), alert, squad.orders[0]);
 }
 
 export function stepSquads(

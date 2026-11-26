@@ -36,7 +36,7 @@ export interface BarracksInfo {
  * Finds the barracks zone assigned to a squad or available.
  */
 export function getBarracksForSquad(
-  ctx: TickContext,
+  ctx: Pick<TickContext, 'readers'>,
   squadId: EntityId,
   barracksZoneId: EntityId,
 ): BarracksInfo | null {

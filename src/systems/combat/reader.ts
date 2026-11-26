@@ -24,6 +24,13 @@ export interface CombatReader {
   squad(id: EntityId): SquadWithId | undefined;
   squadOf(dwarfId: EntityId): SquadWithId | undefined;
   onDuty(dwarfId: EntityId): boolean;
+  /**
+   * A squad member's fixed post now, as the squad's positioning gives it (16 § Squads): its tile at
+   * a `station` order's point or at the squad's station, its station shift's or barracks tile while
+   * the squad trains, or its barracks tile; null under a patrol, a follow or kill order, with nowhere
+   * to stand, and for a creature in no squad.
+   */
+  postOf(dwarfId: EntityId): TileIndex | null;
   alert(): Alert;
   weaponOf(id: EntityId): EntityId;
   armorOf(id: EntityId): Record<'head' | 'body' | 'arms' | 'legs' | 'feet', EntityId>;
@@ -39,6 +46,7 @@ export function makeCombatReader(
   getAlert: () => Alert,
   losFn?: (from: TileIndex, to: TileIndex) => boolean,
   getTick: () => number = () => 0,
+  postOf: (dwarfId: EntityId) => TileIndex | null = () => null,
 ): CombatReader {
   return {
     isHostile: (a: EntityId, b: EntityId): boolean => {
@@ -84,6 +92,8 @@ export function makeCombatReader(
       const soldier = entities.get(dwarfId, C.Soldier);
       return soldier?.onDuty ?? false;
     },
+
+    postOf,
 
     alert: (): Alert => {
       return getAlert();

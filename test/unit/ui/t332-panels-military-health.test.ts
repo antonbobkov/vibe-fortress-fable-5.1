@@ -25,8 +25,10 @@ let patientName = '';
 let lookId = 0;
 
 function draw(which: PanelName): Surface {
-  const s = surface(36, 32);
-  const rect = { col: 0, row: 0, cols: 36, rows: 32 };
+  // The military panel's squad has one more row, its status line (T-771).
+  const height = which === 'military' ? 33 : 32;
+  const s = surface(36, height);
+  const rect = { col: 0, row: 0, cols: 36, rows: height };
   const f = game.fortress;
   if (which === 'military') drawMilitaryPanel(s, rect, f.military, f.ctx);
   else if (which === 'threats') drawThreatsPanel(s, rect, f.threats, f.ctx);
@@ -124,21 +126,23 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     expect(rows.slice(13, 17)).toEqual(['1 dwarf off work, and with no', '  barracks they cannot drill:', '  [z] Barracks, then [b], or', '  [o] Off.']);
     expect(rows[17]).toMatch(/^Members \S+ \S+\.$/);
     expect(rows[18]?.trim()).toBe('[a] add  [r] remove');
+    // What the member is doing now: it is an admitted patient (T-771).
+    expect(rows[19]).toBe('Now: 1 in hospital');
     // The member holds nothing, and the stock has no weapon but the tools the workers need.
-    expect(rows[19]).toMatch(/^Armed 0 of 1 · unarmed: \S+ \S+\.$/);
-    expect(rows[20]).toBe('No weapon in stock: order one [o]');
-    expect(rows[21]).toBe('  or buy one.');
-    expect(rows[22]).toBe('Gear [w] weapon [any ▼]');
-    expect(rows[23]?.trim()).toBe('[g] armor [any ▼]');
-    expect(rows[24]?.trim()).toBe('[j] ranged');
-    expect(rows[25]?.trim()).toBe('[S-d] draughts: none');
-    expect(rows[26]).toBe('Station none');
-    expect(rows[27]?.trim()).toBe('[s] set  [c] clear');
-    expect(rows[28]).toBe('Patrol none [p] add [y] clear');
-    expect(rows[29]).toBe('Orders [S-k] kill [f] follow');
-    expect(rows[30]?.trim()).toBe('[q] cancel orders');
+    expect(rows[20]).toMatch(/^Armed 0 of 1 · unarmed: \S+ \S+\.$/);
+    expect(rows[21]).toBe('No weapon in stock: order one [o]');
+    expect(rows[22]).toBe('  or buy one.');
+    expect(rows[23]).toBe('Gear [w] weapon [any ▼]');
+    expect(rows[24]?.trim()).toBe('[g] armor [any ▼]');
+    expect(rows[25]?.trim()).toBe('[j] ranged');
+    expect(rows[26]?.trim()).toBe('[S-d] draughts: none');
+    expect(rows[27]).toBe('Station none');
+    expect(rows[28]?.trim()).toBe('[s] set  [c] clear');
+    expect(rows[29]).toBe('Patrol none [p] add [y] clear');
+    expect(rows[30]).toBe('Orders [S-k] kill [f] follow');
+    expect(rows[31]?.trim()).toBe('[q] cancel orders');
     // On Train with no barracks the row is the plain one, in the alert colour; the warning is the mode line's (T-729).
-    expect(rows[31]?.trim()).toBe('No barracks  [b] assign');
+    expect(rows[32]?.trim()).toBe('No barracks  [b] assign');
   });
 
   it('Threats gives peril and renown, the active threats, the next arrivals and the state of each cavern', () => {

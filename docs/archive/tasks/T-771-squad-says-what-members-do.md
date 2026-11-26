@@ -1,6 +1,8 @@
 # T-771 — The Military panel does not say where a squad's members are or what they are doing
 
-**Source:** playtest 2026-11-25 (military) ([report](../../reports/data/2026-11-25-playtest-6.md), finding 4) · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-25, in 356a38b7.
+
+**Source:** playtest 2026-11-25 (military) ([report](../../../reports/data/2026-11-25-playtest-6.md), finding 4) · **Size:** M · **Needs:** — · **Status:** open
 
 ## Why
 
@@ -21,9 +23,19 @@ Decisions:
 - **The members row wraps** under itself with a two-cell indent instead of cutting, as the armed line does.
 - The Units panel's Activity is unchanged.
 
+Made in the work (2026-11-25):
+
+- **The post comes from 16, not a copy in the UI.** A new reader, `combat.postOf(dwarfId)`, runs the squads' own positioning (`fixedPost`) as a read, so the panel and the squad cannot disagree about where a member belongs. It moves no one and stores nothing: no world hash moves.
+- **Precedence, one state per member:** down, then in hospital, then fled (fleeing or retreating), then a need, then fighting, then the post. A member fighting at its post counts as `fighting`.
+- **Needs other than food, drink and sleep** (social, comfort, joy) read `on a break`, after `asleep`.
+- **Patrol, follow and kill orders** give a member no fixed post: a member under one that is not fighting reads `on the way`, not `standing`. `standing` and the "no post" words are only for a squad with no station, no barracks and no order.
+- **The armed line is left out when every member is down**; the status line says so.
+- **The members row breaks between words**, as the armed line does; a name may break between the first name and the initial.
+- `03-content/ui-keymap-and-screens.md` needs no edit: its § Strings states the rule (every UI word is a key), and the new keys are UI defaults in `src/ui/strings.ts` (`ui.military.now`, `ui.military.now_no_post`, `ui.military.off_duty`, `ui.military.now.<state>`).
+
 Spec: `ui-screens/panels.md` § Military (the squad details), 16 § Player-facing behavior, `03-content/ui-keymap-and-screens.md` (strings).
 
 ## Done
 
-- [ ] Tests (`describe` with the task id): a squad of five with two at the station, one walking to it, one eating and one unconscious shows "Now: 2 at post · 1 on the way · 1 eating · 1 down (…)" in the alert colour, and "Armed 4 of 4". A squad with no post reads "standing … no post". Six members' names wrap onto two rows.
-- [ ] UI only: no world hash moves.
+- [x] Tests (`describe` with the task id): a squad of five with two at the station, one walking to it, one eating and one unconscious shows "Now: 2 at post · 1 on the way · 1 eating · 1 down (…)" in the alert colour, and "Armed 4 of 4". A squad with no post reads "standing … no post". Six members' names wrap onto two rows.
+- [x] UI only: no world hash moves.

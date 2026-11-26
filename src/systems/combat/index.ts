@@ -41,6 +41,7 @@ import {
   setSquadMode,
   setSquadPatrol,
   setSquadStation,
+  memberPost,
   squadOrder,
   stepSquads,
   updateSquadDuty,
@@ -157,6 +158,7 @@ export class CombatSystem extends BaseSystem<CombatStateV1> {
       () => this.alertState,
       (from, to) => this.lineOfSight(from, to),
       () => this.world?.calendar.tick ?? 0,
+      (id) => this.world === null ? null : memberPost({ world: this.world, readers: ctx.readers, tick: this.world.calendar.tick }, this.alertState, id),
     );
 
     // Registrations
