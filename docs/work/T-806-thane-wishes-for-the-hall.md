@@ -1,6 +1,6 @@
 # T-806 — The Thane wishes for more than deepfire and fine meals
 
-**Source:** playtest 9 ([report](../../reports/data/2026-11-26-playtest-9.md), finding 5); playtest 7's event log · **Size:** M · **Needs:** — · **Status:** open
+**Source:** playtest 9 ([report](../../reports/data/2026-11-26-playtest-9.md), finding 5); playtest 7's event log · **Size:** M · **Needs:** — · **Status:** done
 
 ## Why
 

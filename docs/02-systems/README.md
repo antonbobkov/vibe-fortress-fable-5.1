@@ -291,7 +291,7 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 - Mood = `MOOD_BASELINE` + Σ active thought values (positive sum capped, negative sum capped) − need pressure + hearth hall bonus + personality modifier, clamped 0–100.
 - Tiers: Ecstatic ≥ 85, Content 65–84, Fine 40–64, Unhappy 20–39, Miserable < 20. Productivity multipliers 115, 105, 100, 90, 80 percent.
 - Negative thoughts decay faster than positive ones; the same cause does not stack beyond a per-cause cap; grief is softened by burial and by time.
-- A dwarf Miserable for seven consecutive days sulks once: takes a day off, breaks one piece of furniture, or argues with a dwarf (both lose a little mood). No violence. A sulk resets the counter.
+- A dwarf Miserable for six hours or more on each of seven days (a day with no Miserable hour takes one off) sulks once: takes a day off, breaks one piece of furniture, or argues with a dwarf (both lose a little mood). No violence. A sulk resets the counter.
 - Hall spirit = average mood; used by 21 and shown in the status bar.
 
 **Reads.** 10 needs; 14 rooms; events from many systems (meals, sleep, mist, deaths, crafts, combat). **Emits.** `MoodTierChanged`, `SulkHappened`, `HallSpiritChanged`.
