@@ -1,0 +1,21 @@
+/** Playtest 9 (not committed): where the raw stone lies, and the stockpiles. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { C } from '@core/components';
+const SAVE = process.env['PT_SAVE'] ?? 'out/pt9/pt9-1-d56.bin';
+describe('pt9 stone', () => {
+  it('looks', async () => {
+    const { game } = await loadGame(new Uint8Array(readFileSync(SAVE)));
+    const ent = game.world.entities; const map = game.map;
+    const itypes = game.registry.table<{ id: string }>('items');
+    const zt = game.registry.table<{ id: string }>('zoneTypes');
+    const byZ: Record<string, number> = {};
+    const items = game.world.readers.of<{ tileOf(id: number): number }>('13');
+    for (const id of ent.with(C.Item)) { const it = ent.get(id, C.Item)!; if (itypes.rows[it.type]?.id !== 'raw_stone') continue; const t = items.tileOf(id); const k = t < 0 ? 'nowhere' : `z${map.zOf(t)}${(it.flags & 1) ? 'F' : ''}`; byZ[k] = (byZ[k] ?? 0) + it.count; }
+    console.log('raw stone by z', JSON.stringify(byZ));
+    for (const id of ent.with(C.Zone)) { const z = ent.get(id, C.Zone)!; if (zt.rows[z.type]?.id !== 'stockpile') continue; const t = z.tiles[0]!; const sp = ent.get(id, C.Stockpile) as unknown as { filter?: { categories?: string[] } } | undefined; console.log(`stockpile #${id} at (${map.xOf(t)},${map.yOf(t)},z${map.zOf(t)}) ${z.tiles.length}t ${JSON.stringify(sp?.filter?.categories ?? sp).slice(0, 160)}`); }
+    const B = game.world.readers.of<{ byType(t: string): number[]; get(id: number): { footprint: number[] } | undefined }>('14');
+    for (const t of ['craftdwarf', 'mason']) for (const id of B.byType(t)) { const f = B.get(id)!.footprint[4]!; console.log(`${t} at (${map.xOf(f)},${map.yOf(f)},z${map.zOf(f)})`); }
+  }, 600_000);
+});

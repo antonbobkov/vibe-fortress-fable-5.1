@@ -1,0 +1,368 @@
+year length 112
+d7 scriptErrors 0 pop 7 items 215 ms/day 1163 crafter 5 engraver -
+d14 scriptErrors 0 pop 7 items 260 ms/day 1033 crafter 5 engraver -
+d21 scriptErrors 0 pop 7 items 303 ms/day 1203 crafter 5 engraver -
+d28 scriptErrors 0 pop 7 items 360 ms/day 856 crafter 5 engraver -
+d35 scriptErrors 0 pop 10 items 454 ms/day 1029 crafter 5 engraver -
+d42 scriptErrors 0 pop 10 items 486 ms/day 1465 crafter 5 engraver -
+d49 scriptErrors 0 pop 10 items 786 ms/day 1446 crafter 6 engraver -
+d56 scriptErrors 0 pop 10 items 483 ms/day 1643 crafter 6 engraver -
+d63 scriptErrors 0 pop 13 items 733 ms/day 2107 crafter 6 engraver -
+d70 scriptErrors 0 pop 12 items 517 ms/day 2790 crafter 6 engraver 0
+d77 scriptErrors 0 pop 11 items 505 ms/day 2077 crafter 6 engraver 1
+d84 scriptErrors 0 pop 10 items 527 ms/day 1481 crafter 6 engraver 2
+d91 scriptErrors 0 pop 10 items 540 ms/day 1490 crafter 6 engraver 2
+d98 scriptErrors 0 pop 10 items 549 ms/day 1651 crafter 6 engraver 2
+d105 scriptErrors 0 pop 10 items 557 ms/day 1856 crafter 6 engraver 3
+d112 scriptErrors 0 pop 10 items 568 ms/day 1708 crafter 6 engraver 4
+d119 scriptErrors 0 pop 10 items 580 ms/day 1435 crafter 6 engraver 4
+d126 scriptErrors 0 pop 10 items 541 ms/day 1274 crafter 6 engraver 4
+d133 scriptErrors 0 pop 10 items 537 ms/day 1968 crafter 7 engraver 4
+d140 scriptErrors 0 pop 10 items 566 ms/day 2031 crafter 7 engraver 4
+d147 scriptErrors 0 pop 14 items 939 ms/day 2621 crafter 7 engraver 5
+d154 scriptErrors 0 pop 14 items 684 ms/day 1938 crafter 7 engraver 5
+d161 scriptErrors 0 pop 14 items 748 ms/day 2134 crafter 7 engraver 5
+d168 scriptErrors 0 pop 14 items 787 ms/day 1737 crafter 7 engraver 5
+d175 scriptErrors 0 pop 21 items 1119 ms/day 2285 crafter 7 engraver 5
+d182 scriptErrors 0 pop 21 items 922 ms/day 3027 crafter 7 engraver 5
+d189 scriptErrors 0 pop 21 items 929 ms/day 4654 crafter 7 engraver 5
+d196 scriptErrors 0 pop 21 items 927 ms/day 3213 crafter 7 engraver 5
+d203 scriptErrors 0 pop 26 items 1024 ms/day 4873 crafter 7 engraver 5
+d210 scriptErrors 0 pop 24 items 1032 ms/day 4068 crafter 7 engraver 5
+d217 scriptErrors 0 pop 24 items 1034 ms/day 2332 crafter 7 engraver 5
+d224 scriptErrors 0 pop 23 items 1028 ms/day 3441 crafter 7 engraver 5
+d231 scriptErrors 0 pop 35 items 1092 ms/day 3273 crafter 7 engraver 5
+d238 scriptErrors 0 pop 34 items 1078 ms/day 5038 crafter 0 engraver 5
+d245 scriptErrors 0 pop 34 items 1136 ms/day 3584 crafter 0 engraver 5
+d252 scriptErrors 0 pop 34 items 1212 ms/day 2978 crafter 0 engraver 5
+d259 scriptErrors 0 pop 46 items 1388 ms/day 4665 crafter 0 engraver 5
+d266 scriptErrors 0 pop 46 items 1472 ms/day 5005 crafter 0 engraver 5
+d273 scriptErrors 0 pop 46 items 1549 ms/day 5489 crafter 0 engraver 5
+d280 scriptErrors 0 pop 46 items 1541 ms/day 4896 crafter 0 engraver 5
+d287 scriptErrors 0 pop 58 items 1796 ms/day 6508 crafter 0 engraver 5
+d294 scriptErrors 0 pop 58 items 2315 ms/day 5536 crafter 0 engraver 5
+d301 scriptErrors 0 pop 58 items 1846 ms/day 6286 crafter 0 engraver 5
+
+d4 crafter Frode Brightward crafting 5
+d20 statue order
+d60 quarry 388: true
+d66 engraver Olav Amberhand
+d66 engraver2 Vali Veinstair
+d66 engrave 104
+d73 engrave 4
+d80 engrave 3
+d87 engrave 9
+d94 engrave 10
+d101 engrave 19
+d108 engrave 23
+d115 engrave 23
+d122 engrave 4
+d129 engrave 18
+d136 engrave 20
+d143 engrave 15
+d150 engrave 6
+d157 engrave 6
+d164 engrave 11
+d171 engrave 12
+d178 engrave 34
+d185 engrave 11
+d192 engrave 6
+d199 engrave 15
+d206 engrave 3
+d213 engrave 18
+d236 crafter Olav Amberhand crafting 0
+d266 statue placed (1 in stock)
+d273 statue placed (1 in stock)
+
+failures 
+
+d2 TitleAssigned {"dwarfId":16777282,"title":"broker","previousId":0}
+d14 SulkHappened {"id":16777285,"kind":"argue","partnerId":16777279}
+d14 ThoughtGained {"id":16777285,"thoughtId":"argued","value":-13}
+d14 ThoughtGained {"id":16777279,"thoughtId":"argued","value":-2.5}
+d15 RoomQualityChanged {"zoneId":16777596,"tier":2}
+d18 RoomQualityChanged {"zoneId":16777612,"tier":1}
+d20 RoomQualityChanged {"zoneId":117440690,"tier":1}
+d20 RoomQualityChanged {"zoneId":16777636,"tier":1}
+d29 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d29 ImmigrantsArrived {"ids":[50332165,16777740,16777744],"count":3,"children":1,"guaranteed":true}
+d34 CavernBreached {"cavern":1,"tile":51486}
+d35 RoomQualityChanged {"zoneId":16777636,"tier":2}
+d45 CaravanArrived {"civ":"hillfolk","merchants":[83886565,50332319],"guards":[50332315,16777898,16777903],"animals":[16777908,16777909,16777910,16777911,16777912],"partyId":117441184}
+d45 CaravanAtDepot {"civ":"hillfolk","partyId":117441184,"depotId":16777481}
+d46 RoomQualityChanged {"zoneId":16777719,"tier":1}
+d48 SkillLevelUp Frode Brightward crafting 6
+d50 CaravanDeparted {"civ":"hillfolk","boughtValue":326.88,"soldValue":383,"reason":"completed"}
+d56 RoomQualityChanged {"zoneId":16777695,"tier":1}
+d56 RoomQualityChanged {"zoneId":16777684,"tier":1}
+d57 WhimJudged {"thaneId":16777282,"whimId":"whim_fine_meal","met":true}
+d57 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d57 ImmigrantsArrived {"ids":[117440997,117440791,83887034],"count":3,"children":0,"guaranteed":true}
+d61 RaidArrived {"partyId":117441207,"kind":"bandits","size":2,"tile":71428,"edge":"n"}
+d61 CaravanArrived {"civ":"wildwood","merchants":[50331797,83886227],"guards":[50331792,50331785,50331773],"animals":[50331752,83886182,117440613,117440611,150995042],"partyId":50331798}
+d61 CaravanAtDepot {"civ":"wildwood","partyId":50331798,"depotId":16777481}
+d61 ThiefEscaped {"id":50332388,"partyId":117441207,"itemId":16777251,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d61 ThiefEscaped {"id":50331803,"partyId":117441207,"itemId":16777261,"ownerId":0,"itemType":"bar","material":"iron","count":5}
+d61 RaidEnded {"partyId":117441207,"outcome":"looted"}
+d62 RoomQualityChanged {"zoneId":16777596,"tier":3}
+d62 RoomQualityChanged {"zoneId":16777612,"tier":2}
+d63 RaidArrived {"partyId":117441479,"kind":"thief","size":1,"tile":71428,"edge":"n"}
+d63 ThiefSpotted {"id":83886820}
+d63 RaidEnded {"partyId":117441479,"outcome":"withdrew"}
+d66 CaravanDeparted {"civ":"wildwood","boughtValue":235.2,"soldValue":272.3999999999999,"reason":"completed"}
+d66 RoomQualityChanged {"zoneId":16777646,"tier":1}
+d69 CreatureDied {"id":218104088,"cause":"killed","killerId":16777279,"killerName":"Olav Amberhand","killerSpecies":15,"tile":74239,"species":49,"name":"wolf","faction":"wild","wildState":"attack","petOf":0,"ageTicks"
+d69 CreatureDied {"id":83887034,"cause":"bled_out","killerId":218104088,"killerName":"","tile":60318,"species":15,"name":"Gorm Runemark","faction":"fortress","petOf":0,"ageTicks":7929600,"wornItems":[50331874,50331878
+d72 RoomQualityChanged {"zoneId":218104148,"tier":1}
+d72 CreatureDied {"id":117440708,"cause":"killed","killerId":16777280,"killerName":"Vali Veinstair","killerSpecies":15,"tile":74239,"species":49,"name":"wolf","faction":"wild","wildState":"attack","petOf":0,"ageTicks"
+d72 CreatureDied {"id":117441178,"cause":"killed","killerId":16777279,"killerName":"Olav Amberhand","killerSpecies":15,"tile":74286,"species":49,"name":"wolf","faction":"wild","wildState":"attack","petOf":0,"ageTicks"
+d72 CreatureDied {"id":16777284,"cause":"bled_out","killerId":117441178,"killerName":"","tile":62623,"species":15,"name":"Ottar Cragheart","faction":"fortress","petOf":0,"ageTicks":3628800,"wornItems":[16777301,167773
+d73 SkillLevelUp Olav Amberhand engraving 1
+d74 SkillLevelUp Frode Brightward engraving 1
+d80 CreatureDied {"id":285213322,"cause":"bled_out","killerId":16777280,"killerName":"Vali Veinstair","killerSpecies":15,"tile":74476,"species":49,"name":"wolf","faction":"wild","wildState":"flee","petOf":0,"ageTicks"
+d81 CreatureDied {"id":50332165,"cause":"bled_out","killerId":285213322,"killerName":"","tile":60321,"species":15,"name":"Asa Brightfist","faction":"fortress","petOf":0,"ageTicks":6316800,"wornItems":[16777737,1677773
+d81 SkillLevelUp Olav Amberhand engraving 2
+d81 SkillLevelUp Frode Brightward engraving 2
+d82 RoomQualityChanged {"zoneId":16777636,"tier":3}
+d84 RoomQualityChanged {"zoneId":150995614,"tier":1}
+d85 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":false}
+d85 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d85 ImmigrationSkipped {"reason":"luck"}
+d86 RoomQualityChanged {"zoneId":117440635,"tier":1}
+d94 RoomQualityChanged {"zoneId":117440690,"tier":2}
+d96 RoomQualityChanged {"zoneId":16777695,"tier":2}
+d96 RoomQualityChanged {"zoneId":16777682,"tier":1}
+d96 RoomQualityChanged {"zoneId":16777704,"tier":1}
+d101 SkillLevelUp Olav Amberhand engraving 3
+d105 RoomQualityChanged {"zoneId":16777661,"tier":1}
+d105 RoomQualityChanged {"zoneId":16777684,"tier":2}
+d112 SkillLevelUp Olav Amberhand engraving 4
+d112 RoomQualityChanged {"zoneId":16777704,"tier":2}
+d113 WhimJudged {"thaneId":16777282,"whimId":"whim_fine_meal","met":true}
+d113 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d113 ImmigrationSkipped {"reason":"luck"}
+d113 RoomQualityChanged {"zoneId":184549398,"tier":1}
+d116 SkillLevelUp Frode Brightward engraving 3
+d117 SkillLevelUp Olav Amberhand mining 10
+d120 CaravanArrived {"civ":"mountainhome","merchants":[385876111,117441290],"guards":[83886861,83886866,83886871],"animals":[83886876,83886877,83886878,83886879,83886880],"partyId":184550224}
+d120 CaravanAtDepot {"civ":"mountainhome","partyId":184550224,"depotId":16777481}
+d125 CaravanDeparted {"civ":"mountainhome","boughtValue":945.6000000000001,"soldValue":1088.8000000000002,"reason":"completed"}
+d126 RoomQualityChanged {"zoneId":16777847,"tier":1}
+d132 SkillLevelUp Frode Brightward crafting 7
+d135 RoomQualityChanged {"zoneId":16777682,"tier":2}
+d136 RoomQualityChanged {"zoneId":16777719,"tier":2}
+d141 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":false}
+d141 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d141 ImmigrantsArrived {"ids":[251658924,83886563,150995401,83886505],"count":4,"children":0,"guaranteed":false}
+d142 RaidArrived {"partyId":117440768,"kind":"thief","size":1,"tile":71428,"edge":"n"}
+d142 ThiefSpotted {"id":218103998}
+d142 RaidEnded {"partyId":117440768,"outcome":"withdrew"}
+d144 SkillLevelUp Olav Amberhand mining 11
+d146 RoomQualityChanged {"zoneId":16777646,"tier":2}
+d146 SkillLevelUp Olav Amberhand engraving 5
+d147 CaravanArrived {"civ":"hillfolk","merchants":[117441409,117441408],"guards":[117441407,117441400,117441395],"animals":[117441390,117441389,117441388,117441387,117441386],"partyId":117440772}
+d147 CaravanAtDepot {"civ":"hillfolk","partyId":117440772,"depotId":16777481}
+d152 CaravanDeparted {"civ":"hillfolk","boughtValue":688.8000000000001,"soldValue":803,"reason":"completed"}
+d157 RoomQualityChanged {"zoneId":16777847,"tier":2}
+d157 RoomQualityChanged {"zoneId":184549398,"tier":2}
+d163 RoomQualityChanged {"zoneId":184549857,"tier":1}
+d169 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":true}
+d169 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d169 ImmigrantsArrived {"ids":[50332896,50332758,419431067,117441118,587202921,50332740,50332736],"count":7,"children":0,"guaranteed":false}
+d171 RoomQualityChanged {"zoneId":83887115,"tier":1}
+d172 RoomQualityChanged {"zoneId":50332662,"tier":1}
+d172 SkillLevelUp Olav Amberhand mining 12
+d173 RoomQualityChanged {"zoneId":50331810,"tier":1}
+d174 CaravanArrived {"civ":"wildwood","merchants":[117441727,486539662,520093897],"guards":[117441606,251659126,50332656],"animals":[50332651,50332650,50332649,50332648,50332647,50332646],"partyId":218104749}
+d174 CaravanAtDepot {"civ":"wildwood","partyId":218104749,"depotId":16777481}
+d176 SkillLevelUp Frode Brightward trading 1
+d179 CaravanDeparted {"civ":"wildwood","boughtValue":1282.5599999999997,"soldValue":1477.7999999999995,"reason":"completed"}
+d181 RoomQualityChanged {"zoneId":184549857,"tier":2}
+d184 RoomQualityChanged {"zoneId":150995614,"tier":2}
+d187 RoomQualityChanged {"zoneId":16778689,"tier":1}
+d190 RaidArrived {"partyId":184549403,"kind":"raid","size":8,"tile":71428,"edge":"n"}
+d192 ThiefEscaped {"id":419430670,"partyId":184549403,"itemId":117440840,"ownerId":0,"itemType":"log","material":"ash","count":1}
+d192 ThiefEscaped {"id":50333075,"partyId":184549403,"itemId":352321975,"ownerId":0,"itemType":"log","material":"oak","count":1}
+d192 ThiefEscaped {"id":50333065,"partyId":184549403,"itemId":184549717,"ownerId":0,"itemType":"log","material":"oak","count":1}
+d192 ThiefEscaped {"id":285212819,"partyId":184549403,"itemId":16777245,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d192 ThiefEscaped {"id":50333042,"partyId":184549403,"itemId":16777247,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d192 ThiefEscaped {"id":50333046,"partyId":184549403,"itemId":16777249,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d192 ThiefEscaped {"id":50333055,"partyId":184549403,"itemId":16777253,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d192 ThiefEscaped {"id":50333060,"partyId":184549403,"itemId":16778650,"ownerId":0,"itemType":"drink","material":"bellwine","count":20}
+d192 ThiefEscaped {"id":50333051,"partyId":184549403,"itemId":83886925,"ownerId":0,"itemType":"drink","material":"dimcap_ale","count":20}
+d192 RaidEnded {"partyId":184549403,"outcome":"looted"}
+d197 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":true}
+d197 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d197 ImmigrantsArrived {"ids":[251658731,117441571,419431052,83887477,83887473],"count":5,"children":0,"guaranteed":false}
+d203 CreatureDied {"id":50333026,"cause":"killed","killerId":16777285,"killerName":"Steinn Bronzecloak","killerSpecies":15,"tile":74329,"species":49,"name":"wolf","faction":"wild","wildState":"attack","petOf":0,"ageTic
+d204 CreatureDied {"id":50333027,"cause":"killed","killerId":16777285,"killerName":"Steinn Bronzecloak","killerSpecies":15,"tile":74653,"species":49,"name":"wolf","faction":"wild","wildState":"sleep","petOf":0,"ageTick
+d205 RaidArrived {"partyId":285213569,"kind":"thief","size":1,"tile":71428,"edge":"n"}
+d205 ThiefSpotted {"id":184550807}
+d205 RaidEnded {"partyId":285213569,"outcome":"withdrew"}
+d205 CreatureDied {"id":218104537,"cause":"killed","killerId":16777279,"killerName":"Olav Amberhand","killerSpecies":15,"tile":74239,"species":49,"name":"wolf","faction":"wild","wildState":"attack","petOf":0,"ageTicks"
+d205 CreatureDied {"id":50332740,"cause":"bled_out","killerId":218104537,"killerName":"","tile":60563,"species":15,"name":"Ulfhild Bronzehelm","faction":"fortress","petOf":0,"ageTicks":6720000,"wornItems":[50332739,503
+d206 CreatureDied {"id":117440997,"cause":"bled_out","killerId":50333025,"killerName":"wolf","killerSpecies":49,"tile":74224,"species":15,"name":"Frode Ravenstone","faction":"fortress","petOf":0,"ageTicks":4435200,"wor
+d206 CreatureDied {"id":50333025,"cause":"killed","killerId":16777285,"killerName":"Steinn Bronzecloak","killerSpecies":15,"tile":74224,"species":49,"name":"wolf","faction":"wild","wildState":"leave","petOf":0,"ageTick
+d209 RoomQualityChanged {"zoneId":50331810,"tier":2}
+d211 RoomQualityChanged {"zoneId":16778689,"tier":2}
+d215 SkillLevelUp Olav Amberhand mining 13
+d220 RaidArrived {"partyId":385876695,"kind":"bandits","size":3,"tile":71426,"edge":"n"}
+d220 CreatureDied {"id":486540646,"cause":"bled_out","killerId":16777280,"killerName":"Vali Veinstair","killerSpecies":15,"tile":74231,"species":28,"name":"hillfolk_bandit","faction":"hostile:hillfolk","petOf":0,"ageTi
+d220 RaidEnded {"partyId":385876695,"outcome":"repelled"}
+d222 CreatureDied {"id":16777280,"cause":"infection","killerId":251658492,"killerName":"","tile":74522,"species":15,"name":"Vali Veinstair","faction":"fortress","petOf":0,"ageTicks":5779200,"wornItems":[218103978,11744
+d225 WhimJudged {"thaneId":16777282,"whimId":"whim_fine_meal","met":true}
+d225 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d225 ImmigrantsArrived {"ids":[184550381,754974943,184550721,50331722,385876069,50332974,50332967,50332963,352321909,218105284,83887400,50332948],"count":12,"children":4,"guaranteed":false}
+d225 RoomQualityChanged {"zoneId":16777646,"tier":1}
+d232 CaravanArrived {"civ":"mountainhome","merchants":[16778775,16778776,16778777],"guards":[16778778,16778783,16778788],"animals":[16778793,16778794,16778795,16778796,16778797,16778798,16778799,16778800],"partyId":28521
+d232 CaravanAtDepot {"civ":"mountainhome","partyId":285213109,"depotId":16777481}
+d236 CreatureDied {"id":16777282,"cause":"infection","killerId":50333026,"killerName":"","tile":60550,"species":15,"name":"Frode Brightward","faction":"fortress","petOf":0,"ageTicks":6720000,"wornItems":[251658704,1509
+d236 TitleAssigned {"dwarfId":0,"title":"thane","previousId":16777282}
+d236 TitleAssigned {"dwarfId":0,"title":"broker","previousId":16777282}
+d237 TitleAssigned {"dwarfId":16777281,"title":"broker","previousId":0}
+d237 CaravanDeparted {"civ":"mountainhome","boughtValue":458.64,"soldValue":529.0999999999999,"reason":"completed"}
+d237 SkillLevelUp Olav Amberhand mining 14
+d238 RoomQualityChanged {"zoneId":318767298,"tier":1}
+d253 WhimJudged {"thaneId":0,"whimId":"whim_fine_meal","met":true}
+d253 ImmigrantsArrived {"ids":[184549457,50331780,16778958,150995926,150995023,150996675,654311642,16778975,385876880,16778983,50333394,50333412],"count":12,"children":3,"guaranteed":false}
+d255 RaidArrived {"partyId":352322724,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d255 ThiefSpotted {"id":16779056}
+d255 RaidEnded {"partyId":352322724,"outcome":"withdrew"}
+d260 SkillLevelUp Olav Amberhand mining 15
+d268 CaravanArrived {"civ":"hillfolk","merchants":[117442124,16779281,16779282],"guards":[16779283,16779288,16779293],"animals":[16779298,16779299,16779300,16779301,16779302,16779303,16779304,16779305,16779306],"partyId"
+d268 CaravanAtDepot {"civ":"hillfolk","partyId":83888114,"depotId":16777481}
+d273 CaravanDeparted {"civ":"hillfolk","boughtValue":252.96,"soldValue":292,"reason":"completed"}
+d281 ImmigrantsArrived {"ids":[117442383,1023410482,218105773,251658879,318768780,486539891,285213225,553648957,184550423,285214370,486540296,385877309],"count":12,"children":4,"guaranteed":false}
+d290 CaravanArrived {"civ":"wildwood","merchants":[117442312,486540433,654311587],"guards":[251660037,50334103,50334098],"animals":[50334093,50334092,50334091,50334090,50334089,50334088,50334087,50334086,50334085,5033408
+d290 CaravanAtDepot {"civ":"wildwood","partyId":83888539,"depotId":16777481}
+d291 SkillLevelUp Olav Amberhand mining 16
+d295 CaravanDeparted {"civ":"wildwood","boughtValue":136.8,"soldValue":158.39999999999998,"reason":"completed"}
+
+{
+ "ZoneChanged": 76,
+ "JobCreated": 12201,
+ "JobBlocked": 1947,
+ "EntitiesMoved": 284461,
+ "HourPassed": 7199,
+ "Slept": 7390,
+ "ItemReserved": 7820,
+ "JobClaimed": 12289,
+ "StocksChanged": 20858,
+ "TemperatureTick": 35995,
+ "JobStarted": 11612,
+ "ItemReleased": 3980,
+ "JobCompleted": 11158,
+ "TilesChanged": 3752,
+ "FluidsChanged": 10440,
+ "TitleAssigned": 4,
+ "JobCancelled": 1353,
+ "StockpileFull": 419,
+ "ToolEquipped": 11,
+ "BuildingPlaced": 112,
+ "PlotNeedsSeeds": 42,
+ "WeatherChanged": 360,
+ "JobUnblocked": 2047,
+ "MoodTierChanged": 21003,
+ "tier→1": 2243,
+ "ItemDestroyed": 14036,
+ "DrankAlcohol": 3775,
+ "Talked": 3725,
+ "CropPlanted": 2045,
+ "DwarfIdle": 1606,
+ "TreeFelled": 172,
+ "ItemCreated": 9535,
+ "TilesDiscovered": 1349,
+ "tier→2": 9099,
+ "MealEaten": 2409,
+ "tier→0": 262,
+ "DayPassed": 299,
+ "WebSpun": 843,
+ "AnimalSpawned": 157,
+ "DwarfOutdoorsIn": 8608,
+ "GrassRegrown": 36,
+ "BuildingCompleted": 111,
+ "WorkshopBlocked": 170,
+ "WorkOrderSkipped": 14,
+ "ItemCrafted": 1665,
+ "NeedCritical": 1516,
+ "SkillLevelUp": 195,
+ "WealthChanged": 757,
+ "CreatureFled": 77,
+ "AnimalLeft": 144,
+ "WorkOrderCompleted": 25,
+ "ItemRotStage": 4878,
+ "GrassGrazed": 308,
+ "SulkHappened": 1,
+ "ThoughtGained": 33,
+ "RoomQualityChanged": 40,
+ "MineralMined": 346,
+ "VeinFound": 8,
+ "BuildingStateChanged": 386,
+ "HearthLit": 1,
+ "tier→3": 8248,
+ "Sat": 5748,
+ "HearthVisited": 3738,
+ "LightningStrike": 25,
+ "FireStarted": 20,
+ "FireOut": 20,
+ "CropHarvested": 1855,
+ "RoomAssigned": 29,
+ "tier→4": 1151,
+ "ItemRotted": 1537,
+ "SeasonChanged": 10,
+ "SeasonEffectsChanged": 10,
+ "WhimSet": 8,
+ "ImmigrantsArrived": 8,
+ "ShrubRegrown": 180,
+ "CavernBreached": 1,
+ "MonsterSpawned": 4,
+ "MiasmaSpread": 1166,
+ "CaravanArrived": 8,
+ "CaravanAtDepot": 8,
+ "ReputationChanged": 16,
+ "TradeCompleted": 8,
+ "CaravanDeparted": 8,
+ "DepotGoodsReturned": 8,
+ "WhimJudged": 8,
+ "PetAdopted": 1,
+ "RaidArrived": 7,
+ "HostileSpawned": 18,
+ "AlertChanged": 50,
+ "SquadOrderIssued": 91,
+ "ThiefEscaped": 11,
+ "RaidEnded": 7,
+ "AlertLocksCleared": 21,
+ "ThiefSpotted": 4,
+ "ThreatNearby": 118,
+ "DamageDealt": 83,
+ "AttackResolved": 134,
+ "WoundInflicted": 72,
+ "PatientAdmitted": 11,
+ "PatientHealed": 11,
+ "CreatureDied": 16,
+ "CorpseCreated": 16,
+ "KillRecorded": 10,
+ "CreatureUnconscious": 9,
+ "LimbLost": 5,
+ "TreatmentDone": 13,
+ "PatientDischarged": 5,
+ "AnimalBorn": 10,
+ "Buried": 7,
+ "ImmigrationSkipped": 2,
+ "TileFrozen": 2797,
+ "TileThawed": 2797,
+ "ItemMerged": 113,
+ "SnowCoverChanged": 110,
+ "YearPassed": 2,
+ "SaplingGrew": 8,
+ "SmokyFuelBurned": 50,
+ "WorkshopIdle": 3,
+ "ThreatWarning": 1,
+ "Starving": 12,
+ "ItemAged": 7,
+ "ToolDropped": 2,
+ "InfectionStarted": 2,
+ "HostileFled": 3,
+ "ProductReady": 2,
+ "AnimalStarving": 15
+}

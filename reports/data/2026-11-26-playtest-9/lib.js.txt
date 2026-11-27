@@ -1,0 +1,67 @@
+if (!window.ptLog) {
+  window.ptLog = [];
+  window.ptStop = null;
+  const STOP = /^(ThreatWarning|RaidArrived|AmbushSprung|DeepStirred|MonsterEmerged|CavernBreached|VeinFound|SummonTurned|FirstRunecaster|SiegeWarning|CaravanArrived)$/;
+  const KEEP = /Raid|Siege|Ambush|Threat(Warning)|Died|Cavern|Monster|Deep|Vein|Rune|Summon|Spell|Attune|Mishap|Caravan|Trade|StoneSet|Draught|Vial|Wisp|Mended|Warded|PutToFlight|Hint|Crafted|Building(Completed)|Breach|Collapsed|Fell/;
+  window.__deepholm.host.onEvents((events) => {
+    const tick = window.__deepholm.host.tick;
+    for (const e of events) {
+      if (!KEEP.test(e.type) || e.type === 'ThreatNearby') continue;
+      if (e.type === 'ItemCrafted' && !/rune|vial|lamp|staff|wand|anvil|circle|gem|draught|pick/.test(JSON.stringify(e))) continue;
+      const { type, ...rest } = e;
+      window.ptLog.push(`d${Math.floor(tick / 1200) + 1} ${type} ${JSON.stringify(rest).slice(0, 180)}`);
+      if (STOP.test(type) && window.ptStop === null) window.ptStop = type;
+    }
+  });
+}
+window.pt = {
+  get m() { return window.__deepholm.readers.map; },
+  grid(z, x0, y0, x1, y1) {
+    const m = this.m; const o = [];
+    for (let y = y0; y <= y1; y++) {
+      let r = '';
+      for (let x = x0; x <= x1; x++) {
+        const i = m.index(x, y, z); const k = m.kindAt(i);
+        const B = window.__deepholm.readers.buildings; const b = B.buildingAt ? B.buildingAt(i) : 0; r += b ? 'B' : k === 2 ? '.' : k === 1 ? '#' : k === 0 ? ' ' : String(k);
+      }
+      o.push(String(y).padStart(2) + ' ' + r);
+    }
+    return '   ' + Array.from({ length: x1 - x0 + 1 }, (_, k) => String((x0 + k) % 10)).join('') + '\n' + o.join('\n');
+  },
+  col(x, y, z0, z1) { const m = this.m; const o = []; for (let z = z0; z >= z1; z--) { const i = m.index(x, y, z); o.push(z + ':' + m.kindAt(i) + (m.designationAt(i) ? 'd' + m.designationAt(i) : '')); } return o.join(' '); },
+  cam() { const u = window.__deepholm.readers.ui; return [u.camX, u.camY, u.z]; },
+  /** Step up to `days`, stopping at a danger or notable event; returns what happened. */
+  run(days, stopOn = true) {
+    const h = window.__deepholm;
+    window.ptStop = null;
+    const start = h.host.tick;
+    const n0 = window.ptLog.length;
+    while (h.host.tick < start + days * 1200) {
+      h.host.step(300);
+      if (stopOn && window.ptStop !== null) break;
+    }
+    h.step(0);
+    return `stopped:${window.ptStop} day ${Math.floor(h.host.tick / 1200) + 1}\n` + window.ptLog.slice(n0).filter((l) => !/Crop|BuildingCompleted/.test(l)).join('\n');
+  },
+  /** Step `days`; on a raid/siege warning or ambush raise Hearth, on its end lower to Calm; stop on other notable events. */
+  auto(days) {
+    const h = window.__deepholm;
+    const start = h.host.tick; const n0 = window.ptLog.length;
+    let stop = null;
+    while (h.host.tick < start + days * 1200) {
+      window.ptStop = null;
+      h.host.step(300);
+      const s = window.ptStop;
+      if (s === 'ThreatWarning' || s === 'AmbushSprung' || (s === 'RaidArrived' && /"kind":"(raid|siege|bandits)"/.test(window.ptLog[window.ptLog.length - 1] || ''))) h.host.submit({ type: 'SetAlert', level: 'hearth' });
+      else if (s !== null && /Caravan/.test(s) && !/mountainhome/.test(window.ptLog.slice(-3).join(' '))) { /* other caravans pass */ }
+      else if (s !== null && s !== 'RaidArrived') { stop = s; break; }
+      const last = window.ptLog.slice(-6).join(' ');
+      if (/RaidEnded/.test(last) && !/RaidEnded.*thief|thief.*RaidEnded/.test(last)) h.host.submit({ type: 'SetAlert', level: 'calm' });
+    }
+    h.step(0);
+    return `stopped:${stop} day ${Math.floor(h.host.tick / 1200) + 1}\n` + window.ptLog.slice(n0).filter((l) => !/Crop|BuildingCompleted|TreeFelled/.test(l)).map((l) => l.slice(0, 170)).join('\n');
+  },
+  notable(n = 25) { return window.ptLog.filter((l) => !/Crop|BuildingCompleted/.test(l)).slice(-n).join('\n'); },
+  log(n = 30) { return window.ptLog.slice(-n).join('\n'); },
+};
+'ok';

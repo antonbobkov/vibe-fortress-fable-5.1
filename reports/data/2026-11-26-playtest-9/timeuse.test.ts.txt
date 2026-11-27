@@ -1,0 +1,28 @@
+/** Playtest 9 (not committed): how a named dwarf spends its days, sampled every 20 ticks after loading a save. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { C } from '@core/components';
+
+const SAVE = process.env['PT_SAVE'] ?? 'out/pt9/pt9-1-d56.bin';
+const WHO = process.env['PT_WHO'] ?? 'Frode';
+const DAYS = Number(process.env['PT_DAYS'] ?? 3);
+
+describe('pt9 time use', () => {
+  it('samples', async () => {
+    const { game } = await loadGame(new Uint8Array(readFileSync(SAVE)));
+    const ent = game.world.entities;
+    const id = ent.with(C.Creature).find((e) => ent.get(e, C.Creature)!.name.includes(WHO) && ent.get(e, C.Creature)!.faction === 'fortress')!;
+    const tally: Record<string, number> = {};
+    let crafted = 0;
+    game.world.onEvents((evs) => { for (const e of evs) if (e.type === 'ItemCrafted' && (e as unknown as { crafterId: number }).crafterId === id) crafted++; });
+    for (let t = 0; t < DAYS * 1200; t += 20) {
+      game.step(20);
+      const b = ent.get(id, C.Brain);
+      const wk = ent.get(id, C.Worker); const pos = ent.get(id, C.Position) as unknown as { tile: number } | undefined; const k = `${b?.behavior}: ${(b?.activity ?? "").replace(/d+/g, "#").slice(0, 40)} phase ${wk?.phase} carrying ${wk?.carrying ? 1 : 0} z${pos ? (pos as unknown as { z: number }).z : "?"}`;
+      tally[k] = (tally[k] ?? 0) + 20;
+    }
+    console.log(`${WHO} over ${DAYS} days, ${crafted} crafted`);
+    for (const [k, v] of Object.entries(tally).sort((a, b) => b[1] - a[1])) console.log(`${String(Math.round(v / DAYS)).padStart(5)} ticks/day  ${k}`);
+  }, 600_000);
+});

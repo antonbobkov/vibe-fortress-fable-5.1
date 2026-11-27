@@ -1,0 +1,112 @@
+/** Playtest 9 (not committed): a builder's census of a save — skills, quality, rooms, moods, titles, whim, wealth. */
+import { describe, it } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { loadGame } from '@app/game-save';
+import { C } from '@core/components';
+import { TICKS_PER_DAY } from '@core/constants';
+
+const SAVES = (process.env['PT_SAVE'] ?? 'reports/data/2026-11-26-playtest-7/boarfell-y7-spring1.bin').split(',');
+const Q = ['poor', 'common', 'fine', 'superior', 'exceptional', 'masterwork'];
+const TIERS = ['bare', 'modest', 'decent', 'fine', 'grand', 'royal'];
+
+export async function census(path: string): Promise<string> {
+  const { game } = await loadGame(new Uint8Array(readFileSync(path)));
+  const out: string[] = [];
+  const ent = game.world.entities;
+  const R = game.world.readers as unknown as { of<T>(id: string): T };
+  const reg = game.registry;
+  const skills = reg.table<{ id: string }>('skills');
+  const itypes = reg.table<{ id: string }>('items');
+  const mats = reg.table<{ id: string }>('materials');
+  const zt = reg.table<{ id: string }>('zoneTypes');
+  const thoughts = reg.table<{ id: string }>('thoughts');
+  const tick = (game as unknown as { world: { tick: number } }).world.tick ?? 0;
+  const morale = R.of<{ hallSpirit(): number; hallSpiritTier(): string }>('15');
+  const items = R.of<{ wealth(): number }>('13');
+  const dw = R.of<{ whim(): unknown }>('10');
+  const B = R.of<{ hearthHallTier(): number; room(z: number): { score: number; tier: number; ownerId: number; enclosed: boolean; requirementsMet: boolean } | undefined }>('14');
+  const dwarves = ent.with(C.Labors).filter((id) => ent.get(id, C.Creature)?.faction === 'fortress');
+  out.push(`== ${path}  day ${Math.floor(tick / TICKS_PER_DAY) + 1}  pop ${dwarves.length}  wealth ${Math.round(items.wealth())}  hall spirit ${morale.hallSpirit()} ${morale.hallSpiritTier()}  hearth tier ${B.hearthHallTier()}`);
+  out.push(`whim ${JSON.stringify(dw.whim())}`);
+  const tierCount: Record<string, number> = {};
+  const thoughtSum: Record<string, [number, number]> = {};
+  const maxSkill: Record<string, [number, string]> = {};
+  const levels: number[] = [];
+  const titles: string[] = [];
+  for (const id of dwarves) {
+    const m = ent.get(id, C.Mood);
+    if (m) {
+      tierCount[m.tier] = (tierCount[m.tier] ?? 0) + 1;
+      for (const t of m.thoughts) { const k = thoughts.rows[t.thought]?.id ?? '?'; const s = thoughtSum[k] ?? [0, 0]; s[0]++; s[1] += t.baseValue; thoughtSum[k] = s; }
+    }
+    const nm = (ent.get(id, C.Creature)?.name ?? String(id)).split(" ")[0]!;
+    const t = ent.get(id, C.Title); if (t && t.title !== 'none') titles.push(`${t.title}:${nm}`);
+    const sk = ent.get(id, C.Skills);
+    if (sk) {
+      let best = 0;
+      for (let i = 0; i < sk.level.length; i++) {
+        const l = sk.level[i]!; const k = skills.rows[i]?.id ?? String(i);
+        if (l > (maxSkill[k]?.[0] ?? -1)) maxSkill[k] = [l, nm];
+        if (l > best) best = l;
+      }
+      levels.push(best);
+    }
+  }
+  out.push(`sulk counters ${dwarves.map((id) => ent.get(id, C.Mood)?.sulkCounterDays ?? 0).filter((n) => n > 0).join(",") || "all 0"}`);
+  out.push(`mood tiers ${JSON.stringify(tierCount)}  titles ${titles.join(' ')}`);
+  out.push(`best-skill per dwarf (sorted) ${levels.sort((a, b) => b - a).join(',')}`);
+  out.push(`top skills ${Object.entries(maxSkill).sort((a, b) => b[1][0] - a[1][0]).slice(0, 18).map(([k, [l, n]]) => `${k}:${l}(${n})`).join(' ')}`);
+  out.push(`thoughts held ${Object.entries(thoughtSum).sort((a, b) => b[1][0] - a[1][0]).slice(0, 30).map(([k, [n, v]]) => `${k}×${n}(${Math.round(v / n)})`).join(' ')}`);
+  const q: Record<string, number[]> = {};
+  const mw: string[] = [];
+  const valueByType: Record<string, number> = {};
+  for (const id of ent.with(C.Item)) {
+    const it = ent.get(id, C.Item)!;
+    const k = itypes.rows[it.type]?.id ?? '?';
+    const row = q[k] ?? [0, 0, 0, 0, 0, 0];
+    row[it.quality] = (row[it.quality] ?? 0) + it.count;
+    q[k] = row;
+    if (it.quality >= 4) mw.push(`${Q[it.quality]} ${mats.rows[it.material]?.id} ${k} by ${it.crafterId}`);
+  }
+  out.push(`quality by item (poor/common/fine/sup/exc/mw), quality-bearing only: ${Object.entries(q).filter(([, r]) => r.slice(2).some((v) => v > 0) || r[0]! > 0).map(([k, r]) => `${k}[${r.join('/')}]`).join(' ')}`);
+  out.push(`exceptional+ items: ${mw.length} ${mw.slice(0, 20).join('; ')}`);
+  void valueByType;
+  const recipes = reg.table<{ id: string }>('recipes');
+  const btypes = reg.table<{ id: string }>('buildings');
+  const jobs = R.of<{ job?(id: number): unknown }>('11');
+  for (const id of ent.with(C.Workshop)) {
+    const ws = ent.get(id, C.Workshop)!;
+    const b = ent.get(id, C.Building) as unknown as { type: number } | undefined;
+    const aw = ws.assignedWorker ? (ent.get(ws.assignedWorker, C.Creature)?.name ?? ws.assignedWorker) : '-';
+    const job = ws.currentJobId && jobs.job ? JSON.stringify(jobs.job(ws.currentJobId)).slice(0, 160) : String(ws.currentJobId);
+    out.push(`workshop ${btypes.rows[b?.type ?? 0]?.id}#${id} worker ${aw} blocked ${ws.lastBlockedReason} orders ${ws.orders.map((o) => `${recipes.rows[o.recipe]?.id}:${o.mode}:${o.mode === 'maintain' ? o.threshold : o.remaining}:p${o.priority}`).join(',')} job ${job}`);
+  }
+  const who = (process.env['PT_WHO'] ?? '').split(',').filter(Boolean);
+  for (const id of dwarves) {
+    const n = ent.get(id, C.Creature)!.name;
+    if (!who.some((w) => n.includes(w))) continue;
+    const br = ent.get(id, C.Brain); const lab = ent.get(id, C.Labors); const labs = reg.table<{ id: string }>('labors');
+    const on: string[] = []; if (lab) for (let i = 1; i < labs.rows.length; i++) if ((lab.enabled[i >> 3]! >> (i & 7)) & 1) on.push(labs.rows[i]!.id);
+    const sk = ent.get(id, C.Skills)!; const top: string[] = []; for (let i = 0; i < sk.level.length; i++) if (sk.level[i]! > 0) top.push(`${skills.rows[i]?.id}:${sk.level[i]}/${sk.xp[i]}`);
+    out.push(`dwarf ${n} ${br?.behavior} "${br?.activity}" labors ${on.join(' ')} skills ${top.join(' ')} mood ${ent.get(id, C.Mood)?.value}`);
+  }
+  const rooms: string[] = [];
+  for (const id of ent.with(C.Zone)) {
+    const z = ent.get(id, C.Zone)!;
+    const r = B.room(id);
+    if (!r) continue;
+    rooms.push(`${zt.rows[z.type]?.id}#${id}:${TIERS[r.tier]}(${Math.round(r.score)}${r.enclosed ? '' : ',open'}${r.requirementsMet ? '' : ',unmet'}${r.ownerId ? ',own' : ''},${z.tiles.length}t)`);
+  }
+  const byType: Record<string, Record<string, number>> = {};
+  for (const r of rooms) { const [t, rest] = r.split('#'); const tier = rest!.split(':')[1]!.split('(')[0]!; (byType[t!] ??= {})[tier] = (byType[t!]![tier] ?? 0) + 1; }
+  out.push(`rooms by type/tier ${JSON.stringify(byType)}`);
+  out.push(`rooms (non-bedroom) ${rooms.filter((r) => !/^bedroom/.test(r)).join(' ')}`);
+  out.push(`bedrooms sample ${rooms.filter((r) => /^bedroom/.test(r)).slice(0, 12).join(' ')}`);
+  return out.join('\n');
+}
+
+describe('pt9 census', () => {
+  it('counts', async () => {
+    for (const s of SAVES) console.log(await census(s));
+  }, 600_000);
+});
