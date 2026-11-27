@@ -49,6 +49,8 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
   private spirit = 55;
   private spiritTier: MoodTier = 2;
   private hourDue = false;
+  /** An `HourPassed` waits: the next recompute counts each Miserable dwarf's hour (15 § Sulks). */
+  private hourPassed = false;
   private dayDue = false;
   private firstTick = true;
   private lastHearthTier = 0;
@@ -145,7 +147,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
   }
 
   override handle(event: GameEvent, ctx: TickContext): void {
-    if (event.type === 'HourPassed') this.hourDue = true;
+    if (event.type === 'HourPassed') { this.hourDue = true; this.hourPassed = true; }
     if (event.type === 'DayPassed') this.dayDue = true;
     if (event.type === 'Buried' && !ctx.readers.of<ItemsReader>('13').unburiedDead(ctx.tick)) this.hourDue = true;
     if (event.type === 'Slept') {
@@ -263,13 +265,15 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     if (this.firstTick || this.hourDue) {
       this.firstTick = false;
       this.hourDue = false;
-      this.recompute(ctx, dwarves);
+      const countHour = this.hourPassed;
+      this.hourPassed = false;
+      this.recompute(ctx, dwarves, countHour);
     }
     if (this.dayDue) {
       this.dayDue = false;
       for (const id of dwarves.list()) {
-        const mood = this.ensure(id);
-        const count = advanceSulkCounter(mood.sulkCounterDays, mood.tier === 0);
+        const { miserableHours, ...mood } = this.ensure(id);
+        const count = advanceSulkCounter(mood.sulkCounterDays, miserableHours ?? 0);
         if (!count.sulk) { ctx.world.entities.add(id, C.Mood, { ...mood, sulkCounterDays: count.days }); continue; }
         const traits = ctx.world.entities.get(id, C.Personality)?.traits ?? [];
         const kind = sulkKind(ctx.registry, traits);
@@ -280,7 +284,8 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     }
   }
 
-  private recompute(ctx: TickContext, dwarves: DwarvesReader): void {
+  /** The hourly recompute; `countHour` (an `HourPassed`) adds the hour to each Miserable dwarf's `miserableHours`. */
+  private recompute(ctx: TickContext, dwarves: DwarvesReader, countHour = false): void {
     const entities = ctx.world.entities;
     const thoughts = ctx.registry.table<ThoughtDef>('thoughts');
     const hearth = ctx.readers.of<BuildingsReader>('14').hearthHallTier();
@@ -306,7 +311,9 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
       });
       const value = moodValue(values, hearth, personalityBase(ctx.registry, traits));
       const tier = tierOf(value);
-      entities.add(id, C.Mood, { ...before, value, tier, thoughts: next });
+      const { miserableHours, ...kept } = before;
+      const hours = (miserableHours ?? 0) + (countHour && tier === 0 ? 1 : 0);
+      entities.add(id, C.Mood, { ...kept, value, tier, thoughts: next, ...(hours > 0 ? { miserableHours: hours } : {}) });
       if (tier !== before.tier) ctx.emit({ type: 'MoodTierChanged', id, from: before.tier, to: tier });
     }
     const adults = dwarves.adults();
@@ -321,7 +328,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     if (this.rng === null) throw new Error('15 morale: serialize before init');
     return { stateVersion: 1, hallSpirit: this.spirit, hallSpiritTier: this.spiritTier, rng: this.rng.state(),
       floorSleepers: Array.from(this.floorSleepers).sort((a, b) => a - b), dailyStandingDue: this.dayDue,
-      hourlyDue: this.firstTick || this.hourDue, lastHearthTier: this.lastHearthTier,
+      hourlyDue: this.firstTick || this.hourDue, ...(this.hourPassed ? { hourPassedDue: true } : {}), lastHearthTier: this.lastHearthTier,
       dayOffUntil: Array.from(this.dayOffUntil).sort((a, b) => a[0] - b[0]),
       sunlightSeen: Array.from(this.sunlightSeen).sort((a, b) => a - b),
       statueSeen: Array.from(this.statueSeen).sort().map((key) => key.split(':').map(Number) as [EntityId, EntityId, number]),
@@ -337,6 +344,7 @@ export class MoraleSystem extends BaseSystem<MoraleStateV1> {
     for (const id of state.floorSleepers ?? []) this.floorSleepers.add(id);
     this.dayDue = state.dailyStandingDue === true;
     this.hourDue = state.hourlyDue === true;
+    this.hourPassed = state.hourPassedDue === true;
     this.lastHearthTier = state.lastHearthTier ?? 0;
     this.dayOffUntil.clear();
     for (const [id, tick] of state.dayOffUntil ?? []) this.dayOffUntil.set(id, tick);

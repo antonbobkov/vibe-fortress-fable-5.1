@@ -10,6 +10,8 @@ export const NEED_PRESSURE_CAP = 20;
 export const MOOD_NEEDS_MET_FLOOR = 20;
 export const HEARTH_TIER_BONUS = 2;
 export const SULK_DAYS = 7;
+/** 15 § Sulks: the hours Miserable that make a day count toward a sulk. */
+export const SULK_DAY_HOURS = 6;
 
 /** 0 Miserable, 1 Unhappy, 2 Fine, 3 Content, 4 Ecstatic. */
 export function tierOf(value: number): MoodTier {
