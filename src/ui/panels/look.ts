@@ -15,7 +15,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
 import type { Rgb } from '@render/palette';
 import { patternCell } from '@render/things';
-import { agedMaterial, buildingName, categoryWord, enchantedName, filterText, itemRotText, materialItemName, qualityWord, wrapHang, zoneName } from '../messages';
+import { agedMaterial, buildingName, categoryWord, enchantedName, filterText, itemRotText, materialItemName, qualitySkills, qualityWord, skillMakesText, wrapHang, zoneName } from '../messages';
 import type { Strings } from '../strings';
 import { creatureName, creatureNameOf } from '../creature-name';
 import { goodsWaiting, goodsWaitText } from '../goods-wait';
@@ -756,7 +756,9 @@ function creatureSections(s: Surface, rect: Rect, pen: Pen, readers: ReaderSet, 
     if (known.length > 0) {
       line(strings.get('ui.look.skills'), t.key);
       for (const k of known) {
-        line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)}) ${skillBar(readers, registry, id, k.sid)}`);
+        // A skill whose recipes roll quality says what it makes (12 § Quality).
+        const makes = qualitySkills(registry).has(k.sid) ? ` · ${skillMakesText(strings, k.level)}` : '';
+        line(`  ${skills.byId(k.sid)?.name ?? k.sid} ${k.level} (${dwarves.skillTier(id, k.sid)}) ${skillBar(readers, registry, id, k.sid)}${makes}`);
       }
     }
     if (dwarf) {

@@ -469,3 +469,4 @@ Every new row of every table goes at the end of this table, including generated 
 | hints | hint_cap |
 | hints | hint_deep_cavern |
 | hints | hint_glowcap_patch |
+| hints | hint_quality |

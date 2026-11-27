@@ -1842,5 +1842,9 @@
   {
     "table": "hints",
     "id": "hint_glowcap_patch"
+  },
+  {
+    "table": "hints",
+    "id": "hint_quality"
   }
 ]

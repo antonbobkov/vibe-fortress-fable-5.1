@@ -79,11 +79,11 @@ Nothing is cut under a building: no stairs, no channel and no ramp. A `floor` th
 ### Digging as a job
 
 - A designation creates a job of type `dig`, `channel`, `carve_stairs`, `carve_ramp`, `smooth`, `engrave`, `remove_construction`, `chop`, `gather`, `harvest_ice` or `ignite` with the designation's priority, through the `terrain` job producer.
-- `dig`, `channel`, carving and `remove_construction` require the `mining` labor and a pick in hand (the worker fetches one from a stockpile if not carrying one; picks are tools that a miner keeps until the labor is disabled). `chop` requires `woodcutting` and an axe. `smooth` and `engrave` require `masonry` (smoothing) and `engraving` (engraving) labors and no tool. `gather` requires `herbalism` and no tool.
+- `dig`, `channel`, carving and `remove_construction` require the `mining` labor and a pick in hand (the worker fetches one from a stockpile if not carrying one; picks are tools that a miner keeps until the labor is disabled). `chop` requires `woodcutting` and an axe. `smooth` requires the `masonry` labor and `engrave` the `crafts` labor (its skill is `engraving`, [skills-and-professions.md](../03-content/skills-and-professions.md)), and neither a tool. `gather` requires `herbalism` and no tool.
 - Work time: `baseTicks × hardness(material) / (100 + SKILL_TIME_BONUS_PERCENT × skillLevel)`, then the mood multiplier (15). Progress is stored on the job and survives interruption.
 - The worker stands on the target for channel, down stairs, or floor smoothing and engraving; other jobs use an adjacent walkable tile in the same-level 8-neighborhood. Up and up/down stairs also allow the tile directly above when it is a down or up/down stair, supplied by the producer's `extraStandTiles`. With no valid stand tile, the job is `blocked: unreachable`.
 - Channeling: before removing the floor, move the worker to the first passable 8-neighbour in tile order. With none, the movement helper makes it fall after the floor opens (over rock, onto the ramp the channel left below). Every other creature standing on the tile as it opens falls too.
-- On completion: apply the transition, spawn the item on the tile, or on the first solid-bottomed tile below when it is now `open`, grant skill experience, emit `TilesChanged` and, for ore or gem dug out of rock (stairs cut into a floor or re-carved from stairs mine nothing), `MineralMined { tile, material }` and on the first tile of a vein `VeinFound { material }` (deepsilver's vein usually comes earlier, when it is seen, § Discovery). A tile of class `bone` (a fossil, or a boulder of bone) emits `MineralMined` as an ore does, and no `VeinFound`; the first one dug in a fortress emits `FossilFound { dwarfId, tile }` once (saved flag `fossilFound`): the note "{dwarf} has found the bones of something old." and the digger's thought `first_fossil` (15). Digging into an open cavern tile emits `CavernBreached { cavern }` the first time for each cavern.
+- On completion: apply the transition, spawn the item on the tile, or on the first solid-bottomed tile below when it is now `open`, grant skill experience, emit `TilesChanged` and, for ore or gem dug out of rock (stairs cut into a floor or re-carved from stairs mine nothing), `MineralMined { tile, material }` and on the first tile of a vein `VeinFound { material }` (deepsilver's vein usually comes earlier, when it is seen, § Discovery). A tile of class `bone` (a fossil, or a boulder of bone) emits `MineralMined` as an ore does, and no `VeinFound`; the first one dug in a fortress emits `FossilFound { dwarfId, tile }` once (saved flag `fossilFound`): the note "{dwarf} has found the bones of something old." and the digger's thought `first_fossil` (15). An engraving whose quality roll is a masterwork emits `MasterworkCreated { itemId: 0, crafterId, tile }` as 12's masterwork item does: the engraver's thought `made_masterwork` (15), and the note "Olav Amberhand has engraved a masterwork in Hearth hall #1.", naming the zone the tile lies in ("… has engraved a masterwork." outside one). Digging into an open cavern tile emits `CavernBreached { cavern }` the first time for each cavern.
 - A vein is the face-connected set of tiles of one mineral material, searched with a 4,096-tile bound and keyed by its lowest tile index. Dug tiles retain material, so digging preserves the identity. Only the first mined tile whose key is absent from `veinsFound` emits `VeinFound`.
 - A player `CancelJob` clears its designation so it cannot recreate the job. Removing or changing a designation cancels its job with `target_invalid`.
 - Deepsilver: each deepsilver tile dug emits `DeepsilverMined { tile }` (18 raises Deep pressure). Before the first deepsilver designation is applied, the UI shows a one-time confirmation (24) explaining the consequence.
@@ -141,6 +141,7 @@ Nothing is cut under a building: no stairs, no channel and no ramp. A `floor` th
 - `cavernBreached: [boolean, boolean, boolean]`.
 - `veinsFound: TileIndex[]`: sorted keys of veins already announced.
 - `fossilFound: boolean`: the first tile of class `bone` has been dug (absent in older saves and while false).
+- `rockDug: boolean`: a tile of rock (class `stone` or `obsidian`) has been mined by `dig`, a ramp or stairs cut into a wall (absent in older saves and while false). The workshops' stone advice reads it (24, `terrain.rockDug()`).
 - `craterTiles: TileIndex[]`: a `starfall` map's crater tiles, ascending, from generation (absent on any other map). 10 reads them for `CraterEntered`.
 - `giantSkulls: TileIndex[][]`: each boneyard's skull tiles still to dig, ascending, from generation; a group leaves when its `giant_skull` drops (absent on a map without one).
 - `boneyards: TileIndex[][]`: each boneyard's cage tiles, ascending, from generation (absent on a map without one). 10 reads them for `RibsEntered`.
@@ -160,6 +161,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 - `terrain.surfaceZ(x, y)`
 - `terrain.isSupported(i)`
 - `terrain.cavernBreached(n)`
+- `terrain.rockDug()`: a tile of rock has been mined (§ State `rockDug`)
 - `terrain.materialClassAt(i)` (stone, soil, ore, gem, bone, ice, wood, constructed)
 - `terrain.spec()` — the `LocalMapSpec`
 - `terrain.isForbidden(i)` — the tile's traffic mode is `forbidden`
@@ -185,7 +187,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 
 ### Events emitted
 
-`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `FossilFound { dwarfId, tile }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`, `TileIgnited { tile, dwarfId }` (an `ignite` job done).
+`TilesChanged { tiles[] }` (batched), `TilesDiscovered { tiles[] }` (batched), `VeinFound { material, tile }`, `MineralMined { tile, material }`, `FossilFound { dwarfId, tile }`, `DeepsilverMined { tile }`, `CavernBreached { cavern, tile }`, `ConstructionCollapsed { tiles[] }`, `TreeFelled { tile, species }`, `TileIgnited { tile, dwarfId }` (an `ignite` job done), `MasterworkCreated { itemId: 0, crafterId, tile }` (an engraving of masterwork quality).
 
 ### Registrations
 
@@ -207,7 +209,7 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 
 | Name | Value | Meaning |
 |---|---|---|
-| `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item (*unmeasured*) |
+| `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item. More stone was measured in the twenty-seed sweep and not taken: at 500 the pooled dwarf deaths rose to 122.25 (108.5 at 300) and at 1000 to 135.75, with the living at year 3 1,152.5 and 1,093.25 (1,139.75 at 300), and neither brought a masterwork by year 3; the stone a fortress cannot use is hauled and fought over |
 | `SOIL_DROP_PERMILLE` | 500 | Chance a dug soil tile tagged `soil_drop`, or a channelled floor of one, drops a `soil_load` (*unmeasured*) |
 | `DIG_BASE_TICKS` | 60 | Base time to dig one wall tile of hardness 100; measured, 90 ticks a granite tile at skill 0 and 50 at skill 10 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `CHANNEL_BASE_TICKS` | 80 | *unmeasured* |

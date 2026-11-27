@@ -1,6 +1,8 @@
 # T-803 — A crafter can reach masterwork: stone comes in a quantity a craft can train on, and the workshop says why it waits
 
-**Source:** playtest 9 ([report](../../reports/data/2026-11-26-playtest-9.md), findings 1 and 2); playtest 7 ("no masterwork in six years") · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-27, in f070e6dd.
+
+**Source:** playtest 9 ([report](../../../reports/data/2026-11-26-playtest-9.md), findings 1 and 2); playtest 7 ("no masterwork in six years") · **Size:** M · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -24,9 +26,25 @@ Decisions taken here:
 - **An order whose inputs are a set waits its turn.** A 3-stone statue order that has waited `ORDER_AHEAD_TICKS` while 1-stone orders of the same priority took every stone reserves stones as they come. It does not wait for all three. Spec it in 12 § Operation step 2.
 - **Masterworks are reachable by about Year 3 for a dedicated crafter.** That is the measure for this task. Add a sweep line: the best crafting/masonry/carpentry level at Year 3, and the count of masterworks.
 
+## Decided while doing it
+
+- **Neither rule is taken (the orchestrator, 2026-11-27).** The drop rate stays 300‰ and the set of stone does not gather: against the base this was built on (61723338, sweep 45911220303: living 1,139.75, deaths 108.5), 500‰ added 13.75 deaths, over the bar, and gave no masterwork by Year 3. The UI parts stay: the dug fortress's advice (with the rate as it stands, "3 in 10"), the saved `rockDug` flag it reads, and the sweep's crafts line. The stone rate goes with the crafter's pace into T-812-crafter-trains-faster. Twenty-seed sweep, four shifts, each with the set of stone below:
+
+  | Drop | Living at year 3 | Dwarf deaths | Need deaths | Extinct | Raw stone (median) | Items (median) | Verdict |
+  |---|---|---|---|---|---|---|---|
+  | base 61723338 (300, run 45911220303) | 1,139.75 | 108.5 | | | | | |
+  | 1000 (run 45928628497) | 1,093.25 | 135.75 | 1.25 | 0.25 | 611 | 2,167 | blocked: deaths |
+  | 500 (run 45949777523) | 1,152.5 | 122.25 | 0.25 | 0 | 189 | 1,592 | pass, but +13.75 deaths |
+
+  The annual instrument passed at both (1000: run 45928631650, pooled median 13, worst 8.5, sum 152.75; 500: run 45949780444, median 12.94, worst 7.38, sum 150.38). The sweep's crafts line at 500‰: best crafting a median 8 (0 to 9) at year 3, no masterwork.
+- **"Rock has been dug"** is a saved flag of 03, `rockDug`, set by any mined tile of class `stone` (dig, a ramp, stairs cut into a wall), with the reader `terrain.rockDug()`. The advice reads "dig more rock: 5 in 10 tiles give a stone" (in tenths of the constant; "every tile dug gives a stone" at 1000), then "· stone goes to" the first two standing orders that take raw stone, as their rows read in Orders ("Mason's workshop #1 (≥30 Blocks)"): the order's quantity and recipe name read better than an item word, since stone crafts have no item of one name.
+- **The set of stone as it was tried** (not taken): an input of more than one unit whose item types are all `stone/raw` gathered its units as they came once its order had waited `ORDER_AHEAD_TICKS`, holding the workshop's job `blocked: missing_input` meanwhile; food, drink, bars and cloth were left out, as a waiting set would hold them from eating, drinking and every other order. It was measured only together with the higher drop rates.
+- **The measure was not met.** With 1000‰ playtest 9's crafter reached 12 on day 419; level 13 about day 500 and a first masterwork a month after. The sweep's fortresses make no masterwork by year 3. `balance.md` § Wealth curve now says so, and T-812-crafter-trains-faster takes up the pace.
+- **The crafter eats the statues** (`fun-features.md`): decide again, as no rule was taken.
+
 ## Done
 
-- [ ] The drop rate measured and set; 03 § Digging and the tuning table updated, with the measurement.
-- [ ] The stone advice for a dug fortress, with the orders that keep stone; a UI test.
-- [ ] Set orders reserve stone as it comes; a scenario where a statue is made beside a standing 1-stone order.
-- [ ] The sweep reports Year 3 craft levels and masterworks; balance.md § Wealth curve checked against it.
+- [x] The drop rate measured, and kept at 300‰; 03's tuning table says why, with the measurement.
+- [x] The stone advice for a dug fortress, with the orders that keep stone; a UI test (`test/unit/ui/t803-stone-advice-dug-fortress.test.ts`).
+- [ ] Set orders reserve stone as it comes: tried and measured with the drop rates, not taken (above).
+- [x] The sweep reports Year 3 craft levels and masterworks ("Crafts at year 3" in the verdict); balance.md § Wealth curve checked against it.

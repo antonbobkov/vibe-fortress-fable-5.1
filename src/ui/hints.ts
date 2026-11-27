@@ -16,7 +16,8 @@ import { HAULER_WARNING_MIN_WORKERS, IDLE_HAULER_WARNING } from '@systems/jobs/c
 import type { WorkshopsReader } from '@systems/workshops';
 import type { UiState } from './ui-state';
 import type { AnnouncementLog } from './announcements';
-import { HINT_ALERT_REPEAT_DAYS, HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM } from './constants';
+import { HINT_ALERT_REPEAT_DAYS, HINT_CHECK_HOURS, HINT_FOOD_DAYS, HINT_FOOD_DAYS_PER_ITEM, QUALITY_HINT_TIER } from './constants';
+import { itemName, withArticle } from './messages';
 import { raidArrival } from './raid-lines';
 import { foodAtHand } from './food-at-hand';
 import { starvingShutIn } from './shut-in';
@@ -83,6 +84,8 @@ export interface HintFacts {
   pausedOrder?: boolean;
   /** 21 § Population cap: the living dwarves of the fortress have reached its cap. */
   populationCapped?: boolean;
+  /** `hint_quality`: the first item of fine quality or better was made (shown on its `ItemCrafted`). */
+  qualityMade?: boolean;
 }
 
 /** Each row is the predicate stated by its `03-content/ui-keymap-and-screens.md` content trigger. */
@@ -139,6 +142,7 @@ export function hintPredicate(id: string, f: HintFacts): boolean {
     case 'hint_panel_letters': return f.panelLetterShadowed === true;
     case 'hint_paused': return f.pausedOrder === true;
     case 'hint_cap': return f.populationCapped === true;
+    case 'hint_quality': return f.qualityMade === true;
     default: return false;
   }
 }
@@ -192,6 +196,10 @@ export class HintEngine {
       if (event.type === 'Starving' && event['need'] === 'hunger' && !this.ui.hintsShown.includes('hint_starving')) {
         this.show('hint_starving', readers.calendar.tick, true, this.starvingText(readers));
       }
+      // The first item of fine quality or better says how quality is made, naming its maker and the item.
+      if (event.type === 'ItemCrafted' && Number(event['quality'] ?? 0) >= QUALITY_HINT_TIER && !this.ui.hintsShown.includes('hint_quality')) {
+        this.show('hint_quality', readers.calendar.tick, true, this.qualityText(readers, event as Readonly<Record<string, unknown>>));
+      }
       // The first miserable line of the fortress says where to read what helps, after it.
       if (event.type === 'MoodTierChanged' && !this.ui.hintsShown.includes('hint_mood') && this.log.lines.some((line) => line.key?.startsWith(MISERABLE_KEY) === true)) {
         this.show('hint_mood', readers.calendar.tick);
@@ -227,6 +235,17 @@ export class HintEngine {
     if (shut.length > 0) return strings.get('ui.starving_hint.shut_in', { n: shut.length });
     const food = foodAtHand(readers, this.registry, strings);
     return food.length === 0 ? strings.get('ui.starving_hint.none') : strings.get('hint.hint_starving', { food: food.join('; ') });
+  }
+
+  /** `hint_quality`'s words: "Frode Brightward made a fine figurine. Quality comes from skill: …". */
+  private qualityText(readers: ReaderSet, event: Readonly<Record<string, unknown>>): string {
+    const strings = this.log.strings;
+    const dwarf = readers.entities.get(Number(event['crafterId'] ?? 0), C.Creature)?.name ?? '';
+    const item = readers.has('13') ? readers.of<ItemsReader>('13').get(Number(event['itemId'] ?? 0)) : undefined;
+    const typeId = item === undefined ? '' : this.registry.table<{ id: string }>('items').byIndex(item.type)?.id ?? '';
+    const quality = strings.get(`ui.item.quality.${Number(event['quality'] ?? 0)}`);
+    const what = withArticle(strings, typeId === '' ? quality : `${quality} ${itemName(this.registry, strings, typeId)}`);
+    return strings.get('hint.hint_quality', { dwarf, what });
   }
 
   private pending(id: string): boolean { return this.ui.hintPending.includes(id); }

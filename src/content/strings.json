@@ -174,6 +174,7 @@
   "hint.hint_paused": "Time is paused, so nothing happens yet. [Space] runs the fortress, [+] and [-] change the speed.",
   "hint.hint_predator": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert: civilians go to the hearth and doors set to Lock on alert shut. [n] then [2] shows where it is.",
   "hint.hint_predator_open": "A beast that hunts dwarves is near. [m] then [3] raises the Hearth alert once your hall has a door: before that there is nowhere to shelter, and the dwarves work on in the open. [n] then [2] shows where it is.",
+  "hint.hint_quality": "{dwarf} made {what}. Quality comes from skill: a dwarf who works one craft gets better at it, and from Talented (13) can make a masterwork. Give a workshop one worker [w].",
   "hint.hint_rack": "A rack dries what it holds. Outdoors it dries twice as fast in clear weather, and not at all in rain.",
   "hint.hint_room": "A room needs walls or doors around it, a bed, and smooth stone to be worth sleeping in.",
   "hint.hint_rot": "Food rots: meals and raw food keep two or three weeks. Barrels in a food stockpile slow it four times; smoked or salted meat keeps. Cook, farm and fish for more.",

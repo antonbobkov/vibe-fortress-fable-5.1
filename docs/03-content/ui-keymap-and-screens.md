@@ -730,7 +730,7 @@ Each entry of the hotkey strip on status row 2 and each field of status row 1 is
 
 ## Hints
 
-Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed, `hint_starving` on its `Starving` event, `hint_mood` on the `MoodTierChanged` event that made the first miserable line, `hint_alert`'s repeat on the raid's event, and `hint_panel_letters` and `hint_paused` at the player's action that triggers them). `hint_alert` alone shows again (24 § Hints). Ids and triggers:
+Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly, except the hauling shortage on DayPassed, `hint_starving` on its `Starving` event, `hint_quality` on the `ItemCrafted` of the first item of fine quality or better, `hint_mood` on the `MoodTierChanged` event that made the first miserable line, `hint_alert`'s repeat on the raid's event, and `hint_panel_letters` and `hint_paused` at the player's action that triggers them). `hint_alert` alone shows again (24 § Hints). Ids and triggers:
 
 | id | Trigger | Text |
 |---|---|---|
@@ -784,6 +784,7 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_panel_letters` | a panel's own letter acts where that letter also opens a panel (§ Panels) | "Inside a panel its own letters come first. Esc, then a letter, opens another panel." |
 | `hint_paused` | the first designation, zone, building or work order made while the fortress is paused and has not run since it was entered (embarked or loaded); not while the tutorial runs | "Time is paused, so nothing happens yet. [Space] runs the fortress, [+] and [-] change the speed." |
 | `hint_mood` | the first miserable line of the fortress, after it (`MoodTierChanged`) | "A miserable dwarf works slower and may sulk. The Mood panel [e] says what helps." |
+| `hint_quality` | the first item of fine quality or better made in the fortress (`ItemCrafted`), naming its maker and the item | "{dwarf} made {what}. Quality comes from skill: a dwarf who works one craft gets better at it, and from Talented (13) can make a masterwork. Give a workshop one worker [w]." |
 | `hint_cap` | the living dwarves of the fortress reach its population cap (21), hourly | "The fortress has reached its population cap: [p] raises it. The idle wait in the hearth hall. For more to do, put a squad on Train [m], dig down to the caverns and what the deep holds, or build a runeforge [b > Workshops] for runecraft." |
 
 `hint_starving`'s `{food}` is what the fortress could eat now, read when the hint shows, as clauses joined by "; " in this order and only those that hold (`ui.starving_hint.*`, § Announcement strings):

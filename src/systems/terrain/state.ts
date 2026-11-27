@@ -44,6 +44,8 @@ export interface TerrainStateV1 {
   veinsFound: TileIndex[];
   /** The first tile of class `bone` has been dug (`03` § State). Absent in older saves and while false. */
   fossilFound?: boolean;
+  /** A tile of rock has been mined (`03` § State). Absent in older saves and while false. */
+  rockDug?: boolean;
   /** A `starfall` map's crater tiles, ascending (`03` § State). Absent on any other map. */
   craterTiles?: TileIndex[];
   /** Each boneyard's skull tiles still to dig, ascending (`03` § State). Absent on a map without one. */

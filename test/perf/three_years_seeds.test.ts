@@ -151,10 +151,16 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
   const dwarfSpecies = w.game.registry.table('creatures').index('dwarf');
   const partyWatch = new PartyWatch(w);
 
+  // T-803: the masterworks made, and the day of the first.
+  let masterworks = 0;
+  let firstMasterworkDay: number | null = null;
   const unsub = w.game.world.onEvents((events) => {
     const day = Math.floor(w.tick / TICKS_PER_DAY) + 1;
     for (const e of events) {
-      if (e.type === 'ImmigrantsArrived') {
+      if (e.type === 'MasterworkCreated') {
+        masterworks += 1;
+        firstMasterworkDay ??= day;
+      } else if (e.type === 'ImmigrantsArrived') {
         waves.push({ day, count: Number(e['count'] ?? 0), guaranteed: e['guaranteed'] === true });
       } else if (e.type === 'RaidArrived') {
         raids.push({ day, kind: String(e['kind'] ?? 'raid'), size: Number(e['size'] ?? 0), partyId: Number(e['partyId'] ?? 0) });
@@ -267,6 +273,16 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
     expect(val).toBeGreaterThanOrEqual(MOOD_NEEDS_MET_FLOOR - needPressure);
   }
 
+  // T-803: the best level of each craft skill among the living at year 3, the masterworks and the raw stone lying about.
+  const skillTable = w.game.registry.table('skills');
+  const best = (skill: string): number => Math.max(0, ...survivingDwarves.map((id) => w.game.world.entities.get(id, C.Skills)?.level[skillTable.index(skill)] ?? 0));
+  const crafts = {
+    crafting: best('crafting'), masonry: best('masonry'), carpentry: best('carpentry'), engraving: best('engraving'),
+    masterworks, firstMasterworkDay,
+    rawStone: items.countAvailable({ type: w.game.registry.table('items').index('raw_stone') }),
+    items: w.game.world.entities.with(C.Item).length,
+  };
+
   const deaths = deathCounts(w);
   const avgMood = moods.length > 0 ? (sumMood / moods.length).toFixed(1) : 'extinct';
 
@@ -313,6 +329,7 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
     crowds: { doors: crowdWatch.doors, hall: crowdWatch.hall, stations: crowdWatch.stations, fighting: crowdWatch.fighting },
     parties: partyWatch.figures,
     squad: squadRecord(state),
+    crafts,
   };
   // Preserve the measurement even when a deterministic guarantee fails.
   console.log(`[three_years_seeds_detail] ${JSON.stringify(result)}`);

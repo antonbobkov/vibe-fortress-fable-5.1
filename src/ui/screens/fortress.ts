@@ -2321,6 +2321,7 @@ export class FortressScreen implements Screen {
     // progress, then the selection, then the tool, then the panel, then the game menu.
     if (this.orders.materialOpen) { this.orders.materialOpen = false; return; }
     if (this.orders.picker.open) { this.orders.picker.open = false; return; }
+    if (this.orders.workerPick.open) { this.orders.workerPick.open = false; return; }
     if (this.animals.capEditor !== null) { this.animals.capEditor = null; return; }
     if (this.animals.name.focused) { this.animals.name.focused = false; return; }
     if (this.animals.trainChoice !== null) { this.animals.trainChoice = null; return; }

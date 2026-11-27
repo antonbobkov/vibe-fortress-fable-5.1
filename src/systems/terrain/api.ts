@@ -77,6 +77,8 @@ export class TerrainCore implements TerrainApi {
   readonly veinsFound: number[] = [];
   /** `03` § State: the first tile of class `bone` has been dug (`FossilFound` is emitted once). */
   fossilFound = false;
+  /** `03` § State `rockDug`: a tile of rock (class `stone`) has been mined. */
+  rockDug = false;
   /** `03` § State: a `starfall` map's crater tiles, ascending (empty on any other map). */
   readonly craterTiles: number[] = [];
   /** `03` § State: each boneyard's skull tiles still to dig, ascending (a group dropped when its last is dug). */
