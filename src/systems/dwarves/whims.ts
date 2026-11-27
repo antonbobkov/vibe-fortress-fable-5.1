@@ -20,9 +20,11 @@ export const WHIMS_STREAM = '10.whims';
 /** A row of `whims.json`. */
 export interface WhimRow {
   readonly id: string;
-  readonly kind: 'stock' | 'room';
-  /** An item id (a room whim's building type, which is also its item), or `any`. */
-  readonly item: string;
+  readonly kind: WhimKind;
+  /** An item id (a room whim's building type, which is also its item), or `any`; none for `tier` and `engraved`. */
+  readonly item?: string;
+  /** A room whim's second building type, wanted beside the first. */
+  readonly also?: string;
   readonly material?: string;
   readonly quality?: number;
   readonly bedding?: 'feather';
@@ -33,10 +35,20 @@ export interface WhimRow {
   readonly text: string;
 }
 
-/** The saved whim of the season: its row and the tick it was set (`DwarvesState.whim`). */
+/** `stock`, `room`, `tier` (the hall a tier up) and `engraved` (the Thane's bedroom engraved). */
+export type WhimKind = 'stock' | 'room' | 'tier' | 'engraved';
+
+/** The highest room tier (royal): a `tier` whim is not possible at it. */
+const TOP_ROOM_TIER = 5;
+
+/**
+ * The saved whim of the season: its row, the tick it was set and, for a `tier` whim, the tier wished
+ * for (the hall's tier at the draw, plus one) (`DwarvesState.whim`).
+ */
 export interface Whim {
   readonly id: string;
   readonly setTick: number;
+  readonly target?: number;
 }
 
 interface ItemRow { readonly id: string; readonly tags?: readonly string[] }
@@ -63,6 +75,7 @@ export function whimRows(registry: Registry): WhimRow[] {
 
 /** The stock a whim counts: its item type, of its material and quality when it names them. */
 function stockFilter(registry: Registry, row: WhimRow): ItemFilter | null {
+  if (row.item === undefined) return null;
   const items = registry.table<ItemRow>('items');
   const materials = registry.table('materials');
   const filter: ItemFilter = {};
@@ -78,18 +91,28 @@ function stockFilter(registry: Registry, row: WhimRow): ItemFilter | null {
   return filter;
 }
 
-/** The built buildings that answer a room whim: of its type and material, made up as it says, in its zone. */
+/**
+ * The built buildings that answer a room whim: of its type and material, made up as it says, of its
+ * quality or better (the building's item), in its zone; with a second type, the fewer of the two.
+ */
 function roomMatches(readers: ReaderSetLike, registry: Registry, row: WhimRow, thaneId: EntityId): number {
+  const first = row.item === undefined ? 0 : roomMatchesOf(readers, registry, row, row.item, thaneId);
+  return row.also === undefined ? first : Math.min(first, roomMatchesOf(readers, registry, row, row.also, thaneId));
+}
+
+function roomMatchesOf(readers: ReaderSetLike, registry: Registry, row: WhimRow, type: string, thaneId: EntityId): number {
   if (!readers.has('14')) return 0;
   const b14 = readers.of<BuildingsReader>('14');
+  const items13 = readers.has('13') ? readers.of<ItemsReader>('13') : null;
   const materials = registry.table('materials');
   const material = row.material === undefined ? -1 : materials.has(row.material) ? materials.index(row.material) : -2;
   if (material === -2) return 0;
   let n = 0;
-  for (const id of b14.byType(row.item)) {
+  for (const id of b14.byType(type)) {
     const b = b14.get(id);
     if (b === undefined || b.state !== 'built') continue;
     if (material >= 0 && b.material !== material) continue;
+    if (row.quality !== undefined && (b.itemId === 0 || (items13?.get(b.itemId)?.quality ?? 0) < row.quality)) continue;
     if (row.bedding !== undefined && b14.bedding(id) !== row.bedding) continue;
     const zones = new Set(b.footprint.flatMap((t) => b14.zonesAt(t)));
     const inZone = Array.from(zones).some((z) => (row.zone === undefined || b14.zone(z)?.type === row.zone) &&
@@ -102,21 +125,60 @@ function roomMatches(readers: ReaderSetLike, registry: Registry, row: WhimRow, t
 /**
  * `10` § The Thane's whim, judged: a `stock` whim has at least `count` units of its item in stock
  * (available: not forbidden, reserved, owned or installed); a `room` whim has `count` built buildings
- * of its type in a zone of its type (the Thane's own when it says so).
+ * of its type in a zone of its type (the Thane's own when it says so); a `tier` whim's hall is of the
+ * tier wished for or above; an `engraved` whim's bedroom has every smoothed tile engraved.
  */
-export function whimMet(readers: ReaderSetLike, registry: Registry, row: WhimRow, thaneId: EntityId): boolean {
-  return whimProgress(readers, registry, row, thaneId) >= row.count;
+export function whimMet(readers: ReaderSetLike, registry: Registry, row: WhimRow, thaneId: EntityId, whim?: Whim): boolean {
+  const p = whimProgress(readers, registry, row, thaneId, whim);
+  return p.count > 0 && p.have >= p.count;
+}
+
+/** The Thane's bedroom, or 0. */
+function thaneBedroom(readers: ReaderSetLike, thaneId: EntityId): EntityId {
+  return thaneId === 0 || !readers.has('14') ? 0 : readers.of<BuildingsReader>('14').bedroomOf(thaneId);
 }
 
 /**
- * How much of a whim the fortress has now, as the judgement counts it: units of its item in stock
- * (available) for a `stock` whim, built buildings that answer it for a `room` whim.
+ * How much of a whim the fortress has now, against what it asks, as the judgement counts them: units
+ * of its item in stock (available) for a `stock` whim, built buildings that answer it for a `room`
+ * whim, the hall's tier against the tier wished for for a `tier` whim, and the engraved tiles against
+ * the engraved and smoothed ones of the Thane's bedroom for an `engraved` whim (0 of 0 without one).
  */
-export function whimProgress(readers: ReaderSetLike, registry: Registry, row: WhimRow, thaneId: EntityId): number {
-  if (row.kind === 'room') return roomMatches(readers, registry, row, thaneId);
+export function whimProgress(readers: ReaderSetLike, registry: Registry, row: WhimRow, thaneId: EntityId, whim?: Whim): { have: number; count: number } {
+  if (row.kind === 'room') return { have: roomMatches(readers, registry, row, thaneId), count: row.count };
+  if (row.kind === 'tier') {
+    const have = readers.has('14') ? readers.of<BuildingsReader>('14').hearthHallTier() : 0;
+    return { have, count: whim?.target ?? Math.min(TOP_ROOM_TIER, have + 1) };
+  }
+  if (row.kind === 'engraved') {
+    const room = thaneBedroom(readers, thaneId);
+    const d = room === 0 ? undefined : readers.of<BuildingsReader>('14').roomDiagnostics(room);
+    return d === undefined ? { have: 0, count: 0 } : { have: d.engraved, count: d.engraved + d.plainSmoothed };
+  }
   const filter = stockFilter(registry, row);
-  if (filter === null || !readers.has('13')) return 0;
-  return readers.of<ItemsReader>('13').countAvailable(filter);
+  if (filter === null || !readers.has('13')) return { have: 0, count: row.count };
+  return { have: readers.of<ItemsReader>('13').countAvailable(filter), count: row.count };
+}
+
+/**
+ * `10` § The Thane's whim, the Thane's drink: a standing `stock` whim of a drink of a named material
+ * keeps its units from the fortress's throats while there are no more of them available than it asks
+ * for. The materials kept now ([] or the whim's one).
+ */
+export function keptDrinkMaterials(readers: ReaderSetLike, registry: Registry, row: WhimRow): number[] {
+  if (row.kind !== 'stock' || row.material === undefined || row.item === undefined || row.item === 'any') return [];
+  const items = registry.table<ItemRow & { drinkable?: boolean }>('items');
+  const materials = registry.table('materials');
+  if (items.byId(row.item)?.drinkable !== true || !materials.has(row.material)) return [];
+  const filter = stockFilter(registry, row);
+  if (filter === null || !readers.has('13')) return [];
+  return readers.of<ItemsReader>('13').countAvailable(filter) <= row.count ? [materials.index(row.material)] : [];
+}
+
+/** A whim keeps its drink for the Thane: a `stock` whim of a drink of a named material. */
+export function whimKeepsDrink(registry: Registry, row: WhimRow): boolean {
+  if (row.kind !== 'stock' || row.material === undefined || row.item === undefined || row.item === 'any') return false;
+  return registry.table<ItemRow & { drinkable?: boolean }>('items').byId(row.item)?.drinkable === true;
 }
 
 /** The item types whose id or tags answer a recipe input's `match` (alternatives split on `|`). */
@@ -284,7 +346,22 @@ function stuffingAtHand(hand: Hand, readers: ReaderSetLike, row: WhimRow): boole
  * with a stuffing also needs the bedding and pillow of that stuffing at hand, and a bed already built
  * counts as its bed.
  */
-export function whimPossible(readers: ReaderSetLike, registry: Registry, row: WhimRow, facts: WhimFacts): boolean {
+export function whimPossible(readers: ReaderSetLike, registry: Registry, row: WhimRow, facts: WhimFacts, thaneId: EntityId = 0): boolean {
+  if (!readers.has('14')) return false;
+  if (row.kind === 'tier') {
+    const b14 = readers.of<BuildingsReader>('14');
+    return b14.hearthHallTiles().length > 0 && b14.hearthHallTier() < TOP_ROOM_TIER;
+  }
+  if (row.kind === 'engraved') {
+    const room = thaneBedroom(readers, thaneId);
+    return room !== 0 && (readers.of<BuildingsReader>('14').roomDiagnostics(room)?.plainSmoothed ?? 0) > 0;
+  }
+  if (row.also !== undefined && !itemPossible(readers, registry, { ...row, item: row.also }, facts)) return false;
+  return itemPossible(readers, registry, row, facts);
+}
+
+/** A `stock` or `room` row's item could be had: in stock, or made from what is at hand. */
+function itemPossible(readers: ReaderSetLike, registry: Registry, row: WhimRow, facts: WhimFacts): boolean {
   const filter = stockFilter(registry, row);
   if (filter === null || !readers.has('13') || !readers.has('14')) return false;
   const items13 = readers.of<ItemsReader>('13');
@@ -292,7 +369,7 @@ export function whimPossible(readers: ReaderSetLike, registry: Registry, row: Wh
   const hand: Hand = { registry, items: items13, recipes: builtRecipes(readers, registry), facts };
   if (!stuffingAtHand(hand, readers, row)) return false;
   if (items13.countAvailable(filter) > 0) return true;
-  if (row.bedding !== undefined && b14.byType(row.item).some((id) => b14.get(id)?.state === 'built')) return true;
+  if (row.bedding !== undefined && b14.byType(row.item ?? '').some((id) => b14.get(id)?.state === 'built')) return true;
   const materials = registry.table('materials');
   for (const recipe of hand.recipes) {
     if (!skilled(hand, recipe, row.quality)) continue;

@@ -33,7 +33,7 @@ import { SMOKE_RADIUS } from '@systems/materials/constants';
 import { TALLOW_SMOKE_PERMILLE } from '@systems/buildings/constants';
 import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
 import { SMOKEHOUSE_RECIPES, dwarvesNear } from '@systems/morale/thoughts';
-import { WHIMS_STREAM, whimFacts, whimMet, whimPossible, whimProgress, whimRows, type Whim } from './whims';
+import { keptDrinkMaterials, WHIMS_STREAM, whimFacts, whimKeepsDrink, whimMet, whimPossible, whimProgress, whimRows, type Whim } from './whims';
 import type { WhimView } from './reader';
 
 export { makeReader, type DwarvesReader, type WhimView } from './reader';
@@ -110,7 +110,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
-  readonly activities = new Activities();
+  readonly activities = new Activities((ctx) => this.keptForThane(ctx));
   readonly idleAnnounced = new Set<EntityId>();
   readonly sawMasterworks = new Set<string>();
   /** `10` § Movement: a fortress dwarf has stood in the `starfall` crater (saved; absent while false). */
@@ -205,25 +205,39 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   /**
    * `10` § The Thane's whim: on `SeasonChanged`, the whim of the season ending is judged
    * (`WhimJudged`; 15 gives everyone `thane_pleased` or the Thane alone `thane_grumbled`), then, if the
-   * fortress has a Thane, one possible whim is drawn on `WHIMS_STREAM` (`WhimSet`).
+   * fortress has a Thane, one possible whim is drawn on `WHIMS_STREAM` (`WhimSet`): not the whim
+   * just judged while another is possible. A `tier` whim keeps the tier wished for.
    */
   private seasonWhim(ctx: TickContext): void {
     this.seedTitles();
     const thane = this.titles.thane !== 0 && ctx.world.entities.alive(this.titles.thane) ? this.titles.thane : 0;
     const rows = whimRows(ctx.registry);
+    const previous = this.whim?.id ?? null;
     if (this.whim !== null) {
       const row = rows.find((r) => r.id === this.whim?.id);
-      const met = row !== undefined && whimMet(ctx.readers, ctx.registry, row, thane);
+      const met = row !== undefined && whimMet(ctx.readers, ctx.registry, row, thane, this.whim);
       ctx.emit({ type: 'WhimJudged', thaneId: thane, whimId: this.whim.id, met });
       this.whim = null;
     }
     if (thane === 0) return;
     const facts = whimFacts(this.reader(), ctx.world.entities);
-    const possible = rows.filter((row) => whimPossible(ctx.readers, ctx.registry, row, facts));
+    const all = rows.filter((row) => whimPossible(ctx.readers, ctx.registry, row, facts, thane));
+    const possible = all.length > 1 ? all.filter((row) => row.id !== previous) : all;
     if (possible.length === 0) return;
     const row = possible[ctx.world.rngFor(WHIMS_STREAM).int(0, possible.length - 1)] as (typeof possible)[number];
-    this.whim = { id: row.id, setTick: ctx.tick };
+    const target = row.kind === 'tier' ? whimProgress(ctx.readers, ctx.registry, row, thane).count : undefined;
+    this.whim = { id: row.id, setTick: ctx.tick, ...(target === undefined ? {} : { target }) };
     ctx.emit({ type: 'WhimSet', thaneId: thane, whimId: row.id });
+  }
+
+  /**
+   * `10` § The Thane's whim, the Thane's drink: the drink materials a standing whim keeps from the
+   * dwarves' drinking now (`whims.ts` `keptDrinkMaterials`); [] with no whim.
+   */
+  keptForThane(ctx: TickContext): number[] {
+    if (this.whim === null) return [];
+    const row = whimRows(ctx.registry).find((r) => r.id === this.whim?.id);
+    return row === undefined ? [] : keptDrinkMaterials(ctx.readers, ctx.registry, row);
   }
 
   /** The whim of the season, how much of it there is now and whether it is met (the units panel's Thane line), or null. */
@@ -233,8 +247,8 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     const row = whimRows(this.registryRef).find((r) => r.id === this.whim?.id);
     if (row === undefined) return null;
     this.seedTitles();
-    const have = whimProgress(this.readersRef, this.registryRef, row, this.titles.thane);
-    return { id: row.id, text: row.text, met: have >= row.count, kind: row.kind, count: row.count, have };
+    const { have, count } = whimProgress(this.readersRef, this.registryRef, row, this.titles.thane, this.whim);
+    return { id: row.id, text: row.text, met: count > 0 && have >= count, kind: row.kind, count, have, kept: whimKeepsDrink(this.registryRef, row) };
   }
 
   /** TestWorld's direct setup helper uses the same crossing rule as an hourly update. */

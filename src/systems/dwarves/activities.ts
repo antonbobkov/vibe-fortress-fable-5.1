@@ -334,6 +334,13 @@ export function drinkGroup(ctx: TickContext, material: number): 'ale' | 'wine' |
 }
 
 export class Activities {
+  /** `10` § The Thane's whim: the drink materials a standing whim keeps from drinking now. */
+  private readonly keptForThane: (ctx: TickContext) => readonly number[];
+
+  constructor(keptForThane: (ctx: TickContext) => readonly number[] = () => []) {
+    this.keptForThane = keptForThane;
+  }
+
   readonly plans = new Map<EntityId, ActivityPlan>();
   readonly retryUntil = new Map<EntityId, Map<NeedName, number>>();
   /** Talks in passing; each talk has an entry for both dwarves. */
@@ -585,10 +592,13 @@ export class Activities {
       }
     } else if (need === 'thirst') {
       if (its !== null && ctx.world.services.items !== null) {
-        // A barrel on a stockpile, else one standing anywhere else (10 § Eating and drinking).
+        // A barrel on a stockpile, else one standing anywhere else (10 § Eating and drinking); the
+        // drink a standing whim keeps for the Thane is passed by (10 § The Thane's whim).
+        const kept = this.keptForThane(ctx);
+        const drinkable = kept.length === 0 ? { drinkable: true } : { drinkable: true, excludeMaterialIds: kept };
         const barrelled = { ...searchOptions, stockpiledContainerClass: 'barrel' };
-        const drink = its.findItem({ drinkable: true }, from, 'walker', barrelled)
-          || its.findItem({ drinkable: true }, from, 'walker', { ...barrelled, anywhere: true });
+        const drink = its.findItem(drinkable, from, 'walker', barrelled)
+          || its.findItem(drinkable, from, 'walker', { ...barrelled, anywhere: true });
         if (drink !== 0) {
           const record = its.get(drink);
           const one = record !== undefined && record.count > 1 ? ctx.world.services.items.split(drink, 1) : drink;

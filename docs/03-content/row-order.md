@@ -468,3 +468,8 @@ Every new row of every table goes at the end of this table, including generated 
 | confirmations | c_lower_alert_coming |
 | hints | hint_cap |
 | hints | hint_deep_cavern |
+| whims | whim_statue_hall |
+| whims | whim_hall_tier |
+| whims | whim_engraved_room |
+| whims | whim_fine_furniture |
+| whims | whim_superior |

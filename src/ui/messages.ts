@@ -358,8 +358,8 @@ export function alternativesName(registry: Registry, match: string, n: number, s
 /** A row of the `whims` table as the UI names it (`personality-and-thoughts.md` § Whims). */
 interface WhimRowLike {
   readonly id: string;
-  readonly kind: 'stock' | 'room';
-  readonly item: string;
+  readonly kind: 'stock' | 'room' | 'tier' | 'engraved';
+  readonly item?: string;
   readonly material?: string;
   readonly count: number;
   readonly text: string;
@@ -372,13 +372,22 @@ function whimRow(registry: Registry, whimId: string): WhimRowLike | undefined {
 /**
  * How far the fortress is with a whim (`10` § The Thane's whim): a `stock` whim by the units in stock
  * and its count of its item ("3 of 20 fine meals in stock", "0 of 20 mead in stock"; "0 of 1 in stock"
- * for any item), a `room` whim by the buildings in place ("0 of 1 in place").
+ * for any item), a `room` whim by the buildings in place ("0 of 1 in place"), a `tier` whim by the
+ * hall's tier against the tier wished for ("Fine now, Grand wished for"), an `engraved` whim by the
+ * Thane's bedroom's tiles ("4 of 12 tiles engraved"). `count` is what the whim asks for now (a
+ * `tier` whim's tier, an `engraved` whim's tiles), the row's count by default.
  */
-export function whimProgressText(strings: Strings, registry: Registry, whimId: string, have: number): string {
+export function whimProgressText(strings: Strings, registry: Registry, whimId: string, have: number, count?: number): string {
   const row = whimRow(registry, whimId);
   if (row === undefined) return strings.get('ui.whim.in_stock', { n: have, goal: '?' });
   if (row.kind === 'room') return strings.get('ui.whim.in_place', { n: have, count: row.count });
-  const type = registry.table<NamedRow & { category?: string }>('items').byId(row.item);
+  if (row.kind === 'tier') {
+    const tiers = registry.table<{ id: string; tier: number }>('roomTiers');
+    const name = (tier: number): string => strings.get(`ui.room_tier.${tiers.ids().find((id) => tiers.byId(id)?.tier === tier) ?? 'bare'}`);
+    return strings.get('ui.whim.tier', { now: name(have), goal: name(count ?? have + 1) });
+  }
+  if (row.kind === 'engraved') return strings.get('ui.whim.engraved', { n: have, count: count ?? 0 });
+  const type = registry.table<NamedRow & { category?: string }>('items').byId(row.item ?? '');
   const material = row.material === undefined ? '' : registry.table<NamedRow>('materials').byId(row.material)?.name ?? row.material;
   const goal = type === undefined ? `${row.count}` : `${row.count} ${materialItemName(material, type, row.count)}`;
   return strings.get('ui.whim.in_stock', { n: have, goal });
@@ -390,7 +399,7 @@ export function whimProgressText(strings: Strings, registry: Registry, whimId: s
  */
 export function whimWhereMade(registry: Registry, whimId: string, strings: Strings): string {
   const row = whimRow(registry, whimId);
-  if (row === undefined || row.item === 'any') return '';
+  if (row === undefined || row.item === undefined || row.item === 'any') return '';
   const recipes = registry.table<{ id: string; workshop: string; outputs: readonly { item: string; material?: { fixed?: string } }[] }>('recipes');
   const workshops = new Set<string>();
   for (const id of recipes.ids()) {

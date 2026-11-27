@@ -1838,5 +1838,25 @@
   {
     "table": "hints",
     "id": "hint_deep_cavern"
+  },
+  {
+    "table": "whims",
+    "id": "whim_statue_hall"
+  },
+  {
+    "table": "whims",
+    "id": "whim_hall_tier"
+  },
+  {
+    "table": "whims",
+    "id": "whim_engraved_room"
+  },
+  {
+    "table": "whims",
+    "id": "whim_fine_furniture"
+  },
+  {
+    "table": "whims",
+    "id": "whim_superior"
   }
 ]
