@@ -243,6 +243,20 @@ export class TerrainProducer implements JobProducer {
     }
   }
 
+  /**
+   * `03` § Digging as a job: a designation job's priority set in Jobs (`SetJobPriority`) is its
+   * tile's designation priority too, as `SetDesignationPriority` would set it, so the next rescan
+   * keeps it.
+   */
+  onPriorityChanged(jobIn: unknown, priority: number): void {
+    const job = jobIn as Job;
+    const tile = job.target.ref;
+    if (!this.map.validIndex(tile)) return;
+    const kind = this.map.designationAt(tile);
+    if (kind === Designation.None || kind !== designationOfJob(job)) return;
+    if (this.map.designationPriorityAt(tile) !== priority) this.core.setDesignation(tile, kind, priority);
+  }
+
   workCentiTicks(jobIn: unknown): number {
     const job = jobIn as Job;
     const tile = job.target.ref;

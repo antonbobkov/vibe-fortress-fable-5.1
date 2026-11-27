@@ -120,6 +120,7 @@ interface JobProducer {
   id: string
   produce(ctx: TickContext, sink: JobSink): void     // called by 11 every tick; produce jobs that do not yet exist
   onJobEvent?(event: JobEvent): void                 // claimed, completed, cancelled, blocked
+  onPriorityChanged?(job: Job, priority: number): void  // after the player's SetJobPriority; 03 moves the designation's priority
 }
 ```
 
