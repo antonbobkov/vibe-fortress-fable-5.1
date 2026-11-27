@@ -1,0 +1,438 @@
+# Fortress A (Emberdelve, seed pt9-1, peril 1, wealth 3): the driver's log to day 364
+year length 112
+d7 pop 7 items 215 ms/day 654 crafter 5 engraver -
+d14 pop 7 items 260 ms/day 663 crafter 5 engraver -
+d21 pop 7 items 303 ms/day 714 crafter 5 engraver -
+d28 pop 7 items 360 ms/day 830 crafter 5 engraver -
+d35 pop 10 items 454 ms/day 1416 crafter 5 engraver -
+d42 pop 10 items 486 ms/day 1445 crafter 5 engraver -
+d49 pop 10 items 786 ms/day 1324 crafter 6 engraver -
+d56 pop 10 items 483 ms/day 1436 crafter 6 engraver -
+d63 pop 13 items 717 ms/day 1402 crafter 6 engraver -
+d70 pop 13 items 516 ms/day 1481 crafter 6 engraver 1
+d77 pop 13 items 534 ms/day 1704 crafter 6 engraver 2
+d84 pop 13 items 519 ms/day 1851 crafter 6 engraver 2
+d91 pop 13 items 515 ms/day 2212 crafter 6 engraver 3
+d98 pop 13 items 546 ms/day 1782 crafter 6 engraver 3
+d105 pop 13 items 534 ms/day 2414 crafter 6 engraver 3
+d112 pop 13 items 535 ms/day 1607 crafter 6 engraver 3
+d119 pop 13 items 558 ms/day 2201 crafter 6 engraver 3
+d126 pop 13 items 569 ms/day 2419 crafter 6 engraver 3
+d133 pop 13 items 588 ms/day 2014 crafter 6 engraver 3
+d140 pop 13 items 604 ms/day 2806 crafter 6 engraver 3
+d147 pop 21 items 1104 ms/day 3647 crafter 6 engraver 3
+d154 pop 21 items 798 ms/day 2114 crafter 6 engraver 3
+d161 pop 21 items 851 ms/day 2493 crafter 6 engraver 3
+d168 pop 21 items 936 ms/day 2815 crafter 6 engraver 3
+d175 pop 33 items 1386 ms/day 3795 crafter 6 engraver 3
+d182 pop 33 items 1021 ms/day 4837 crafter 7 engraver 3
+d189 pop 33 items 1048 ms/day 5134 crafter 7 engraver 3
+d196 pop 33 items 1010 ms/day 5298 crafter 7 engraver 3
+d203 pop 39 items 1098 ms/day 5502 crafter 7 engraver 3
+d210 pop 39 items 1085 ms/day 4696 crafter 7 engraver 3
+d217 pop 39 items 1060 ms/day 5630 crafter 7 engraver 3
+d224 pop 39 items 973 ms/day 5866 crafter 7 engraver 3
+d231 pop 51 items 997 ms/day 5870 crafter 7 engraver 3
+d238 pop 51 items 1072 ms/day 7107 crafter 7 engraver 3
+d245 pop 51 items 1096 ms/day 5355 crafter 7 engraver 3
+d252 pop 51 items 1196 ms/day 5073 crafter 7 engraver 3
+d259 pop 63 items 1430 ms/day 5099 crafter 7 engraver 3
+d266 pop 63 items 2249 ms/day 6759 crafter 7 engraver 3
+d273 pop 63 items 1547 ms/day 8222 crafter 7 engraver 3
+d280 pop 63 items 1602 ms/day 6652 crafter 7 engraver 3
+d287 pop 75 items 1919 ms/day 5656 crafter 7 engraver 3
+d294 pop 75 items 2611 ms/day 9071 crafter 8 engraver 3
+d301 pop 75 items 2010 ms/day 9615 crafter 8 engraver 3
+d308 pop 75 items 2051 ms/day 8427 crafter 8 engraver 3
+d315 pop 78 items 2051 ms/day 8589 crafter 8 engraver 3
+d322 pop 78 items 2040 ms/day 6039 crafter 8 engraver 3
+d329 pop 78 items 2026 ms/day 6161 crafter 8 engraver 3
+d336 pop 78 items 1986 ms/day 8277 crafter 8 engraver 3
+d343 pop 78 items 1878 ms/day 14846 crafter 8 engraver 3
+d350 pop 78 items 1882 ms/day 13571 crafter 8 engraver 3
+d357 pop 78 items 1809 ms/day 11751 crafter 8 engraver 3
+d364 pop 78 items 1935 ms/day 11492 crafter 8 engraver 3
+
+d4 crafter Frode Brightward crafting 5
+d20 statue order
+d66 engraver Olav Amberhand
+d66 engrave 84
+d73 engrave 6
+d80 engrave 4
+d87 engrave 6
+d94 engrave 6
+d101 engrave 2
+d273 statue placed (1 in stock)
+d280 statue placed (2 in stock)
+
+failures 
+
+d2 TitleAssigned {"dwarfId":16777282,"title":"broker","previousId":0}
+d14 SulkHappened {"id":16777285,"kind":"argue","partnerId":16777279}
+d14 ThoughtGained {"id":16777285,"thoughtId":"argued","value":-13}
+d14 ThoughtGained {"id":16777279,"thoughtId":"argued","value":-2.5}
+d15 RoomQualityChanged {"zoneId":16777596,"tier":2}
+d18 RoomQualityChanged {"zoneId":16777612,"tier":1}
+d20 RoomQualityChanged {"zoneId":117440690,"tier":1}
+d20 RoomQualityChanged {"zoneId":16777636,"tier":1}
+d29 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d29 ImmigrantsArrived {"ids":[50332165,16777740,16777744],"count":3,"children":1,"guaranteed":true}
+d34 CavernBreached {"cavern":1,"tile":51486}
+d35 RoomQualityChanged {"zoneId":16777636,"tier":2}
+d45 CaravanArrived {"civ":"hillfolk","merchants":[83886565,50332319],"guards":[50332315,16777898,16777903],"animals":[16777908,16777909,16777910,16777911,16777912],"partyId":117441184}
+d45 CaravanAtDepot {"civ":"hillfolk","partyId":117441184,"depotId":16777481}
+d46 RoomQualityChanged {"zoneId":16777719,"tier":1}
+d48 SkillLevelUp Frode Brightward crafting 6
+d50 CaravanDeparted {"civ":"hillfolk","boughtValue":326.88,"soldValue":383,"reason":"completed"}
+d56 RoomQualityChanged {"zoneId":16777695,"tier":1}
+d56 RoomQualityChanged {"zoneId":16777684,"tier":1}
+d57 WhimJudged {"thaneId":16777282,"whimId":"whim_fine_meal","met":true}
+d57 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d57 ImmigrantsArrived {"ids":[117440997,117440791,83887034],"count":3,"children":0,"guaranteed":true}
+d61 RaidArrived {"partyId":117441207,"kind":"bandits","size":2,"tile":71428,"edge":"n"}
+d61 CaravanArrived {"civ":"wildwood","merchants":[50331797,83886227],"guards":[50331792,50331785,50331773],"animals":[50331752,83886182,117440613,117440611,150995042],"partyId":50331798}
+d61 CaravanAtDepot {"civ":"wildwood","partyId":50331798,"depotId":16777481}
+d61 ThiefEscaped {"id":50332388,"partyId":117441207,"itemId":16777251,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d61 ThiefEscaped {"id":50331803,"partyId":117441207,"itemId":16777261,"ownerId":0,"itemType":"bar","material":"iron","count":5}
+d61 RaidEnded {"partyId":117441207,"outcome":"looted"}
+d62 RoomQualityChanged {"zoneId":16777596,"tier":3}
+d62 RoomQualityChanged {"zoneId":16777612,"tier":2}
+d63 RaidArrived {"partyId":150995633,"kind":"thief","size":1,"tile":71428,"edge":"n"}
+d63 ThiefSpotted {"id":117441479}
+d63 RaidEnded {"partyId":150995633,"outcome":"withdrew"}
+d66 CaravanDeparted {"civ":"wildwood","boughtValue":235.2,"soldValue":272.3999999999999,"reason":"completed"}
+d70 SkillLevelUp Frode Brightward engraving 1
+d70 SkillLevelUp Olav Amberhand engraving 1
+d70 RoomQualityChanged {"zoneId":117440635,"tier":1}
+d75 RoomQualityChanged {"zoneId":117440690,"tier":2}
+d75 RoomQualityChanged {"zoneId":16777636,"tier":3}
+d75 SkillLevelUp Olav Amberhand engraving 2
+d75 RoomQualityChanged {"zoneId":16777661,"tier":1}
+d76 SkillLevelUp Frode Brightward engraving 2
+d80 RoomQualityChanged {"zoneId":184549398,"tier":1}
+d80 RoomQualityChanged {"zoneId":16777682,"tier":1}
+d80 RoomQualityChanged {"zoneId":16777704,"tier":1}
+d80 RoomQualityChanged {"zoneId":16777646,"tier":1}
+d82 RoomQualityChanged {"zoneId":16777684,"tier":2}
+d85 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":false}
+d85 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d85 ImmigrationSkipped {"reason":"luck"}
+d85 SkillLevelUp Frode Brightward engraving 3
+d85 SkillLevelUp Olav Amberhand engraving 3
+d96 RoomQualityChanged {"zoneId":16777646,"tier":2}
+d99 RoomQualityChanged {"zoneId":150995614,"tier":1}
+d99 RoomQualityChanged {"zoneId":16777682,"tier":2}
+d99 RoomQualityChanged {"zoneId":184549398,"tier":2}
+d101 RoomQualityChanged {"zoneId":16777704,"tier":2}
+d104 RoomQualityChanged {"zoneId":16777847,"tier":1}
+d104 RoomQualityChanged {"zoneId":16777719,"tier":2}
+d112 RoomQualityChanged {"zoneId":184549857,"tier":1}
+d112 RoomQualityChanged {"zoneId":16777847,"tier":2}
+d113 WhimJudged {"thaneId":16777282,"whimId":"whim_fine_meal","met":true}
+d113 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d113 ImmigrationSkipped {"reason":"luck"}
+d113 RoomQualityChanged {"zoneId":16777646,"tier":1}
+d113 RoomQualityChanged {"zoneId":16777682,"tier":1}
+d120 CaravanArrived {"civ":"mountainhome","merchants":[150995713,117441289],"guards":[419430934,83886866,83886871],"animals":[83886876,83886877,83886878,83886879,83886880,83886881],"partyId":218104266}
+d120 CaravanAtDepot {"civ":"mountainhome","partyId":218104266,"depotId":16777481}
+d125 CaravanDeparted {"civ":"mountainhome","boughtValue":625.4399999999999,"soldValue":720.2000000000003,"reason":"completed"}
+d132 SkillLevelUp Olav Amberhand mining 10
+d133 RoomQualityChanged {"zoneId":50331810,"tier":1}
+d137 RoomQualityChanged {"zoneId":184549857,"tier":2}
+d141 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":true}
+d141 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d141 ImmigrantsArrived {"ids":[184550294,117441416,117441412,251658724,117441402,117441397,117441393,117441389],"count":8,"children":0,"guaranteed":false}
+d142 RaidArrived {"partyId":318767869,"kind":"thief","size":1,"tile":71428,"edge":"n"}
+d142 ThiefSpotted {"id":117441336}
+d142 RaidEnded {"partyId":318767869,"outcome":"withdrew"}
+d142 RoomQualityChanged {"zoneId":150995614,"tier":2}
+d142 RoomQualityChanged {"zoneId":117441324,"tier":1}
+d145 RoomQualityChanged {"zoneId":184550170,"tier":1}
+d147 CaravanArrived {"civ":"hillfolk","merchants":[83887152,83886790],"guards":[50332717,16778294,16778299],"animals":[16778304,16778305,16778306,16778307,16778308,16778309],"partyId":83887147}
+d147 CaravanAtDepot {"civ":"hillfolk","partyId":83887147,"depotId":16777481}
+d149 RoomQualityChanged {"zoneId":16778711,"tier":1}
+d152 CaravanDeparted {"civ":"hillfolk","boughtValue":784.8000000000001,"soldValue":939.6666666666666,"reason":"completed"}
+d159 RoomQualityChanged {"zoneId":50331810,"tier":2}
+d164 RoomQualityChanged {"zoneId":117441324,"tier":2}
+d169 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":true}
+d169 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d169 ImmigrantsArrived {"ids":[83886591,50332972,419431077,83887068,50332956,50332950,218103972,587203256,352321778,50332927,50332922,50332918],"count":12,"children":2,"guaranteed":false}
+d170 SkillLevelUp Olav Amberhand mining 11
+d174 CaravanArrived {"civ":"wildwood","merchants":[50332755,83887161,520094194],"guards":[218105050,251658567,184550720],"animals":[50332878,50332877,50332876,50332875,50332874,50332873,50332872,50332871],"partyId":31876
+d174 CaravanAtDepot {"civ":"wildwood","partyId":318768141,"depotId":16777481}
+d176 SkillLevelUp Frode Brightward trading 1
+d176 SkillLevelUp Frode Brightward crafting 7
+d179 CaravanDeparted {"civ":"wildwood","boughtValue":578.64,"soldValue":667.8000000000002,"reason":"completed"}
+d190 RaidArrived {"partyId":285213148,"kind":"raid","size":11,"tile":71426,"edge":"n"}
+d192 ThiefEscaped {"id":285212710,"partyId":285213148,"itemId":150995495,"ownerId":0,"itemType":"log","material":"maple","count":1}
+d192 ThiefEscaped {"id":218104678,"partyId":285213148,"itemId":318767528,"ownerId":0,"itemType":"log","material":"oak","count":1}
+d192 ThiefEscaped {"id":318768011,"partyId":285213148,"itemId":452985224,"ownerId":0,"itemType":"log","material":"oak","count":1}
+d192 ThiefEscaped {"id":285213696,"partyId":285213148,"itemId":285213149,"ownerId":0,"itemType":"log","material":"ash","count":1}
+d192 ThiefEscaped {"id":285213061,"partyId":285213148,"itemId":16778834,"ownerId":0,"itemType":"drink","material":"bellwine","count":20}
+d192 ThiefEscaped {"id":587202697,"partyId":285213148,"itemId":16778571,"ownerId":0,"itemType":"bandage","material":"flax_cloth","count":4}
+d192 ThiefEscaped {"id":285213688,"partyId":285213148,"itemId":117441525,"ownerId":0,"itemType":"drink","material":"rootwine","count":20}
+d192 ThiefEscaped {"id":50333416,"partyId":285213148,"itemId":16778313,"ownerId":0,"itemType":"seed","material":"turnip","count":50}
+d192 ThiefEscaped {"id":50333419,"partyId":285213148,"itemId":16778325,"ownerId":0,"itemType":"seed","material":"turnip","count":26}
+d192 ThiefEscaped {"id":50333424,"partyId":285213148,"itemId":16778321,"ownerId":0,"itemType":"seed","material":"turnip","count":43}
+d192 ThiefEscaped {"id":50333427,"partyId":285213148,"itemId":16778564,"ownerId":0,"itemType":"drink","material":"ale","count":20}
+d192 ThiefEscaped {"id":50333432,"partyId":285213148,"itemId":16778630,"ownerId":0,"itemType":"drink","material":"ale","count":20}
+d192 RaidEnded {"partyId":285213148,"outcome":"looted"}
+d197 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":false}
+d197 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d197 ImmigrantsArrived {"ids":[318768173,352321874,251659633,452985657,184550803,318767297],"count":6,"children":2,"guaranteed":false}
+d203 RaidArrived {"partyId":318767541,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d203 ThiefSpotted {"id":285213164}
+d203 RaidEnded {"partyId":318767541,"outcome":"withdrew"}
+d220 RaidArrived {"partyId":419430740,"kind":"bandits","size":4,"tile":71426,"edge":"n"}
+d220 ThiefEscaped {"id":150995783,"partyId":419430740,"itemId":16777797,"ownerId":0,"itemType":"ore","material":"hematite","count":1}
+d220 ThiefEscaped {"id":117441757,"partyId":419430740,"itemId":16777793,"ownerId":0,"itemType":"ore","material":"hematite","count":1}
+d220 ThiefEscaped {"id":318767683,"partyId":419430740,"itemId":16777253,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d220 ThiefEscaped {"id":419431039,"partyId":419430740,"itemId":16778743,"ownerId":0,"itemType":"seed","material":"barley","count":30}
+d220 RaidEnded {"partyId":419430740,"outcome":"looted"}
+d225 WhimJudged {"thaneId":16777282,"whimId":"whim_fine_meal","met":true}
+d225 WhimSet {"thaneId":16777282,"whimId":"whim_fine_meal"}
+d225 ImmigrantsArrived {"ids":[721421243,352322543,654311868,83886846,587202684,352322408,419430577,285214043,318767598,385876254,452985411,150996232],"count":12,"children":3,"guaranteed":false}
+d232 CaravanArrived {"civ":"mountainhome","merchants":[83887134,419431645,50333345],"guards":[50333344,50333339,50333334],"animals":[50333329,50333328,50333327,50333326,50333325,50333324,50333323,50333322,50333321,503333
+d232 CaravanAtDepot {"civ":"mountainhome","partyId":150996647,"depotId":16777481}
+d237 CaravanDeparted {"civ":"mountainhome","boughtValue":297.12,"soldValue":341.8999999999999,"reason":"completed"}
+d248 SkillLevelUp Olav Amberhand mining 12
+d253 WhimJudged {"thaneId":16777282,"whimId":"whim_fine_meal","met":true}
+d253 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d253 ImmigrantsArrived {"ids":[520094938,218105548,218105559,83887268,956302054,83887275,251659325,117441692,83887289,117441699,117441688,117441691],"count":12,"children":3,"guaranteed":false}
+d263 CaravanArrived {"civ":"hillfolk","merchants":[486540991,117442459],"guards":[50333551,50333600,50333616],"animals":[16779232,16779233,16779234,16779235,16779236,16779237,16779238,16779239,16779240,16779241,16779242,
+d263 CaravanAtDepot {"civ":"hillfolk","partyId":150996488,"depotId":16777481}
+d267 RoomQualityChanged {"zoneId":16777684,"tier":1}
+d268 CaravanDeparted {"civ":"hillfolk","boughtValue":240.95999999999998,"soldValue":276,"reason":"completed"}
+d272 RoomQualityChanged {"zoneId":16777636,"tier":2}
+d274 RaidArrived {"partyId":352322653,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d274 ThiefSpotted {"id":687867186}
+d274 RaidEnded {"partyId":352322653,"outcome":"withdrew"}
+d281 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":false}
+d281 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d281 ImmigrantsArrived {"ids":[721421307,1056965100,754976118,352322959,50334371,285214285,218106709,50334360,620758496,654312237,251660983,50334341],"count":12,"children":3,"guaranteed":false}
+d288 RoomQualityChanged {"zoneId":16777704,"tier":1}
+d290 CaravanArrived {"civ":"wildwood","merchants":[50334121,50334120,50334119],"guards":[50334118,50334113,50334108],"animals":[50334103,50334102,50334101,50334100,50334099,50334098,50334097,50334096,50334095,50334094,50
+d290 CaravanAtDepot {"civ":"wildwood","partyId":150997427,"depotId":16777481}
+d293 SkillLevelUp Frode Brightward crafting 8
+d295 CaravanDeparted {"civ":"wildwood","boughtValue":242.39999999999998,"soldValue":278.9999999999999,"reason":"completed"}
+d309 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":false}
+d309 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d309 ImmigrantsArrived {"ids":[452986846,83889209,687867878],"count":3,"children":0,"guaranteed":false}
+d337 WhimJudged {"thaneId":16777282,"whimId":"whim_spirits","met":false}
+d337 WhimSet {"thaneId":16777282,"whimId":"whim_spirits"}
+d337 ImmigrationSkipped {"reason":"spirit"}
+d337 RaidArrived {"partyId":184551392,"kind":"raid","size":12,"tile":71426,"edge":"n"}
+d339 ThiefEscaped {"id":419431808,"partyId":184551392,"itemId":318767751,"ownerId":0,"itemType":"log","material":"birch","count":1}
+d339 ThiefEscaped {"id":553649544,"partyId":184551392,"itemId":16777245,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d339 ThiefEscaped {"id":419433238,"partyId":184551392,"itemId":50331915,"ownerId":0,"itemType":"buckler","material":"maple","count":1}
+d339 ThiefEscaped {"id":956301475,"partyId":184551392,"itemId":16777249,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d339 ThiefEscaped {"id":318768706,"partyId":184551392,"itemId":16778751,"ownerId":0,"itemType":"seed","material":"barley","count":48}
+d339 ThiefEscaped {"id":2164261019,"partyId":184551392,"itemId":16777268,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d339 ThiefEscaped {"id":520096157,"partyId":184551392,"itemId":16777247,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d339 ThiefEscaped {"id":687867444,"partyId":184551392,"itemId":251659617,"ownerId":0,"itemType":"drink","material":"strawberry_wine","count":20}
+d339 ThiefEscaped {"id":452985938,"partyId":184551392,"itemId":117442136,"ownerId":0,"itemType":"drink","material":"rootwine","count":17}
+d339 ThiefEscaped {"id":285214280,"partyId":184551392,"itemId":184550850,"ownerId":0,"itemType":"drink","material":"strawberry_wine","count":20}
+d339 ThiefEscaped {"id":385877629,"partyId":184551392,"itemId":352322819,"ownerId":0,"itemType":"drink","material":"rootwine","count":20}
+d339 ThiefEscaped {"id":788531082,"partyId":184551392,"itemId":117441870,"ownerId":0,"itemType":"drink","material":"rootwine","count":20}
+d339 ThiefEscaped {"id":754977469,"partyId":184551392,"itemId":16777269,"ownerId":0,"itemType":"bag","material":"flax_cloth","count":1}
+d339 RaidEnded {"partyId":184551392,"outcome":"looted"}
+d344 CaravanArrived {"civ":"mountainhome","merchants":[83887942,587204201],"guards":[855639794,218104376,83886120],"animals":[687867357,721421726,1023411041,721421053,822084170,452985964,654312677,687868996,520093857,139
+d344 CaravanAtDepot {"civ":"mountainhome","partyId":419431448,"depotId":16777481}
+d346 RaidArrived {"partyId":150997525,"kind":"thief","size":1,"tile":71426,"edge":"n"}
+d346 ThiefSpotted {"id":117443069}
+d346 RaidEnded {"partyId":150997525,"outcome":"withdrew"}
+d349 CaravanDeparted {"civ":"mountainhome","boughtValue":1030.44,"soldValue":1180.3999999999994,"reason":"completed"}
+d349 SkillLevelUp Olav Amberhand mining 13
+
+{
+ "ZoneChanged": 90,
+ "JobCreated": 17167,
+ "JobBlocked": 3342,
+ "EntitiesMoved": 380851,
+ "HourPassed": 8711,
+ "Slept": 16293,
+ "ItemReserved": 13462,
+ "JobClaimed": 17879,
+ "StocksChanged": 30662,
+ "TemperatureTick": 43555,
+ "JobStarted": 16766,
+ "ItemReleased": 7898,
+ "JobCompleted": 16045,
+ "TilesChanged": 4076,
+ "FluidsChanged": 13759,
+ "TitleAssigned": 1,
+ "JobCancelled": 1344,
+ "StockpileFull": 628,
+ "ToolEquipped": 4,
+ "BuildingPlaced": 124,
+ "PlotNeedsSeeds": 80,
+ "WeatherChanged": 449,
+ "JobUnblocked": 3255,
+ "MoodTierChanged": 42315,
+ "tier→1": 2753,
+ "ItemDestroyed": 23807,
+ "DrankAlcohol": 8026,
+ "Talked": 8705,
+ "CropPlanted": 2537,
+ "DwarfIdle": 6349,
+ "TreeFelled": 204,
+ "ItemCreated": 12555,
+ "TilesDiscovered": 1279,
+ "tier→2": 17851,
+ "MealEaten": 5236,
+ "tier→0": 312,
+ "DayPassed": 362,
+ "WebSpun": 1032,
+ "AnimalSpawned": 240,
+ "DwarfOutdoorsIn": 18305,
+ "GrassRegrown": 76,
+ "BuildingCompleted": 123,
+ "WorkshopBlocked": 331,
+ "WorkOrderSkipped": 71,
+ "ItemCrafted": 2554,
+ "NeedCritical": 3391,
+ "SkillLevelUp": 268,
+ "WealthChanged": 1911,
+ "CreatureFled": 183,
+ "AnimalLeft": 238,
+ "WorkOrderCompleted": 30,
+ "ItemRotStage": 4785,
+ "GrassGrazed": 419,
+ "SulkHappened": 1,
+ "ThoughtGained": 9,
+ "RoomQualityChanged": 41,
+ "MineralMined": 428,
+ "VeinFound": 15,
+ "BuildingStateChanged": 78,
+ "HearthLit": 1,
+ "tier→3": 18302,
+ "Sat": 12225,
+ "HearthVisited": 8019,
+ "LightningStrike": 28,
+ "FireStarted": 21,
+ "FireOut": 21,
+ "CropHarvested": 2215,
+ "RoomAssigned": 17,
+ "tier→4": 3097,
+ "ItemRotted": 1471,
+ "SeasonChanged": 12,
+ "SeasonEffectsChanged": 12,
+ "WhimSet": 12,
+ "ImmigrantsArrived": 9,
+ "ShrubRegrown": 364,
+ "CavernBreached": 1,
+ "MonsterSpawned": 4,
+ "MiasmaSpread": 1361,
+ "CaravanArrived": 9,
+ "CaravanAtDepot": 9,
+ "ReputationChanged": 21,
+ "TradeCompleted": 9,
+ "CaravanDeparted": 9,
+ "DepotGoodsReturned": 9,
+ "WhimJudged": 11,
+ "PetAdopted": 1,
+ "RaidArrived": 9,
+ "HostileSpawned": 36,
+ "AlertChanged": 8,
+ "SquadOrderIssued": 12,
+ "ThiefEscaped": 31,
+ "RaidEnded": 9,
+ "AlertLocksCleared": 4,
+ "ThiefSpotted": 5,
+ "ThreatNearby": 14,
+ "ItemMerged": 189,
+ "AnimalBorn": 10,
+ "WorkshopIdle": 5,
+ "ImmigrationSkipped": 3,
+ "TileFrozen": 4216,
+ "TileThawed": 4216,
+ "SnowCoverChanged": 171,
+ "YearPassed": 3,
+ "SaplingGrew": 8,
+ "ProductReady": 2,
+ "AnimalStarving": 21,
+ "SmokyFuelBurned": 104,
+ "ThreatWarning": 2,
+ "Starving": 25,
+ "DwarfBecameAdult": 4,
+ "Stung": 1
+}
+
+# Census of the saves at days 56, 224 and 336 (census.test.ts.txt)
+== out/pt9/pt9-1-d56.bin  day 1  pop 10  wealth 10863  hall spirit 64.56680092592593 2  hearth tier 2
+whim {"id":"whim_fine_meal","text":"fine meals for everyone","met":true,"kind":"stock","count":20,"have":20}
+sulk counters all 0
+mood tiers {"2":5,"3":5}  titles thane:Frode
+best-skill per dwarf (sorted) 8,7,7,6,6,5,5,4,4,0
+top skills mining:8(Olav) farming:7(Ragnhild) crafting:6(Frode) woodcutting:6(Ivar) brewing:5(Ragnhild) carpentry:5(Ivar) cooking:5(Ottar) gem_cutting:5(Vali) masonry:5(Frode) weaving:5(Ragnvald) axe:4(Asa) metalcrafting:4(Steinn) armor_use:3(Asa) armorsmithing:3(Steinn) building:3(Olav) clothesmaking:3(Ragnvald) herbalism:3(Ottar) weaponsmithing:3(Steinn)
+thoughts held thane_hall_bare×10(-1) ate_lavish_meal×9(11) slept_in_a_bed×8(1) talked_with_friend×7(7) well_rested×7(2) hearth_visit×6(3) talked_with_someone×6(4) no_bedroom×5(-2) lonely×5(-2) thirsty×4(-2) drank_ale×4(4) ate_in_decent_hall×3(2) slept_on_floor×2(-1) restless×2(-3) slept_in_shared_bed_room×2(-1) slept_in_modest_room×2(1) harvest_in×2(4) tired×1(-2) bored×1(-4) ate_fine_meal×1(7)
+quality by item (poor/common/fine/sup/exc/mw), quality-bearing only: plant_food[17/292/48/0/0/0] rotten[40/39/15/0/0/0] buckler[0/4/1/0/0/0] bed[0/5/1/0/0/0] chair[3/4/4/0/0/0] lavish_meal[38/56/16/0/0/0] amulet[9/21/11/0/0/0] ring[3/45/12/0/0/0] table[0/3/2/0/0/0] chest[1/0/0/0/0/0] figurine[3/21/12/0/0/0] door[5/1/0/0/0/0]
+exceptional+ items: 0 
+workshop mason#16777331 worker Ragnvald Steelhand blocked null orders make_stone_block:maintain:30:p5,make_door_stone:maintain:4:p5,make_table_stone:maintain:6:p5,make_chair_stone:maintain:14:p5,make_statue:maintain:2:p5 job 1970
+workshop craftdwarf#16777334 worker Frode Brightward blocked null orders craft_stone:maintain:6:p5,craft_stone:once:964:p5 job 2017
+rooms by type/tier {"bedroom":{"bare":7,"modest":4},"hearth_hall":{"decent":1},"hospital":{"modest":1},"dining_hall":{"decent":1}}
+rooms (non-bedroom) hearth_hall#16777596:decent(136,open,30t) hospital#16777612:modest(58,open,16t) dining_hall#16777636:decent(102,open,25t)
+== out/pt9/pt9-1-d224.bin  day 1  pop 39  wealth 69461  hall spirit 65.64887080661074 3  hearth tier 3
+whim {"id":"whim_fine_meal","text":"fine meals for everyone","met":true,"kind":"stock","count":20,"have":22}
+sulk counters all 0
+mood tiers {"1":3,"2":15,"3":18,"4":3}  titles thane:Frode
+best-skill per dwarf (sorted) 11,9,9,8,7,7,7,7,7,7,7,6,6,6,6,5,4,4,4,4,4,4,4,3,3,3,3,3,3,2,2,2,2,2,0,0,0,0,0
+top skills mining:11(Olav) farming:9(Ragnhild) cooking:8(Ottar) crafting:7(Frode) hunting:7(Geir) mechanics:7(Ulfhild) medicine:7(Torfi) woodcutting:7(Ivar) masonry:6(Ragnvald) weaponsmithing:6(Egil) brewing:5(Ragnhild) carpentry:5(Ivar) gem_cutting:5(Vali) weaving:5(Ragnvald) axe:4(Asa) metalcrafting:4(Steinn) armor_use:3(Asa) armorsmithing:3(Steinn)
+thoughts held talked_with_someone×48(4) drank_fine_drink×37(5) bored×34(-2) slept_in_a_bed×32(1) ate_lavish_meal×23(11) no_bedroom×22(-2) talked_with_friend×16(6) drank_from_a_mug×15(1) ate_in_fine_hall×14(4) ate_by_candlelight×14(1) sat_in_fine_room×13(3) hearth_visit×12(3) well_rested×12(2) lonely×12(-2) slept_in_shared_bed_room×10(-1) slept_in_decent_room×9(3) ate_fine_meal×8(5) hungry×7(-3) slept_in_modest_room×7(1) restless×6(-2) tired×6(-3) thirsty×5(-3) slept_in_a_soft_bed×5(3) in_miasma×5(-5) saw_sunlight×3(4) harvest_in×3(3) ate_stale_food×1(-2) ate_in_decent_hall×1(1) slept_on_floor×1(-1) slept_outdoors×1(-2)
+quality by item (poor/common/fine/sup/exc/mw), quality-bearing only: pick[2/2/0/0/0/0] rotten[228/131/18/5/0/0] lavish_meal[456/339/19/14/0/0] bedding[2/4/0/0/0/0] plant_food[40/76/5/0/0/0] buckler[0/4/1/0/0/0] bed[20/14/6/0/0/0] fine_meal[13/10/0/0/0/0] mail_shirt[5/2/1/0/0/0] chair[3/5/4/0/0/0] table[0/5/4/0/0/0] easy_meal[4/0/0/0/0/0] mug[36/9/0/0/0/0] ring[0/6/9/3/0/0] door[7/2/1/0/0/0] amulet[0/0/6/0/0/0] shield[3/1/0/0/0/0] chest[1/0/0/0/0/0] figurine[0/6/6/0/0/0] pillow[1/2/0/0/0/0]
+exceptional+ items: 0 
+workshop mason#16777331 worker Ragnvald Steelhand blocked missing_input orders make_stone_block:maintain:30:p5,make_door_stone:maintain:4:p5,make_table_stone:maintain:6:p5,make_chair_stone:maintain:14:p5,make_statue:maintain:2:p5 job 0
+workshop craftdwarf#16777334 worker Frode Brightward blocked missing_input orders craft_stone:maintain:132:p5,craft_stone:once:952:p5 job 0
+rooms by type/tier {"bedroom":{"decent":10,"modest":7},"hearth_hall":{"fine":1},"hospital":{"decent":1},"dining_hall":{"fine":1}}
+rooms (non-bedroom) hearth_hall#16777596:fine(185,open,30t) hospital#16777612:decent(82,open,16t) dining_hall#16777636:fine(155,open,25t)
+== out/pt9/pt9-1-d336.bin  day 1  pop 78  wealth 72468  hall spirit 51.83796288366074 2  hearth tier 3
+whim {"id":"whim_spirits","text":"something strong","met":false,"kind":"stock","count":10,"have":0}
+sulk counters all 0
+mood tiers {"0":1,"1":11,"2":61,"3":5}  titles thane:Frode
+best-skill per dwarf (sorted) 12,11,10,9,8,8,8,7,7,7,7,7,7,7,7,7,6,6,6,6,6,6,6,6,6,5,5,5,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,2,2,2,2,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+top skills mining:12(Olav) farming:10(Ragnhild) cooking:9(Ottar) crafting:8(Frode) woodcutting:8(Ivar) brewing:7(Einar) hunting:7(Geir) mechanics:7(Ulfhild) medicine:7(Torfi) weaponsmithing:7(Birna) weaving:7(Solveig) masonry:6(Ragnvald) carpentry:5(Ivar) gem_cutting:5(Vali) axe:4(Asa) metalcrafting:4(Steinn) armor_use:3(Asa) armorsmithing:3(Steinn)
+thoughts held bored×72(-3) talked_with_friend×68(6) no_bedroom×61(-2) restless×58(-3) thirsty×45(-4) ate_lavish_meal×42(11) talked_with_someone×40(4) tired×35(-3) hungry×30(-3) slept_in_a_bed×27(1) uncomfortable×20(-1) drank_fine_drink×19(6) well_rested×19(2) lonely×17(-1) admired_statue×17(4) slept_in_shared_bed_room×15(-1) drank_ale×10(3) drank_strong_drink×10(5) slept_in_decent_room×6(3) ate_in_decent_hall×4(2) drank_from_a_mug×4(1) slept_on_floor×2(-2) slept_outdoors×2(-6) slept_in_modest_room×2(1) slept_in_a_soft_bed×2(3) harvest_in×2(3) ate_stale_food×1(-3)
+quality by item (poor/common/fine/sup/exc/mw), quality-bearing only: pick[2/2/0/0/0/0] rotten[235/201/21/6/0/0] bedding[2/4/0/0/0/0] chair[3/12/8/0/0/0] buckler[0/4/1/0/0/0] bed[44/28/7/0/0/0] plant_food[253/387/69/6/0/0] lavish_meal[430/301/16/0/0/0] mail_shirt[5/2/1/0/0/0] table[0/5/4/0/0/0] ring[0/13/9/0/0/0] door[7/2/1/0/0/0] shield[4/2/0/0/0/0] mug[42/6/0/0/0/0] chest[1/0/0/0/0/0] figurine[0/12/18/3/0/0] amulet[0/18/24/6/0/0] pillow[1/2/0/0/0/0] statue[0/2/2/0/0/0]
+exceptional+ items: 0 
+workshop mason#16777331 worker Ragnvald Steelhand blocked null orders make_stone_block:maintain:30:p5,make_door_stone:maintain:4:p5,make_table_stone:maintain:6:p5,make_chair_stone:maintain:14:p5,make_statue:maintain:2:p5 job 0
+workshop craftdwarf#16777334 worker Frode Brightward blocked null orders craft_stone:maintain:318:p5,craft_stone:once:952:p5 job 15082
+rooms by type/tier {"bedroom":{"decent":8,"modest":9},"hearth_hall":{"fine":1},"hospital":{"decent":1},"dining_hall":{"decent":1}}
+rooms (non-bedroom) hearth_hall#16777596:fine(191,open,30t) hospital#16777612:decent(80,open,16t) dining_hall#16777636:decent(146,open,25t)
+
+# Frode Brightward's time over 4 days from the day-56 save (timeuse.test.ts.txt)
+Frode over 4 days, 4 crafted
+  190 ticks/day  work: Craft (recipe) phase 0 carrying 1 z26
+  175 ticks/day  work: Craft (recipe) phase 0 carrying 0 z26
+  145 ticks/day  need: sleep phase 0 carrying 0 z26
+  140 ticks/day  need: sleep phase 0 carrying 0 z32
+  120 ticks/day  work: Craft (recipe) phase 0 carrying 0 z32
+   70 ticks/day  need: hunger phase 0 carrying 0 z26
+   55 ticks/day  work: Craft (recipe) phase 0 carrying 1 z32
+   50 ticks/day  need: thirst phase 0 carrying 0 z26
+   50 ticks/day  need: hunger phase 0 carrying 0 z32
+   50 ticks/day  need: comfort phase 0 carrying 0 z26
+   40 ticks/day  need: social phase 0 carrying 0 z26
+   30 ticks/day  need: thirst phase 0 carrying 0 z32
+   10 ticks/day  work: Craft (recipe) phase 0 carrying 1 z28
+   10 ticks/day  work: Craft (recipe) phase 0 carrying 1 z31
+   10 ticks/day  need: sleep phase 0 carrying 0 z29
+   10 ticks/day  need: hunger phase 0 carrying 0 z29
+   10 ticks/day  need: hunger phase 0 carrying 0 z30
+    5 ticks/day  work: Craft (recipe) phase 0 carrying 0 z31
+    5 ticks/day  work: Craft (recipe) phase 0 carrying 0 z27
+    5 ticks/day  work: Craft (recipe) phase 0 carrying 1 z30
+    5 ticks/day  work: Craft (recipe) phase 0 carrying 1 z29
+    5 ticks/day  need: sleep phase 0 carrying 0 z30
+    5 ticks/day  need: sleep phase 0 carrying 0 z27
+    5 ticks/day  need: hunger phase 0 carrying 0 z27
+
+# Raw stone and stockpiles at day 56 (stone.test.ts.txt)
+raw stone by z {"z26":4}
+stockpile #16777307 at (21,6,z32) 35t ["food","drink","seed","stone","ore","wood","bar","furniture","container","weapon","ammo","armor","clothing","tool","craft","textile","medical","farm","refuse"]
+stockpile #16777308 at (25,15,z32) 4t ["drink"]
+stockpile #50332000 at (17,5,z26) 15t ["food"]
+stockpile #16777638 at (22,6,z26) 6t ["drink"]
+stockpile #117441017 at (13,2,z26) 36t ["food"]
+stockpile #16777792 at (13,5,z26) 12t ["drink"]
+craftdwarf at (37,14,z32)
+mason at (22,16,z32)
