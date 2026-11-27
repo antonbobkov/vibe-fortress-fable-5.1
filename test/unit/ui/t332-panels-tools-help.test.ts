@@ -54,9 +54,9 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
       '[S-b] Set a fire',
     ]);
     for (const row of rows) expect(row).not.toContain('»');
-    expect(rows[7]).toBe('Priority [-] 5 [+]   (1-9)');
+    expect(rows[7]).toBe('Priority [-] 5 [+]   (1 first)');
     expect(rows[8]).toBe('[Ctrl+Z] undo  [Del] clear');
-    expect(rows[9]).toBe('[p] last batch to priority 5');
+    expect(rows[9]).toBe('[p] last box to priority 5');
     expect(rows[10]).toBe('Click 2 corners; [<] [>] levels.');
   });
 
@@ -209,7 +209,7 @@ describe('T-332 panels: designate, overlays, help, debug, calendar and the botto
     expect(rows[45]).toMatch(/^ ☼ Designate a place to dig with \[d\]\. Dwarves dig into rock faces from the {2}/);
     expect(rows[46]?.trim()).toBe('side.');
     expect(rows[47]).toMatch(new RegExp(`^ Day 1 of Spring, Year 1 ☼ clear -?\\d+°C ☺ ${dwarves} ♥ Fine z 32 ║ paused +\\[Esc\\] {2}\\[\\?\\] help *$`));
-    expect(rows[48]?.trim()).toBe('Dig · priority 5 · [Esc] cancel');
+    expect(rows[48]?.trim()).toBe('Dig · priority 5 (normal) · [Esc] cancel');
     // The hover line under it names the tile at the dig tool's cursor.
     expect(rows[49]?.trim()).toBe(game.fortress.hoverLine());
     expect(rows[49]?.trim()).not.toBe('');

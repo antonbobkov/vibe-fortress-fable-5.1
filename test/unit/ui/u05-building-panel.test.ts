@@ -622,14 +622,14 @@ describe('U-05 Designate: the last batch takes another priority (SetDesignationP
     f.screen.key(press('2'));
     f.screen.key(press('P', { shift: true }));
     expect(f.sent).toEqual([{ type: 'SetDesignationPriority', tiles: [f.w.index(30, 30, z), f.w.index(31, 30, z)], priority: 2 }]);
-    expect(f.screen.currentNotice).toBe('2 designated tiles now have priority 2.');
+    expect(f.screen.currentNotice).toBe('Channel 2×1: priority 2 (urgent).');
     f.w.step(1);
     expect(f.w.events('CommandRejected')).toEqual([]);
     // The panel shows the action, and a click does the same.
     const s = surface(40, 20);
     let clicked = 0;
     drawDesignatePanel(s, { col: 0, row: 0, cols: 40, rows: 20 }, f.screen.tool, strings, () => { clicked += 1; });
-    const row = s.lines().findIndex((line) => line.includes('[p] last batch to priority 2'));
+    const row = s.lines().findIndex((line) => line.includes('[p] last box to priority 2'));
     expect(row).toBeGreaterThanOrEqual(0);
     s.hitAt(3, row)?.action();
     expect(clicked).toBe(1);

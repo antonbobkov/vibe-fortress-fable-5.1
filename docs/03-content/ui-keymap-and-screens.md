@@ -146,7 +146,7 @@ The keys of a rectangle dragged with no tool (§ Mouse); `Delete` is the Map con
 | `[q]` | harvest ice |
 | `[S-b]` | ignite (set a fire) |
 | `[f]` | traffic (again: the next traffic mode) |
-| `[p]` | give the tool's priority to the last batch |
+| `[p]` | give the tool's priority to the last box drawn |
 
 ### Build panel
 
@@ -248,7 +248,7 @@ An action applies to every marked dwarf when the cursor's row is marked, otherwi
 | `Tab` | move between the jobs and the "Orders waiting" rows |
 | `[l]` | cycle the labors that have jobs |
 | `[s]` | cycle all / open / claimed / blocked |
-| `[p]` | raise the job's priority (1–9, wrapping) |
+| `[p]` | the job sooner (toward 1, the most urgent); with `Shift`, later (toward 9); neither wraps |
 | `[x]` | cancel the job |
 
 ### Orders panel
@@ -474,7 +474,8 @@ The labor manager's template menu: `↑` `↓` and `Enter` choose too.
 | `+` `-` | quantity |
 | `Enter` | offer |
 | `g` | gift (offer with nothing taken) |
-| `Esc` | close |
+| `Esc` | hide (the trade stays open) |
+| `x` | done trading |
 | `Home` | none of the selected goods |
 | `End` | all of the selected goods |
 | `=` | quantity |
@@ -763,7 +764,8 @@ Shown once, as notes prefixed with `☼`, when the trigger holds (checked hourly
 | `hint_food` | edible items in stock fall below `HINT_FOOD_DAYS` days for the population, hourly | "Food is running low. Check the farm plots' crops [z], order meals at a kitchen, and gather plants [d]." |
 | `hint_starving` | the first `Starving` of the fortress for hunger, after that day's starving line | "Dwarves are starving, and there is food at hand: {food}." |
 | `hint_no_path` | a job remains blocked unreachable for a whole day from first hourly observation | "Jobs are blocked: no path. Check for doors, water and undug rock." |
-| `hint_glowcap` | glowcap seeds in stock | "Glowcap grows in the dark under a glowstone lamp: order one at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot." |
+| `hint_glowcap` | glowcap seeds in stock; or a sanctum zone, or a building tagged `rune_circle`, exists with no glowcap seeds in stock | "Glowcap grows in the dark under a glowstone lamp, from seeds the Mountainhome sells in spring or from a glowcap patch in the caverns: order a lamp at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot." |
+| `hint_glowcap_patch` | first glowcap patch discovered (`TilesDiscovered` of a tile whose plant is `glowcap_patch`) | "A glowcap patch: gather it [d g] for glowcap and, sometimes, its seed." |
 | `hint_runeforge` | a runeforge is placed | "The runeforge burns vials, not coal." |
 | `hint_staff` | a runeforge is built | "A staff is a stone on a stick: the stone is the spell, the dwarf is the fuel." |
 | `hint_wand` | a wand or a staff in stock | "A wand is quick and soft; a shod staff is slow and hard." |

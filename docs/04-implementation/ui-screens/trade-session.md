@@ -2,7 +2,7 @@
 
 **Owner:** `ui/screens/trade_session` · **Depends on:** [`../../02-systems/20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md), [`../../03-content/caravan-goods.md`](../../03-content/caravan-goods.md)
 
-Modal over the fortress screen; the simulation is paused while open.
+Modal over the fortress screen; the simulation is paused while it is shown. `Esc` hides it and the game runs on: the session stays open, and `[t]` in the depot panel shows the screen again with no new trip. `[x]` is "done trading": the session ends for this visit (20 § The session).
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────────┐
@@ -23,7 +23,7 @@ Modal over the fortress screen; the simulation is paused while open.
 ├─────────────────────────────────────────────┴──────────────────────────────────────────────┤
 │ We take 258 ☼ · We give 1,584 ☼ (their valuation) · They want at least 12% over: 289 ☼     │
 │ "A fair offer." · Wood goods offered: none                                                  │
-│ [Tab] side  [+]/[-] quantity  [a] all  [Enter] Offer  [g] Gift  [Esc] Close                 │
+│ [Tab] side [+]/[-] qty [a] all [Enter] Offer [g] Gift [x] Done [Esc] Hide                    │
 └────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 

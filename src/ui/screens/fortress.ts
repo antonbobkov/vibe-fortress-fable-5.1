@@ -26,7 +26,7 @@ import { creatureNameOf, hasOwnName } from '../creature-name';
 import { HintEngine, type HintRow } from '../hints';
 import { CURSOR_SCROLL_MARGIN, LOOK_BACK_MAX, STATUS_HINT_SECONDS } from '../constants';
 import { acceleratorOf, FORTRESS_PANEL_KEYS, keyLabel, PANEL_CONTEXTS, type KeyContext, type Keymap } from '../keymap';
-import { batchReach, boxLevels, DESIGNATION_IDS, drawDesignatePanel, DesignateTool, rampTopped, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
+import { batchReach, boxLevels, DESIGNATION_IDS, drawDesignatePanel, DesignateTool, priorityWithWord, rampTopped, rectTiles, type DesignatePlan, type TilePoint } from '../panels/designate';
 import { BuildTool, drawBuildPanel } from '../panels/build';
 import { BuildingPanel, drawBuildingPanel } from '../panels/building';
 import { buildings, confirmThen, type PanelContext } from '../panels/context';
@@ -1240,11 +1240,13 @@ export class FortressScreen implements Screen {
         const w = Math.abs(a.x - b.x) + 1;
         const h = Math.abs(a.y - b.y) + 1;
         const d = boxLevels(a, b);
-        if (d > 1) return s.get('ui.status.drag_box', { tool: name, w, h, d, n: w * h * d, priority: this.tool.priority });
-        return s.get('ui.status.drag', { tool: name, w, h, n: w * h, priority: this.tool.priority });
+        // 11 § Concepts: the priority says which end of the scale it is at, "2 (urgent)".
+        const priority = priorityWithWord(s, this.tool.priority);
+        if (d > 1) return s.get('ui.status.drag_box', { tool: name, w, h, d, n: w * h * d, priority });
+        return s.get('ui.status.drag', { tool: name, w, h, n: w * h, priority });
       }
       if (this.tool.kind === 'traffic') return s.get('ui.status.tool_mode', { tool: name, mode: s.get(`ui.tool.traffic.${this.tool.traffic}`) });
-      return s.get('ui.status.tool', { tool: name, priority: this.tool.priority });
+      return s.get('ui.status.tool', { tool: name, priority: priorityWithWord(s, this.tool.priority) });
     }
     // 24 § Inspection: what is followed, and how to stop.
     if (this.lookFollow && this.ui.panel === 'look' && this.ui.sidebar && this.lookAt.kind !== 'tile') return s.get('ui.status.following', { name: this.lookTitle('') });
@@ -2183,7 +2185,11 @@ export class FortressScreen implements Screen {
       return [];
     }
     if (commands.length === 0) this.notice(plan.already > 0 && plan.skipped.length === 0 ? this.strings.get('ui.status.stairs_already') : this.emptyRectText());
-    else if (!this.reachNotice(plan, commands, a, b) && plan.skipped.length > 0) this.notice(this.skippedText(plan));
+    else if (!this.reachNotice(plan, commands, a, b)) {
+      if (plan.skipped.length > 0) this.notice(this.skippedText(plan));
+      else if ((plan.reprioritized ?? 0) > 0) this.notice(this.designatedText(plan));
+    }
+    this.tool.rememberBox(map, this.tool.name(this.strings), a, b, commands);
     for (const c of commands) this.host.submit(c);
     this.tool.remember(commands);
     this.tool.anchor = null;
@@ -2202,7 +2208,11 @@ export class FortressScreen implements Screen {
       return null;
     }
     this.host.submit(cmd);
-    this.notice(this.strings.get('ui.status.reprioritized', { n: (cmd['tiles'] as TileIndex[]).length, priority: this.tool.priority }));
+    const box = this.tool.lastBox;
+    const priority = priorityWithWord(this.strings, this.tool.priority);
+    this.notice(box === null ? this.strings.get('ui.status.reprioritized', { n: (cmd['tiles'] as TileIndex[]).length, priority })
+      : box.d > 1 ? this.strings.get('ui.status.reprioritized_box3', { tool: box.name, w: box.w, h: box.h, d: box.d, priority })
+        : this.strings.get('ui.status.reprioritized_box', { tool: box.name, w: box.w, h: box.h, priority }));
     return cmd;
   }
 
@@ -2243,7 +2253,7 @@ export class FortressScreen implements Screen {
     const first = reach.unreachable[0];
     if (first === undefined) return false;
     const tool = this.tool.name(this.strings);
-    const base = plan.skipped.length > 0 ? this.skippedText(plan) : this.strings.get('ui.status.designated', { tool, n: plan.designated });
+    const base = plan.skipped.length > 0 ? this.skippedText(plan) : this.designatedText(plan);
     const text = this.tool.kind === 'stairs' && rampTopped(readers.map, a, b, reach.unreachable)
       ? this.strings.get('ui.status.unreachable.ramp_top', { tool, n: plan.designated })
       : reach.unreachable.length === reach.total
@@ -2258,7 +2268,17 @@ export class FortressScreen implements Screen {
   private skippedText(plan: DesignatePlan): string {
     const reasons = plan.skipped.map((r) => this.strings.get('ui.status.skip_reason', { n: r.n, reason: this.strings.get(r.reason) })).join(', ');
     const skipped = plan.skipped.reduce((sum, r) => sum + r.n, 0);
-    return this.strings.get('ui.status.designated_skipped', { tool: this.tool.name(this.strings), n: plan.designated, skipped, reasons });
+    const again = plan.reprioritized ?? 0;
+    return again > 0
+      ? this.strings.get('ui.status.designated_skipped_again', { tool: this.tool.name(this.strings), n: plan.designated, again, skipped, reasons })
+      : this.strings.get('ui.status.designated_skipped', { tool: this.tool.name(this.strings), n: plan.designated, skipped, reasons });
+  }
+
+  /** 24 § Input model: a box's count, and how many designated tiles it gave the tool's priority ("4 re-prioritized"). */
+  private designatedText(plan: DesignatePlan): string {
+    const tool = this.tool.name(this.strings);
+    const again = plan.reprioritized ?? 0;
+    return again > 0 ? this.strings.get('ui.status.designated_again', { tool, n: plan.designated, again }) : this.strings.get('ui.status.designated', { tool, n: plan.designated });
   }
 
   /** §4.2: why a designation rectangle sent nothing ("No tile here can be dug: …"). */
@@ -2941,7 +2961,12 @@ export class FortressScreen implements Screen {
           this.jobs.move(up ? -1 : 1, ctx);
           return true;
         }
-        if (letter === 'p') return submit(this.jobs.priority(ctx));
+        if (letter === 'p') {
+          const cmds = this.jobs.priority(ctx, press.shift);
+          // 11 § Concepts: 1 is the most urgent; the steps stop at either end of the scale.
+          if (cmds !== null && cmds.length === 0) this.notice(this.strings.get(press.shift ? 'ui.jobs.priority_last' : 'ui.jobs.priority_first'));
+          return submit(cmds);
+        }
         if (letter === 'x') return submit(this.jobs.cancel(ctx));
         const j = this.jobs.selected(ctx);
         if (k === 'Enter' && j !== undefined) {

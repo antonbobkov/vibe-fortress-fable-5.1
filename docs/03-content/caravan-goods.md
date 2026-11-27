@@ -43,7 +43,7 @@ Sundries: raw materials in small lots, ordinary entries of the weighted draw aft
 | Glowstone | `rough_gem` | glowstone | 1–2 | 6 |
 | Sand | `soil_load` | sand | 5–10 | 6 |
 
-Extra goods sit outside the draw by weight. After the budget is spent, each rolls once with its permille and adds one good on top of the budget, on the runecraft stream. They add no pack animal. A request can still name one. The permilles are *unmeasured*.
+Extra goods sit outside the draw by weight. After the budget is spent, each rolls once with its permille and adds one good on top of the budget, on the runecraft stream. They add no pack animal. A request that finds one (its item, and the material it names in the entry's pool: "seed: glowcap", or "rune vial"; [20](../02-systems/20-trade-and-caravans.md) § Requests) does not spend the request share on it: it raises the roll, to 1000‰ at high priority and to the permille plus half the rest at medium (glowcap seeds: 850‰); a low request leaves it as it is. The row's reputation still holds. The permilles are *unmeasured*.
 
 | Entry | Item | Material pool | Count | Permille | Reputation |
 |---|---|---|---|---|---|

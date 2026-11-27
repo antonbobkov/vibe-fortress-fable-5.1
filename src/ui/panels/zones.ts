@@ -45,7 +45,7 @@ import { rectTiles, type TilePoint } from './designate';
 import { buildingName, itemPlace, stockpileName, stockpilePreset, wrapText, zoneEditorMessage, zoneName as zoneTitle } from '../messages';
 import { feedDetailText, feedsText, overGrazed, pastureFeed } from '../pasture';
 import { drawBuildingLines, ownerPickLines, type BuildingLine } from './building';
-import { dwarvesOf, nameOf } from './units';
+import { dwarvesOf, nameOf, professionOf } from './units';
 import { drawStockpileEditor, StockpileEditor, PRESET_ORDER } from './stockpile-editor';
 
 /** The zone type kept on `Shift` by default, so that `k` stays Look (`ui-keymap-and-screens.md` § Zones panel). */
@@ -241,13 +241,16 @@ export class ZoneTool {
     if (!ctx.readers.has('25')) return [];
     const magic = ctx.readers.of<MagicReader>('25');
     const current = magic.apprentices(this.selected);
-    const adults = dwarvesOf(ctx).filter((id) => !(ctx.readers.has('10') && ctx.readers.of<{ isChild(id: EntityId): boolean }>('10').isChild(id)));
+    const wits = (id: EntityId): number => ctx.readers.entities.get(id, C.Attributes)?.wit ?? 0;
+    // 25 § The sanctum: Wits drives attunement, so the picker lists the wittiest first.
+    const adults = dwarvesOf(ctx).filter((id) => !(ctx.readers.has('10') && ctx.readers.of<{ isChild(id: EntityId): boolean }>('10').isChild(id)))
+      .sort((a, b) => wits(b) - wits(a) || a - b);
     const help = ctx.strings.get('ui.zone.apprentices_help', { n: SANCTUM_APPRENTICES });
     return [
       { id: 'title', text: ctx.strings.get('ui.zone.apprentices_title', { zone: name, n: current.length, max: SANCTUM_APPRENTICES }), tone: 'value' },
       ...adults.map((id) => ({
         id: `apprentice:${id}`,
-        text: `${current.includes(id) ? '● ' : '○ '}${nameOf(ctx, id)}`,
+        text: `${current.includes(id) ? '● ' : '○ '}${ctx.strings.get('ui.zone.apprentice_pick', { name: nameOf(ctx, id), profession: professionOf(ctx, id), wits: wits(id) })}`,
         help,
         run: (): void => {
           const now = magic.apprentices(this.selected);
@@ -750,7 +753,8 @@ function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   // Each line gives a fact: one too long for the panel wraps under itself (a count kept with its word).
   row += wrapLabel(s, col, row, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { width, indent: 2, fg: s.theme.dim });
   row += wrapLabel(s, col, row, strings.get(score.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open', { n: diagnostics.openBorder.length }), { width, indent: 2, fg: score.enclosed ? s.theme.good : s.theme.bad });
-  if (diagnostics.missing.length === 0) label(s, col, row++, strings.get('ui.zone.requirements_met'), { width, fg: s.theme.good });
+  // 25 § The sanctum: a sanctum with no glowcap says what it lacks in place of "Requirements met" (`sanctumLines`).
+  if (diagnostics.missing.length === 0 && !(zone.type === 'sanctum' && sanctumGlowcap(ctx) === 0)) label(s, col, row++, strings.get('ui.zone.requirements_met'), { width, fg: s.theme.good });
   else for (const missing of diagnostics.missing) row += wrapLabel(s, col, row, strings.get(`ui.zone.needs.${missing}`), { width, indent: 2, fg: s.theme.bad });
   if (zone.type === 'bedroom') {
     const ownerId = b?.ownerOf(zone.id) ?? 0;
@@ -768,6 +772,18 @@ function oneIn(ctx: PanelContext, permille: number): string {
   return ctx.strings.get('ui.zone.one_in', { n: Math.max(1, Math.round(1000 / Math.max(1, permille))) });
 }
 
+/** The glowcap the apprentices can eat (13's available stock of `glowcap`). */
+function sanctumGlowcap(ctx: PanelContext): number {
+  return items(ctx)?.available('glowcap') ?? 0;
+}
+
+/** A glowcap crop stands on some plot (07): the sanctum's stock is being grown. */
+function glowcapGrowing(ctx: PanelContext): boolean {
+  if (!ctx.readers.has('07')) return false;
+  const plants = ctx.readers.of<PlantsReader>('07');
+  return plants.crops().some((id) => plants.cropInfo(id)?.species === 'glowcap');
+}
+
 export interface SanctumLine {
   readonly text: string;
   readonly tone: 'text' | 'dim' | 'value' | 'bad';
@@ -783,8 +799,11 @@ export function sanctumLines(ctx: PanelContext, zone: ZoneView): SanctumLine[] {
   const magic = ctx.readers.of<MagicReader>('25');
   const strings = ctx.strings;
   const out: SanctumLine[] = [];
-  const stock = items(ctx)?.available('glowcap') ?? 0;
-  out.push({ text: strings.get('ui.zone.sanctum_glowcap', { n: stock }), tone: stock === 0 ? 'bad' : 'text' });
+  const stock = sanctumGlowcap(ctx);
+  // No glowcap: where it comes from. Glowcap that no plot grows: how long it lasts.
+  if (stock === 0) out.push({ text: strings.get('ui.zone.sanctum_no_glowcap'), tone: 'bad' });
+  else if (!glowcapGrowing(ctx)) out.push({ text: strings.get('ui.zone.sanctum_glowcap_lasts', { n: stock }), tone: 'text' });
+  else out.push({ text: strings.get('ui.zone.sanctum_glowcap', { n: stock }), tone: 'text' });
   out.push({ text: strings.get('ui.zone.sanctum_chance', { chance: oneIn(ctx, magic.mishapPermille(zone.id, 0)) }), tone: 'dim' });
   const apprentices = magic.apprentices(zone.id);
   if (apprentices.length === 0) out.push({ text: strings.get('ui.zone.no_apprentices'), tone: 'dim' });
@@ -813,7 +832,8 @@ function drawSanctumSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelC
   const tones = { text: s.theme.text, dim: s.theme.dim, value: s.theme.value, bad: s.theme.bad };
   for (const line of sanctumLines(ctx, zone)) {
     if (row >= bottom) return row;
-    label(s, col, row++, line.text, { width, fg: tones[line.tone] });
+    // A line too long for the panel wraps under itself.
+    row += wrapLabel(s, col, row, line.text, { width, indent: 2, fg: tones[line.tone], maxRows: bottom - row });
   }
   if (row < bottom) {
     const caption = `${acceleratorLabel('o', ctx.shiftLetters)} ${ctx.strings.get('ui.zone.apprentices_caption')}`;

@@ -226,6 +226,8 @@ export class Game {
   private ruins: { seed: string | null; byRegion: Map<number, { fortress: string; cause: string }[]> } = { seed: null, byRegion: new Map() };
   /** A message drawn over a blank screen while the app works synchronously. */
   private busy: string | null = null;
+  /** The open trade session's screen was hidden with `Esc`; `[t]` (`TradeOpen`) shows it again (20 § The session). */
+  private tradeHidden = false;
   /** The running tutorial (`ui-screens/menus-and-world.md` § Tutorial); presentation only, never saved. */
   private tutorial: Tutorial | null = null;
   /** The wall-clock time of the tutorial's last check, and whether a key or click has come since. */
@@ -289,6 +291,7 @@ export class Game {
       registry: this.registry,
       ui: this.ui,
       submit: (command) => {
+        if (command.type === 'TradeOpen') this.tradeHidden = false;
         this.host.submit(command);
         this.fortress.noteCommand(command, this.tutorial !== null);
       },
@@ -1421,6 +1424,7 @@ export class Game {
   enterFortress(): void {
     this.fortress.tool.clearHistory();
     this.busy = null;
+    this.tradeHidden = false;
     this.fortress.resetSession();
     this.fortress.resetHints();
     this.resetTo(FORTRESS);
@@ -1510,7 +1514,7 @@ export class Game {
 
   /** Compose and draw one frame. */
   render(): void {
-    if (this.busy === null && this.host.started && this.top() === FORTRESS && this.host.readers.has('20') && this.host.readers.of<TradeReader>('20').sessionOpen()) {
+    if (this.busy === null && this.host.started && this.top() === FORTRESS && !this.tradeHidden && this.host.readers.has('20') && this.host.readers.of<TradeReader>('20').sessionOpen()) {
       this.host.setSpeed(0);
       this.pushScreen(new TradeSessionScreen({
         readers: this.host.readers,
@@ -1518,6 +1522,7 @@ export class Game {
         submit: (command) => this.host.submit(command),
         commandTick: () => this.host.step(1),
         back: () => this.popScreen(),
+        hide: () => { this.tradeHidden = true; },
         strings: this.strings,
       }));
     }

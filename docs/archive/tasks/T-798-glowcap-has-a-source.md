@@ -1,6 +1,8 @@
 # T-798 — Glowcap has a source the player can count on, and the sanctum says where it is
 
-**Source:** playtest 8 ([report](../../reports/data/2026-11-26-playtest-8.md), findings 3 and 4); playtest 7 finding 7 · **Size:** M · **Needs:** — · **Status:** open
+**Closed:** 2026-11-26, in 1553b00f.
+
+**Source:** playtest 8 ([report](../../../reports/data/2026-11-26-playtest-8.md), findings 3 and 4); playtest 7 finding 7 · **Size:** M · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -21,9 +23,16 @@ Decisions taken here:
 - **The apprentice picker shows Wits** and the dwarf's profession ("Kolbein Frosthelm · Mason · Wits 61"), sorted by Wits. The sanctum's lines wrap.
 - **The caravan and the raid: a decision for the owner.** Two options: (a) a caravan at the depot when a raid is announced stays until the raid ends plus `CARAVAN_WAIT_DAYS`; (b) leave it, as a trade-off. Recommendation (a): the spring caravan is runecraft's one supply, and at peril 2 it met a raid in two years of two.
 
+Decided in the work (ambiguity protocol):
+
+- **Why the "high" request brought nothing.** A request was matched to the first list entry of its item (the ordinary cave seeds) and drawn from the request share, and the requests are served in turn, each drawing until the share is spent: the "high" glowstone request ahead of it took the whole share (10 glowstones). Now a request is matched to the entry whose pool holds its material (else the first entry of its item, as before), and a request that names an extra entry raises the roll and spends nothing of the share. Requests that name an ordinary entry draw exactly as before; no script asks for glowcap or rune vials, so the scripted worlds do not move.
+- **"Available"** is 13's available stock of the `glowcap` item. **"A glow plot growing it"** is a glowcap crop standing on any plot (07's crops); then the line stays "Glowcap in stock: N".
+- **The earlier hint** keeps one row, `hint_glowcap`, whose text now says where glowcap comes from, so it reads true whichever trigger shows it; the patch has its own row, `hint_glowcap_patch`, shown on the first `TilesDiscovered` of a tile whose plant is `glowcap_patch`.
+- **The caravan and the raid: (a), as a pause.** The stay's clock waits while a raid, a siege or bandits are warned of and still to come, or on the map (`RAIDING`), so the caravan has its whole stay after the raid. An attack still sends it away (20 § Movement step 5): the raid's own blows end the visit, as before. Measured with T-800's final rules (the session stays open, a stand-in for an away Broker, the retry; branch `t798-caravan-glowcap`, commit `84dfbe37`): twenty-seed sweep run 45928227287, pooled living 1154.5, deaths 122.25, extinct 0.25 (p4-2 at shift 50, day 307), verdict pass, against master's about 1167 / 115 and the bounds ≥ 1046.63 / ≤ 132.5, so deaths are within 8 of master and the pause is adopted; `defence_seeds` run 45928230109 passes (7.50 raids turned back, 6.50 soldier kills). One seed job (p2-4, shift 150) failed its own invariant, a dig job blocked as unreachable beside a reachable tile; filed as `T-811-dig-blocked-beside-reachable.md`.
+
 ## Done
 
-- [ ] Requested extra goods honoured; a test that a "high" glowcap request always brings seeds and that a world without one draws as before.
-- [ ] The sanctum's glowcap line; the earlier `hint_glowcap`; the picker with Wits and profession; UI tests.
-- [ ] 25 § Trade and value, § Player-facing behavior; `caravan-goods.md` § Extra goods; `ui-keymap-and-screens.md` § Hints; `panels.md` § Zones updated.
-- [ ] The caravan-and-raid decision recorded, and built if (a).
+- [x] Requested extra goods honoured; a test that a "high" glowcap request always brings seeds and that a world without one draws as before.
+- [x] The sanctum's glowcap line; the earlier `hint_glowcap`; the picker with Wits and profession; UI tests.
+- [x] 25 § Trade and value, § Player-facing behavior; `caravan-goods.md` § Extra goods; `ui-keymap-and-screens.md` § Hints; `panels.md` § Zones updated (also 20 § Party, § Requests, § Movement step 4).
+- [x] The caravan-and-raid decision recorded, and built if (a).

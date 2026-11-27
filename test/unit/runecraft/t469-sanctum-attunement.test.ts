@@ -464,7 +464,8 @@ describe('T-469 panels', () => {
     const ctx = { readers: w.readers, registry, strings } as unknown as Parameters<typeof sanctumLines>[0];
     const lines = sanctumLines(ctx, zone).map((l) => l.text);
     const name = w.game.world.entities.get(s.dwarf, C.Creature)?.name ?? '';
-    expect(lines[0]).toMatch(/^Glowcap in stock: \d+$/);
+    // T-798: no plot grows glowcap here, so the line says how many sessions the stock lasts.
+    expect(lines[0]).toMatch(/^\d+ glowcap: enough for \d+ sessions?\.$/);
     expect(lines[1]).toBe('Mishaps, new apprentice: one session in 17');
     expect(lines[2]).toBe(`${name}: Runecraft 3, rune 2/15`);
     expect(lines[3]).toMatch(/^ {2}\d sessions left today; mishaps one session in 19$/);

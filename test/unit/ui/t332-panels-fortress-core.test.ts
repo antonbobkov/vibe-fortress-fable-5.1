@@ -175,8 +175,9 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[3]).toBe('[s] state: all');
     expect(rows[4]).toMatch(/^Pri Job +Who \/ reason$/);
     expect(rows[5]).toMatch(/^ 3 {2}Dig \(60,30,z32\) \S+ \S+$/);
-    expect(rows[34]).toBe('[Enter] center  [p] priority');
-    expect(rows[35]).toBe('[x] cancel  [o] standing orders');
+    expect(rows[33]).toBe('[Enter] center  [x] cancel');
+    expect(rows[34]).toBe('[p] sooner  [S-p] later (1 first)');
+    expect(rows[35]).toBe('[o] standing orders');
     expect(rows.slice(36).join(' ')).toMatch(/Labor priorities \(1-9\).*All labors at priority 5: change\s+them in the labor manager \(\[l\],\s+Enter\)\./);
   });
 

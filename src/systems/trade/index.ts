@@ -19,7 +19,8 @@ import { removeLeavingEquipment } from '@systems/items/leaving';
 import type { ItemsReader } from '@systems/items/reader';
 import type { Job, JobsReader } from '@systems/jobs';
 import { grantXp } from '@systems/dwarves/skills';
-import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, TRADE_JOB_PRIORITY, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
+import { STEP_COST } from '@core/path-constants';
+import { CARAVAN_STAY_DAYS, CARAVAN_LEAVE_DAYS, CARAVAN_GUARD_FIGHT_DAYS, CARAVAN_THINK_TICKS, CARAVAN_BAN_YEARS, CARAVAN_BAN_REP, DEPOT_WAIT_DAYS, REP_DRIFT_PER_YEAR, REP_NO_DEPOT, REP_FORTRESS_KILL, REP_CARAVAN_LOST, DEPOT_HAUL_PRIORITY, TRADE_JOB_PRIORITY, TRADER_AWAY_TICKS, RAIDING, REQUEST_MAX, TRADE_XP, TRADE_XP_VALUE, EXOTIC_CAGED_PREFERENCE, REPUTATION_MIN, REPUTATION_MAX, REP_BANDIT_CAGED, REP_BANDIT_KILLED, SCARCITY_MARKUP, STAR_STEEL } from './constants';
 import { edgeReaches, edgeSurface, spawnCaravan, wayGap, type WayGap } from './caravan';
 import { generateGoods, neverSold } from './goods';
 import { arrivalTick, initialSchedule, skipCaravan, TRADE_CIVS } from './schedule';
@@ -51,6 +52,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   // A completion rejected in 10 is retried in 11 after the old job is removed.
   // This flag is cleared in the same atomic tick, before any save can observe it.
   private retryTradeRequest = false;
+  /** The retry is for a trader or merchant off the depot (§ The session): the new job retries no more. */
+  private retryAway = false;
   /** The reader's gaps (20 § Movement step 6), kept while the connectivity labels stay the same; derived, never saved. */
   private readonly gaps = new Map<string, WayGap | null>();
   private gapsRevision = -1;
@@ -130,9 +133,11 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     ctx.register.jobProducer({
       id: 'trade', produce: (tick) => {
         const retry = this.retryTradeRequest;
+        const away = this.retryAway;
         this.retryTradeRequest = false;
+        this.retryAway = false;
         if (this.active && this.active.state !== 'atDepot') this.cancelTradeJob(tick, this.active.depotId);
-        this.repairTradeJob(tick, retry);
+        this.repairTradeJob(tick, retry, away);
       },
       onComplete: (job, tick) => this.completeJob(job as Job, tick),
       workCentiTicks: (job) => (job as Job).key.startsWith('trade:') ? 100 : undefined,
@@ -202,7 +207,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
    * The Broker the trade job is for: alive, with `trading` enabled and not a soldier on duty (a soldier
    * on duty works no job, 10 § Behavior selection step 5); else 0, and any trading dwarf takes it.
    */
-  private broker(ctx: TickContext): EntityId {
+  private broker(ctx: InitContext): EntityId {
     const id = ctx.readers.of<DwarvesReader>('10').holder('broker');
     if (!ctx.world.entities.alive(id) || !ctx.readers.of<JobsReader>('11').laborEnabled(id, 'trading')) return 0;
     return ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').onDuty(id) ? 0 : id;
@@ -213,26 +218,62 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     if (job) ctx.jobs.cancel(job.id, 'target_invalid');
   }
 
-  private repairTradeJob(ctx: TickContext, create = false): void {
+  private repairTradeJob(ctx: TickContext, create = false, retried = false): void {
     const a = this.active;
     if (!a || a.state !== 'atDepot' || this.sessionState) return;
     const jobs = ctx.readers.of<JobsReader>('11');
     const old = jobs.byKey(`trade:${a.depotId}`);
     if (!old && !create) return;
-    const assignedWorker = this.broker(ctx);
-    const invalidWorker = old !== undefined && old.workerId !== 0 &&
-      (!ctx.world.entities.alive(old.workerId) || !jobs.laborEnabled(old.workerId, 'trading') ||
-        (assignedWorker !== 0 && old.workerId !== assignedWorker));
-    if (old && old.data['assignedWorker'] === assignedWorker && !invalidWorker) return;
     const building = ctx.readers.of<BuildingsReader>('14').get(a.depotId);
+    const workTile = building ? building.footprint[0] ?? building.origin : -1;
+    const broker = this.broker(ctx);
+    // § The session: a Broker asleep, or at a need far from the depot, leaves the trade to another trading dwarf.
+    const combat = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : null;
+    const brokerAway = broker !== 0 && workTile >= 0 && this.away(ctx, broker, workTile) &&
+      jobs.workersWithLabor('trading').some((id) => id !== broker && combat?.onDuty(id) !== true);
+    const assignedWorker = brokerAway ? 0 : broker;
+    const workerGone = old !== undefined && old.workerId !== 0 &&
+      (!ctx.world.entities.alive(old.workerId) || !jobs.laborEnabled(old.workerId, 'trading'));
+    // A trading dwarf who took the job in place of an away Broker keeps it.
+    if (old && old.workerId !== 0 && old.data['brokerAway'] === true && !workerGone) return;
+    const invalidWorker = workerGone || (old !== undefined && old.workerId !== 0 && assignedWorker !== 0 && old.workerId !== assignedWorker);
+    if (old && old.data['assignedWorker'] === assignedWorker && !invalidWorker) return;
     if (old) ctx.jobs.cancel(old.id, 'target_invalid');
     if (!building) return;
     // § The session: above the depot's hauls, and it calls its dwarf off other work (11 § Assignment).
     ctx.jobs.create(`trade:${a.depotId}`, {
       type: 'trade', priority: old ? old.priority : TRADE_JOB_PRIORITY,
-      target: { kind: 'building', ref: a.depotId }, workTile: building.footprint[0] ?? building.origin,
-      data: { depotId: a.depotId, assignedWorker, summon: true },
+      target: { kind: 'building', ref: a.depotId }, workTile,
+      data: { depotId: a.depotId, assignedWorker, summon: true, ...(brokerAway ? { brokerAway: true } : {}), ...(retried ? { retried: true } : {}) },
     });
+  }
+
+  /**
+   * § The session: the Broker is away from the trade when asleep, or at a need (eating, drinking,
+   * a break) more than `TRADER_AWAY_TICKS` of walking from the depot.
+   */
+  private away(ctx: InitContext, id: EntityId, workTile: TileIndex): boolean {
+    const dwarves = ctx.readers.of<DwarvesReader>('10');
+    const behavior = dwarves.behavior(id);
+    if (behavior !== 'need' && behavior !== 'social') return false;
+    if (dwarves.activityText(id) === 'sleep') return true;
+    const pos = ctx.world.entities.get(id, C.Position);
+    const speed = ctx.world.entities.get(id, C.Motion)?.speed ?? 0;
+    if (pos === undefined || speed <= 0) return false;
+    const map = ctx.world.map;
+    const tiles = Math.max(Math.abs(pos.x - map.xOf(workTile)), Math.abs(pos.y - map.yOf(workTile))) + Math.abs(pos.z - map.zOf(workTile));
+    return tiles * STEP_COST / speed > TRADER_AWAY_TICKS;
+  }
+
+  /**
+   * The job's worker may trade: alive, with the labor, and the dwarf the job is for (the eligible
+   * Broker, or any trading dwarf when there is none or the job was issued while the Broker was away).
+   */
+  private eligibleTrader(ctx: InitContext, job: Job): boolean {
+    if (!ctx.world.entities.alive(job.workerId) || !ctx.readers.of<JobsReader>('11').laborEnabled(job.workerId, 'trading')) return false;
+    if (job.data['brokerAway'] === true) return true;
+    const broker = this.broker(ctx);
+    return broker === 0 || broker === job.workerId;
   }
 
   private completeJob(job: Job, ctx: TickContext): void {
@@ -249,23 +290,28 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       return;
     }
     if (!a || a.state !== 'atDepot' || a.depotId !== job.data['depotId']) return;
-    if (!job.key.startsWith('trade:')) return;
-    const broker = this.broker(ctx);
-    if (!ctx.world.entities.alive(job.workerId) || !ctx.readers.of<JobsReader>('11').laborEnabled(job.workerId, 'trading') ||
-        (broker !== 0 && broker !== job.workerId)) {
+    if (!job.key.startsWith('trade:') || this.sessionState !== null) return;
+    // A worker who cannot trade is replaced by the dwarf the job is for.
+    if (!this.eligibleTrader(ctx, job)) {
       this.retryTradeRequest = true;
       return;
     }
-    const merchantId = a.merchants.find((id) => ctx.world.entities.alive(id) && a.destinations[id] === ctx.readers.of<BuildingsReader>('14').holderTile(a.depotId))
+    const buildings = ctx.readers.of<BuildingsReader>('14');
+    const merchantId = a.merchants.find((id) => ctx.world.entities.alive(id) && a.destinations[id] === buildings.holderTile(a.depotId))
       ?? a.merchants.find((id) => ctx.world.entities.alive(id)) ?? 0;
-    if (!merchantId) return;
-    const building = ctx.readers.of<BuildingsReader>('14').get(a.depotId);
+    const building = buildings.get(a.depotId);
     const merchant = ctx.world.entities.get(merchantId, C.Position);
     const trader = ctx.world.entities.get(job.workerId, C.Position);
-    if (!building || !merchant || !trader) return;
-    const merchantTile = ctx.world.map.index(merchant.x, merchant.y, merchant.z);
-    const traderTile = ctx.world.map.index(trader.x, trader.y, trader.z);
-    if (!building.footprint.includes(merchantTile) || !building.footprint.includes(traderTile)) return;
+    const inside = (pos: { x: number; y: number; z: number } | undefined): boolean =>
+      pos !== undefined && building !== undefined && building.footprint.includes(ctx.world.map.index(pos.x, pos.y, pos.z));
+    if (!merchantId || !inside(merchant) || !inside(trader)) {
+      // § The session: a trader or merchant off the depot has the job re-queued once.
+      if (job.data['retried'] !== true) {
+        this.retryTradeRequest = true;
+        this.retryAway = true;
+      }
+      return;
+    }
     this.sessionState = { depotId: a.depotId, traderId: job.workerId, merchantId, give: [], take: [], woodOffered: [], woodWarning: false };
   }
 
@@ -369,7 +415,12 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       this.requestsState[civ as Civ] = entries.map((r) => ({ itemType: r.itemType, ...(r.material ? { material: r.material } : {}), priority: r.priority }));
       return OK;
     }
-    if (cmd.type === 'TradeCancel') { if (!this.sessionState) return reject('no_session'); this.sessionState = null; return OK; }
+    if (cmd.type === 'TradeCancel') {
+      // § The session: done trading for this visit.
+      if (!this.sessionState) return reject('no_session');
+      this.sessionState = null;
+      return OK;
+    }
     if (cmd.type === 'TradeOffer') return this.offer(cmd, ctx);
     if (cmd.type === 'TradeOpen') {
       if (!a || a.state !== 'atDepot') return reject('no_caravan');
@@ -651,6 +702,17 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     this.returnDepotGoods(ctx);
   }
 
+  /** A raiding party (a raid, a siege or bandits) is warned of and still to come, or on the map (18). */
+  private raidOn(ctx: TickContext): boolean {
+    if (!ctx.readers.has('18')) return false;
+    const threats = ctx.readers.of<ThreatsReader>('18');
+    if (threats.coming().some((party) => RAIDING.includes(party.kind))) return true;
+    return threats.activeParties().some((id) => {
+      const party = threats.party(id);
+      return party !== undefined && RAIDING.includes(party.purpose);
+    });
+  }
+
   override tick(ctx: TickContext): void {
     const a = this.active;
     if (!a) return;
@@ -659,6 +721,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       return;
     }
     if (a.state === 'atDepot') {
+      // § Movement step 4: the stay's clock waits while a raid is warned or on the map.
+      if (this.raidOn(ctx)) { a.stateSince += 1; return; }
       if (ctx.tick - a.stateSince >= CARAVAN_STAY_DAYS * TICKS_PER_DAY) {
         this.missed(ctx, a);
         this.pack(ctx, a);
@@ -782,6 +846,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   deserialize(state: TradeStateV1, ctx: InitContext): void {
     if (!this.readerRef) this.init(ctx);
     this.retryTradeRequest = false;
+    this.retryAway = false;
     this.hauls = null;
     this.scheduleState = structuredClone(state.schedule);
     this.active = state.activeCaravan && structuredClone(state.activeCaravan);

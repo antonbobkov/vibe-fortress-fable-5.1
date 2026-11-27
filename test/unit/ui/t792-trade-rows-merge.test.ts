@@ -84,7 +84,7 @@ describe('T-792 the trade session merges like stacks', () => {
     f.screen.key(press('Enter'));
     const offer = f.sent.find((c) => c.type === 'TradeOffer') as { give: { itemId: EntityId; count: number }[] } | undefined;
     expect(offer?.give).toEqual(f.meals.map((itemId) => ({ itemId, count: 8 })));
-    expect(f.rows()[25]).toMatch(/\[Tab\] side {2}\[\+\]\/\[-\] quantity {2}\[a\] all {2}\[Enter\] Offer {2}\[g\] Gift {2}\[Esc\] Close$/);
+    expect(f.rows()[25]).toMatch(/\[Tab\] side \[\+\]\/\[-\] qty \[a\] all \[Enter\] Offer \[g\] Gift \[x\] Done \[Esc\] Hide$/);
   });
 });
 

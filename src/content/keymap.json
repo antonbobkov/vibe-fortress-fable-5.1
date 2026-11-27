@@ -307,7 +307,7 @@
   {
     "context": "designate_panel",
     "key": "[p]",
-    "action": "give the tool's priority to the last batch"
+    "action": "give the tool's priority to the last box drawn"
   },
   {
     "context": "build_panel",
@@ -597,7 +597,7 @@
   {
     "context": "jobs_panel",
     "key": "[p]",
-    "action": "raise the job's priority (1–9, wrapping)"
+    "action": "the job sooner (toward 1, the most urgent); with Shift, later (toward 9); neither wraps"
   },
   {
     "context": "jobs_panel",
@@ -1232,7 +1232,12 @@
   {
     "context": "trade_session",
     "key": "Esc",
-    "action": "close"
+    "action": "hide (the trade stays open)"
+  },
+  {
+    "context": "trade_session",
+    "key": "x",
+    "action": "done trading"
   },
   {
     "context": "trade_session",

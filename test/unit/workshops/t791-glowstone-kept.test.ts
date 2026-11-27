@@ -100,7 +100,8 @@ describe('T-791 the jeweler leaves the lamp\'s glowstone', () => {
 
 describe('T-791 the way to a lamp is named where the player looks', () => {
   it('the glowcap hint names the order and the placing', () => {
-    expect(strings.get('hint.hint_glowcap')).toBe("Glowcap grows in the dark under a glowstone lamp: order one at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot.");
+    // T-798: the hint also says where glowcap comes from.
+    expect(strings.get('hint.hint_glowcap')).toBe("Glowcap grows in the dark under a glowstone lamp, from seeds the Mountainhome sells in spring or from a glowcap patch in the caverns: order a lamp at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot.");
   });
 
   it('the Statue row reads "Statue / lamp" while a glowstone statue is to be had, and a built lamp says what it lights', () => {

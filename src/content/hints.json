@@ -151,8 +151,13 @@
   },
   {
     "id": "hint_glowcap",
-    "trigger": "glowcap seeds in stock",
-    "text": "Glowcap grows in the dark under a glowstone lamp: order one at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot."
+    "trigger": "glowcap seeds in stock; or a sanctum zone, or a building tagged rune_circle, exists with no glowcap seeds in stock",
+    "text": "Glowcap grows in the dark under a glowstone lamp, from seeds the Mountainhome sells in spring or from a glowcap patch in the caverns: order a lamp at a jeweler's ([o], 'Glowstone lamp'), then place it [b > Furniture > Statue] in the middle of a dark plot."
+  },
+  {
+    "id": "hint_glowcap_patch",
+    "trigger": "first glowcap patch discovered (TilesDiscovered of a tile whose plant is glowcap_patch)",
+    "text": "A glowcap patch: gather it [d g] for glowcap and, sometimes, its seed."
   },
   {
     "id": "hint_runeforge",

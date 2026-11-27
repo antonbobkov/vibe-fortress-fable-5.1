@@ -58,7 +58,7 @@ describe('T-M1-14 designate tool: drag rectangle → Designate', () => {
     key(game, '<'); // z 31: the soil under the surface, undiscovered, accepted blind
     game.pointerDown(cell(game, 10, 5));
     game.pointerMove(cell(game, 13, 7));
-    expect(game.fortress.statusRow2()).toBe('Dig 4×3 (12 tiles), priority 3');
+    expect(game.fortress.statusRow2()).toBe('Dig 4×3 (12 tiles), priority 3 (urgent)');
     // CP437 has no `×`; the cell holds its nearest glyph, `x` (GLYPH_ALIASES).
     expect(game.textRows().join('\n')).toContain('Dig 4x3 (12 tiles), priority 3');
     game.pointerUp(cell(game, 13, 7));

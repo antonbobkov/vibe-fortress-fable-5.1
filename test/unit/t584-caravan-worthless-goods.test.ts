@@ -63,8 +63,9 @@ describe('T-584 caravans bring the goods worth nothing', () => {
         for (const asked of goodsOf(entry)) {
           const label = `${civ} ${asked.itemType} ${asked.material ?? ''}`;
           const goods = generateGoods(registry, civ, RENOWN, REPUTATION, [{ ...asked, priority: 3 }], new RngStream(584), new RngStream(585), site);
-          // The request's draws come first, before the weighted pool's.
-          const brought = goods.filter((g) => !g.extra && matches(g.type, g.material, g.species, asked));
+          // The request's draws come first, before the weighted pool's; T-798: a request that finds an
+          // extra entry raises its roll instead, so its good comes as an extra.
+          const brought = goods.filter((g) => (entry.extra !== undefined || !g.extra) && matches(g.type, g.material, g.species, asked));
           expect(brought.length, label).toBeGreaterThan(0);
           for (const g of brought) expect(g.value, label).toBeGreaterThan(0);
         }
