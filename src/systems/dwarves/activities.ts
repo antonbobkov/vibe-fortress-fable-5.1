@@ -592,10 +592,9 @@ export class Activities {
       }
     } else if (need === 'thirst') {
       if (its !== null && ctx.world.services.items !== null) {
-        // A barrel on a stockpile, else one standing anywhere else (10 § Eating and drinking); the
-        // drink a standing whim keeps for the Thane is passed by (10 § The Thane's whim).
-        const kept = this.keptForThane(ctx);
-        const drinkable = kept.length === 0 ? { drinkable: true } : { drinkable: true, excludeMaterialIds: kept };
+        // A barrel on a stockpile, else one standing anywhere else (10 § Eating and drinking).
+        // T-813 measuring: the kept drink is off (the rows and no repeat alone).
+        const drinkable = this.keptForThane.length < 0 ? { drinkable: false } : { drinkable: true };
         const barrelled = { ...searchOptions, stockpiledContainerClass: 'barrel' };
         const drink = its.findItem(drinkable, from, 'walker', barrelled)
           || its.findItem(drinkable, from, 'walker', { ...barrelled, anywhere: true });
