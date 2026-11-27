@@ -1054,8 +1054,9 @@ export const SCHEMAS: Record<string, TableSchema> = {
   // personality-and-thoughts.md § Whims: what the Thane may wish for in a season (10 § The Thane's whim).
   whims: rows({
     id: nonEmptyStr,
-    kind: enumOf(['stock', 'room']),
-    item: ref('items', { allowWords: ['any'] }),
+    kind: enumOf(['stock', 'room', 'tier', 'engraved']),
+    item: opt(ref('items', { allowWords: ['any'] })),
+    also: opt(ref('items')),
     material: opt(materialRef),
     quality: opt(int),
     bedding: opt(enumOf(['feather'])),

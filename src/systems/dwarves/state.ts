@@ -59,8 +59,8 @@ export interface DwarvesStateV1 {
   sawMasterworks?: [EntityId, EntityId][];
   /** A fortress dwarf has stood in the `starfall` crater (`10` § Movement). Absent while false. */
   craterEntered?: true;
-  /** `10` § The Thane's whim: the whim of the season (its row id and the tick it was set). Absent: none. */
-  whim?: { id: string; setTick: number };
+  /** `10` § The Thane's whim: the whim of the season (its row id, the tick it was set, and a `tier` whim's tier). Absent: none. */
+  whim?: { id: string; setTick: number; target?: number };
   needRetryUntil?: [EntityId, NeedName, number][];
   shutOut?: EntityId[];
   shelterCheckPending?: boolean;

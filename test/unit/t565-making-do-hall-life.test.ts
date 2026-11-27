@@ -88,7 +88,8 @@ describe('T-565 the rows', () => {
     expect(eventPredicate(t('thane_grumbled'), { type: 'WhimJudged', met: true }, registry)).toBe(false);
     expect(eventPredicate(t('thane_grumbled'), { type: 'WhimJudged', met: false }, registry)).toBe(true);
     expect(whimRows(registry).map((r) => r.id)).toEqual(['whim_lantern', 'whim_mead', 'whim_ivory_statue', 'whim_fine_meal',
-      'whim_cheese', 'whim_spirits', 'whim_masterwork', 'whim_featherbed']);
+      'whim_cheese', 'whim_spirits', 'whim_masterwork', 'whim_featherbed', 'whim_statue_hall', 'whim_hall_tier', 'whim_engraved_room',
+      'whim_fine_furniture', 'whim_superior']);
     expect(whimRows(registry).find((r) => r.id === 'whim_featherbed')).toMatchObject({ kind: 'room', item: 'bed', bedding: 'feather', zone: 'bedroom', thane: true });
     expect(whimRows(registry).find((r) => r.id === 'whim_masterwork')).toMatchObject({ kind: 'stock', item: 'any', quality: 5, count: 1 });
   });
@@ -211,7 +212,7 @@ describe('T-565 the Thane\'s whim', () => {
     const other = dwarf(w, w.index(16, 13, Z));
     thaneOf(w, thane);
     w.dwarves.whim = { id: 'whim_lantern', setTick: SEASON };
-    expect(w.readers.of<DwarvesReader>('10').whim()).toEqual({ id: 'whim_lantern', text: 'a lantern in the dining hall', met: false, kind: 'room', count: 1, have: 0 });
+    expect(w.readers.of<DwarvesReader>('10').whim()).toEqual({ id: 'whim_lantern', text: 'a lantern in the dining hall', met: false, kind: 'room', count: 1, have: 0, kept: false });
     w.build('lantern', w.index(16, 11, Z), 'glass');
     expect(w.readers.of<DwarvesReader>('10').whim()?.met).toBe(true);
     const loaded = roundTrip(w.game).game;

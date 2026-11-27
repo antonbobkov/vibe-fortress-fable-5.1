@@ -470,3 +470,8 @@ Every new row of every table goes at the end of this table, including generated 
 | hints | hint_deep_cavern |
 | hints | hint_glowcap_patch |
 | hints | hint_quality |
+| whims | whim_statue_hall |
+| whims | whim_hall_tier |
+| whims | whim_engraved_room |
+| whims | whim_fine_furniture |
+| whims | whim_superior |
