@@ -919,7 +919,8 @@ class Probe {
    * labor reaches one of its stand tiles. It is lost when it stays blocked for more than a day (a) while
    * such a stand tile is reachable (a walk that failed and is not retried), or (b) while none of its
    * stand tiles can be stood on, although the anchor cannot be stood on and a tile beside it is passable and reachable (a work
-   * tile that is a built chest's own tile). The start of the block is the first sample that saw it; a failed
+   * tile that is a built chest's own tile). Reachable is as the board reads it: the same label, and the same
+   * pocket of the forbidden set (T-530, T-811). The start of the block is the first sample that saw it; a failed
    * walk's own retry tick says when it began.
    */
   private checkBlockedPaths(game: HeadlessGame): void {
@@ -969,14 +970,16 @@ class Probe {
           const anchor = board.anchorTile(job);
           // Nobody can stand on the anchor itself (a built chest, a wall): only then is a tile beside it the way in.
           // T-489: an anchor that is only forbidden traffic waits for the player to lift it, and is no fault.
+          // T-811: joined as the board joins them, by label and by T-530's pocket: a tile beside the anchor that only
+          // forbidden traffic shuts off (a dig run from a forbidden workshop corner) waits for the player too.
           if (map.validIndex(anchor) && !pathing.passable(anchor, 'walker')) {
-            const labels = new Set<number>();
+            const joined = new Set<string>();
             for (const w of workers) {
               const at = board.workerTile(w);
-              if (at >= 0) labels.add(pathing.labelOf(at, 'walker'));
+              if (at >= 0) joined.add(`${pathing.labelOf(at, 'walker')}/${board.pocketOf(at)}`);
             }
             for (const n of map.neighbors8(anchor)) {
-              if (pathing.passable(n, 'walker', { faction: 'fortress' }) && labels.has(pathing.labelOf(n, 'walker'))) {
+              if (pathing.passable(n, 'walker', { faction: 'fortress' }) && joined.has(`${pathing.labelOf(n, 'walker')}/${board.pocketOf(n)}`)) {
                 kind = 'anchor';
                 break;
               }
