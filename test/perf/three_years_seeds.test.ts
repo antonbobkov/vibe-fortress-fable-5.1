@@ -110,6 +110,10 @@ export interface ThreeYearsSeedResult {
   readonly mealsPerDwarfDay: string;
   readonly drinksPerDwarfDay: string;
   readonly parties: PartyFigures;
+  /** The Thane's whims: each row drawn, how often, and the seasons judged met and missed (10 § The Thane's whim). */
+  readonly whims?: { readonly set: Record<string, number>; readonly met: number; readonly missed: number };
+  /** Sulks by kind (15 § Sulks). */
+  readonly sulks?: Record<string, number>;
   readonly crowds: { readonly doors: CrowdFigures; readonly hall: CrowdFigures; readonly stations: CrowdFigures; readonly fighting: CrowdFigures };
   /** T-601, T-603: the strongest squad the fortress fielded, how its sprung ambushes were answered and what they cost, and when it cleared each bar. */
   readonly squad: SquadRecord;
@@ -147,6 +151,10 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
   let drinksDrunk = 0;
   let drinksAlcohol = 0;
   let drinksWater = 0;
+  const whimsSet: Record<string, number> = {};
+  let whimsMet = 0;
+  let whimsMissed = 0;
+  const sulks: Record<string, number> = {};
 
   const dwarfSpecies = w.game.registry.table('creatures').index('dwarf');
   const partyWatch = new PartyWatch(w);
@@ -166,6 +174,12 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
       } else if (e.type === 'DrankAlcohol') {
         drinksAlcohol += 1;
         drinksDrunk += 1;
+      } else if (e.type === 'WhimSet') {
+        whimsSet[String(e['whimId'])] = (whimsSet[String(e['whimId'])] ?? 0) + 1;
+      } else if (e.type === 'WhimJudged') {
+        if (e['met'] === true) whimsMet += 1; else whimsMissed += 1;
+      } else if (e.type === 'SulkHappened') {
+        sulks[String(e['kind'])] = (sulks[String(e['kind'])] ?? 0) + 1;
       } else if (e.type === 'DrankWater') {
         drinksWater += 1;
         drinksDrunk += 1;
@@ -313,6 +327,8 @@ export function runThreeYearsSeed(seed: string, peril: number, shift = SWEEP_SHI
     crowds: { doors: crowdWatch.doors, hall: crowdWatch.hall, stations: crowdWatch.stations, fighting: crowdWatch.fighting },
     parties: partyWatch.figures,
     squad: squadRecord(state),
+    whims: { set: whimsSet, met: whimsMet, missed: whimsMissed },
+    sulks,
   };
   // Preserve the measurement even when a deterministic guarantee fails.
   console.log(`[three_years_seeds_detail] ${JSON.stringify(result)}`);
