@@ -315,7 +315,7 @@ export const EVENT_FIELDS: Readonly<Record<EventType, string>> = Object.freeze({
   ToolEquipped: "dwarfId, itemId / itemId",
   ToolDropped: "dwarfId, itemId / itemId",
   ItemCrafted: "itemId, quality, crafterId, workshopId, recipeId",
-  MasterworkCreated: "itemId, crafterId",
+  MasterworkCreated: "itemId, crafterId[, tile]",
   WorkOrderCompleted: "workshopId, recipeId",
   StoneSet: "itemId, enchantId, tier, smithId",
   SmokyFuelBurned: "workshopId, tile",

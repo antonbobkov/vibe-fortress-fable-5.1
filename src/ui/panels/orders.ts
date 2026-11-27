@@ -30,7 +30,10 @@ import { buildingName, capitalize, clothInStock, inputLack, itemName, jobBlockTe
 import type { Surface } from '../surface';
 import { asWritten, label, list, numberField, separator, textField, type ListState } from '../widgets';
 import { accel, confirmThen, type PanelContext } from './context';
-import { dwarvesOf } from './units';
+import { dwarvesOf, nameOf } from './units';
+import { TITLE_IDS } from '../constants';
+import type { DwarvesReader } from '@systems/dwarves';
+import type { CombatReader } from '@systems/combat';
 
 export interface OrderEntry { workshopId: EntityId; index: number; order: WorkOrder }
 
@@ -811,17 +814,57 @@ export class OrdersPanel {
 
   // ---------- the workshop panel ----------
 
-  nextWorker(ctx: PanelContext, id: EntityId): Command | null {
-    const ws = ctx.readers.entities.get(id, C.Workshop);
+  /** The workshop's worker picker (`[w]`, `panels.md` § Workshop): open on one workshop, with its selected row. */
+  readonly workerPick = { open: false, workshopId: 0 as EntityId, selected: 0 };
+
+  /**
+   * The worker picker's rows (`panels.md` § Workshop): "Anyone" first, then every dwarf with a labor
+   * the workshop's recipes use, the best at the workshop's skills first (a dwarf's level is its best
+   * among them; equals keep the Units order), each with that skill and where else it is busy: its
+   * squad and its titles. "Frode Brightward · Crafting 8 · Thane".
+   */
+  workerRows(ctx: PanelContext, id: EntityId): { dwarfId: EntityId; text: string }[] {
     const building = this.buildings(ctx)?.get(id);
     const reader = this.reader(ctx);
-    if (ws === undefined || building === undefined || reader === null) return null;
+    const anyone = { dwarfId: 0, text: ctx.strings.get('ui.workshop.pick.anyone') };
+    if (building === undefined || reader === null || !ctx.readers.has('10')) return [anyone];
     const jobs = ctx.readers.of<JobsReader>('11');
-    const skills = ctx.registry.table<{ id: string; labor: string | null }>('skills');
-    const labors = reader.recipesFor(building.typeId).map((recipe) => skills.byId(recipe.skill)?.labor).filter((labor): labor is string => typeof labor === 'string');
-    const candidates = [0, ...dwarvesOf(ctx).filter((dwarf) => labors.some((labor) => jobs.laborEnabled(dwarf, labor)))];
-    const at = candidates.indexOf(ws.assignedWorker);
-    return { type: 'SetWorkshopWorker', workshopId: id, dwarfId: candidates[(at + 1) % candidates.length] ?? 0 };
+    const dwarves = ctx.readers.of<DwarvesReader>('10');
+    const skills = ctx.registry.table<{ id: string; name: string; labor: string | null }>('skills');
+    const used = Array.from(new Set(reader.recipesFor(building.typeId).map((recipe) => recipe.skill)));
+    const labors = used.map((skill) => skills.byId(skill)?.labor).filter((labor): labor is string => typeof labor === 'string');
+    const squads = ctx.readers.has('16') ? ctx.readers.of<CombatReader>('16') : null;
+    const rows = dwarvesOf(ctx).filter((dwarf) => labors.some((labor) => jobs.laborEnabled(dwarf, labor))).map((dwarf, order) => {
+      let skill = used[0] ?? '';
+      let level = -1;
+      for (const sid of used) {
+        const here = dwarves.skill(dwarf, sid);
+        if (here > level) { level = here; skill = sid; }
+      }
+      const busy = [squads?.squadOf(dwarf)?.name ?? '', ...dwarves.titles(dwarf).filter((title) => (TITLE_IDS as readonly string[]).includes(title)).map((title) => ctx.strings.get(`ui.title.${title}`))]
+        .filter((part) => part !== '');
+      const text = ctx.strings.get('ui.workshop.pick.row', { name: nameOf(ctx, dwarf), skill: skills.byId(skill)?.name ?? skill, level: Math.max(0, level) });
+      return { dwarfId: dwarf, level, order, text: busy.length === 0 ? text : ctx.strings.get('ui.workshop.pick.busy', { text, busy: busy.join(', ') }) };
+    }).sort((a, b) => b.level - a.level || a.order - b.order);
+    return [anyone, ...rows.map(({ dwarfId, text }) => ({ dwarfId, text }))];
+  }
+
+  /** Opens the worker picker on a workshop, at its assigned worker's row. */
+  openWorkerPick(ctx: PanelContext, id: EntityId): void {
+    const assigned = ctx.readers.entities.get(id, C.Workshop)?.assignedWorker ?? 0;
+    const rows = this.workerRows(ctx, id);
+    this.workerPick.open = true;
+    this.workerPick.workshopId = id;
+    this.workerPick.selected = Math.max(0, rows.findIndex((row) => row.dwarfId === assigned));
+  }
+
+  /** The picker's choice: a different worker is set (which cancels the current job, 12 § Operation); the picker closes. */
+  chooseWorker(ctx: PanelContext, id: EntityId, index: number): void {
+    const row = this.workerRows(ctx, id)[index];
+    this.workerPick.open = false;
+    if (row === undefined) return;
+    const assigned = ctx.readers.entities.get(id, C.Workshop)?.assignedWorker ?? 0;
+    if (row.dwarfId !== assigned) ctx.submit({ type: 'SetWorkshopWorker', workshopId: id, dwarfId: row.dwarfId });
   }
 
   /** The workshop panel's actions, by key or by click; `takeApart` is the screen's confirmed deconstruct. */
@@ -846,8 +889,7 @@ export class OrdersPanel {
       this.openMaterials(ctx);
       ctx.openPanel('orders');
     } else if (action === 'worker') {
-      const cmd = this.nextWorker(ctx, id);
-      if (cmd !== null) ctx.submit(cmd);
+      this.openWorkerPick(ctx, id);
     } else if (action === 'suspend') {
       if (ws.suspended) ctx.submit({ type: 'SuspendWorkshop', workshopId: id, on: false });
       else confirmThen(ctx, 'c_suspend_workshop', { workshop: buildingName(ctx, id) }, () => ctx.submit({ type: 'SuspendWorkshop', workshopId: id, on: true }));
@@ -861,6 +903,16 @@ export class OrdersPanel {
     const state = this.workshopList(id);
     // The input layer spells the arrows `↑` `↓` (`platform/input.ts`); a test may send the DOM names.
     const up = press.key === '↑' || press.key === 'ArrowUp';
+    if (this.workerPick.open && this.workerPick.workshopId === id) {
+      const count = this.workerRows(ctx, id).length;
+      if (up || press.key === '↓' || press.key === 'ArrowDown') {
+        this.workerPick.selected = Math.max(0, Math.min(count - 1, this.workerPick.selected + (up ? -1 : 1)));
+        return true;
+      }
+      if (press.key === 'Enter') { this.chooseWorker(ctx, id, this.workerPick.selected); return true; }
+      if (press.key === 'Escape' || press.key === 'Esc') { this.workerPick.open = false; return true; }
+      return true;
+    }
     if ((up || press.key === '↓' || press.key === 'ArrowDown') && !press.shift) {
       state.selected = Math.max(0, Math.min(rows.length - 1, state.selected + (up ? -1 : 1)));
       return true;
@@ -1338,6 +1390,23 @@ export function drawWorkshopPanel(s: Surface, rect: Rect, id: EntityId, panel: O
     return;
   }
   label(s, col, rect.row, buildingName(ctx, id), { fg: t.key, width });
+  // `[w]`: the worker picker stands in for the rest of the panel until a row is chosen or Esc.
+  if (panel.workerPick.open && panel.workerPick.workshopId === id) {
+    label(s, col, rect.row + 1, strings.get('ui.workshop.pick.title'), { fg: t.dim, width, keys: false });
+    const rows = panel.workerRows(ctx, id);
+    const list = { selected: panel.workerPick.selected, scroll: 0 };
+    const listRect = { col, row: rect.row + 3, cols: width, rows: Math.max(1, rect.rows - 4) };
+    list.scroll = Math.max(0, Math.min(list.selected - listRect.rows + 1, rows.length - listRect.rows));
+    for (let r = 0; r < listRect.rows; r += 1) {
+      const index = list.scroll + r;
+      const row = rows[index];
+      if (row === undefined) break;
+      const assigned = row.dwarfId === workshop.assignedWorker;
+      label(s, col, listRect.row + r, `${index === list.selected ? '▸ ' : '  '}${assigned ? '● ' : '○ '}${row.text}`, { fg: index === list.selected ? t.key : t.text, width, keys: false });
+      s.hit({ col, row: listRect.row + r, cols: width, rows: 1 }, () => panel.chooseWorker(ctx, id, index));
+    }
+    return;
+  }
   const worker = workshop.assignedWorker === 0 ? strings.get('ui.workshop.any_worker') : ctx.readers.entities.get(workshop.assignedWorker, C.Creature)?.name ?? '?';
   label(s, col, rect.row + 1, strings.get('ui.workshop.worker', { name: worker }), { width });
   const state = [workshop.suspended ? strings.get('ui.workshop.suspended') : '', reader.isMagmaPowered(id) ? strings.get('ui.workshop.magma') : ''].filter((x) => x !== '').join(' · ');

@@ -26,7 +26,7 @@ import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
 import { MINING_STONE_DROP_PERMILLE } from '@systems/terrain/constants';
-import { CLOTH_KEPT, recipeInputFilter, type RecipeRow as WorkshopRecipe } from '@systems/workshops';
+import { CLOTH_KEPT, qualityForRoll, recipeInputFilter, type RecipeRow as WorkshopRecipe } from '@systems/workshops';
 import type { ItemFilter } from '@systems/items/search';
 import { keptDressings } from '@systems/health/supplies';
 import type { ItemsReader, RotOutlook } from '@systems/items';
@@ -467,6 +467,41 @@ export function stoneAdvice(env: MessageEnv): string {
     SOIL_DEPTHS.set(spec, depth);
   }
   return depth > 0 ? s.get('ui.advice.stone_dig', { n: depth }) : s.get('ui.advice.stone_rock');
+}
+
+/** The quality roll's draws, `rng.int(0, 40)`: 41 equally likely (12 § Quality). */
+const QUALITY_DRAWS = 41;
+
+/**
+ * What a skill level makes (`panels.md` § Look, a dwarf's skills): the best quality tier its roll can
+ * reach and how often it does ("fine 2 in 5" at 6, "masterwork 1 in 41" at 13). A chance under one in
+ * three reads "1 in N"; higher, in tenths, the fraction reduced ("2 in 5", "1 in 2"); every roll, "always".
+ */
+export function skillMakesText(strings: Strings, level: number): string {
+  let best = 0;
+  for (let d = 0; d < QUALITY_DRAWS; d += 1) best = Math.max(best, qualityForRoll(level, d));
+  let count = 0;
+  for (let d = 0; d < QUALITY_DRAWS; d += 1) if (qualityForRoll(level, d) === best) count += 1;
+  const tier = strings.get(`ui.item.quality.${best}`);
+  if (count >= QUALITY_DRAWS) return strings.get('ui.look.skill.makes_always', { tier });
+  if (count * 3 < QUALITY_DRAWS) return strings.get('ui.look.skill.makes', { tier, k: 1, n: Math.round(QUALITY_DRAWS / count) });
+  const tenths = Math.min(9, Math.round((count * 10) / QUALITY_DRAWS));
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+  const g = gcd(tenths, 10);
+  return strings.get('ui.look.skill.makes', { tier, k: tenths / g, n: 10 / g });
+}
+
+/** The skills whose recipes roll quality (12 § Quality): their skill line says what they make. */
+const QUALITY_SKILLS = new WeakMap<Registry, ReadonlySet<string>>();
+
+export function qualitySkills(registry: Registry): ReadonlySet<string> {
+  let known = QUALITY_SKILLS.get(registry);
+  if (known === undefined) {
+    const recipes = registry.table<WorkshopRecipe & { quality?: boolean }>('recipes');
+    known = new Set(recipes.ids().map((id) => recipes.byId(id)).filter((r) => r?.quality === true).map((r) => r?.skill ?? ''));
+    QUALITY_SKILLS.set(registry, known);
+  }
+  return known;
 }
 
 /** How many standing orders the stone advice names. */

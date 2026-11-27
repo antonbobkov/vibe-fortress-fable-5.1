@@ -1,6 +1,6 @@
 # T-804 — The screen says how quality is made, and the workshop's worker is chosen by skill
 
-**Source:** playtest 9 ([report](../../reports/data/2026-11-26-playtest-9.md), finding 3) · **Size:** S · **Needs:** — · **Status:** open
+**Source:** playtest 9 ([report](../../reports/data/2026-11-26-playtest-9.md), finding 3) · **Size:** S · **Needs:** — · **Status:** done
 
 ## Why
 
@@ -21,10 +21,17 @@ Decisions taken here:
 - **A masterwork engraving is told.** An engraving rolls quality like an item (03, `terrain/producer.ts:358`), but only `ItemCrafted` emits `MasterworkCreated` (`workshops/operate.ts:1093`). An engraver who rolls a masterwork gets no thought and no line. Engraving needs no input, so it is the likeliest first masterwork. It emits `MasterworkCreated` with the tile, gives `made_masterwork`, and is announced: "Olav Amberhand has engraved a masterwork in Hearth hall #1."
 - 03 § Digging, which says engraving needs an `engraving` labor, is corrected: it uses `crafts`, as `skills-and-professions.md` already says.
 
+## Decided while doing it
+
+- **The chance is of the roll's 41 draws** (`rng.int(0, 40)` is inclusive). Under one in three it reads "1 in N", N the draws over those that reach the tier, rounded ("masterwork 1 in 41" at 13, "common 1 in 4" at 0); higher, in tenths, rounded and reduced ("fine 2 in 5" at 6, "masterwork 9 in 10" at 20); every draw, "masterwork always" (21 and up). The skills that show it are those of a recipe with `quality` (engraving among them, by the memorial slab).
+- **The picker's order** is a dwarf's best level among the skills of the workshop's recipes (the mason's masonry and engraving), the skill named being that best one; equals keep the Units order. "Busy" is the squad's name and the titles (the Thane, the Warden, the Broker), comma-joined. Only dwarves with one of the workshop's labors are listed, as the old cycle took. `Enter` on the worker already set sends nothing, so it cancels no job. The screen's `Esc` closes the picker first.
+- **`hint_quality` fires on fine (tier 2) or better** (`QUALITY_HINT_TIER`, 24's tuning table), shown on its `ItemCrafted` with the maker and the item ("Frode Brightward made a fine statue."), once. An engraving makes no `ItemCrafted`, so it does not show the hint.
+- **The engraved masterwork's event** is `MasterworkCreated { itemId: 0, crafterId, tile }`: the field `tile` is new and optional, and 03 is a second producer (event catalog). The thought `made_masterwork` comes from the thought's `crafter` target as for an item. The line names the zone the tile lies in ("… in Hearth hall #1"), or none ("… has engraved a masterwork."). No new event type, so the severity table, `EVENT_TYPES` and the inventory are unchanged.
+
 ## Done
 
-- [ ] The skill line's tier text; a UI test at levels 0, 6 and 13.
-- [ ] The worker picker, sorted by skill; a UI test.
-- [ ] `hint_quality` with its trigger; `ui-keymap-and-screens.md` § Hints and row-order updated.
-- [ ] The engraved masterwork's event, thought and line; a test.
-- [ ] 03 § Digging labor wording; 24 § Panels and `panels.md` § Workshop updated.
+- [x] The skill line's tier text; a UI test at levels 0, 6 and 13 (and 20, 21: `test/unit/ui/t804-quality-says-how.test.ts`).
+- [x] The worker picker, sorted by skill; a UI test.
+- [x] `hint_quality` with its trigger; `ui-keymap-and-screens.md` § Hints and row-order updated.
+- [x] The engraved masterwork's event, thought and line; a test (`test/unit/terrain/t804-engraved-masterwork.test.ts`).
+- [x] 03 § Digging labor wording; 24 § Panels and `panels.md` § Workshop updated (and `fortress-screen.md` § Inspection panel for the skill line).

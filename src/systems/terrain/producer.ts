@@ -355,7 +355,10 @@ export class TerrainProducer implements JobProducer {
     if (kind === Designation.Engrave) {
       const skills = core.host.entities.get(worker, C.Skills);
       const level = skills === undefined ? 0 : ((skills.level[this.skillIndex(ctx, 'engraving')] ?? 0) as number);
-      core.engravings.set(tile, { quality: rollQuality(level, this.rng), engraverId: worker, motif: 0 });
+      const quality = rollQuality(level, this.rng);
+      core.engravings.set(tile, { quality, engraverId: worker, motif: 0 });
+      // An engraving rolls masterwork as an item does, and is told as one: the tile, no item.
+      if (quality === 5) ctx.emit({ type: 'MasterworkCreated', itemId: 0, crafterId: worker, tile });
     }
     core.clearDesignation(tile);
 

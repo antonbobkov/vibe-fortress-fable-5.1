@@ -1838,5 +1838,9 @@
   {
     "table": "hints",
     "id": "hint_deep_cavern"
+  },
+  {
+    "table": "hints",
+    "id": "hint_quality"
   }
 ]

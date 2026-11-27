@@ -335,6 +335,11 @@ export class AnnouncementLog {
     if (event.type === 'WorkshopBlocked' && typeof e['container'] === 'string') out['container'] = itemName(this.registry, this.strings, e['container']);
     const crafter = e['crafterId'];
     if (typeof crafter === 'number') out['crafter'] = readers.entities.get(crafter, C.Creature)?.name ?? '';
+    // An engraved masterwork's place: the zone its tile lies in ("Hearth hall #1"), or none.
+    if (event.type === 'MasterworkCreated' && typeof e['tile'] === 'number') {
+      const zone = readers.has('14') ? readers.of<BuildingsReader>('14').zoneAt(e['tile']) : 0;
+      out['place'] = zone === 0 ? '' : zoneName({ readers, strings: this.strings }, zone);
+    }
     const smith = e['smithId'];
     if (typeof smith === 'number') out['smith'] = readers.entities.get(smith, C.Creature)?.name ?? '';
     const itemId = e['itemId'];
@@ -599,6 +604,8 @@ export class AnnouncementLog {
     if (event.type === 'AnimalStarving') key = this.animalStarvingKey(creatureId, readers, params);
     // 03 § Discovery: a vein seen when its tiles were discovered has no finder.
     if (event.type === 'VeinFound' && fields['finderId'] === 0 && params['x'] !== undefined) key = 'announce.vein_seen';
+    // 03 § Digging as a job: an engraved masterwork is a tile, named by the room it is in.
+    if (event.type === 'MasterworkCreated' && typeof fields['tile'] === 'number') key = params['place'] === '' ? 'announce.masterwork_engraved_unplaced' : 'announce.masterwork_engraved';
     const said = this.strings.get(key, params);
     // 18 § Registrations: under a Calm alert a raid's danger line says what the alert does and its keys, as true then.
     const tail = raidArrival(fields) ? calmTail(this.strings, readers) : null;

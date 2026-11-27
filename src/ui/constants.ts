@@ -89,6 +89,9 @@ export const EMBARK_DEFAULT_PRESET = 'balanced';
 /** Hints are evaluated once per this many game hours. */
 export const HINT_CHECK_HOURS = 1;
 
+/** `hint_quality` shows at the first item made of this quality tier or better (2, fine). */
+export const QUALITY_HINT_TIER = 2;
+
 /** `hint_alert` shows again for a raid at a Calm fortress, but not within this many days of its last showing. */
 export const HINT_ALERT_REPEAT_DAYS = 28;
 
