@@ -13,6 +13,8 @@ export interface MoraleStateV1 {
   dailyStandingDue: boolean;
   /** Pending recomputation, including the initial bootstrap tick. */
   hourlyDue: boolean;
+  /** An `HourPassed` waits to count the Miserable dwarves' hour (15 § Sulks); absent: none, and in older saves. */
+  hourPassedDue?: true;
   lastHearthTier: number;
   dayOffUntil: [EntityId, number][];
   sunlightSeen: EntityId[];

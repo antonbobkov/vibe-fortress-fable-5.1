@@ -7,13 +7,19 @@ import type { EntityId } from '@core/types';
 import type { BuildingsReader } from '@systems/buildings';
 import type { DwarvesReader } from '@systems/dwarves';
 import type { ItemsReader } from '@systems/items';
+import { SULK_DAY_HOURS, SULK_DAYS } from './mood';
 import type { TraitDef } from './thoughts';
 
 export type SulkKind = 'day_off' | 'argue' | 'weep' | 'hoard' | 'break';
 
-export function advanceSulkCounter(counter: number, miserable: boolean): { days: number; sulk: boolean } {
-  const days = miserable ? counter + 1 : Math.max(0, counter - 1);
-  return days >= 7 ? { days: 0, sulk: true } : { days, sulk: false };
+/**
+ * `15` § Sulks, at `DayPassed`: a day of `SULK_DAY_HOURS` Miserable hours or more counts, a day with
+ * none decays the counter by one (not below 0), and a day between leaves it; at `SULK_DAYS` the dwarf
+ * sulks and the counter starts again.
+ */
+export function advanceSulkCounter(counter: number, miserableHours: number): { days: number; sulk: boolean } {
+  const days = miserableHours >= SULK_DAY_HOURS ? counter + 1 : miserableHours === 0 ? Math.max(0, counter - 1) : counter;
+  return days >= SULK_DAYS ? { days: 0, sulk: true } : { days, sulk: false };
 }
 
 export function sulkKind(registry: Registry, traits: readonly number[]): SulkKind {

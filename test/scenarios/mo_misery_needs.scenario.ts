@@ -1,6 +1,6 @@
 import { expect } from 'vitest';
-import { TICKS_PER_DAY } from '@core/constants';
-import type { EntityId, MoodTier } from '@core/types';
+import { TICKS_PER_DAY, TICKS_PER_HOUR } from '@core/constants';
+import type { EntityId } from '@core/types';
 import { advanceSulkCounter, type MoraleReader } from '@systems/morale';
 import type { Scenario } from './runner';
 
@@ -16,19 +16,24 @@ const scenario: Scenario = {
     w.step(2);
 
     const morale = w.readers.of<MoraleReader>('15');
-    const dailyTiers = new Map<EntityId, MoodTier[]>();
+    // 15 § Sulks: the hours of each day the dwarf was Miserable, sampled after each hour's recompute.
+    const dailyHours = new Map<EntityId, number[]>();
     const cumulativeSulks = new Map<EntityId, number[]>();
     const day7Moods = new Map<EntityId, number>();
 
     for (const id of dwarves) {
-      dailyTiers.set(id, []);
+      dailyHours.set(id, []);
       cumulativeSulks.set(id, []);
     }
 
     for (let day = 1; day <= 14; day += 1) {
-      w.step(TICKS_PER_DAY);
+      const hours = new Map<EntityId, number>(dwarves.map((id) => [id, 0]));
+      for (let hour = 0; hour < TICKS_PER_DAY / TICKS_PER_HOUR; hour += 1) {
+        w.step(TICKS_PER_HOUR);
+        for (const id of dwarves) if (morale.tier(id) === 0) hours.set(id, (hours.get(id) as number) + 1);
+      }
       for (const id of dwarves) {
-        dailyTiers.get(id)!.push(morale.tier(id));
+        dailyHours.get(id)!.push(hours.get(id) as number);
         const count = w.events('SulkHappened').filter((e) => e['id'] === id).length;
         cumulativeSulks.get(id)!.push(count);
         if (day === 7) {
@@ -38,13 +43,12 @@ const scenario: Scenario = {
     }
 
     for (const id of dwarves) {
-      const tiers = dailyTiers.get(id)!;
+      const hoursByDay = dailyHours.get(id)!;
       const sulks = cumulativeSulks.get(id)!;
       let counter = 0;
       const expectedSulkDays: number[] = [];
       for (let d = 0; d < 14; d += 1) {
-        const isMiserable = tiers[d] === 0;
-        const res = advanceSulkCounter(counter, isMiserable);
+        const res = advanceSulkCounter(counter, hoursByDay[d]!);
         counter = res.days;
         if (res.sulk) {
           expectedSulkDays.push(d + 1);
