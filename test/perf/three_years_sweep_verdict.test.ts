@@ -17,8 +17,10 @@ interface SeedFile {
   runtimeCommit?: string;
   needDeaths?: number;
   invariants?: string[];
-  result: { seed: string; peril: number; y1Pop: number; y3Pop: number; dwarfDeaths: number; extinctDay: number | null; squad?: SquadFile };
+  result: { seed: string; peril: number; y1Pop: number; y3Pop: number; dwarfDeaths: number; extinctDay: number | null; squad?: SquadFile; crafts?: CraftsFile };
 }
+/** T-803: the best craft skills among the living at year 3, the masterworks, and the stone and items lying about (three_years_seeds.test.ts). */
+interface CraftsFile { crafting: number; masonry: number; carpentry: number; engraving: number; masterworks: number; firstMasterworkDay: number | null; rawStone: number; items: number }
 /** T-601: the strongest squad a fortress fielded and how its sprung ambushes were answered (three_years_seeds.test.ts). */
 interface SquadFile {
   best: { day: number; inMetal: number; metals: string[]; skills: number[]; steel: number; marks: number; bar: string } | null;
@@ -27,7 +29,7 @@ interface SquadFile {
   barDays?: Record<string, number>;
   toll?: Record<string, { ambushes: number; deaths: number; soldiers: number; fell: number }>;
 }
-interface Sample { shift: number; commits: string[]; rows: SweepSeedRow[]; figures: SweepFigures; invariants: string[]; squads: Map<string, SquadFile> }
+interface Sample { shift: number; commits: string[]; rows: SweepSeedRow[]; figures: SweepFigures; invariants: string[]; squads: Map<string, SquadFile>; crafts: CraftsFile[] }
 
 const dir = process.env['THREE_YEARS_SWEEP_SAMPLES'] ?? '.vite/three-years-sweep';
 const shiftDirs = existsSync(dir) ? readdirSync(dir).filter((name) => /^shift-\d+$/.test(name)) : [];
@@ -40,7 +42,8 @@ const samples: Sample[] = shiftDirs.map((name) => {
   })).sort((a, b) => a.seed.localeCompare(b.seed, 'en', { numeric: true }));
   const invariants = files.flatMap((f) => (f.invariants ?? []).map((text) => `${f.result.seed}: ${text}`));
   const squads = new Map(files.filter((f) => f.result.squad !== undefined).map((f) => [f.result.seed, f.result.squad!] as const));
-  return { shift: Number(name.slice('shift-'.length)), commits: [...new Set(files.map((f) => f.runtimeCommit ?? '?'))], rows, figures: sweepFigures(rows), invariants, squads };
+  const crafts = files.filter((f) => f.result.crafts !== undefined && f.result.y3Pop > 0).map((f) => f.result.crafts!);
+  return { shift: Number(name.slice('shift-'.length)), commits: [...new Set(files.map((f) => f.runtimeCommit ?? '?'))], rows, figures: sweepFigures(rows), invariants, squads, crafts };
 }).sort((a, b) => a.shift - b.shift);
 
 /**
@@ -81,6 +84,22 @@ function squadLines(samples: readonly Sample[]): string[] {
     `Bars cleared (T-603), by peril: ${reach.join('; ')}.`,
     `Ambushes ended, by first answer, and their toll from the spring until the party was gone: ${tollLine}.`,
     `Strongest squad by day 336, members armed in metal (fortress-timelines): ${list(inMetal)}; their body armour's metal (soldiers): ${list(metals)}; their weapon skill: ${skills.length ? `median ${skills[Math.floor(skills.length / 2)]}, best ${skills[skills.length - 1]}` : 'none'}.`,
+    '',
+  ];
+}
+
+/** T-803: the craft skills at year 3 and the masterworks, pooled over the living fortress-timelines. */
+function craftLines(samples: readonly Sample[]): string[] {
+  const all = samples.flatMap((s) => s.crafts);
+  if (all.length === 0) return [];
+  const spread = (k: 'crafting' | 'masonry' | 'carpentry' | 'engraving' | 'rawStone' | 'items'): string => {
+    const v = all.map((c) => c[k]).sort((a, b) => a - b);
+    return `median ${v[Math.floor(v.length / 2)]}, ${v[0]} to ${v[v.length - 1]}`;
+  };
+  const days = all.map((c) => c.firstMasterworkDay).filter((d): d is number => d !== null).sort((a, b) => a - b);
+  return [
+    `**Crafts at year 3 (T-803)**, over ${all.length} living fortress-timelines: best crafting ${spread('crafting')}; masonry ${spread('masonry')}; carpentry ${spread('carpentry')}; engraving ${spread('engraving')}.`,
+    `Masterworks: ${all.reduce((n, c) => n + c.masterworks, 0)} in all; fortress-timelines with one ${days.length}${days.length ? ` (first on day ${days[Math.floor(days.length / 2)]} median, ${days[0]} to ${days[days.length - 1]})` : ''}. Raw stone to be had: ${spread('rawStone')}; items: ${spread('items')}.`,
     '',
   ];
 }
@@ -131,6 +150,7 @@ describe.skipIf(samples.length === 0)('T-513 the twenty-seed sweep judged over i
       `Invariant findings (each fails its seed's job, not the verdict): ${samples.flatMap((s) => s.invariants.map((text) => `shift ${s.shift}, ${text}`)).join('; ') || 'none'}.`,
       '',
       ...squadLines(samples),
+      ...craftLines(samples),
     ];
     writeFileSync(join(dir, 'verdict.md'), lines.join('\n'));
     writeFileSync(join(dir, 'verdict.json'), JSON.stringify({ pooled, reference: REFERENCE, measured: MEASURED, check, improved: improvedSweep(MEASURED, pooled),

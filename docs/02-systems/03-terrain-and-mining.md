@@ -141,6 +141,7 @@ Nothing is cut under a building: no stairs, no channel and no ramp. A `floor` th
 - `cavernBreached: [boolean, boolean, boolean]`.
 - `veinsFound: TileIndex[]`: sorted keys of veins already announced.
 - `fossilFound: boolean`: the first tile of class `bone` has been dug (absent in older saves and while false).
+- `rockDug: boolean`: a tile of rock (class `stone` or `obsidian`) has been mined by `dig`, a ramp or stairs cut into a wall (absent in older saves and while false). The workshops' stone advice reads it (24, `terrain.rockDug()`).
 - `craterTiles: TileIndex[]`: a `starfall` map's crater tiles, ascending, from generation (absent on any other map). 10 reads them for `CraterEntered`.
 - `giantSkulls: TileIndex[][]`: each boneyard's skull tiles still to dig, ascending, from generation; a group leaves when its `giant_skull` drops (absent on a map without one).
 - `boneyards: TileIndex[][]`: each boneyard's cage tiles, ascending, from generation (absent on a map without one). 10 reads them for `RibsEntered`.
@@ -160,6 +161,7 @@ The soil drop's stream `03.soil_drop` is saved in the `rng` section with every o
 - `terrain.surfaceZ(x, y)`
 - `terrain.isSupported(i)`
 - `terrain.cavernBreached(n)`
+- `terrain.rockDug()`: a tile of rock has been mined (§ State `rockDug`)
 - `terrain.materialClassAt(i)` (stone, soil, ore, gem, bone, ice, wood, constructed)
 - `terrain.spec()` — the `LocalMapSpec`
 - `terrain.isForbidden(i)` — the tile's traffic mode is `forbidden`
@@ -207,7 +209,7 @@ Job producer `terrain` (designation jobs); overlay `designations`; inspector sec
 
 | Name | Value | Meaning |
 |---|---|---|
-| `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item (*unmeasured*) |
+| `MINING_STONE_DROP_PERMILLE` | 300 | Chance a dug stone tile drops a stone item. More stone was measured in the twenty-seed sweep and not taken: at 500 the pooled dwarf deaths rose to 122.25 (108.5 at 300) and at 1000 to 135.75, with the living at year 3 1,152.5 and 1,093.25 (1,139.75 at 300), and neither brought a masterwork by year 3; the stone a fortress cannot use is hauled and fought over |
 | `SOIL_DROP_PERMILLE` | 500 | Chance a dug soil tile tagged `soil_drop`, or a channelled floor of one, drops a `soil_load` (*unmeasured*) |
 | `DIG_BASE_TICKS` | 60 | Base time to dig one wall tile of hardness 100; measured, 90 ticks a granite tile at skill 0 and 50 at skill 10 ([work pace](../../reports/audits/2026-10-18-work-pace.md)) |
 | `CHANNEL_BASE_TICKS` | 80 | *unmeasured* |

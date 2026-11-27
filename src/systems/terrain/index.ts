@@ -257,6 +257,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
       bigDigCounter: this.bigDigCounter,
       veinsFound: core.veinsFound.slice(),
       ...(core.fossilFound ? { fossilFound: true } : {}),
+      ...(core.rockDug ? { rockDug: true } : {}),
       ...(core.craterTiles.length > 0 ? { craterTiles: core.craterTiles.slice() } : {}),
       ...(core.giantSkulls.length > 0 ? { giantSkulls: core.giantSkulls.map((g) => g.slice()) } : {}),
       ...(core.boneyards.length > 0 ? { boneyards: core.boneyards.map((b) => b.slice()) } : {}),
@@ -286,6 +287,7 @@ export class TerrainSystem extends BaseSystem<TerrainStateV1> {
     core.veinsFound.length = 0;
     core.veinsFound.push(...state.veinsFound);
     core.fossilFound = state.fossilFound === true;
+    core.rockDug = state.rockDug === true;
     core.craterTiles.length = 0;
     core.craterTiles.push(...(state.craterTiles ?? []));
     core.giantSkulls.length = 0;

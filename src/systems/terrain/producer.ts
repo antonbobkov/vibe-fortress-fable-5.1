@@ -363,6 +363,8 @@ export class TerrainProducer implements JobProducer {
     for (const c of result.changes) core.checkBreach(c.tile);
     for (const c of result.changes) core.discoverAround(c.tile);
 
+    // `03` § State `rockDug`: the fortress has dug a tile of rock (the workshops' stone advice reads it).
+    if (mines && cls === 'stone') core.rockDug = true;
     // Minerals and deepsilver.
     if (mines && (cls === 'ore' || cls === 'gem')) {
       ctx.emit({ type: 'MineralMined', tile, material: materialId, minerId: worker });

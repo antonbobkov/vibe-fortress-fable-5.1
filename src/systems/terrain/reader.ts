@@ -43,6 +43,8 @@ export interface TerrainReader {
   isSupported(i: TileIndex): boolean;
   /** `n` is 1, 2 or 3. */
   cavernBreached(n: number): boolean;
+  /** A tile of rock has been mined in this fortress (`03` § State `rockDug`). */
+  rockDug(): boolean;
   materialClassAt(i: TileIndex): MaterialClass;
   spec(): LocalMapSpec | null;
   isForbidden(i: TileIndex): boolean;
@@ -100,6 +102,7 @@ export function makeReader(
     surfaceZ: (x, y) => map.columnSurfaceZ(x, y),
     isSupported: (i) => core.isSupported(i),
     cavernBreached: (n) => core.cavernBreached[n - 1] === true,
+    rockDug: () => core.rockDug,
     materialClassAt,
     spec,
     isForbidden: (i) => core.isForbidden(i),

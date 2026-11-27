@@ -25,6 +25,7 @@ import type { EntityId, TileIndex } from '@core/types';
 import { DAYS_PER_YEAR, TICKS_PER_DAY } from '@core/constants';
 import type { BuildingsReader } from '@systems/buildings';
 import { MAGMA_POWER_LEVEL } from '@systems/workshops/constants';
+import { MINING_STONE_DROP_PERMILLE } from '@systems/terrain/constants';
 import { CLOTH_KEPT, recipeInputFilter, type RecipeRow as WorkshopRecipe } from '@systems/workshops';
 import type { ItemFilter } from '@systems/items/search';
 import { keptDressings } from '@systems/health/supplies';
@@ -446,11 +447,19 @@ const SOIL_DEPTHS = new WeakMap<LocalMapSpec, number>();
 /**
  * Where stone comes from on this site (`fortress-screen.md` § Build tool): dig down through the
  * soil, as deep as the site panel says it is; dig into the rock where there is no soil; trade for
- * it on a map with no site.
+ * it on a map with no site. A fortress that has dug rock (`terrain.rockDug()`) is told to dig more,
+ * with how often a tile gives a stone, and which standing orders take it ({@link stoneOrders}).
  */
 export function stoneAdvice(env: MessageEnv): string {
   const s = env.strings;
-  const spec = env.readers.has('03') ? env.readers.of<TerrainReader>('03').spec() : null;
+  const terrain = env.readers.has('03') ? env.readers.of<TerrainReader>('03') : null;
+  const spec = terrain === null ? null : terrain.spec();
+  if (terrain !== null && terrain.rockDug()) {
+    const tenths = Math.round(MINING_STONE_DROP_PERMILLE / 100);
+    const more = tenths >= 10 ? s.get('ui.advice.stone_more_every') : s.get('ui.advice.stone_more', { n: tenths });
+    const orders = stoneOrders(env);
+    return orders === '' ? more : s.get('ui.advice.stone_more_orders', { text: more, orders });
+  }
   if (spec === null) return s.get('ui.advice.stone_trade');
   let depth = SOIL_DEPTHS.get(spec);
   if (depth === undefined) {
@@ -458,6 +467,36 @@ export function stoneAdvice(env: MessageEnv): string {
     SOIL_DEPTHS.set(spec, depth);
   }
   return depth > 0 ? s.get('ui.advice.stone_dig', { n: depth }) : s.get('ui.advice.stone_rock');
+}
+
+/** How many standing orders the stone advice names. */
+const STONE_ORDERS_SHOWN = 2;
+
+/**
+ * The standing orders that take raw stone, as the stone advice names them (at most
+ * `STONE_ORDERS_SHOWN`, the fortress's in workshop order, then the global ones): "Mason's workshop
+ * #1 (≥30 Blocks)", "Craftsdwarf's workshop #1 (×951 Stone crafts)"; empty when none stands.
+ */
+export function stoneOrders(env: MessageEnv): string {
+  const s = env.strings;
+  if (!env.readers.has('12')) return '';
+  const workshops = env.readers.of<{ allOrders(): readonly { workshopId: EntityId; order: WorkOrder }[]; recipe(id: string | number): WorkshopRecipe | undefined }>('12');
+  const items = env.registry.table<{ id: string; category?: string }>('items');
+  const takesStone = (recipe: WorkshopRecipe): boolean => recipe.inputs.some((input) =>
+    input.match.split('|').some((part) => items.byId(part)?.category === 'stone/raw'));
+  const lines: string[] = [];
+  for (const { workshopId, order } of workshops.allOrders()) {
+    if (lines.length >= STONE_ORDERS_SHOWN) break;
+    const recipe = workshops.recipe(order.recipe);
+    if (recipe === undefined || !takesStone(recipe)) continue;
+    if (order.mode === 'once' && order.remaining <= 0) continue;
+    const n = order.mode === 'maintain' ? order.threshold : order.remaining;
+    const where = workshopId === 0 ? s.get('ui.advice.stone_order_global') : buildingName(env, workshopId);
+    // As the order's row reads it in the workshop's list ("≥30 Blocks", "×951 Stone crafts").
+    const qty = s.get(order.mode === 'maintain' ? 'ui.orders.qty.keep' : 'ui.orders.qty.once', { n });
+    lines.push(s.get('ui.advice.stone_order', { where, qty, recipe: recipe.name }));
+  }
+  return lines.join('; ');
 }
 
 /**
