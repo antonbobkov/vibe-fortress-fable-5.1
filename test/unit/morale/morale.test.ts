@@ -148,14 +148,14 @@ describe('T-M4-13 morale thoughts and mood', () => {
     let days = 0;
     let happened = 0;
     for (let day = 1; day <= 15; day += 1) {
-      const result = advanceSulkCounter(days, true);
+      const result = advanceSulkCounter(days, 24);
       days = result.days;
       if (result.sulk) happened += 1;
       if (day < 7) expect(happened).toBe(0);
       if (day < 14) expect(happened).toBeLessThanOrEqual(1);
     }
     expect(happened).toBe(2);
-    expect(advanceSulkCounter(2, false)).toEqual({ days: 1, sulk: false });
+    expect(advanceSulkCounter(2, 0)).toEqual({ days: 1, sulk: false });
   });
 
   it('adds both argument grudges and removes broken common furniture in 14’s tick', () => {

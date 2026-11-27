@@ -77,7 +77,7 @@ interface Brain { behavior: 'flee' | 'retreat' | 'patient' | 'need' | 'duty' | '
 interface Labors { enabled: Uint8Array /* bitset over labor indices */ }
 interface Worker { jobId: number; phase: number; carrying: EntityId; toolId: EntityId }
 interface ActiveThought { thought: Idx<ThoughtDef>; startTick: Tick; baseValue: number; detail?: string /* the word the thought's text names: `smelled_smokehouse`'s `{meat}` (15); absent: none */ }
-interface Mood { value: number; tier: MoodTier; thoughts: ActiveThought[]; sulkCounterDays: number }
+interface Mood { value: number; tier: MoodTier; thoughts: ActiveThought[]; sulkCounterDays: number; miserableHours?: number /* 15 § Sulks: hours Miserable since the last DayPassed; absent: 0 */ }
 interface Equipment { weapon: EntityId; shield: EntityId; armor: Record<'head'|'body'|'arms'|'legs'|'feet', EntityId>;
                       clothing: Record<'body'|'legs'|'feet'|'over', EntityId>; quiver: EntityId }
 interface Soldier { squadId: EntityId; onDuty: boolean; stance: 'hold' | 'pursue'; targetId: EntityId;

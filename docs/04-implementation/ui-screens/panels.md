@@ -105,13 +105,13 @@ In the category tree, arrows select and expand/collapse (Left on a collapsed chi
 
 The materials checklist replaces the settings until Esc: arrows select, Space or Enter toggles, and a click does the same. Any toggles between all material classes and none. After the classes comes Flux stone, a material tag (13 § Stockpiles, T-665): it toggles the filter's `flux` tag and leaves the classes as they are. A panel letter the inspector does not bind keeps its panel action in every state. Help lists every action, and hovering a truncated value shows its full text.
 
-A room inspector shows current tier and score parts, named missing requirements, and its enclosure count:
+A room inspector shows current tier and score parts, its enclosure count, named missing requirements, and, once the requirements are met, the way to the next tier:
 
 ```
 │ [y] zones menu                    │
 │ ─── Bedroom #2 · 9 tiles ──────── │
-│ Modest room (score 24)             │
-│ Tiles 9 Walls 2 Furniture 4 Size 9 │
+│ Room: Modest (score 24)           │
+│ tiles 9 walls 2 furn. 4 size 9    │
 │ Not enclosed: 3 open border tiles │
 │ Needs a bed                       │
 │ Owner: nobody                     │
@@ -119,7 +119,7 @@ A room inspector shows current tier and score parts, named missing requirements,
 │ [x] remove zone  [e] resize      │
 ```
 
-A room line too long for the panel wraps under itself, indented two cells, each count kept with its word ("Not enclosed: 48 open" / "border tiles"). Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin / a rune circle, as appropriate. A bedroom's owner button or `o` opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
+A room line too long for the panel wraps under itself, indented two cells, each count kept with its word ("Not enclosed: 48 open" / "border tiles"). Open border tiles on the viewed level are highlighted using the room's existing same-z eight-neighbour enclosure rule; the inspector only reads and never recomputes stored room state. Missing requirements say Needs a bed / a table with a chair / the hearth inside / a chest / a coffin / a rune circle, as appropriate. An enclosed room's parts line ends "· ×1.5 enclosed" (`ENCLOSED_PERCENT`), so the parts times it give the score. When the requirements are met and the room is below royal, two lines follow them. The first names the next tier, its score and the gap: "Grand at 400: 104 to go"; while the room is not enclosed it is in the alert colour and reads "Grand at 400: 216 to go · enclose it for ×1.5". The second, "Raises it: …", names the first step that applies: "engrave 24 tiles (+up to 96)" for plain smoothed floors and walls (the most a masterwork on each adds), "smooth 12 tiles (+24)" for rough stone, "4 more tiles count" while the room is under `ROOM_SIZE_CAP` tiles, and else "statues and fine furniture". Its gains count the multiplier when the room is enclosed. The counts are exact; an engraving's gain is an upper bound, since its quality is not known. A room missing a requirement shows its needs and not these lines: until it counts as its type, the needs come first. A bedroom's owner button or `o` opens the same Nobody/dwarf picker as the building panel; arrows and Enter or a click submit `AssignRoom`, Esc cancels. A missing built bed or pending room registration is explained in the status row.
 
 A sanctum's inspector is 25's sanctum panel: the room lines, then the glowcap, the mishap chance of a new apprentice, each apprentice with its level and rune and, under it, the sessions left today and its own mishap chance, the last mishap, and the apprentice button. Each line too long for the panel wraps under itself, indented two cells. The glowcap line says what the sanctum lacks: with no glowcap available it replaces "Requirements met", in the alert colour: "No glowcap: apprentices wait. Glowcap grows in the dark under a glowstone lamp, from seeds the Mountainhome sells in spring or a glowcap patch in the caverns."; with glowcap but no glowcap crop on any plot it says how long the stock lasts, "14 glowcap: enough for 14 sessions."; with a crop growing, "Glowcap in stock: 14":
 

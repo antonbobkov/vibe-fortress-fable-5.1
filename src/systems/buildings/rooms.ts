@@ -31,6 +31,7 @@ import type { GameEvent } from '@core/events';
 import type { Registry } from '@core/registry';
 import type { EntityId, RoomTier, TileIndex } from '@core/types';
 import type { BuildingStore } from './build';
+import { QUALITY_TIER_COUNT } from '@core/constants';
 import { ENCLOSED_PERCENT, HEARTH_HALL_SIDE, ROOM_SIZE_CAP } from './constants';
 import { lowerBound, sortedInsert } from './state';
 import type { ZoneStore } from './zones';
@@ -88,6 +89,14 @@ export interface RoomScore {
 export interface RoomDiagnostics {
   readonly openBorder: readonly TileIndex[];
   readonly missing: readonly ('bed' | 'table_chair' | 'hearth' | 'chest' | 'coffin' | 'rune_circle')[];
+  /** Smoothed, unengraved floor tiles inside and wall tiles on the border: engraving's room. */
+  readonly plainSmoothed: number;
+  /** The most engraving them all could add, before the enclosure multiplier (a masterwork on each). */
+  readonly engraveMax: number;
+  /** Natural stone floor tiles inside and wall tiles on the border, not yet smoothed. */
+  readonly rough: number;
+  /** What smoothing them all adds, before the enclosure multiplier. */
+  readonly smoothGain: number;
 }
 
 export class RoomStore {
@@ -220,6 +229,9 @@ export class RoomStore {
       const tags = b === undefined ? [] : this.host.buildings.row(b.type).tags;
       return b?.state !== 'built' || !(tags.includes('door') || tags.includes('hatch'));
     });
+    const surface = { plainSmoothed: 0, engraveMax: 0, rough: 0, smoothGain: 0 };
+    for (const t of tiles) this.countSurface(t, true, surface);
+    for (const b of border) if (this.map.kindAt(b) === TileKind.Wall) this.countSurface(b, false, surface);
     const within = this.buildingsWithin(tiles);
     const missing: RoomDiagnostics['missing'][number][] = [];
     if ((typeId === 'bedroom' || typeId === 'hospital') && this.tagged(within, 'sleep').length === 0) missing.push('bed');
@@ -228,7 +240,25 @@ export class RoomStore {
     if (typeId === 'hospital' && !within.some((id) => this.host.buildings.typeIdOf(id) === 'chest')) missing.push('chest');
     if (typeId === 'tomb' && this.tagged(within, 'coffin').length === 0) missing.push('coffin');
     if (typeId === 'sanctum' && this.tagged(within, 'rune_circle').length === 0) missing.push('rune_circle');
-    return { openBorder, missing };
+    return { openBorder, missing, ...surface };
+  }
+
+  /**
+   * What working a tile could add (`scoreRoom`'s tile and wall terms): a smoothed floor scores 3 and
+   * an engraved one 3 + quality; a smoothed wall 2 and an engraved one 2 + quality / 2; rough stone
+   * scores 1 as a floor and 0 as a wall.
+   */
+  private countSurface(t: TileIndex, floor: boolean, into: { plainSmoothed: number; engraveMax: number; rough: number; smoothGain: number }): void {
+    const map = this.map;
+    if (map.hasFlag(t, TileFlag.Constructed) || map.hasFlag(t, TileFlag.Engraved)) return;
+    const top = QUALITY_TIER_COUNT - 1;
+    if (map.hasFlag(t, TileFlag.Smoothed)) {
+      into.plainSmoothed += 1;
+      into.engraveMax += floor ? top : top / 2;
+    } else if (this.materials[map.materialAt(t)]?.class === 'stone' && (floor ? map.kindAt(t) === TileKind.Floor : true)) {
+      into.rough += 1;
+      into.smoothGain += 2;
+    }
   }
 
   /** `constructedFloorValue(m) = value(m)`; "metal blocks value(bar)/5". */

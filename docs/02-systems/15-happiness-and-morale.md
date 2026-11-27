@@ -78,7 +78,7 @@ Personality scaling (three traits per dwarf from the table): `stoic` halves nega
 
 ### Sulks
 
-Each `DayPassed`, for each dwarf: if Miserable, `sulkCounterDays += 1`; otherwise it decays by 1 (not to below 0). At `SULK_DAYS` the dwarf sulks once, the counter resets to 0, and the dwarf gets `got_it_out`.
+Each `HourPassed`, the hourly recomputation counts the hour for every dwarf whose tier it leaves Miserable (`miserableHours` on `Mood`). Each `DayPassed`, for each dwarf: a day of `SULK_DAY_HOURS` Miserable hours or more counts, `sulkCounterDays += 1`; a day with no Miserable hour decays it by 1 (not to below 0); a day of fewer hours leaves it as it was. The day's hours then start again from 0. At `SULK_DAYS` the dwarf sulks once, the counter resets to 0, and the dwarf gets `got_it_out`. A day is counted by its hours, not by the mood at the day's turn: a mood that hovers about 20 as the needs rise and fall is Miserable for hours of most days while it lasts, and seldom at one given instant. A fortress that leaves its dwarves without beds, drink or company for a week sees sulks; one that feeds and houses them does not, and the needs-met floor (§ Mood) is unchanged.
 
 The sulk kind depends on personality, first match wins:
 
@@ -106,7 +106,8 @@ Masterwork sight thoughts consume 10's `SawMasterwork` event on room entry. Its 
 
 ## State
 
-- `Mood` components: `value, tier, thoughts: { thoughtId, startTick, baseValue }[], sulkCounterDays`.
+- `Mood` components: `value, tier, thoughts: { thoughtId, startTick, baseValue }[], sulkCounterDays, miserableHours` (the hours Miserable since the last `DayPassed`; omitted while 0).
+- `hourPassedDue`: an `HourPassed` whose hour the next recomputation counts (omitted while none).
 - `hallSpirit`, `hallSpiritTier`.
 - Saved `hourlyDue`: a pending mood/hall-spirit recomputation, including the initial recomputation before the first system tick. Loading restores that pending work; saving neither executes it nor advances the clock. Once the initial recomputation has run, loading does not schedule it again.
 - Rng stream (sulk target choice).
@@ -159,7 +160,8 @@ The unburied dead: on each `DayPassed`, while some dwarf's body (a corpse or a s
 | `FLOOR_MARGIN_SHARE` | 0.5 | Share of the way from a need's want threshold to its critical one before its thought lowers the floor (T-767; hunger, thirst, rest) |
 | `NEED_WEIGHT` | 40 | Per point of need over its want threshold, /100 |
 | `HEARTH_TIER_BONUS` | 2 | Per hearth hall tier index (bare 0 … royal 5) |
-| `SULK_DAYS` | 7 | Consecutive days Miserable before a sulk (*unmeasured*) |
+| `SULK_DAYS` | 7 | Counted days before a sulk (*unmeasured*) |
+| `SULK_DAY_HOURS` | 6 | Miserable hours that make a day count toward a sulk (*unmeasured*) |
 | `UNBURIED_DAYS` | 3 | *unmeasured* |
 | `LAB_STINK_TILES` | 3 | A dwarf this close to a laboratory that spoiled a batch today (the larger axis distance to its footprint, on its level) gets `lab_stink` (*unmeasured*) |
 

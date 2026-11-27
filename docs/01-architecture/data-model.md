@@ -161,7 +161,7 @@ The owner is the only system that writes the component. "Core" means the movemen
 | `Title` | 10 dwarves | `title: thane | warden | broker | chief_medic | none` |
 | `Labors` | 11 jobs | `enabled: bitset` |
 | `Worker` | 11 jobs | `jobId, phase, carrying: EntityId | 0` |
-| `Mood` | 15 morale | `value, tier, thoughts: { thoughtId, startTick, value }[], sulkCounterDays` |
+| `Mood` | 15 morale | `value, tier, thoughts: { thoughtId, startTick, value }[], sulkCounterDays, miserableHours?` |
 | `Equipment` | 16 combat | `weapon, shield, armor[slot], quiver` (item ids) |
 | `Soldier` | 16 combat | `squadId, onDuty, stance, targetId` |
 | `Patient` | 17 health | `hospitalZoneId, bedId, needs: treatment list` |

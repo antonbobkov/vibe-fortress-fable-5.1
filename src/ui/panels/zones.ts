@@ -18,8 +18,9 @@ import type { StockpileFilter } from '@core/components';
 import { TileFlag } from '@core/map3d';
 import type { EntityId, TileIndex } from '@core/types';
 import type { Rect } from '@render/cellbuffer';
-import type { BuildingsReader, ZoneView } from '@systems/buildings';
+import type { BuildingsReader, RoomDiagnostics, RoomScore, ZoneView } from '@systems/buildings';
 import { COFFINS_READY_SETTING } from '@systems/buildings/tombs';
+import { ENCLOSED_PERCENT, ROOM_SIZE_CAP } from '@systems/buildings/constants';
 import type { PlantsReader } from '@systems/plants';
 import { SEASON_NAMES } from '@core/calendar';
 import type { PlantRow } from '@systems/plants';
@@ -751,11 +752,19 @@ function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
   label(s, col, row++, strings.get('ui.zone.room', { tier: strings.get(`ui.room_tier.${tierId}`), score: Math.floor(score.score) }), { width });
   const p = score.parts;
   // Each line gives a fact: one too long for the panel wraps under itself (a count kept with its word).
-  row += wrapLabel(s, col, row, strings.get('ui.zone.room_parts', { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size }), { width, indent: 2, fg: s.theme.dim });
+  const mult = ENCLOSED_PERCENT / 100;
+  const parts = { tiles: Math.floor(p.tiles), walls: Math.floor(p.walls), furniture: Math.floor(p.furniture), size: p.size, mult };
+  row += wrapLabel(s, col, row, strings.get(score.enclosed ? 'ui.zone.room_parts_enclosed' : 'ui.zone.room_parts', parts), { width, indent: 2, fg: s.theme.dim });
   row += wrapLabel(s, col, row, strings.get(score.enclosed ? 'ui.zone.enclosed' : 'ui.zone.open', { n: diagnostics.openBorder.length }), { width, indent: 2, fg: score.enclosed ? s.theme.good : s.theme.bad });
   // 25 § The sanctum: a sanctum with no glowcap says what it lacks in place of "Requirements met" (`sanctumLines`).
   if (diagnostics.missing.length === 0 && !(zone.type === 'sanctum' && sanctumGlowcap(ctx) === 0)) label(s, col, row++, strings.get('ui.zone.requirements_met'), { width, fg: s.theme.good });
   else for (const missing of diagnostics.missing) row += wrapLabel(s, col, row, strings.get(`ui.zone.needs.${missing}`), { width, indent: 2, fg: s.theme.bad });
+  // The way up shows once the room counts as its type: until then its needs come first.
+  if (diagnostics.missing.length === 0) {
+    for (const line of roomRaiseLines(ctx, score, diagnostics, zone.tiles.length)) {
+      row += wrapLabel(s, col, row, line.text, { width, indent: 2, fg: line.tone === 'alert' ? s.theme.alert : s.theme.text });
+    }
+  }
   if (zone.type === 'bedroom') {
     const ownerId = b?.ownerOf(zone.id) ?? 0;
     const owner = ownerId === 0 ? strings.get('ui.zone.nobody') : nameOf(ctx, ownerId);
@@ -765,6 +774,36 @@ function drawRoomSettings(s: Surface, rect: Rect, tool: ZoneTool, ctx: PanelCont
     s.hit({ col, row: row++, cols: width, rows: 1 }, () => tool.startOwner(ctx));
   }
   return row;
+}
+
+/**
+ * 14 § Rooms and quality, the inspector's way up: the next tier and what it still needs ("Grand at
+ * 400: 104 to go", in the alert colour with "enclose it for ×1.5" while the border is open), and
+ * one "Raises it" step, the first that applies of engraving the plain smoothed tiles, smoothing the
+ * rough stone, more tiles up to `ROOM_SIZE_CAP`, and statues and fine furniture. Gains count the
+ * enclosure multiplier when the room has it; engraving's is its most, a masterwork on every tile.
+ * A royal room has no next tier and no lines.
+ */
+export function roomRaiseLines(ctx: PanelContext, score: RoomScore, diagnostics: RoomDiagnostics, tileCount: number): { text: string; tone: 'text' | 'alert' }[] {
+  const strings = ctx.strings;
+  const tiers = ctx.registry.table<{ id: string; tier: number; score: number }>('roomTiers');
+  const next = tiers.ids().map((id) => tiers.byId(id)).find((row) => row !== undefined && row.tier === score.tier + 1);
+  if (next === undefined) return [];
+  const mult = ENCLOSED_PERCENT / 100;
+  const scale = score.enclosed ? mult : 1;
+  const params = { tier: strings.get(`ui.room_tier.${next.id}`), score: next.score, n: Math.max(1, Math.ceil(next.score - score.score)), mult };
+  const out: { text: string; tone: 'text' | 'alert' }[] = [];
+  out.push(score.enclosed ? { text: strings.get('ui.zone.next_tier', params), tone: 'text' } : { text: strings.get('ui.zone.next_tier_open', params), tone: 'alert' });
+  const d = diagnostics;
+  const raise = d.plainSmoothed > 0
+    ? strings.get('ui.zone.raise.engrave', { n: d.plainSmoothed, score: Math.floor(d.engraveMax * scale) })
+    : d.rough > 0
+      ? strings.get('ui.zone.raise.smooth', { n: d.rough, score: Math.floor(d.smoothGain * scale) })
+      : tileCount < ROOM_SIZE_CAP
+        ? strings.get('ui.zone.raise.size', { n: ROOM_SIZE_CAP - tileCount })
+        : strings.get('ui.zone.raise.furniture');
+  out.push({ text: raise, tone: 'text' });
+  return out;
 }
 
 /** "one session in 17": a per-mille chance in words. */

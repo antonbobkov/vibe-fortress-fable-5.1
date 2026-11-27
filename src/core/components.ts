@@ -191,6 +191,8 @@ export interface Mood {
   tier: MoodTier;
   thoughts: ActiveThought[];
   sulkCounterDays: number;
+  /** 15 § Sulks: the hours Miserable since the last `DayPassed`; absent: 0. */
+  miserableHours?: number;
 }
 
 export interface Equipment {
