@@ -112,7 +112,7 @@ Bone is the treeless site's first building stuff: a fossil, dug from a boneyard'
 
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
-| `craft_stone` | Stone crafts | 1 raw_stone | 3 craft (random of figurine, ring, amulet; from_input) | 150 | yes | 8 |
+| `craft_stone` | Stone crafts | 1 raw_stone | 3 craft (random of figurine, ring, amulet; from_input) | 150 | yes | 24 |
 | `craft_wood` | Wood crafts | 1 log | 3 craft | 150 | yes | 8 |
 | `craft_bone` | Bone crafts | 1 bone_pile | 2 craft (bone) | 150 | yes | 8 |
 | `craft_shell` | Shell crafts | 1 shell_piece | 2 craft (shell) | 150 | yes | 8 |
