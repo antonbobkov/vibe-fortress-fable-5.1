@@ -1,8 +1,8 @@
 /**
- * T-806: the Thane wishes for the builder's things (a statue in the hall, a grander hall, an engraved
- * bedroom, a fine table and chair, a superior work), keeps the drink a whim asks for from the
- * fortress's throats, and does not wish for the same thing twice running while another is possible
- * (`10` § The Thane's whim).
+ * T-813 (built in T-806): the Thane wishes for the builder's things (a statue in the hall, a grander
+ * hall, an engraved bedroom, a fine table and chair, a superior work) and does not wish for the same
+ * thing twice running while another is possible (`10` § The Thane's whim). A whim keeps nothing from
+ * the fortress's throats.
  */
 import { describe, expect, it } from 'vitest';
 import { C } from '@core/components';
@@ -57,7 +57,7 @@ function furniture(w: TestWorld, type: string, x: number, y: number, quality: nu
   return w.build(type, w.index(x, y, Z), 'oak', 0, item);
 }
 
-describe('T-806 the builder\'s whims', () => {
+describe('T-813 the builder\'s whims', () => {
   it('five rows, each of its kind', () => {
     const rows = whimRows(new TestWorld({ seed: 't806-rows', world: 'flat-test', embark: 'none' }).game.registry);
     expect(rows.find((r) => r.id === 'whim_statue_hall')).toMatchObject({ kind: 'room', item: 'statue', zone: 'hearth_hall', count: 1 });
@@ -163,48 +163,27 @@ describe('T-806 the builder\'s whims', () => {
   });
 });
 
-describe('T-806 the Thane\'s deepfire is the Thane\'s', () => {
-  function cellar(seed: string): { w: TestWorld; thirsty: EntityId; deepfire: EntityId } {
-    const w = world(seed);
+describe('T-813 the Thane\'s deepfire is drunk', () => {
+  it('a standing whim for deepfire keeps nothing back: the thirsty drink the nearer deepfire', () => {
+    const w = world('t813-drunk');
     const thane = dwarf(w, 12);
     thaneOf(w, thane);
     const near = w.spawnItem('barrel', 'pine', w.index(14, 16, Z));
-    const deepfire = w.spawnItem('drink', 'deepfire', { containerId: near }, 6);
+    w.spawnItem('drink', 'deepfire', { containerId: near }, 6);
     const far = w.spawnItem('barrel', 'pine', w.index(22, 11, Z));
     w.spawnItem('drink', 'ale', { containerId: far }, 10);
     const thirsty = dwarf(w, 13);
-    return { w, thirsty, deepfire };
-  }
-
-  it('a standing whim for deepfire keeps the barrel: the thirsty walk past it to the ale', () => {
-    const { w, thirsty } = cellar('t806-kept');
     w.dwarves.whim = { id: 'whim_spirits', setTick: 0 };
-    expect(view(w)).toMatchObject({ have: 6, count: 10, kept: true });
-    w.setNeed(thirsty, 'thirst', 90);
-    w.until((v) => v.events('DrankAlcohol').some((e) => e['id'] === thirsty), 3000);
-    const material = w.game.registry.table('materials');
-    expect(w.events('DrankAlcohol').find((e) => e['id'] === thirsty)?.['material']).toBe(material.index('ale'));
-    expect(view(w)?.have).toBe(6);
-  });
-
-  it('without the whim, or above its count, the nearer deepfire is drunk', () => {
-    const { w, thirsty } = cellar('t806-drunk');
+    expect(view(w)).toMatchObject({ have: 6, count: 10 });
     w.setNeed(thirsty, 'thirst', 90);
     w.until((v) => v.events('DrankAlcohol').some((e) => e['id'] === thirsty), 3000);
     const material = w.game.registry.table('materials');
     expect(w.events('DrankAlcohol').find((e) => e['id'] === thirsty)?.['material']).toBe(material.index('deepfire'));
-
-    const more = cellar('t806-more');
-    more.w.spawnItem('drink', 'deepfire', { containerId: more.w.game.world.entities.get(more.deepfire, C.Item)!.containerId }, 6);
-    more.w.dwarves.whim = { id: 'whim_spirits', setTick: 0 };
-    expect(view(more.w)?.have).toBe(12);
-    more.w.setNeed(more.thirsty, 'thirst', 90);
-    more.w.until((v) => v.events('DrankAlcohol').some((e) => e['id'] === more.thirsty), 3000);
-    expect(more.w.events('DrankAlcohol').find((e) => e['id'] === more.thirsty)?.['material']).toBe(material.index('deepfire'));
+    expect(view(w)?.have).toBe(5);
   });
 });
 
-describe('T-806 no wish twice running', () => {
+describe('T-813 no wish twice running', () => {
   it('the whim just judged is not drawn again while another is possible', () => {
     const w = world('t806-repeat', SEASON - 5);
     const thane = dwarf(w, 12);

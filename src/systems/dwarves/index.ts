@@ -33,7 +33,7 @@ import { SMOKE_RADIUS } from '@systems/materials/constants';
 import { TALLOW_SMOKE_PERMILLE } from '@systems/buildings/constants';
 import { SMOKEHOUSE_HUNGER } from '@systems/workshops/constants';
 import { SMOKEHOUSE_RECIPES, dwarvesNear } from '@systems/morale/thoughts';
-import { keptDrinkMaterials, WHIMS_STREAM, whimFacts, whimKeepsDrink, whimMet, whimPossible, whimProgress, whimRows, type Whim } from './whims';
+import { WHIMS_STREAM, whimFacts, whimMet, whimPossible, whimProgress, whimRows, type Whim } from './whims';
 import type { WhimView } from './reader';
 
 export { makeReader, type DwarvesReader, type WhimView } from './reader';
@@ -110,7 +110,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
   readonly hungerMaxSince = new Map<EntityId, number>();
   readonly thirstMaxSince = new Map<EntityId, number>();
   readonly starvingAnnounced = new Map<EntityId, number>();
-  readonly activities = new Activities((ctx) => this.keptForThane(ctx));
+  readonly activities = new Activities();
   readonly idleAnnounced = new Set<EntityId>();
   readonly sawMasterworks = new Set<string>();
   /** `10` § Movement: a fortress dwarf has stood in the `starfall` crater (saved; absent while false). */
@@ -230,16 +230,6 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     ctx.emit({ type: 'WhimSet', thaneId: thane, whimId: row.id });
   }
 
-  /**
-   * `10` § The Thane's whim, the Thane's drink: the drink materials a standing whim keeps from the
-   * dwarves' drinking now (`whims.ts` `keptDrinkMaterials`); [] with no whim.
-   */
-  keptForThane(ctx: TickContext): number[] {
-    if (this.whim === null) return [];
-    const row = whimRows(ctx.registry).find((r) => r.id === this.whim?.id);
-    return row === undefined ? [] : keptDrinkMaterials(ctx.readers, ctx.registry, row);
-  }
-
   /** The whim of the season, how much of it there is now and whether it is met (the units panel's Thane line), or null. */
   private whimView(): WhimView | null {
     const world = this.world;
@@ -248,7 +238,7 @@ export class DwarvesSystem extends BaseSystem<DwarvesStateV1> {
     if (row === undefined) return null;
     this.seedTitles();
     const { have, count } = whimProgress(this.readersRef, this.registryRef, row, this.titles.thane, this.whim);
-    return { id: row.id, text: row.text, met: count > 0 && have >= count, kind: row.kind, count, have, kept: whimKeepsDrink(this.registryRef, row) };
+    return { id: row.id, text: row.text, met: count > 0 && have >= count, kind: row.kind, count, have };
   }
 
   /** TestWorld's direct setup helper uses the same crossing rule as an hourly update. */

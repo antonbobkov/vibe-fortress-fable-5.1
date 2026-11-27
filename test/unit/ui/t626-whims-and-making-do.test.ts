@@ -56,7 +56,7 @@ describe('T-626 the Thane\'s whim says how many, by when and how far', () => {
     w.dwarves.whim = { id: 'whim_fine_meal', setTick: SEASON };
     w.spawnItem('fine_meal', 'turnip', w.index(14, 12, Z), 3);
     const view = w.readers.of<DwarvesReader>('10').whim();
-    expect(view).toEqual({ id: 'whim_fine_meal', text: 'fine meals for everyone', met: false, kind: 'stock', count: 20, have: 3, kept: false });
+    expect(view).toEqual({ id: 'whim_fine_meal', text: 'fine meals for everyone', met: false, kind: 'stock', count: 20, have: 3 });
     const ctx = ctxOf(w);
     expect(whimLine(ctx, view!)).toBe('The Thane wishes for fine meals for everyone by the end of summer: 3 of 20 fine meals in stock, not yet. Made at a kitchen.');
     // The units panel wraps the line under the filter, whole: the count, the progress and "not yet" are all on screen.

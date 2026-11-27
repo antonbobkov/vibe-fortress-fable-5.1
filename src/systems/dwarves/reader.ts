@@ -72,8 +72,6 @@ export interface WhimView {
   readonly count: number;
   /** How many of them the fortress has now, as the judgement counts them. */
   readonly have: number;
-  /** A drink the whim keeps for the Thane (`10` § The Thane's whim). */
-  readonly kept: boolean;
 }
 
 export function makeReader(entities: EntityStore, registry: Registry, titles: () => Record<TitleName, EntityId>, moodProductivity: (id: EntityId) => number = () => 100, avoidedThreatTile: (id: EntityId) => TileIndex = () => -1, bedHolder: (bedId: EntityId) => EntityId = () => 0, tick: () => number = () => 0, tipsy: (id: EntityId) => boolean = () => false, whim: () => WhimView | null = () => null, unsheltered: () => EntityId[] = () => [], isUnsheltered: (id: EntityId) => boolean = () => false, wagonTile: () => TileIndex = () => -1, downActivity: (id: EntityId) => string | null = () => null, avoidedThreat: (id: EntityId) => EntityId = () => 0): DwarvesReader {

@@ -1,4 +1,4 @@
-/** T-806: the Thane's line for a grander hall, an engraved bedroom and the deepfire kept for the Thane. */
+/** T-813 (built in T-806): the Thane's line for a grander hall and an engraved bedroom; deepfire is counted, not kept. */
 import { describe, expect, it } from 'vitest';
 import type { Command } from '@core/commands';
 import { DAYS_PER_SEASON, TICKS_PER_DAY } from '@core/constants';
@@ -26,7 +26,7 @@ function fixture(seed: string) {
 
 const nb = (s: string): string => s.replace(/ /g, ' ');
 
-describe('T-806 the Thane\'s line', () => {
+describe('T-813 the Thane\'s line', () => {
   it('a grander hall names the tier now and the tier wished for', () => {
     expect(whimProgressText(strings, new TestWorld({ seed: 't806-l', world: 'flat-test', embark: 'none' }).game.registry, 'whim_hall_tier', 2, 3))
       .toBe('Decent now, Fine wished for');
@@ -34,7 +34,7 @@ describe('T-806 the Thane\'s line', () => {
     w.build('hearth', w.index(14, 12, Z), 'granite');
     w.dwarves.whim = { id: 'whim_hall_tier', setTick: SEASON, target: 5 };
     const view = w.readers.of<DwarvesReader>('10').whim()!;
-    expect(view).toMatchObject({ kind: 'tier', count: 5, met: false, kept: false });
+    expect(view).toMatchObject({ kind: 'tier', count: 5, met: false });
     expect(whimLine(ctx, view)).toMatch(/^The Thane wishes for a grander hearth hall by the end of summer: \w+ now, Royal wished for, not yet\.$/);
   });
 
@@ -43,13 +43,12 @@ describe('T-806 the Thane\'s line', () => {
     expect(nb(whimProgressText(strings, registry, 'whim_engraved_room', 3, 12))).toBe('3 of 12 tiles engraved');
   });
 
-  it('the deepfire a whim counts is kept for the Thane, and the line says so while there is some', () => {
-    const { w, ctx } = fixture('t806-line-kept');
+  it('the deepfire a whim counts is counted in stock, and nothing says it is kept', () => {
+    const { w, ctx } = fixture('t813-line-deepfire');
     w.dwarves.whim = { id: 'whim_spirits', setTick: SEASON };
-    expect(whimLine(ctx, w.readers.of<DwarvesReader>('10').whim()!)).not.toContain('kept for the Thane');
     const barrel = w.spawnItem('barrel', 'pine', w.index(15, 12, Z));
     w.spawnItem('drink', 'deepfire', { containerId: barrel }, 4);
     expect(whimLine(ctx, w.readers.of<DwarvesReader>('10').whim()!))
-      .toBe('The Thane wishes for something strong by the end of summer: 4 of 10 deepfire in stock, kept for the Thane, not yet. Made at a still.');
+      .toBe('The Thane wishes for something strong by the end of summer: 4 of 10 deepfire in stock, not yet. Made at a still.');
   });
 });

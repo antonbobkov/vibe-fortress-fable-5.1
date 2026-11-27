@@ -79,7 +79,21 @@ describe('T-813 probe: where a whim parts the timeline, and who dies after', () 
         }
       }
     });
-    const hashes: [number, string][] = [];
+    // The world hash holds the whim of the season itself; the digest holds only where every creature
+    // and item is and each creature's mood, so it parts only when the play parts.
+    const simDigest = (): string => {
+      let h = 2166136261;
+      const mix = (n: number): void => { h = Math.imul(h ^ (n | 0), 16777619) >>> 0; };
+      for (const id of ent.with(C.Position)) {
+        const q = ent.get(id, C.Position);
+        if (q === undefined) continue;
+        mix(id); mix(q.x); mix(q.y); mix(q.z);
+        const m = ent.get(id, C.Mood);
+        if (m !== undefined) mix(Math.round(m.value * 1000));
+      }
+      return h.toString(16);
+    };
+    const hashes: [number, string, string][] = [];
     const loop = (until: number, step: number): void => {
       while (w.tick < until) {
         playThreeYears(w, state, Math.min(step, until - w.tick));
@@ -87,7 +101,7 @@ describe('T-813 probe: where a whim parts the timeline, and who dies after', () 
         checkFortressRooms(w, state);
         checkFortressCaveFarm(w, state);
         checkFortressDefense(w, state);
-        hashes.push([w.tick, w.hash()]);
+        hashes.push([w.tick, w.hash(), simDigest()]);
       }
     };
     const log = console.log;

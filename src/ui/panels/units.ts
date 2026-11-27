@@ -46,7 +46,7 @@ interface DwarvesReaderLike {
   list(): EntityId[];
   activityText(id: EntityId): string;
   isTipsy?(id: EntityId): boolean;
-  whim?(): { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number; readonly count?: number; readonly kept?: boolean } | null;
+  whim?(): { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number; readonly count?: number } | null;
   skill(id: EntityId, skill: string): number;
   isChild?(id: EntityId): boolean;
   holder?(title: TitleId): EntityId;
@@ -78,12 +78,11 @@ const WHIM_ROWS = 4;
 /**
  * 24 § Panels, the units panel's Thane line (10 § The Thane's whim): what the Thane wishes for, by
  * the end of which season, how far the fortress is with it and whether it is met now, then, while it
- * is not, where its item is made. A drink the whim keeps for the Thane says so while there is some.
+ * is not, where its item is made.
  */
-export function whimLine(ctx: PanelContext, whim: { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number; readonly count?: number; readonly kept?: boolean }): string {
+export function whimLine(ctx: PanelContext, whim: { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number; readonly count?: number }): string {
   const s = ctx.strings;
-  const counted = whimProgressText(s, ctx.registry, whim.id, whim.have, whim.count);
-  const progress = whim.kept === true && whim.have > 0 ? s.get('ui.whim.kept', { progress: counted }) : counted;
+  const progress = whimProgressText(s, ctx.registry, whim.id, whim.have, whim.count);
   const text = s.get(whim.met ? 'ui.units.whim_met' : 'ui.units.whim_unmet', { whim: whim.text, season: ctx.readers.calendar.seasonName, progress });
   const where = whim.met ? '' : whimWhereMade(ctx.registry, whim.id, ctx.strings);
   return where === '' ? text : s.get('ui.units.whim_where', { text, where });

@@ -160,27 +160,6 @@ export function whimProgress(readers: ReaderSetLike, registry: Registry, row: Wh
   return { have: readers.of<ItemsReader>('13').countAvailable(filter), count: row.count };
 }
 
-/**
- * `10` § The Thane's whim, the Thane's drink: a standing `stock` whim of a drink of a named material
- * keeps its units from the fortress's throats while there are no more of them available than it asks
- * for. The materials kept now ([] or the whim's one).
- */
-export function keptDrinkMaterials(readers: ReaderSetLike, registry: Registry, row: WhimRow): number[] {
-  if (row.kind !== 'stock' || row.material === undefined || row.item === undefined || row.item === 'any') return [];
-  const items = registry.table<ItemRow & { drinkable?: boolean }>('items');
-  const materials = registry.table('materials');
-  if (items.byId(row.item)?.drinkable !== true || !materials.has(row.material)) return [];
-  const filter = stockFilter(registry, row);
-  if (filter === null || !readers.has('13')) return [];
-  return readers.of<ItemsReader>('13').countAvailable(filter) <= row.count ? [materials.index(row.material)] : [];
-}
-
-/** A whim keeps its drink for the Thane: a `stock` whim of a drink of a named material. */
-export function whimKeepsDrink(registry: Registry, row: WhimRow): boolean {
-  if (row.kind !== 'stock' || row.material === undefined || row.item === undefined || row.item === 'any') return false;
-  return registry.table<ItemRow & { drinkable?: boolean }>('items').byId(row.item)?.drinkable === true;
-}
-
 /** The item types whose id or tags answer a recipe input's `match` (alternatives split on `|`). */
 function answering(registry: Registry, match: string): number[] {
   const items = registry.table<ItemRow>('items');
