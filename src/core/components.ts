@@ -341,6 +341,8 @@ export interface WorkOrder {
   memorialDwarfId?: EntityId;
   /** A transform recipe's target: one of input 0's item types (`12` § Work orders); absent: any of them. */
   targetType?: Idx<'ItemTypeDef'>;
+  /** The tomb a standing coffin order makes coffins for (`12` § Work orders, Coffins for a tomb); absent: none. */
+  forZoneId?: EntityId;
 }
 
 export interface Workshop {

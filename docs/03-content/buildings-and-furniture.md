@@ -104,7 +104,7 @@ See [workshops-and-recipes.md](workshops-and-recipes.md) for inputs and recipes.
 | `barracks` | barracks | yes | — | squad | 16 | 0 or a living squad id |
 | `archery_range` | archery range | no | an archery target inside | squad | 16 | 0 or a living squad id |
 | `meeting_area` | meeting area | no | — | — | 10 | — |
-| `tomb` | tomb | yes | a coffin | — | 14, 15 | — |
+| `tomb` | tomb | yes | a coffin | coffins ready | 14, 15, 12 | integer 0 to the tomb's tiles; absent: `TOMB_COFFINS_READY` (14 § Burial) |
 | `dump` | dump | no | — | — | 13 | — |
 | `fishing` | fishing | no | tiles adjacent to deep water | — | 09 | — |
 | `gather` | gather zone | no | — | priority | 09 | integer 1 to 9 |
