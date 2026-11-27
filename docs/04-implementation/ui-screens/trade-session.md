@@ -2,7 +2,7 @@
 
 **Owner:** `ui/screens/trade_session` · **Depends on:** [`../../02-systems/20-trade-and-caravans.md`](../../02-systems/20-trade-and-caravans.md), [`../../03-content/caravan-goods.md`](../../03-content/caravan-goods.md)
 
-Modal over the fortress screen; the simulation is paused while it is shown. `Esc` hides it and the game runs on: the session stays open and the trader waits at the depot, and `[t]` in the depot panel shows the screen again. `[x]` is "done trading": the session ends for this visit and the trader goes back to work (20 § The session).
+Modal over the fortress screen; the simulation is paused while it is shown. `Esc` hides it and the game runs on: the session stays open, and `[t]` in the depot panel shows the screen again with no new trip. `[x]` is "done trading": the session ends for this visit (20 § The session).
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────────┐

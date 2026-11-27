@@ -18,9 +18,6 @@ const scenario: Scenario = {
     expect(w.readers.of<TradeReader>('20').activeCaravan()?.civ).toBe('wildwood');
     const tile = w.game.world.entities.get(depot, C.Building)?.footprint[0] as number;
     w.spawnDwarf({ at: tile });
-    // T-800: the trader waits at the depot while the session is open, so another dwarf carries the bar there.
-    const hauler = w.spawnDwarf({ at: tile });
-    w.setLabor(hauler, 'trading', false);
     const chairs = Array.from({ length: 3 }, () => w.spawnItem('chair', 'oak', tile));
     w.submit({ type: 'MoveToDepot', itemIds: chairs });
     w.until((world) => chairs.every((chair) => ((world.game.world.entities.get(chair, C.Item)?.flags ?? 0) & ItemFlag.AtDepot) !== 0), 300);

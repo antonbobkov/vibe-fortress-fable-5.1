@@ -137,10 +137,8 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
         this.retryTradeRequest = false;
         this.retryAway = false;
         if (this.active && this.active.state !== 'atDepot') this.cancelTradeJob(tick, this.active.depotId);
-        this.endLeftSession(tick);
         this.repairTradeJob(tick, retry, away);
       },
-      canComplete: (job) => this.holdTrader(job as Job, ctx),
       onComplete: (job, tick) => this.completeJob(job as Job, tick),
       workCentiTicks: (job) => (job as Job).key.startsWith('trade:') ? 100 : undefined,
     });
@@ -215,9 +213,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     return ctx.readers.has('16') && ctx.readers.of<CombatReader>('16').onDuty(id) ? 0 : id;
   }
 
-  private cancelTradeJob(ctx: TickContext, depotId: EntityId, reason = 'target_invalid'): void {
+  private cancelTradeJob(ctx: TickContext, depotId: EntityId): void {
     const job = ctx.readers.of<JobsReader>('11').byKey(`trade:${depotId}`);
-    if (job) ctx.jobs.cancel(job.id, reason);
+    if (job) ctx.jobs.cancel(job.id, 'target_invalid');
   }
 
   private repairTradeJob(ctx: TickContext, create = false, retried = false): void {
@@ -268,38 +266,6 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
   }
 
   /**
-   * § The session: the trader at the depot opens the session when it may trade and a merchant
-   * stands inside with it, and the trade job is then held (not completed) while the session is
-   * open, so the trader stays at the depot. True lets the job complete: its worker cannot trade, or
-   * the trader or every merchant is off the depot (`completeJob` says what follows).
-   */
-  private holdTrader(job: Job, ctx: InitContext): boolean {
-    if (!job.key.startsWith('trade:')) return true;
-    const a = this.active;
-    if (!a || a.state !== 'atDepot' || a.depotId !== job.data['depotId']) return true;
-    // Done trading (`TradeCancel`): the job completes and the trader goes back to work.
-    if (a.doneJob === job.id) return true;
-    const session = this.sessionState;
-    if (session !== null) return session.traderId !== job.workerId;
-    if (!this.eligibleTrader(ctx, job)) return true;
-    const buildings = ctx.readers.of<BuildingsReader>('14');
-    const merchantId = a.merchants.find((id) => ctx.world.entities.alive(id) && a.destinations[id] === buildings.holderTile(a.depotId))
-      ?? a.merchants.find((id) => ctx.world.entities.alive(id)) ?? 0;
-    if (!merchantId) return true;
-    const building = buildings.get(a.depotId);
-    const merchant = ctx.world.entities.get(merchantId, C.Position);
-    const trader = ctx.world.entities.get(job.workerId, C.Position);
-    if (!building || !merchant || !trader) return true;
-    const merchantTile = ctx.world.map.index(merchant.x, merchant.y, merchant.z);
-    const traderTile = ctx.world.map.index(trader.x, trader.y, trader.z);
-    if (!building.footprint.includes(merchantTile) || !building.footprint.includes(traderTile)) return true;
-    this.sessionState = { depotId: a.depotId, traderId: job.workerId, merchantId, give: [], take: [], woodOffered: [], woodWarning: false };
-    // The job remembers who traded at the depot: called away, they come back to it, and the depot's line says so.
-    job.data['traded'] = job.workerId;
-    return false;
-  }
-
-  /**
    * The job's worker may trade: alive, with the labor, and the dwarf the job is for (the eligible
    * Broker, or any trading dwarf when there is none or the job was issued while the Broker was away).
    */
@@ -308,14 +274,6 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     if (job.data['brokerAway'] === true) return true;
     const broker = this.broker(ctx);
     return broker === 0 || broker === job.workerId;
-  }
-
-  /** § The session: a session whose trader no longer works the held job at the depot (called away by a critical need) ends. */
-  private endLeftSession(ctx: TickContext): void {
-    const session = this.sessionState;
-    if (session === null || !this.active) return;
-    const job = ctx.readers.of<JobsReader>('11').byKey(`trade:${this.active.depotId}`);
-    if (job !== undefined && (job.workerId !== session.traderId || job.state !== 'working')) this.sessionState = null;
   }
 
   private completeJob(job: Job, ctx: TickContext): void {
@@ -333,20 +291,28 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
     }
     if (!a || a.state !== 'atDepot' || a.depotId !== job.data['depotId']) return;
     if (!job.key.startsWith('trade:') || this.sessionState !== null) return;
-    if (a.doneJob === job.id) {
-      delete a.doneJob;
-      return;
-    }
-    // The job completed without a session (`holdTrader`): a worker who cannot trade is replaced by
-    // the dwarf the job is for; a trader or merchant off the depot has the job re-queued once.
+    // A worker who cannot trade is replaced by the dwarf the job is for.
     if (!this.eligibleTrader(ctx, job)) {
       this.retryTradeRequest = true;
       return;
     }
-    if (job.data['retried'] !== true) {
-      this.retryTradeRequest = true;
-      this.retryAway = true;
+    const buildings = ctx.readers.of<BuildingsReader>('14');
+    const merchantId = a.merchants.find((id) => ctx.world.entities.alive(id) && a.destinations[id] === buildings.holderTile(a.depotId))
+      ?? a.merchants.find((id) => ctx.world.entities.alive(id)) ?? 0;
+    const building = buildings.get(a.depotId);
+    const merchant = ctx.world.entities.get(merchantId, C.Position);
+    const trader = ctx.world.entities.get(job.workerId, C.Position);
+    const inside = (pos: { x: number; y: number; z: number } | undefined): boolean =>
+      pos !== undefined && building !== undefined && building.footprint.includes(ctx.world.map.index(pos.x, pos.y, pos.z));
+    if (!merchantId || !inside(merchant) || !inside(trader)) {
+      // § The session: a trader or merchant off the depot has the job re-queued once.
+      if (job.data['retried'] !== true) {
+        this.retryTradeRequest = true;
+        this.retryAway = true;
+      }
+      return;
     }
+    this.sessionState = { depotId: a.depotId, traderId: job.workerId, merchantId, give: [], take: [], woodOffered: [], woodWarning: false };
   }
 
   private lines(raw: unknown): OfferLine[] | null {
@@ -450,13 +416,9 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
       return OK;
     }
     if (cmd.type === 'TradeCancel') {
-      // § The session: done trading for this visit; the held job ends and the trader goes back to work.
+      // § The session: done trading for this visit.
       if (!this.sessionState) return reject('no_session');
       this.sessionState = null;
-      if (a) {
-        const job = ctx.readers.of<JobsReader>('11').byKey(`trade:${a.depotId}`);
-        if (job) a.doneJob = job.id;
-      }
       return OK;
     }
     if (cmd.type === 'TradeOffer') return this.offer(cmd, ctx);
@@ -672,8 +634,7 @@ export class TradeSystem extends BaseSystem<TradeStateV1> {
    */
   private missed(ctx: TickContext, a: ActiveCaravan): void {
     const job = ctx.readers.of<JobsReader>('11').byKey(`trade:${a.depotId}`);
-    // A trader who traded at the depot and was called away has not missed the caravan.
-    if (!job || this.sessionState || job.data['traded'] !== undefined) return;
+    if (!job || this.sessionState) return;
     const assigned = job.data['assignedWorker'];
     const traderId = job.workerId !== 0 ? job.workerId : typeof assigned === 'number' ? assigned : 0;
     ctx.emit({ type: 'TradeMissed', civ: a.civ, depotId: a.depotId, traderId });

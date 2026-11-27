@@ -943,14 +943,13 @@ export function brokerOnWay(env: MessageEnv, depotId: EntityId, paused: boolean)
 export function tradeWait(env: MessageEnv, depotId: EntityId, prospective = false): string | null {
   if (!env.readers.has('11') || !env.readers.has('20') || !env.readers.has('10')) return null;
   const session = env.readers.of<TradeReader>('20').session();
-  // An open session whose screen is hidden: the trader waits at the depot.
-  if (session !== null) return env.strings.get('ui.trade.wait.at_depot', { who: traderName(env, session.traderId) });
+  // An open session whose screen is hidden: `[t]` shows it again.
+  if (session !== null) return env.strings.get('ui.trade.wait.open', { who: traderName(env, session.traderId) });
   const job = env.readers.of<JobsReader>('11').byKey(`trade:${depotId}`);
   if (job === undefined && !prospective) return null;
   const assigned = job === undefined ? brokerFor(env) : typeof job.data['assignedWorker'] === 'number' ? job.data['assignedWorker'] : 0;
-  const traded = typeof job?.data['traded'] === 'number' ? job.data['traded'] : 0;
   return tradeWaitFor(env, job?.workerId ?? 0, assigned, typeof job?.workTile === 'number' ? job.workTile : -1, false, depotId, job === undefined,
-    { traded, brokerAway: job?.data['brokerAway'] === true });
+    { brokerAway: job?.data['brokerAway'] === true });
 }
 
 /** A trader by name, the Broker as "{name}, the Broker,". */
@@ -960,11 +959,10 @@ function traderName(env: MessageEnv, id: EntityId): string {
 }
 
 /**
- * What the trade job says of its own history (20 § The session): `traded`, the dwarf who opened a
- * session at the depot with it (0 for none), who left for a need and comes back to it; `brokerAway`,
- * it was issued to any trading dwarf because the Broker was asleep or far off at a need.
+ * What the trade job says of itself (20 § The session): `brokerAway`, it was issued to any trading
+ * dwarf because the Broker was asleep or far off at a need.
  */
-export interface TradeJobFacts { readonly traded: EntityId; readonly brokerAway: boolean }
+export interface TradeJobFacts { readonly brokerAway: boolean }
 
 /**
  * The words of {@link tradeWait} for a worker on the way (`workerId`), else the dwarf the job is
@@ -973,7 +971,7 @@ export interface TradeJobFacts { readonly traded: EntityId; readonly brokerAway:
  * goods still being carried there; `prospective` reads a request not yet sent ({@link tradeWait}).
  */
 export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: EntityId, workTile: TileIndex, late: boolean, depotId = 0, prospective = false,
-  facts: TradeJobFacts = { traded: 0, brokerAway: false }): string {
+  facts: TradeJobFacts = { brokerAway: false }): string {
   const s = env.strings;
   const hauls = depotId !== 0 && env.readers.has('20') ? env.readers.of<TradeReader>('20').depotHauls(depotId) : 0;
   // No dwarf has taken the trade: said so, with the goods still on their way to the depot.
@@ -986,11 +984,6 @@ export function tradeWaitFor(env: MessageEnv, workerId: EntityId, assigned: Enti
   if (workerId !== 0) {
     if (late) return s.get('ui.trade.wait.late', { who: who(workerId) });
     return s.get(broker !== 0 && broker !== workerId ? 'ui.trade.wait.stand_in_on_way' : 'ui.trade.wait.on_way', { who: who(workerId) });
-  }
-  // The dwarf who traded at the depot and left it for a need comes back to it.
-  if (!late && facts.traded !== 0 && env.readers.entities.alive(facts.traded) && (assigned === 0 || assigned === facts.traded)) {
-    const left = leftFor(env, facts.traded);
-    if (left !== null) return s.get(`ui.trade.wait.left_${left}`, { who: who(facts.traded) });
   }
   if (assigned !== 0 && env.readers.entities.alive(assigned)) return dwarfWait(env, assigned, who(assigned), workTile, late, prospective ? null : notTaken);
   // No Broker holds the job: why not, and whether another dwarf can trade.
@@ -1033,15 +1026,6 @@ function dwarfWait(env: MessageEnv, id: EntityId, who: string, workTile: TileInd
   if (late) return s.get('ui.trade.wait.late', { who });
   if (behavior === 'work' && env.readers.has('11') && env.readers.of<JobsReader>('11').forWorker(id) !== undefined) return s.get('ui.trade.wait.job', { who });
   return notTaken === null ? s.get('ui.trade.wait.on_way', { who }) : notTaken();
-}
-
-/** What a dwarf who left the depot is doing, as the `ui.trade.wait.left_*` lines say it, or null when at no need. */
-function leftFor(env: MessageEnv, id: EntityId): 'asleep' | 'eating' | 'drinking' | 'break' | null {
-  const dwarves = env.readers.of<DwarvesReader>('10');
-  const behavior = dwarves.behavior(id);
-  if (behavior !== 'need' && behavior !== 'social') return null;
-  const activity = dwarves.activityText(id);
-  return activity === 'sleep' ? 'asleep' : activity === 'hunger' ? 'eating' : activity === 'thirst' ? 'drinking' : 'break';
 }
 
 /** The Broker a trade job would be for now (20 § The session): alive, trading on, not on duty; else 0. */

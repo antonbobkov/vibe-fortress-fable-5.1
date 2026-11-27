@@ -1232,7 +1232,7 @@
   {
     "context": "trade_session",
     "key": "Esc",
-    "action": "hide (the trader waits at the depot)"
+    "action": "hide (the trade stays open)"
   },
   {
     "context": "trade_session",

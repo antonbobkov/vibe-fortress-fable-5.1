@@ -36,8 +36,6 @@ export interface ActiveCaravan {
   attacked: boolean;
   lost: boolean;
   giftedThisCaravan?: number;
-  /** The trade job whose session the player closed (`TradeCancel`): it completes on its next work tick (absent: none). */
-  doneJob?: number;
 }
 
 export interface TradeStateV1 {
