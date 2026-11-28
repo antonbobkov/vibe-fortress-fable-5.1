@@ -17,7 +17,7 @@ import { merchantPrice, requiredValue } from '@systems/trade/valuation';
 import { designateDig, onWagonSide, opensToHillside, siteTiles, type FortressState } from './three_years_fortress';
 import type { TestWorld } from './test-world';
 import { command, isKeptOff } from './script-commands';
-import { note, threeYearsMeasurements } from './three_years_measurements';
+import { note, stepThreeYears, threeYearsMeasurements } from './three_years_measurements';
 import { checkMakingDo, keepThanesShare, makingDoPurchases, makingDoWant } from './three_years_making_do';
 
 export interface EconomyState {
@@ -36,6 +36,11 @@ export interface EconomyState {
   broker?: { id: number };
   /** The visit whose missing offer was last written to the journal. */
   lastTradeNote?: string;
+  /**
+   * T-810: the visit whose trade was closed with nothing to do, and the goods' value at the depot
+   * then: the trade is asked for again in that visit only once more is there to offer.
+   */
+  tradeClosed?: { key: string; budget: number };
   /** Cave plots added as the population grew, and whether each is zoned yet. */
   readonly farmPlans: { tiles: number[]; zoneId: number }[];
   /** The dwarf kept on the still. */
@@ -1262,19 +1267,30 @@ export function trade(w: TestWorld, state: FortressState): void {
   // One trade for each visit: the key is the visit, counted from the arrivals seen so far.
   const key = `${threeYearsMeasurements(w).caravans.filter((c) => c.state === 'CaravanArrived').length}:${caravan.civ}`;
   if (state.economy.traded.has(key)) return;
+  const give = reader.depotItems().filter((id) => {
+    const type = types.byIndex(ent.get(id, C.Item)?.type ?? -1);
+    return (type?.category.startsWith('craft/') || type?.id === 'lavish_meal' || type?.id === 'raw_stone' || type?.id === 'log') && reader.valuation(caravan.civ, id) > 0;
+  });
+  const budget = give.reduce((s, id) => s + reader.valuation(caravan.civ, id), 0);
+  // T-810: the player closes a trade it has nothing to do in ("done trading"), and calls the trader
+  // again in the same visit only once more goods stand at the depot.
+  const closed = state.economy.tradeClosed;
+  const doneTrading = (): void => {
+    state.economy.tradeClosed = { key, budget };
+    command(w, { type: 'TradeCancel' });
+  };
   if (!reader.sessionOpen()) {
+    if (closed?.key === key && budget <= closed.budget) return;
     command(w, { type: 'TradeOpen', depotId: depot });
     const job = w.readers.of<JobsReader>('11').byKey(`trade:${depot}`);
     // T-715: the trade job comes above the depot's hauls (20 § The session); the deadline step only ever raises it.
     if (job && reprioritised(job) && job.priority > DEADLINE) command(w, { type: 'SetJobPriority', jobId: job.id, priority: DEADLINE });
     return;
   }
-  const give = reader.depotItems().filter((id) => {
-    const type = types.byIndex(ent.get(id, C.Item)?.type ?? -1);
-    return (type?.category.startsWith('craft/') || type?.id === 'lavish_meal' || type?.id === 'raw_stone' || type?.id === 'log') && reader.valuation(caravan.civ, id) > 0;
-  });
-  const budget = give.reduce((s, id) => s + reader.valuation(caravan.civ, id), 0);
-  if (budget === 0) return;
+  if (budget === 0) {
+    doneTrading();
+    return;
+  }
   // T-588: from year 2, Making Do's tallow candles for the dining hall, and honey for the Thane's mead.
   const makingDoWants = makingDoPurchases(w, state);
   const priority = (id: number): number => {
@@ -1340,6 +1356,7 @@ export function trade(w: TestWorld, state: FortressState): void {
       state.economy.lastTradeNote = key;
       note('three_years_trade', { day, civ: caravan.civ, offer: 'none', budget: Math.floor(budget), goods: goods.length, wanted });
     }
+    doneTrading();
     return;
   }
   // Offer just enough crafts, keeping surplus exports for the next caravan.
@@ -1368,6 +1385,32 @@ export function trade(w: TestWorld, state: FortressState): void {
     command(w, { type: 'TradeCancel' });
     const purchases = reader.depotItems().filter((id) => !types.byIndex(ent.get(id, C.Item)?.type ?? -1)?.category.startsWith('craft/'));
     if (purchases.length) command(w, { type: 'RemoveFromDepot', depotId: depot, itemIds: purchases });
+    return;
+  }
+  // T-810: an offer refused, or a good claimed between the look and the offer (T-455): the trade is
+  // closed, and asked for again at the next look.
+  state.economy.tradeClosed = { key, budget: -1 };
+  command(w, { type: 'TradeCancel' });
+}
+
+/**
+ * T-810: the fortress plays `n` ticks as the player's screen does. While a trade request waits (the
+ * depot's `trade` job, no session open) it steps a tick at a time, and the moment the session opens
+ * (the trade screen pauses the game, 20 § The session) the player trades (`trade`), and closes the
+ * trade when done.
+ */
+export function stepTrading(w: TestWorld, state: FortressState, n: number): void {
+  const reader = w.readers.of<TradeReader>('20');
+  const jobs = w.readers.of<JobsReader>('11');
+  const end = w.tick + n;
+  while (w.tick < end) {
+    const depot = w.readers.of<BuildingsReader>('14').depots()[0];
+    if (depot === undefined || reader.sessionOpen() || jobs.byKey(`trade:${depot}`) === undefined) {
+      stepThreeYears(w, end - w.tick);
+      return;
+    }
+    stepThreeYears(w, 1);
+    if (reader.sessionOpen()) trade(w, state);
   }
 }
 

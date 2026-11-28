@@ -32,8 +32,7 @@ import {
   Z,
   type FortressState,
 } from './three_years_fortress';
-import { dedicate, placeEconomyBuilding, specialistCandidates, SQUAD_SIZE } from './three_years_economy';
-import { stepThreeYears } from './three_years_measurements';
+import { dedicate, placeEconomyBuilding, specialistCandidates, SQUAD_SIZE, stepTrading } from './three_years_economy';
 import { command } from './script-commands';
 
 /** Two years: the ambushes and thieves of year 1 and the first raid of year 2 (18 § Schedule at peril 2). */
@@ -744,7 +743,7 @@ export function playDefenceYear(options: DefenceYearOptions = {}): { w: TestWorl
   checkDefenceWorks(w, state);
   let lastManaged = -Infinity;
   while (w.tick < ticks) {
-    stepThreeYears(w, Math.min(watchEvery, ticks - w.tick));
+    stepTrading(w, fortress, Math.min(watchEvery, ticks - w.tick));
     checkFortressDefense(w, fortress);
     checkDefenceSquad(w, state);
     checkDefenceRaid(w, state);
