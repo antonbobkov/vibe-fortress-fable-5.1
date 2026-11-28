@@ -13,8 +13,8 @@
 
 ## Done
 
-- [ ] The cause found and fixed, or the witness changed with its reason.
-- [ ] `three_years_main` green on GitHub.
+- [x] The cause found and fixed, or the witness changed with its reason.
+- [x] `three_years_main` green on GitHub (run 46131813738).
 
 ## Findings
 
@@ -25,3 +25,8 @@
 ## Decision
 
 The scenario's player is wrong, not the game: the smelter takes its first runnable order, and the forge takes free iron bars, as 12 says. A player who sees 40 charcoal beside a surface smelter does not call the fuel short. The fuel test now counts the fuel on the smelter's side of the gate (`fuelToHand`): under a roof for a smelter below (T-642's locked-gate case unchanged), every bar for a smelter on the surface. The `alloy_steel > 0` witness is kept as it is. No game rule, world hash or golden moves, so no paired sweep; the peril-0 sweep seeds play the same script and may move (their smelters stand on the surface too).
+
+## Result
+
+- `three_years_main` at 3bf4e2af, locally and on GitHub (run 46131813738, success): passed, `alloy_steel` 1, `smelt_hematite` 46, coal smelts 1, no dwarf death, 80 dwarves at the end. The year-3 order list is now alloy, iron, coal.
+- The margin is thin (one bar, the same as the pre-T-620 runs' lowest): the open steel jobs lose their iron bar to the forge's standing iron orders. That race is a separate task (`T-NEW-peril0-steel-race.md`).
