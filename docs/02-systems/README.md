@@ -341,11 +341,12 @@ Creature behavior is split by owner: dwarves are driven by 10 (which defers to 1
 **Key rules.**
 - Peril 0: thieves only, from year 2. Peril 1: small raids from year 2 autumn. Peril 2: ambushes and raids from year 1 autumn. Peril 3: sieges from year 3. Peril 4: everything, earlier and larger.
 - Party size scales with fortress wealth and population with a soft cap; a warning "scouts seen" arrives one day before a raid (shortened by fog).
+- Renown lifts the schedule: at renown 60 a fortress reads the next peril's rows, at 120 the one above (never above peril 4; never in `serene_vale`), so a low peril meets sieges and larger bands later, not never.
 - Raiders path to the fortress's outermost door or entrance; if no path exists they loiter, take losses from ranged fire, and leave after a fixed time; they retreat when half of them are down.
 - Each cavern has a spawn table activated when the layer is breached; spawns respect `MAX_CREATURES`.
 - Deep pressure rises per deepsilver tile mined; at thresholds Hollow-born emerge from the rock adjacent to recently mined deepsilver.
 
-**Reads.** 01 region; 13 wealth; 10 population; 06 weather; 03 breaches; 22 paths. **Emits.** `ThreatWarning`, `RaidArrived`, `RaidEnded`, `ThiefSpotted`, `MonsterSpawned`, `DeepStirred`.
+**Reads.** 01 region; 13 wealth; 10 population; 06 weather; 03 breaches; 22 paths. **Emits.** `ThreatWarning`, `RaidArrived`, `RaidEnded`, `ThiefSpotted`, `MonsterSpawned`, `DeepStirred`, `PerilRose`.
 
 **Player touchpoints.** Warning announcements; the threats panel (current parties, next expected pressure level); the Deep gauge.
 

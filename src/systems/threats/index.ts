@@ -33,9 +33,13 @@ import { arriveParty, forgetDestroyedLoot, spawnHostileMember } from './parties'
 import { countCasualty, shakeByOwnFire, shakeByTrap, steadyPartiesThatFelled } from './morale';
 import { makeThreatsReader, sizeBandOf, type ThreatsReader } from './reader';
 import {
+  applyScheduleStep,
   calculatePartySize,
   calculateRenown,
   initScheduleAtEmbark,
+  nextRenownStep,
+  renownForNextStep,
+  setScheduleRows,
   type ThreatScheduleEntry,
 } from './schedule';
 import {
@@ -136,6 +140,8 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   private traits: readonly string[] = [];
   private schedule = new Map<string, ThreatScheduleEntry>();
   private renownVal = 0;
+  /** 18 § Schedule peril: the perils renown lifts the schedule above the region's. */
+  private renownStep = 0;
   private deepsilverTiles: number[] = [];
   private pendingArrivals: PendingArrivalState[] = [];
   private pendingSpawns: PendingSpawnState[] = [];
@@ -172,6 +178,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     this.traits = this.spec?.traits ?? [];
 
     this.schedule = initScheduleAtEmbark(ctx.registry, this.peril, this.traits, this.rng);
+    this.renownStep = 0;
 
     this.deepState.pressure = ctx.world.fortress?.deepPressure ?? 0;
     this.deepState.level = ctx.world.fortress?.deepLevel ?? 0;
@@ -188,6 +195,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       (n: number) => this.cavernMonsters(n),
       () => Array.from(this.hollowBorn).filter((id) => ctx.world.entities.alive(id)).sort((a, b) => a - b),
       () => findEmergenceBaseTile(ctx.world.map, this.deepsilverTiles),
+      () => renownForNextStep(this.peril, this.traits, this.renownStep),
     );
     ctx.register.panel({ id: 'threats', title: 'Threats', hotkey: 't' });
     ctx.register.announcement('ThreatWarning', {
@@ -240,6 +248,10 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       severity: 'alert',
       stringKey: 'announce.restless_rose',
     });
+    ctx.register.announcement('PerilRose', {
+      severity: 'alert',
+      stringKey: 'announce.peril_rose',
+    });
     if (ctx.loading !== true) {
       const pathing =
         ctx.readers && typeof ctx.readers.has === 'function' && ctx.readers.has('pathing')
@@ -283,6 +295,19 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     this.renownVal = calculateRenown(wealth, dwarfPopulation(ctx));
   }
 
+  /**
+   * 18 § Schedule peril: on the day renown crosses a step, the schedule reads the rows of the new
+   * peril; a rise is announced (`PerilRose`), a fall is not.
+   */
+  private stepSchedule(ctx: TickContext): void {
+    const step = nextRenownStep(this.peril, this.traits, this.renownVal, this.renownStep);
+    if (step === this.renownStep) return;
+    const rose = step > this.renownStep;
+    this.renownStep = step;
+    applyScheduleStep(this.schedule, ctx.registry, this.peril + step, this.traits, ctx.tick, this.rng);
+    if (rose) ctx.emit({ type: 'PerilRose', peril: this.peril + step });
+  }
+
   private processArrivalsAndSpawns(ctx: TickContext): void {
     // 1. Process pending party arrivals
     const readyArrivals: PendingArrivalState[] = [];
@@ -309,6 +334,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
         this.renownVal,
         this.peril,
         this.traits.includes('twilight_pass'),
+        this.peril + this.renownStep,
       );
       this.pendingSpawns.push(...pendingSpawns);
       const entry = this.schedule.get(a.kind);
@@ -351,6 +377,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
   override handle(event: GameEvent, ctx: TickContext): void {
     if (event.type === 'DayPassed') {
       this.updateRenown(ctx);
+      this.stepSchedule(ctx);
 
       for (const [kind, entry] of this.schedule) {
         if (entry.earliestTick < 0) continue;
@@ -370,8 +397,9 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
           ? Math.floor((warningDays * TICKS_PER_DAY * visMod) / 100)
           : 0;
 
-        // Raids never come in winter at peril <= 2 (passes are closed)
-        if (kind === 'raid' && this.peril <= 2) {
+        // Raids and sieges never come in winter at a region peril <= 2 (passes are closed), whatever
+        // renown makes of the schedule (§ Schedule peril).
+        if ((kind === 'raid' || kind === 'siege') && this.peril <= 2) {
           const arrivalSeason = seasonOf(ctx.tick + leadTicks);
           if (arrivalSeason === 3) continue;
         }
@@ -601,6 +629,7 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
       stateVersion: 1,
       schedule: schedEntries,
       renown: this.renownVal,
+      ...(this.renownStep > 0 ? { renownStep: this.renownStep } : {}),
       deepsilverTiles: [...this.deepsilverTiles],
       cavernSpawnCounts,
       // A web gathered (09) is gone from the map; only the webs still spun are kept.
@@ -626,6 +655,9 @@ export class ThreatsSystem extends BaseSystem<ThreatsStateV1> {
     this.deepState.pressure = ctx.world.fortress?.deepPressure ?? 0;
     this.deepState.level = ctx.world.fortress?.deepLevel ?? 0;
 
+    // The rows of the saved schedule peril, then the saved ticks over them.
+    this.renownStep = state.renownStep ?? 0;
+    setScheduleRows(this.schedule, ctx.registry, this.peril + this.renownStep, this.traits);
     for (const [k, s] of state.schedule) {
       const entry = this.schedule.get(k);
       if (entry) {

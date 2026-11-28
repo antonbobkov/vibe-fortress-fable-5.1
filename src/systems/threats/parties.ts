@@ -273,6 +273,8 @@ export function spawnHostileMember(
 
 /**
  * Spawns a hostile party, emitting RaidArrived and scheduling member trickling over ARRIVAL_TICKS.
+ * The makeup (trollkin, hexers) reads the schedule peril (18 § Schedule peril); the gear tier reads
+ * the region's `peril`.
  */
 export function arriveParty(
   world: ThreatWorldLike,
@@ -286,6 +288,7 @@ export function arriveParty(
   renown: number,
   peril: number,
   isTwilightPass: boolean,
+  schedulePeril = peril,
 ): { partyId: EntityId; pendingSpawns: PendingSpawnState[] } {
   const partyId = world.entities.create('party');
   world.entities.add(partyId, C.Party, {
@@ -305,7 +308,7 @@ export function arriveParty(
     ...(kind === 'ambush' ? { ambushSprung: false } : {}),
   });
 
-  const planned = calculatePartyComposition(kind, size, renown, peril, isTwilightPass, yearOf(currentTick));
+  const planned = calculatePartyComposition(kind, size, renown, schedulePeril, isTwilightPass, yearOf(currentTick));
   const tiles = findEdgeTiles(world.map, edge, planned.length);
 
   if (kind !== 'ambush') {

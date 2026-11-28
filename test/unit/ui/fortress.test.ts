@@ -341,6 +341,8 @@ describe('T-M1-14 announcements', () => {
       DeepStirred: 'danger',
       MonsterEmerged: 'danger',
       RestlessRose: 'alert',
+      // T-802: 18 § Schedule peril (renown lifts the schedule a peril).
+      PerilRose: 'alert',
       // T-504: 18 § Registrations (a raider that lost its nerve; a flight on blood is not announced).
       HostileFled: 'note',
       // T-M7-10: the rows the system documents name that no earlier task registered.

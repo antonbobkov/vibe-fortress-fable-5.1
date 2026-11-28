@@ -47,6 +47,10 @@ export interface ThreatsReader {
   renown(): number;
   /** Per kind, the season and year it is first possible in, or `null` for a kind that never comes; never the exact next date. */
   schedulePreview(): Readonly<Record<string, SchedulePreview | null>>;
+  /** 18 § Schedule peril: the peril whose rows the schedule reads, the region's plus renown's steps. */
+  schedulePeril(): number;
+  /** 18 § Schedule peril: the renown at which the schedule next reads a higher peril, or `null` where it cannot. */
+  nextPerilRenown(): number | null;
   deepPressure(): number;
   deepLevel(): number;
   deepNextThreshold(): number;
@@ -73,6 +77,7 @@ export function makeThreatsReader(
   getCavernMonsters?: (n: number) => EntityId[],
   getHollowBorn?: () => EntityId[],
   getEmergenceBase?: () => TileIndex,
+  getNextPerilRenown?: () => number | null,
 ): ThreatsReader {
   return {
     activeParties: () => {
@@ -112,6 +117,8 @@ export function makeThreatsReader(
       }
       return preview;
     },
+    schedulePeril: () => getSchedule().get('thief')?.peril ?? 0,
+    nextPerilRenown: () => getNextPerilRenown?.() ?? null,
     deepPressure: getDeepPressure,
     deepLevel: getDeepLevel,
     deepNextThreshold: () => getDeepNextThreshold?.() ?? 50,

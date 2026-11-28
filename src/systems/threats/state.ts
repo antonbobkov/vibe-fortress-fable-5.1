@@ -34,6 +34,8 @@ export interface ThreatsStateV1 {
   stateVersion: 1;
   schedule: [string, ScheduleEntryState][];
   renown: number;
+  /** 18 § Schedule peril: the perils renown lifts the schedule (absent: 0). */
+  renownStep?: number;
   deepsilverTiles: TileIndex[];
   cavernSpawnCounts: [number, number][];
   webs: [TileIndex, EntityId][];

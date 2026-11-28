@@ -150,6 +150,7 @@ JobCreated, JobClaimed, JobStarted, JobCompleted, JobCancelled, JobBlocked and J
 | `HostileFled` | `id[, nerve, species]` | 18 | ui (a note when `nerve`: a raider that lost its nerve, 18 § Morale) |
 | `DoorBreakAttempt` | `id, doorId` | 18 | 14 |
 | `RestlessRose` | `count` | 18 | ui |
+| `PerilRose` | `peril` | 18 | ui |
 | `WebSpun` | `tiles[]` | 18 | 03 (flag), 23 |
 | `TrapTriggered` / `TrapSpent` / `TrapJammed` / `TrapRearmed` | `trapId[, creatureId, kind, outcome]` | 19 | 08 (cage), 18 (spotting, morale), ui |
 | `CreatureCaged` | `creatureId, cageItemId` | 19 | 08, 13, 18, ui |

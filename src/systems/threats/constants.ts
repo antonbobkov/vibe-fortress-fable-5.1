@@ -8,6 +8,12 @@ export const THREATS_PHASE = 31;
 
 export const RENOWN_WEALTH_DIVISOR = 2000;
 export const RENOWN_POP_WEIGHT = 0.2;
+/** 18 § Schedule peril: each multiple of this renown reads the schedule one peril higher (unmeasured). */
+export const RENOWN_PERIL_STEP = 60;
+/** 18 § Schedule peril: a step is lost only this far below its threshold (unmeasured). */
+export const RENOWN_PERIL_FALL = 10;
+/** The highest peril: the schedule never reads a row above it. */
+export const PERIL_MAX = 4;
 /** `threat-schedules.md`: Hillfolk bandits appear only below reputation 50. */
 export const BANDIT_REPUTATION_LIMIT = 50;
 export const WARNING_DAYS = 1;

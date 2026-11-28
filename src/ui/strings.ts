@@ -674,9 +674,13 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.threats.wild_far': '{species} ×{count}  far',
   'ui.threats.peril': 'Peril {peril} · Renown {renown}',
   'ui.threats.attention': 'Wealth and population draw attention.',
+  'ui.threats.attention_next': 'Wealth and population draw attention: at renown {at}, the Gloam come as at peril {next}.',
+  'ui.threats.attention_drawn': 'Wealth and population have drawn the Gloam: they come as at peril {now}.',
+  'ui.threats.attention_drawn_next': 'Wealth and population have drawn the Gloam: they come as at peril {now}, and at renown {at} as at peril {next}.',
   'ui.threats.morale': '  Morale: {word}',
   'ui.threats.raids': 'Raids {when}',
   'ui.threats.ambushes': 'Ambushes {when}',
+  'ui.threats.sieges': 'Sieges {when}',
   'ui.threats.thieves': 'Thieves {when}',
   'ui.threats.schedule_from': 'from {season}, Y{year}',
   'ui.threats.schedule_never': 'never',
@@ -2743,6 +2747,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'announce.monster_emerged': 'The rock cracks at ({x},{y},z{z}): {monsters} comes up.',
   'announce.monster_emerged_many': 'The rock cracks at ({x},{y},z{z}): {monsters} come up.',
   'announce.restless_rose': 'The restless dead rise.',
+  'announce.peril_rose': 'Word of the fortress\'s riches has spread. The Gloam will come as they do at peril {peril}: more often, and more of them.',
 });
 
 /** A `StringKey`'s text with `{placeholders}` filled; the key itself when no row has it. */

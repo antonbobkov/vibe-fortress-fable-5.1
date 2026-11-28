@@ -100,6 +100,7 @@ interface CombatState { stateVersion: 1; alert: Alert; engagements: [EntityId, T
 interface HealthState { stateVersion: 1; wounded: EntityId[]; hospitals: EntityId[]; patientJobs: [EntityId, string[]][]; pendingTreatments?: [EntityId, string[]][]; stunnedUntil?: [EntityId, Tick][]; frostbiteAlerted?: number; rng: RngState }   // frostbiteAlerted: the season (year × 4 + season) of the last Frostbitten alert, omitted when none; pendingTreatments: failed still-needed wound treatment kinds, independent of Patient; targets sorted by id, unique kinds sorted lexically; stunnedUntil: creatures held unconscious by a stun and the tick it ends, sorted by id; each omitted when empty, absent in older saves means none
 
 interface ThreatsState { stateVersion: 1; schedule: [string, { nextTick: Tick; earliestTick: Tick; pendingSpawnTick: Tick }][]; renown: Fixed;
+  renownStep?: number /* 18 § Schedule peril: the perils renown lifts the schedule; omitted at 0, absent in older saves means 0; a load reads that peril's rows, then the saved ticks */;
   deepsilverTiles: TileIndex[]; cavernSpawnCounts: [Idx<SpeciesDef>, number][]; webs: [TileIndex, EntityId][]; namedCaptains: [string, EntityId][]; rng: RngState }
 
 interface DefenseState { stateVersion: 1; traps: [EntityId, { kind: string; mode: 'enemies'|'all'|'anyone' /* anyone: a ruin's old trap, no one's (19 § Trap targeting) */; state: 'armed'|'spent'|'jammed'; loaded: EntityId[] }][];

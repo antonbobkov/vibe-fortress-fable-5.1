@@ -19,6 +19,17 @@ The economy fixture at peril 2 runs a year ahead of this table: renown 12.8, 24.
 
 `earliest` is the first season the kind may occur; `interval` in days between rolls after the first; `size = min(max, base + renown × perRenown)` rounded; `warning` in days. `—` means never. The rows of perils 2 and 4 are measured over three years of the economy fixture ([raid sizes and renown](../../reports/audits/2026-10-21-raid-sizes-and-renown.md)): at peril 2 thieves 4 to 8 times, bandits of 3 to 5, ambushes of 4 in year 1 rising to the cap of 6, one raid a year (8 to 11 in year 2, 12 to 16 in year 3); at peril 4 raids of 13 in year 1 to the cap of 24 in year 3 and sieges of 22 to 34 in year 2. Every `earliest`, `interval`, `base`, `perRenown` and `max` of perils 0, 1 and 3 is *unmeasured*.
 
+The rows are read at the **schedule peril** ([18 § Schedule peril](../02-systems/18-threats-monsters-and-raids.md)): the region's peril plus one for each `RENOWN_PERIL_STEP` (60) of renown, at most 4, and a step is lost only 10 below its threshold. A peril-2 fortress at renown 60 reads the peril-3 rows (sieges, raids up to 20, ambushes up to 8, thieves every 20 to 40 days), and at renown 120 the peril-4 rows. A kind that the step makes possible is first possible from the later of its row's `earliest` and the day of the step. A `serene_vale` never steps; a plain peril-0 region steps to peril 1. Gear tiers stay at the region's peril.
+
+| Region peril | Renown below 60 | Renown 60 to 119 | Renown 120 and over |
+|---|---|---|---|
+| 0 (`serene_vale`) | 0 | 0 | 0 |
+| 0 | 0 | 1 | 2 |
+| 1 | 1 | 2 | 3 |
+| 2 | 2 | 3 | 4 |
+| 3 | 3 | 4 | 4 |
+| 4 | 4 | 4 | 4 |
+
 ### Thieves (`gloam_snatcher`; `twilight_pass`: two per event)
 
 | Peril | earliest | interval | size |
@@ -46,7 +57,7 @@ The economy fixture at peril 2 runs a year ahead of this table: renown 12.8, 24.
 | 3 | year 1 autumn | 40–80 | 4 | 0.12 | 8 |
 | 4 | year 1 autumn | 28–56 | 5 | 0.15 | 10 |
 
-### Raids (warning 1 day; never in winter at peril ≤ 2)
+### Raids (warning 1 day; never in winter at a region peril ≤ 2)
 
 | Peril | earliest | interval | base | perRenown | max |
 |---|---|---|---|---|---|
@@ -56,7 +67,7 @@ The economy fixture at peril 2 runs a year ahead of this table: renown 12.8, 24.
 | 3 | year 1 autumn | 56–112 | 8 | 0.35 | 20 |
 | 4 | year 1 autumn | 42–84 | 10 | 0.40 | 24 |
 
-### Sieges (warning 1 day; Gloam plus trollkin)
+### Sieges (warning 1 day; Gloam plus trollkin; never in winter at a region peril ≤ 2)
 
 | Peril | earliest | interval | base | perRenown | max | trollkin |
 |---|---|---|---|---|---|---|
@@ -74,7 +85,7 @@ Every autumn night at dusk: `count = clamp(2, 8, 2 + renown / 12)` rise from ran
 
 ## Party composition
 
-Fractions of `size` by role; the remainder after rounding goes to warriors. A captain is added on top of `size` for raids and sieges, and so are hexers (`gloam_hexer`, [25 Runecraft](../02-systems/25-runecraft.md) § Hexers): at peril 3 from year 3 and at peril 4 from year 2, never at a lower peril or earlier.
+Fractions of `size` by role; the remainder after rounding goes to warriors. A captain is added on top of `size` for raids and sieges, and so are hexers (`gloam_hexer`, [25 Runecraft](../02-systems/25-runecraft.md) § Hexers): at schedule peril 3 from year 3 and at schedule peril 4 from year 2, never at a lower schedule peril or earlier. A siege's trollkin follow the schedule peril's row too.
 
 | Kind | Warriors | Archers | Captain | Trollkin | Hexers |
 |---|---|---|---|---|---|

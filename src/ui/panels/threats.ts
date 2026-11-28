@@ -37,6 +37,21 @@ function shortSchedule(strings: Strings, value: SchedulePreview | null | undefin
   return strings.get('ui.threats.schedule_from', { season: seasonName(strings, value.season), year: value.year });
 }
 
+/**
+ * The line under the peril (18 § Schedule peril): what renown has made of the schedule, and the
+ * renown at which it next reads a higher peril; the plain line where renown cannot move it.
+ */
+export function attentionText(strings: Strings, peril: number, threats: ThreatsReader | null): string {
+  const now = threats?.schedulePeril() ?? peril;
+  const at = threats?.nextPerilRenown() ?? null;
+  if (now > peril) {
+    return at === null
+      ? strings.get('ui.threats.attention_drawn', { now })
+      : strings.get('ui.threats.attention_drawn_next', { now, at, next: now + 1 });
+  }
+  return at === null ? strings.get('ui.threats.attention') : strings.get('ui.threats.attention_next', { at, next: now + 1 });
+}
+
 /** The dangerous species on the map: its name, how many, and whether one is within NEAR_DWARF_RADIUS of a dwarf. */
 export interface WildlifeRow { readonly name: string; readonly count: number; readonly near: boolean }
 
@@ -135,7 +150,7 @@ export function drawThreatsPanel(
   const renown = threats ? threats.renown() : 0;
   label(s, col, row, ctx.strings.get('ui.threats.peril', { peril, renown: renown.toFixed(1) }), { fg: t.value, width });
   row += 1;
-  row += wrapLabel(s, col, row, ctx.strings.get('ui.threats.attention'), { fg: t.dim, width }) - 1;
+  row += wrapLabel(s, col, row, attentionText(ctx.strings, peril, threats), { fg: t.dim, width }) - 1;
   row += 1;
 
   // Active threats
@@ -204,6 +219,10 @@ export function drawThreatsPanel(
   const preview = threats ? threats.schedulePreview() : {};
   if (preview['raid'] !== undefined && preview['raid'] !== null) {
     label(s, col, row, ctx.strings.get('ui.threats.raids', { when: shortSchedule(ctx.strings, preview['raid']) }), { width });
+    row += 1;
+  }
+  if (preview['siege'] !== undefined && preview['siege'] !== null) {
+    label(s, col, row, ctx.strings.get('ui.threats.sieges', { when: shortSchedule(ctx.strings, preview['siege']) }), { width });
     row += 1;
   }
   if (preview['ambush'] !== undefined && preview['ambush'] !== null) {
