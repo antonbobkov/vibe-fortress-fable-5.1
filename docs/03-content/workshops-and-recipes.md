@@ -139,6 +139,8 @@ Bone is the treeless site's first building stuff: a fossil, dug from a boneyard'
 | `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | yes | 8 |
 | `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | yes | 15 |
 
+Stone crafts give 8 experience for each of the three crafts a job makes, 24 a job; the other crafts give 8 a job. A stone comes from one dug tile in three (03 `MINING_STONE_DROP_PERMILLE`) and the crafter walks to each, so a crafter kept on stone crafts makes well under one a day; at 24 a job one reaches level 13, where masterworks start, late in year 3 ([balance.md](balance.md) § Wealth curve). Wood, bone and shell crafts keep 8: their stuff comes without digging, and a crafter kept on wood crafts trains nearly twice as fast as a stone crafter would at 8 (crafting 11 by the end of year 3 against 8, measured in the same fortress), so at 24 wood would bring masterworks in year 2.
+
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
 
 A carved fossil is a figurine of `giant_bone`, of a beast no one has seen: the Mountainhome pays 150% for one ([caravan-goods.md](caravan-goods.md) § Preferences). An ivory statue takes three tusks, from a tundra boneyard's skull or a butchered mammoth.

@@ -28,7 +28,7 @@
 | 19 | Master | 12,160 |
 | 20 | Legendary | 13,400 |
 
-`xpToNext(level) = 100 + level × 60`. A dig job gives 8 xp: a miner reaches level 5 after about 140 tiles and level 10 after about 460.
+`xpToNext(level) = 100 + level × 60`. A dig job gives 8 xp: a miner reaches level 5 after about 140 tiles and level 10 after about 460. A stone craft job gives 24: a crafter reaches level 13, where a masterwork can be rolled, after about 250 stones.
 
 ## Labors
 
