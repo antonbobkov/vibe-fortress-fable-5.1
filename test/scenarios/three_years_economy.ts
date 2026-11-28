@@ -146,7 +146,8 @@ function smeltsSteel(state: FortressState, day: number): boolean {
  * one). From the day the smelter makes steel, the miners drift to the nearest COAL_FACES faces off
  * the gate's stair above the halls (none that would open to the hillside), and as many again, once
  * a season at most, when the ore runs under COAL_ORE_LOW; the smelter keeps COAL_STOCK bars of coal,
- * after the steel and the iron, and (T-642) first only while the fuel under a roof is short.
+ * after the steel and the iron, and (T-642) first only while the fuel on the smelter's side of the
+ * gate is short (`fuelToHand`).
  */
 export const COAL_FACES = 20;
 const COAL_ORE_LOW = 6;
@@ -156,20 +157,26 @@ export const FUEL_SHORT = 20;
 const COAL_ORES: readonly string[] = ['bituminous_coal', 'lignite'];
 
 /**
- * T-642: the charcoal and coal bars free to take under a roof. Charcoal left on the surface counts
- * for nothing while the gate is locked: in `three-years-p4-6` at shift 50, 16 charcoal lay on the
- * surface stockpile from day 140 on while the smelter's alloy jobs below waited for fuel.
+ * T-642: the charcoal and coal bars free to take on the smelter's side of the gate. For a smelter
+ * below, charcoal left on the surface counts for nothing while the gate is locked: in
+ * `three-years-p4-6` at shift 50, 16 charcoal lay on the surface stockpile from day 140 on while the
+ * smelter's alloy jobs below waited for fuel. T-817: for a smelter on the surface every bar counts.
+ * A peril-0 fortress that never works below keeps its wood furnace, smelter and charcoal on the
+ * surface; counting only the fuel under a roof, `three-years-p0-3` read 0 fuel beside 40 charcoal
+ * all year 3, smelted lignite ahead of the iron the whole year, and made no steel.
  */
-function fuelIndoors(w: TestWorld): number {
+export function fuelToHand(w: TestWorld, smelter: number): number {
   const ent = w.game.world.entities;
   const types = w.game.registry.table('items');
   const fuel = new Set([types.index('charcoal_bar'), types.index('coal_bar')]);
+  const at = w.readers.of<BuildingsReader>('14').get(smelter)?.footprint[0];
+  const below = at !== undefined && !w.map.hasFlag(at, TileFlag.Outdoor);
   let n = 0;
   for (const id of ent.with(C.Item)) {
     const it = ent.get(id, C.Item)!;
     if (!fuel.has(it.type) || (it.flags & (ItemFlag.Merchant | ItemFlag.Foreign | ItemFlag.Reserved | ItemFlag.Forbidden)) !== 0) continue;
     const p = ent.get(id, C.Position);
-    if (p !== undefined && !w.map.hasFlag(w.index(p.x, p.y, p.z), TileFlag.Outdoor)) n += it.count;
+    if (p !== undefined && (!below || !w.map.hasFlag(w.index(p.x, p.y, p.z), TileFlag.Outdoor))) n += it.count;
   }
   return n;
 }
@@ -193,7 +200,7 @@ export function keepCoal(w: TestWorld, state: FortressState, smelter: number, da
   // steel waited for.
   const coal = new Set(COAL_ORES.map((id) => recipes.index(`smelt_${id}`)));
   const alloy = recipes.index('alloy_steel');
-  const short = fuelIndoors(w) < FUEL_SHORT;
+  const short = fuelToHand(w, smelter) < FUEL_SHORT;
   const rank = (recipe: number): number => (coal.has(recipe) ? (short ? 0 : 3) : recipe === alloy ? 1 : 2);
   const wanted = orders().map((o, i) => ({ recipe: o.recipe, i })).sort((a, b) => rank(a.recipe) - rank(b.recipe) || a.i - b.i).map((o) => o.recipe);
   for (let to = 0; to < wanted.length; to += 1) {
