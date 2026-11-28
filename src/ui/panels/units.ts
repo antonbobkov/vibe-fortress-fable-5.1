@@ -46,7 +46,7 @@ interface DwarvesReaderLike {
   list(): EntityId[];
   activityText(id: EntityId): string;
   isTipsy?(id: EntityId): boolean;
-  whim?(): { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number; readonly count?: number } | null;
+  whim?(): { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number } | null;
   skill(id: EntityId, skill: string): number;
   isChild?(id: EntityId): boolean;
   holder?(title: TitleId): EntityId;
@@ -80,9 +80,9 @@ const WHIM_ROWS = 4;
  * the end of which season, how far the fortress is with it and whether it is met now, then, while it
  * is not, where its item is made.
  */
-export function whimLine(ctx: PanelContext, whim: { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number; readonly count?: number }): string {
+export function whimLine(ctx: PanelContext, whim: { readonly id: string; readonly text: string; readonly met: boolean; readonly have: number }): string {
   const s = ctx.strings;
-  const progress = whimProgressText(s, ctx.registry, whim.id, whim.have, whim.count);
+  const progress = whimProgressText(s, ctx.registry, whim.id, whim.have);
   const text = s.get(whim.met ? 'ui.units.whim_met' : 'ui.units.whim_unmet', { whim: whim.text, season: ctx.readers.calendar.seasonName, progress });
   const where = whim.met ? '' : whimWhereMade(ctx.registry, whim.id, ctx.strings);
   return where === '' ? text : s.get('ui.units.whim_where', { text, where });

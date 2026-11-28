@@ -91,8 +91,6 @@ export interface RoomDiagnostics {
   readonly missing: readonly ('bed' | 'table_chair' | 'hearth' | 'chest' | 'coffin' | 'rune_circle')[];
   /** Smoothed, unengraved floor tiles inside and wall tiles on the border: engraving's room. */
   readonly plainSmoothed: number;
-  /** Engraved floor tiles inside and wall tiles on the border. */
-  readonly engraved: number;
   /** The most engraving them all could add, before the enclosure multiplier (a masterwork on each). */
   readonly engraveMax: number;
   /** Natural stone floor tiles inside and wall tiles on the border, not yet smoothed. */
@@ -231,7 +229,7 @@ export class RoomStore {
       const tags = b === undefined ? [] : this.host.buildings.row(b.type).tags;
       return b?.state !== 'built' || !(tags.includes('door') || tags.includes('hatch'));
     });
-    const surface = { plainSmoothed: 0, engraved: 0, engraveMax: 0, rough: 0, smoothGain: 0 };
+    const surface = { plainSmoothed: 0, engraveMax: 0, rough: 0, smoothGain: 0 };
     for (const t of tiles) this.countSurface(t, true, surface);
     for (const b of border) if (this.map.kindAt(b) === TileKind.Wall) this.countSurface(b, false, surface);
     const within = this.buildingsWithin(tiles);
@@ -250,10 +248,9 @@ export class RoomStore {
    * an engraved one 3 + quality; a smoothed wall 2 and an engraved one 2 + quality / 2; rough stone
    * scores 1 as a floor and 0 as a wall.
    */
-  private countSurface(t: TileIndex, floor: boolean, into: { plainSmoothed: number; engraved: number; engraveMax: number; rough: number; smoothGain: number }): void {
+  private countSurface(t: TileIndex, floor: boolean, into: { plainSmoothed: number; engraveMax: number; rough: number; smoothGain: number }): void {
     const map = this.map;
-    if (map.hasFlag(t, TileFlag.Constructed)) return;
-    if (map.hasFlag(t, TileFlag.Engraved)) { into.engraved += 1; return; }
+    if (map.hasFlag(t, TileFlag.Constructed) || map.hasFlag(t, TileFlag.Engraved)) return;
     const top = QUALITY_TIER_COUNT - 1;
     if (map.hasFlag(t, TileFlag.Smoothed)) {
       into.plainSmoothed += 1;

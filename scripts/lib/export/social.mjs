@@ -110,31 +110,25 @@ export function exportThoughts() {
 
 /**
  * personality-and-thoughts.md § Whims: what the Thane may wish for in a season (10 § The Thane's
- * whim). The `what` cell names the item or building type first ("any item" for any), then "and
- * `type`" for a second building type, "of `material`", "of <quality> quality", "made up with
- * feathers" and "in a `zone`" or "in the Thane's `zone`". A `tier` or `engraved` row names its zone
- * first and no item.
+ * whim). The `what` cell names the item or building type first ("any item" for any), then "of
+ * `material`", "of masterwork quality", "made up with feathers" and "in a `zone`" or "in the
+ * Thane's `zone`".
  */
-const WHIM_QUALITY = { fine: 2, superior: 3, exceptional: 4, masterwork: 5 };
 export function exportWhims() {
   const tables = readTables(join(CONTENT_DIR, 'personality-and-thoughts.md'));
   return byId(
     asObjects(findTable(tables, 'Whims', 'kind')).map((row) => {
       const what = String(row.what ?? '');
-      const kind = plain(row.kind);
-      const zoneFirst = kind === 'tier' || kind === 'engraved';
-      const type = zoneFirst ? undefined : /^\s*any item/.test(plain(what)) ? 'any' : /^\s*`([a-z_]+)`/.exec(what)?.[1];
-      if (type === undefined && !zoneFirst) throw new Error('personality-and-thoughts.md § Whims: no type in ' + what);
-      const quality = /of ([a-z]+) quality/.exec(what)?.[1];
+      const type = /^\s*any item/.test(plain(what)) ? 'any' : /^\s*`([a-z_]+)`/.exec(what)?.[1];
+      if (type === undefined) throw new Error('personality-and-thoughts.md § Whims: no type in ' + what);
       return compact({
         id: id(row.id),
-        kind,
+        kind: plain(row.kind),
         item: type,
-        also: /^\s*`[a-z_]+` and `([a-z_]+)`/.exec(what)?.[1],
         material: /of `([a-z_]+)`/.exec(what)?.[1],
-        quality: quality === undefined ? undefined : WHIM_QUALITY[quality],
+        quality: /masterwork quality/.test(what) ? 5 : undefined,
         bedding: /made up with feathers/.test(what) ? 'feather' : undefined,
-        zone: zoneFirst ? /`([a-z_]+)`/.exec(what)?.[1] : /in (?:a|the Thane's) `([a-z_]+)`/.exec(what)?.[1],
+        zone: /in (?:a|the Thane's) `([a-z_]+)`/.exec(what)?.[1],
         thane: /the Thane's/.test(what) ? true : undefined,
         count: int(row.count),
         text: unquote(row.text),

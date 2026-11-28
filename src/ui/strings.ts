@@ -1118,8 +1118,6 @@ export const UI_STRINGS: Readonly<Record<string, string>> = Object.freeze({
   'ui.units.whim_where': '{text} Made at {where}.',
   'ui.whim.in_stock': '{n} of {goal} in stock',
   'ui.whim.in_place': '{n} of {count} in place',
-  'ui.whim.tier': '{now} now, {goal} wished for',
-  'ui.whim.engraved': '{n} of {count} tiles engraved',
   // 12's quality tiers, as an item's quality is worded where a panel names it.
   'ui.item.quality.0': 'poor',
   'ui.item.quality.1': 'common',

@@ -67,8 +67,8 @@ export interface WhimView {
   readonly id: string;
   readonly text: string;
   readonly met: boolean;
-  readonly kind: 'stock' | 'room' | 'tier' | 'engraved';
-  /** The units (`stock`), buildings (`room`), tier (`tier`) or tiles (`engraved`) the whim asks for. */
+  readonly kind: 'stock' | 'room';
+  /** The units (`stock`) or buildings (`room`) the whim asks for. */
   readonly count: number;
   /** How many of them the fortress has now, as the judgement counts them. */
   readonly have: number;

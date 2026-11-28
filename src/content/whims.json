@@ -7,14 +7,6 @@
     "text": "a store of cheese"
   },
   {
-    "id": "whim_engraved_room",
-    "kind": "engraved",
-    "zone": "bedroom",
-    "thane": true,
-    "count": 1,
-    "text": "an engraved bedroom"
-  },
-  {
     "id": "whim_featherbed",
     "kind": "room",
     "item": "bed",
@@ -25,28 +17,11 @@
     "text": "a featherbed"
   },
   {
-    "id": "whim_fine_furniture",
-    "kind": "room",
-    "item": "table",
-    "also": "chair",
-    "quality": 2,
-    "zone": "dining_hall",
-    "count": 1,
-    "text": "a fine table and chair in the dining hall"
-  },
-  {
     "id": "whim_fine_meal",
     "kind": "stock",
     "item": "fine_meal",
     "count": 20,
     "text": "fine meals for everyone"
-  },
-  {
-    "id": "whim_hall_tier",
-    "kind": "tier",
-    "zone": "hearth_hall",
-    "count": 1,
-    "text": "a grander hearth hall"
   },
   {
     "id": "whim_ivory_statue",
@@ -88,21 +63,5 @@
     "material": "deepfire",
     "count": 10,
     "text": "something strong"
-  },
-  {
-    "id": "whim_statue_hall",
-    "kind": "room",
-    "item": "statue",
-    "zone": "hearth_hall",
-    "count": 1,
-    "text": "a statue in the hall"
-  },
-  {
-    "id": "whim_superior",
-    "kind": "stock",
-    "item": "any",
-    "quality": 3,
-    "count": 1,
-    "text": "something superior, of anyone's make"
   }
 ]

@@ -88,8 +88,7 @@ describe('T-565 the rows', () => {
     expect(eventPredicate(t('thane_grumbled'), { type: 'WhimJudged', met: true }, registry)).toBe(false);
     expect(eventPredicate(t('thane_grumbled'), { type: 'WhimJudged', met: false }, registry)).toBe(true);
     expect(whimRows(registry).map((r) => r.id)).toEqual(['whim_lantern', 'whim_mead', 'whim_ivory_statue', 'whim_fine_meal',
-      'whim_cheese', 'whim_spirits', 'whim_masterwork', 'whim_featherbed', 'whim_statue_hall', 'whim_hall_tier', 'whim_engraved_room',
-      'whim_fine_furniture', 'whim_superior']);
+      'whim_cheese', 'whim_spirits', 'whim_masterwork', 'whim_featherbed']);
     expect(whimRows(registry).find((r) => r.id === 'whim_featherbed')).toMatchObject({ kind: 'room', item: 'bed', bedding: 'feather', zone: 'bedroom', thane: true });
     expect(whimRows(registry).find((r) => r.id === 'whim_masterwork')).toMatchObject({ kind: 'stock', item: 'any', quality: 5, count: 1 });
   });
