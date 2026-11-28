@@ -34,8 +34,8 @@ describe('T-244 complete text at eighty columns', () => {
   });
   it('keeps all three Left digits after removing both picks', () => {
     const e = embark(); expect(e.apply({ type: 'SetSupply', entry: 'e_pick_iron', count: 0 })).toBe(true); e.setTab(1);
-    expect(e.session.budget() - e.session.total()).toBe(236);
-    const s = surface(80, 50); e.draw(s); expect(s.lines()[47]).toContain('Left 236');
+    expect(e.session.budget() - e.session.total()).toBe(230);
+    const s = surface(80, 50); e.draw(s); expect(s.lines()[47]).toContain('Left 230');
   });
   it('keeps a large over-budget Left value whole', () => {
     const e = embark();

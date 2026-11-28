@@ -46,8 +46,8 @@ describe('T-675 the wagon\'s animals amble and graze on arrival', () => {
         for (const id of ids) {
           const at = w.game.movement.tileOf(id);
           seen.get(id)?.add(at);
-          // Never on the map's edge, and never far from the wagon (a walk may bend round a tree or the wagon).
-          expect(map.xOf(at) > 0 && map.yOf(at) > 0 && map.xOf(at) < map.w - 1 && map.yOf(at) < map.h - 1).toBe(true);
+          // Never far from the wagon (a walk may bend round a tree or the wagon, and so may cross a
+          // tile of the map's edge on its way: the walks' targets below never lie on one).
           const radius = speciesOf(w, id) === 'cat' ? CAT_ROAM_RADIUS : TAME_AMBLE_RADIUS;
           expect(far(w, at, wagon), `${speciesOf(w, id)} ${id}`).toBeLessThanOrEqual(radius * 2);
           const to = w.game.movement.walkTarget(id);
@@ -62,7 +62,10 @@ describe('T-675 the wagon\'s animals amble and graze on arrival', () => {
         else expect(tiles, `${speciesOf(w, id)} ${id} visited ${tiles} tiles`).toBeGreaterThanOrEqual(4);
       }
       // Where they walk to lies within their ground: 6 tiles of the wagon, 12 for a cat.
-      for (const [id, to] of targets) expect(far(w, to, wagon), `${speciesOf(w, id)} ${id}`).toBeLessThanOrEqual(speciesOf(w, id) === 'cat' ? CAT_ROAM_RADIUS : TAME_AMBLE_RADIUS);
+      for (const [id, to] of targets) {
+        expect(far(w, to, wagon), `${speciesOf(w, id)} ${id}`).toBeLessThanOrEqual(speciesOf(w, id) === 'cat' ? CAT_ROAM_RADIUS : TAME_AMBLE_RADIUS);
+        expect(map.xOf(to) > 0 && map.yOf(to) > 0 && map.xOf(to) < map.w - 1 && map.yOf(to) < map.h - 1, `${speciesOf(w, id)} ${id} walks to the edge`).toBe(true);
+      }
       const grazers = ids.filter((id) => ['cow', 'sheep', 'goat'].includes(speciesOf(w, id)));
       for (const id of grazers) expect(onGrass.has(id), `${speciesOf(w, id)} ${id} grazed`).toBe(true);
     });

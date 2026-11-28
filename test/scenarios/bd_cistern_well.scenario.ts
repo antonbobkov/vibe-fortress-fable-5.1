@@ -183,7 +183,7 @@ function play(): void {
   const gateState = (): string => b.mechanismState(work.floodgateId);
   const pull = (): void => {
     expect(send({ type: 'PullLever', leverId: work.leverId }), 'the lever takes a pull').toBe(true);
-    for (let k = 0; k < TICKS_PER_DAY / 20 && jobs.list().some((job) => job.key.startsWith(`pull_lever:${work.leverId}:`)); k += 1) { w.step(20); look(); }
+    for (let k = 0; k < TICKS_PER_DAY && jobs.list().some((job) => job.key.startsWith(`pull_lever:${work.leverId}:`)); k += 1) { w.step(1); look(); }
   };
   const waitGate = (state: string): void => {
     for (let k = 0; k < 20 && gateState() !== state; k += 1) { w.step(LINK_DELAY_TICKS / 5); look(); }

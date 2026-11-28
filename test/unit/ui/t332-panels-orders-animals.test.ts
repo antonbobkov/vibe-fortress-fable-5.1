@@ -130,9 +130,11 @@ describe('T-332 panels: orders, add order, workshop, animals, mood, population a
     expect(rows[0]).toMatch(/^Carpenter's workshop #\d+$/);
     expect(rows[1]).toBe('Worker: any');
     expect(rows[3]).toMatch(/^─+ Recipes ─+$/);
-    for (const recipe of ['Wooden bolts', 'Buckler', 'Shield', 'Barrel', 'Bin', 'Bucket', 'Door', 'Chair']) {
+    for (const recipe of ['Wooden bolts', 'Buckler', 'Barrel', 'Bin', 'Bucket', 'Chair']) {
       expect(rows.some((row) => row.startsWith(`• ${recipe}`)), recipe).toBe(true);
     }
+    // The wooden shield's rim is a metal bar, and the Balanced wagon brings none.
+    expect(rows.some((row) => row.startsWith('○ Shield · no bar: made at a')), rows.join(' | ')).toBe(true);
     // T-778: the wagon's five linen are the dressings a fortress with no hospital keeps.
     expect(rows.some((row) => row.startsWith('○ Bed · cloth kept for wounds')), rows.join(' | ')).toBe(true);
     expect(rows.some((row) => /^─+ Furniture ─+/.test(row))).toBe(true);

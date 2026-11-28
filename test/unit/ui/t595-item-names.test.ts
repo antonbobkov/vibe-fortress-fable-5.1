@@ -50,8 +50,8 @@ describe('T-595 raw food and drink are named by their material', () => {
     const s = surface(60, 120);
     drawTileList(s, { col: 0, row: 0, cols: 60, rows: 120 }, game.host.readers, registry, strings, centre);
     const text = s.lines().join('\n');
-    expect(text).toMatch(/\b10 boar meat\b/);
     expect(text).toMatch(/\b20 turnip\b/);
+    expect(text).toMatch(/\b20 dimcap\b/);
     expect(text).toMatch(/\b20 ale\b/);
     expect(text).not.toMatch(/raw meat|turnip plant|dimcap plant|ale drink/);
   });

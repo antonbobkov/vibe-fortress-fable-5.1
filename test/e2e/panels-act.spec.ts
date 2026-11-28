@@ -168,6 +168,13 @@ test('panels-act', async ({ page }) => {
     // 4. Alert announcement event for log panel test
     h.host.world.emit({ type: 'CavernBreached', cavernIndex: 1 });
 
+    // 5. Five iron bars by the camera for the stock panel's bar rows (the Balanced wagon brings none)
+    const world = h.host.world as unknown as {
+      registry: { table(name: string): { index(id: string): number } };
+      services: { spawn: { item(t: number, m: number, at: number, count?: number): number } };
+    };
+    world.services.spawn.item(world.registry.table('items').index('bar'), world.registry.table('materials').index('iron'), map.index(camX + 18, camY + 18, z), 5);
+
     // Step 1 tick to let producers and events process
     h.step(1);
 

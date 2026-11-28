@@ -110,6 +110,10 @@ test('U-02 farm-plot-and-orders', async ({ page }) => {
   const barleySeeds = await textCell(page, '10 barley seeds');
   await page.mouse.click(barleySeeds.x, barleySeeds.y);
   await page.keyboard.press('-');
+  // The two dimcap bags (30) are paid for by the barley and flax seed (42): Balanced leaves 14.
+  const flaxSeeds = await textCell(page, '10 flax seeds');
+  await page.mouse.click(flaxSeeds.x, flaxSeeds.y);
+  await page.keyboard.press('-');
   await page.keyboard.press('Enter');
   await expect.poll(() => screenOf(page), { timeout: 60_000 }).toBe('fortress');
   await page.evaluate(() => {

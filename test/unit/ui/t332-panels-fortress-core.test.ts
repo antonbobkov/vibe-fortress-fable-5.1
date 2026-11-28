@@ -120,8 +120,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
     expect(rows[34]).toBe('Links: none');
     expect(rows[35]).toBe('[i] link [x] unlink');
     expect(rows[36]).toBe('[c] Cellar: off');
-    // The Food stockpile takes the wagon's food loose (T-676): four slots reserved by the hauls on their way.
-    expect(rows[37]).toBe('Usage 4/20 tiles');
+    // The Food stockpile takes the wagon's food loose (T-676): five slots reserved by the hauls on their way.
+    expect(rows[37]).toBe('Usage 5/20 tiles');
     expect(rows[38]).toBe('↑↓ select  ←→ open  Space toggle');
     expect(rows[39]).toBe('[Del] remove zone  [e] resize');
   });
@@ -133,11 +133,11 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
       expect(rows.some((row) => new RegExp(`^[► ] ${category} +\\d+ +\\d+ ☼$`).test(row)), category).toBe(true);
     }
     // The value column is 15 cells, five digits and ☼ (T-703).
-    expect(rows.find((row) => row.includes(' food '))).toBe('► food                60    190 ☼');
+    expect(rows.find((row) => row.includes(' food '))).toBe('► food                90    180 ☼');
     // Every category with stock inside can be opened: ammunition files under `ammo` itself (T-774).
     expect(rows.find((row) => row.includes(' ammo '))).toMatch(/^► ammo/);
     expect(rows.find((row) => row.includes(' food '))).toMatch(/^► food/);
-    expect(rows[37]).toBe('Wealth 1,691 ☼   (buildings 2 ☼)');
+    expect(rows[37]).toBe('Wealth 1,696 ☼   (buildings 2 ☼)');
     expect(rows[38]).toBe('[f] forbid  [S-d] dump');
     expect(rows[39]).toBe('[S-m] melt  [t] to depot');
   });
@@ -168,8 +168,8 @@ describe('T-332 panels: Build, Zones, Stocks, Units, Jobs and Labors', () => {
 
   it('Jobs counts open, claimed and blocked jobs, and lists the dig order with its priority and who has it', () => {
     const rows = render('jobs');
-    // The four hauls of the wagon's food to the Food stockpile (T-676) and the dig order.
-    expect(rows[0]).toBe('4 open · 1 claimed · 0 blocked');
+    // The five hauls of the wagon's food to the Food stockpile (T-676) and the dig order.
+    expect(rows[0]).toBe('5 open · 1 claimed · 0 blocked');
     expect(rows[1]).toMatch(/^\/filter: \[ _+ \]$/);
     expect(rows[2]).toBe('[l] labor: all');
     expect(rows[3]).toBe('[s] state: all');

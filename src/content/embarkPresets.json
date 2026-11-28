@@ -109,10 +109,6 @@
         "count": 1
       },
       {
-        "entry": "e_spear_iron",
-        "count": 1
-      },
-      {
         "entry": "e_crossbow",
         "count": 1
       },
@@ -122,6 +118,10 @@
       },
       {
         "entry": "e_quiver",
+        "count": 1
+      },
+      {
+        "entry": "e_spear_iron",
         "count": 1
       },
       {

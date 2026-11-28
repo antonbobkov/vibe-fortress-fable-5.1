@@ -60,7 +60,7 @@ describe('T-332 panels: stocked items and global material filter', () => {
     // The embark's quiver has its own row under tool, a leaf of 13's tree (T-781).
     expect(rows[tool + 4]).toMatch(/^ {2}► quiver +1 +\d+ ☼$/);
     expect(rows[tool + 5]).toMatch(/^► textile /);
-    expect(rows.find((row) => row.startsWith('Wealth'))).toBe('Wealth 2,014 ☼   (buildings 2 ☼)');
+    expect(rows.find((row) => row.startsWith('Wealth'))).toBe('Wealth 2,019 ☼   (buildings 2 ☼)');
     expect(rows[30]).toBe('[f] forbid  [S-d] dump');
     expect(rows[31]).toBe('[S-m] melt  [t] to depot');
   });

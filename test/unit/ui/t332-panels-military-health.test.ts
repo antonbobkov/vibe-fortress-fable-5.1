@@ -49,7 +49,12 @@ describe('T-332 panels: military, threats, hospital, creature health, and combat
     const map = game.host.readers.map;
     const z = game.ui.z;
 
-    // 1. Create a squad with member and training mode
+    // 1. Create a squad with member and training mode. The wagon's iron spear is forbidden, so the
+    // member has no weapon to claim and the stock line shows.
+    const spear = game.fortress.ctx.registry.table('items').index('spear');
+    for (const itemId of game.host.readers.entities.with(C.Item)) {
+      if (game.host.readers.entities.get(itemId, C.Item)?.type === spear) game.host.submit({ type: 'ForbidItem', itemId, on: true });
+    }
     game.host.submit({ type: 'CreateSquad', name: 'The Hearthguard' });
     game.host.step(1);
     const squadId = game.host.readers.of<CombatReader>('16').squads()[0]?.id ?? 0;
