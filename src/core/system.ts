@@ -242,6 +242,11 @@ export interface JobProducer {
    * that no creature is on the tile (the job waits otherwise)"). T-M2-05.
    */
   canComplete?(job: unknown): boolean;
+  /**
+   * After the player's `SetJobPriority` changed a job's priority (11 § Commands): a producer whose
+   * jobs follow a priority of its own (03's designations) takes the new one there too.
+   */
+  onPriorityChanged?(job: unknown, priority: number): void;
 }
 
 export interface RecipeSet {

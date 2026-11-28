@@ -369,6 +369,7 @@ const scenario: Scenario = {
     const tradeReader = w.readers.of<TradeReader>('20');
     let exportsMoved = false;
     let hillfolkTraded = false;
+    let closedBudget = -1;
     const tradeWithHillfolk = (): void => {
       const ent = w.game.world.entities;
       if (!exportsMoved && buildings.get(depotId)?.state === 'built') {
@@ -382,19 +383,26 @@ const scenario: Scenario = {
       }
       const caravan = tradeReader.activeCaravan();
       if (hillfolkTraded || caravan?.civ !== 'hillfolk' || caravan.state !== 'atDepot') return;
-      if (!tradeReader.sessionOpen()) { command(w, { type: 'TradeOpen', depotId }); return; }
       const give = tradeReader.depotItems().filter((id) => tradeReader.valuation('hillfolk', id) > 0);
       const budget = give.reduce((sum, id) => sum + tradeReader.valuation('hillfolk', id), 0);
+      if (!tradeReader.sessionOpen()) {
+        if (budget > closedBudget) command(w, { type: 'TradeOpen', depotId });
+        return;
+      }
       const margin = tradeReader.marginPercent('hillfolk');
       const unit = (id: number): number => tradeReader.price('hillfolk', id) / (ent.get(id, C.Item)?.count ?? 1);
       const goods = tradeReader.merchantItems().filter((id) => ent.get(id, C.Item)?.containerId === depotId)
         .sort((a, b) => unit(a) - unit(b) || a - b);
       const pick = goods.find((id) => requiredValue(unit(id), margin) <= budget);
-      if (pick === undefined) return;
-      if (command(w, { type: 'TradeOffer', give: give.map((itemId) => ({ itemId, count: 0 })), take: [{ itemId: pick, count: 1 }] }).ok) {
-        hillfolkTraded = true;
+      // T-810: the player closes a trade it has nothing to do in ("done trading"), and asks again
+      // only once more goods stand at the depot.
+      if (pick === undefined) {
+        closedBudget = budget;
         command(w, { type: 'TradeCancel' });
+        return;
       }
+      if (command(w, { type: 'TradeOffer', give: give.map((itemId) => ({ itemId, count: 0 })), take: [{ itemId: pick, count: 1 }] }).ok) hillfolkTraded = true;
+      command(w, { type: 'TradeCancel' });
     };
     expect(command(w, { type: 'SetRequests', civ: 'mountainhome',
       entries: [{ itemType: 'anvil', priority: 1 }] }).ok).toBe(true);
@@ -439,7 +447,15 @@ const scenario: Scenario = {
 
     const yearTicks = DAYS_PER_YEAR * TICKS_PER_DAY;
     while (w.tick < yearTicks) {
-      w.step(Math.min(600, yearTicks - w.tick));
+      // T-810: the trade screen pauses the game the moment its session opens (20 § The session), and
+      // the player trades then, closing the trade when done.
+      const end = w.tick + Math.min(600, yearTicks - w.tick);
+      while (w.tick < end) {
+        if (!hillfolkTraded && !tradeReader.sessionOpen() && w.readers.of<JobsReader>('11').byKey(`trade:${depotId}`) !== undefined) {
+          w.step(1);
+          if (tradeReader.sessionOpen()) tradeWithHillfolk();
+        } else w.step(end - w.tick);
+      }
       tradeWithHillfolk();
       // T-156: the game saved on day 56 loads into a second world that plays day 56 as this one does.
       if (w.tick === 55 * TICKS_PER_DAY) {

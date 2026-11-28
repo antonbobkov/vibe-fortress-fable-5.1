@@ -32,7 +32,7 @@ import { CRITICAL, WANT } from '@systems/dwarves/needs';
 import type { JobsReader } from '@systems/jobs';
 import { TestWorld } from './test-world';
 import { command, isKeptOff } from './script-commands';
-import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, specialistCandidates, checkEconomy, KIT_FIRST, METAL_BUILD, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
+import { ambushFromDay, armingSquad, assignBroker, BUILD, dedicate, specialistCandidates, checkEconomy, stepTrading, KIT_FIRST, METAL_BUILD, owned, placeEconomyBuilding, ROUTINE, SQUAD_KIT, SQUAD_SIZE, HUNT_KIT, type EconomyState } from './three_years_economy';
 import { attachThreeYearsMeasurements, note, observeImmigration, stepThreeYears, type ThreeYearsMeasurements } from './three_years_measurements';
 import { keepWaterInside, watchCistern } from './three_years_cistern';
 import type { CisternWork } from './cistern-well';
@@ -3189,7 +3189,7 @@ function hostilesIndoors(w: TestWorld, dwarves: readonly number[], ambush = fals
 export function playThreeYears(w: TestWorld, state: FortressState, ticks: number, watch?: () => void): void {
   const end = w.tick + ticks;
   while (w.tick < end) {
-    stepThreeYears(w, Math.min(WATCH_EVERY, end - w.tick));
+    stepTrading(w, state, Math.min(WATCH_EVERY, end - w.tick));
     watch?.();
     checkFortressDefense(w, state);
     watchCistern(w, state);

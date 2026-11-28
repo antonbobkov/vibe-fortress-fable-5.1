@@ -63,7 +63,10 @@ export function applyCancelJob(board: JobBoard, cmd: Command): CommandResult {
   return OK;
 }
 
-/** `SetJobPriority { jobId, priority }`: "job open or claimed". */
+/**
+ * `SetJobPriority { jobId, priority }`: "job open or claimed". The job's producer hears of it
+ * (`onPriorityChanged`): a designation job's tile takes the priority too (03 § Digging as a job).
+ */
 export function applySetJobPriority(board: JobBoard, cmd: Command): CommandResult {
   const job = board.jobs.get(cmd['jobId'] as number);
   if (job === undefined) return reject('not_found');
@@ -71,6 +74,7 @@ export function applySetJobPriority(board: JobBoard, cmd: Command): CommandResul
   if (priority === null) return reject('out_of_range');
   if (job.state !== 'open' && job.state !== 'claimed') return reject('precondition_failed');
   job.priority = priority;
+  board.producers.find((p) => p.id === job.producer)?.onPriorityChanged?.(job, priority);
   return OK;
 }
 

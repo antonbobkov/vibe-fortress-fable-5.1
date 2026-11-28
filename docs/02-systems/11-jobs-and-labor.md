@@ -184,6 +184,8 @@ Priority 1 jobs are done before a want-level need; priority ≥ 3 jobs yield to 
 
 `SetLabor { dwarfId, labor, on }`, `SetLaborPriority { labor, priority }`, `CancelJob { jobId }`, `SetJobPriority { jobId, priority }`, `SetStandingOrder { name, on }`.
 
+`SetJobPriority` changes the job's priority and tells the job's producer (`onPriorityChanged(job, priority)`); a producer whose jobs follow a priority of its own takes the new one there too (03: the tile's designation priority), and every other producer ignores it.
+
 A producer's sink also lists the keys of its live jobs, `keysWithPrefix(prefix)`, sorted, for a sweep of its own jobs (25 cancels an `attune` job whose dwarf is gone). The jobs API (`ctx.jobs`) also has `setLabor(dwarfId, labor, on)`, which applies `SetLabor`'s rule for another system's command and returns whether it took (25's apprentice command turns `attunement` on with it).
 
 ### Events consumed
