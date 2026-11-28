@@ -15,3 +15,13 @@
 
 - [ ] The cause found and fixed, or the witness changed with its reason.
 - [ ] `three_years_main` green on GitHub.
+
+## Findings
+
+- **Seed `three-years-p0-3` at shift 0 of the sweep is the main scenario's game** (identical figures at ee41d537: sweep 46090218732 against main 46099451914), so the sweeps' per-seed logs date the break without new runs. `alloy_steel` on that seed: 1 at 73db6406 (main 43917024320), 3 at 20f4297c (T-606, sweep 44428448217); 0 at 5d0d1ad2 and 2b57e3da (T-619/T-620, sweeps 44550544871 and 44563920219), and 0 at every later master base sampled (b9cbb113, 9a13599a, 4c8e61d7, ee41d537, d7332c86). `three_years_main` was not run between 2026-11-16 and 2026-11-27, so the break went unseen.
+- **Breaking commit: T-620's merge e5f15aa1** (2b57e3da), which made the smelter smelt the map's coal "after the steel, before the iron"; T-642 (b9cbb113) reordered it "first while the fuel under a roof is short", which kept it broken on this seed by another route.
+- **Mechanism.** The peril-0 fortress never works below: its wood furnace and smelter stand on the surface with its 40 charcoal. The script's fuel test (`fuelIndoors`) counted only fuel under a roof, so it read 0 all of year 3 (probe: `fuelIndoors 0, smelterOut true, furnaceOut true`), and `keepCoal` kept both coal orders first. Lignite ore kept coming, so the smelter smelted lignite (37 jobs) ahead of the iron; the few iron bars it made went to the forge's standing iron orders before a steel job could start, and the 30-bar alloy order made nothing while 160 iron ore lay unsmelted.
+
+## Decision
+
+The scenario's player is wrong, not the game: the smelter takes its first runnable order, and the forge takes free iron bars, as 12 says. A player who sees 40 charcoal beside a surface smelter does not call the fuel short. The fuel test now counts the fuel on the smelter's side of the gate (`fuelToHand`): under a roof for a smelter below (T-642's locked-gate case unchanged), every bar for a smelter on the surface. The `alloy_steel > 0` witness is kept as it is. No game rule, world hash or golden moves, so no paired sweep; the peril-0 sweep seeds play the same script and may move (their smelters stand on the surface too).
