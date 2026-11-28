@@ -42,3 +42,7 @@ Decided in the work (ambiguity protocol):
 - [x] Another trader takes over from a sleeping Broker; a test.
 - [x] The status line; the retry; tests.
 - [x] 20 § The session and `panels.md` § Trade session updated (also § Depot's waiting line, `trade-session.md` and the keymap table).
+
+## Measured again in T-814
+
+The stand-in trader swept off on master `ddbff0d0` (`t814-tmp-nostandin`, run 46117162437) and paired with it (run 46111413549): deaths 134.5 against 117.25 (+17.25, noise ± 10.8), living 1113.5 against 1143.5. Without the stand-in the deaths rise, not fall (79 of 80 timelines move; up in 31 seed-shifts, down in 22), so the stand-in is not the cost of T-798..T-800 and stays. The re-queued job never fired in the 12 local three-year runs that logged it ([T-814](../../work/T-814-master-drift-t795-t798.md)).

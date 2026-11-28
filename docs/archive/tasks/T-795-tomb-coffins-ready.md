@@ -30,3 +30,7 @@ Decided while doing it:
 - [x] The trace's finding, with figures (above).
 - [x] The rule adopted (from `ef4daff2`); the trace found nothing to fix, so it is adopted as measured. Its tests (`t789-tomb-coffins`, `t789-tomb-ui`); 14 § Zones and § Burial, 12 § Work orders, 15's unburied line, `panels.md` § Zones and § Orders, the WorkOrder schema, the zone-type and strings tables.
 - [x] The sweep and `defence_seeds` figures in the commit.
+
+## Measured again in T-814
+
+Swept on master after the merge (`7f37335f`, run 46103268570) and paired with the master before it (`9a13599a`, run 45911220303): living 1157.25 against 1139.75, deaths 109.5 against 108.5. Of 80 seed-shifts 46 play out the same to the tick and 34 move; deaths rose in 13 and fell in 11. The paired difference is +1.0 deaths (noise ± 5.6) and +17.5 living: the rule costs nothing that a sweep can see, and stays ([T-814](../../work/T-814-master-drift-t795-t798.md)).
