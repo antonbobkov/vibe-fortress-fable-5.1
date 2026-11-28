@@ -1,6 +1,8 @@
 name: Measure
 # On-demand long measurements, run on GitHub's runners instead of a local machine.
 #   gh workflow run measure.yml --ref <branch> -f suite=sweep           (twenty seeds at shifts 0, 50, 100, 150 in parallel, then the verdict)
+#   gh workflow run measure.yml --ref <branch> -f suite=sweep -f base=<run id>      (the same, and the verdict pairs it with that sweep by seed and shift)
+#   gh workflow run measure.yml --ref <branch> -f suite=sweep -f rejudge=<run id>   (no seed jobs: the verdict job alone, over that sweep's results)
 #   gh workflow run measure.yml --ref <branch> -f suite=scenario -f scenario=defence_year
 #   gh workflow run measure.yml --ref <branch> -f suite=instrument      (eight shifts in parallel, then the verdict)
 #   gh workflow run measure.yml --ref <branch> -f suite=defence_seeds   (eight seeds at cadences 20 to 55 in parallel, then the verdict)
@@ -31,6 +33,14 @@ on:
         description: "For suite=instrument or sweep, the timeline shifts to play, in ticks before the opening, one job each (empty = the suite's own, 0 to 7 and 0,50,100,150)"
         type: string
         default: ''
+      base:
+        description: "For suite=sweep, a sweep's run id to pair this one with by seed and shift (T-819; empty = none). Every sweep is also paired with the drift reference"
+        type: string
+        default: ''
+      rejudge:
+        description: "For suite=sweep, a sweep's run id whose results the verdict job judges again, with no seed job played (empty = play the sweep)"
+        type: string
+        default: ''
       probe_seeds:
         description: "For suite=spirits, job_waits, making_do or making_do_player, the three-year seeds, quoted and comma-separated (empty = the suite's own; job_waits also takes \"defence\" for defence_year)"
         type: string
@@ -41,9 +51,11 @@ on:
         default: false
 permissions:
   contents: read
+  # The sweep verdict downloads another run's `sweep` artifact for `base` and `rejudge`.
+  actions: read
 jobs:
   sweep:
-    if: inputs.suite == 'sweep'
+    if: inputs.suite == 'sweep' && inputs.rejudge == ''
     runs-on: ubuntu-latest
     timeout-minutes: 120
     strategy:
@@ -92,11 +104,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - uses: actions/download-artifact@v4
+      - if: inputs.rejudge == ''
+        uses: actions/download-artifact@v4
         with:
           pattern: seed-*
           path: sweeps
           merge-multiple: true
+      - name: The results of the sweep judged again (run ${{ inputs.rejudge }})
+        if: inputs.rejudge != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          REJUDGE: ${{ inputs.rejudge }}
+        run: gh run download "$REJUDGE" -n sweep -D sweeps && rm -f sweeps/verdict.* sweeps/paired.* sweeps/drift.*
+        shell: bash
       - name: The verdict over the pooled sweeps
         env:
           THREE_YEARS_SWEEP_SAMPLES: sweeps
@@ -106,6 +127,21 @@ jobs:
         if: always()
         run: test -f sweeps/verdict.md && cat sweeps/verdict.md >> "$GITHUB_STEP_SUMMARY"
         shell: bash
+      # T-819: the paired figures, reported under the verdict and never failing it (testing-strategy.md § Judging a change by its paired seed-shifts).
+      - name: Paired with the base sweep (run ${{ inputs.base }})
+        if: always() && inputs.base != ''
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BASE: ${{ inputs.base }}
+        run: node scripts/sweep-compare.mjs "$BASE" sweeps --md sweeps/paired.md --json sweeps/paired.json > /dev/null && cat sweeps/paired.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
+      - name: The drift from master's reference (reports/data/sweep-drift-reference.json)
+        if: always()
+        continue-on-error: true
+        run: node scripts/sweep-compare.mjs reference sweeps --md sweeps/drift.md --json sweeps/drift.json > /dev/null && cat sweeps/drift.md >> "$GITHUB_STEP_SUMMARY"
+        shell: bash
       - if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -113,6 +149,8 @@ jobs:
           path: |
             sweeps/shift-*/*.json
             sweeps/verdict.*
+            sweeps/paired.*
+            sweeps/drift.*
           retention-days: 30
 
   defence-seeds:
