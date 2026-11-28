@@ -36,3 +36,7 @@ Decided in the work (ambiguity protocol):
 - [x] The sanctum's glowcap line; the earlier `hint_glowcap`; the picker with Wits and profession; UI tests.
 - [x] 25 § Trade and value, § Player-facing behavior; `caravan-goods.md` § Extra goods; `ui-keymap-and-screens.md` § Hints; `panels.md` § Zones updated (also 20 § Party, § Requests, § Movement step 4).
 - [x] The caravan-and-raid decision recorded, and built if (a).
+
+## Measured again in T-814
+
+T-798..T-800 merged (`1ebabe1d`, run 45959693912) paired with the master before them (`7f37335f`, run 46103268570): deaths 121.75 against 109.5 (+12.25, noise ± 9.3), living 1093.75 against 1157.25. Every timeline moves; deaths rose in 23 seed-shifts and fell in 19. The glowcap roll does not touch the scripted worlds (no script asks for an extra good). The raid pause swept off on master `ddbff0d0` (`t814-tmp-nopause`, run 46112657410) and paired with it (run 46111413549): deaths 119.5 against 117.25 (+2.25, noise ± 8.9), living 1157 against 1143.5. Taking the pause out does not take the deaths back, and no dwarf of the 465 that died in the master sweep was trading or hauling to the depot when first hit, so the pause stays ([T-814](T-814-master-drift-t795-t798.md)).
