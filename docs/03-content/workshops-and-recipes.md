@@ -112,7 +112,7 @@ Bone is the treeless site's first building stuff: a fossil, dug from a boneyard'
 
 | id | name | inputs | outputs | ticks | Q | xp |
 |---|---|---|---|---|---|---|
-| `craft_stone` | Stone crafts | 1 raw_stone | 3 craft (random of figurine, ring, amulet; from_input) | 150 | yes | 8 |
+| `craft_stone` | Stone crafts | 1 raw_stone | 3 craft (random of figurine, ring, amulet; from_input) | 150 | yes | 24 |
 | `craft_wood` | Wood crafts | 1 log | 3 craft | 150 | yes | 8 |
 | `craft_bone` | Bone crafts | 1 bone_pile | 2 craft (bone) | 150 | yes | 8 |
 | `craft_shell` | Shell crafts | 1 shell_piece | 2 craft (shell) | 150 | yes | 8 |
@@ -138,6 +138,8 @@ Bone is the treeless site's first building stuff: a fossil, dug from a boneyard'
 | `make_firebrand` | Firebrands | 1 log or bone_pile + 1 tallow or beeswax | 2 firebrand (from_input) | 60 | no | 2 |
 | `carve_fossil` | Carve fossil | 1 fossil | 1 figurine (from_input) | 150 | yes | 8 |
 | `carve_ivory_statue` | Ivory statue | 3 tusk | 1 statue (from_input) | 400 | yes | 15 |
+
+Stone crafts give 8 experience for each of the three crafts a job makes, 24 a job; the other crafts give 8 a job. A stone comes from one dug tile in three (03 `MINING_STONE_DROP_PERMILLE`) and the crafter walks to each, so a crafter kept on stone crafts makes well under one a day; at 24 a job one reaches level 13, where masterworks start, late in year 3 ([balance.md](balance.md) § Wealth curve). Wood, bone and shell crafts keep 8: their stuff comes without digging, and a crafter kept on wood crafts trains nearly twice as fast as a stone crafter would at 8 (crafting 11 by the end of year 3 against 8, measured in the same fortress), so at 24 wood would bring masterworks in year 2.
 
 The knapped blades are the primitive tier of the dagger and the short sword, for a fortress with no metal: obsidian cuts at 0.70 and bone at 0.50 of the blade's damage ([weapons-and-armor.md](weapons-and-armor.md) § Melee), made by a crafter with no forge and no fuel.
 

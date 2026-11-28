@@ -592,7 +592,7 @@
     "baseTicks": 150,
     "fuel": false,
     "quality": true,
-    "xp": 8
+    "xp": 24
   },
   {
     "id": "craft_wood",
