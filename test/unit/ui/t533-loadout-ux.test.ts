@@ -256,7 +256,7 @@ describe('T-533 presets, keys and leaving', () => {
     s.applyPreset('warband');
     s.key(press('p'));
     const l = lines(s);
-    expect(l.find((x) => x.includes('Balanced'))).toMatch(/Balanced +1,480 ☼ Mining x2·Woodcutting·Masonry·Farming·Cooking·Medicine/);
+    expect(l.find((x) => x.includes('Balanced'))).toMatch(/Balanced +1,486 ☼ Mining x2·Woodcutting·Masonry·Farming·Cooking·Medicine/);
     expect(l.find((x) => x.includes('Warband'))).toMatch(/Warband +1,453 ☼ Axe x2·Crossbow·Armorsmithing·Mining·Farming·Medicine/);
     expect(l.join('\n')).not.toContain('»');
     expect(s.presetOptions()[s.presets.highlighted]?.id).toBe('warband');

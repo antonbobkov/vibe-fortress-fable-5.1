@@ -163,7 +163,9 @@ describe('T-621 an alert before food rots', () => {
       }
       f.onEvents(batch);
     });
-    for (let day = 0; day < 8 && firstRot < 0; day += 1) w.step(TICKS_PER_DAY);
+    // Its food keeps 14 days (the meals) and 20 (the plants), so the first rots by day 21.
+    for (let day = 0; day < 22 && firstRot < 0; day += 1) w.step(TICKS_PER_DAY);
+    expect(firstRot).toBeGreaterThan(0);
     const alerts = f.log.lines.filter((l) => l.text.includes('food will rot within 3 days'));
     expect(alerts.length).toBeGreaterThan(0);
     const first = alerts[0]!;

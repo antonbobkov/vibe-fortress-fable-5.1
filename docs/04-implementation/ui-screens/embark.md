@@ -44,7 +44,7 @@ Supplies tab:
 │ [←][→] group  [↑][↓] select  [+][-] count  [0] none  [/] find  [l] loadouts              │
 ```
 
-On the supplies tab the hint turns over every `EMBARK_HINT_SECONDS` (5) of real time and on each tab change, through "Hint: two picks and one axe are the minimum for a working start.", "Hint: boars, wolves and bears come in the first season. Bring iron spears; clubs lose to boars." and "Hint: bring linen. Without cloth or bandages no wound can be bandaged, and a deep cut bleeds to death.", in that order; it has two lines, so a longer one wraps whole at 80 columns. A selected entry's note or unavailable condition takes its place.
+On the supplies tab the hint turns over every `EMBARK_HINT_SECONDS` (5) of real time and on each tab change, through "Hint: two picks and one axe are the minimum for a working start.", "Hint: boars, wolves and bears come in the first season. Bring an iron spear for each soldier; clubs lose to boars." and "Hint: bring linen. Without cloth or bandages no wound can be bandaged, and a deep cut bleeds to death.", in that order; it has two lines, so a longer one wraps whole at 80 columns. A selected entry's note or unavailable condition takes its place.
 
 Attributes use up to five cells, filled with `floor(value × barCells / ATTRIBUTE_MAX)`; skill bars use one cell per level. Supply groups and animal notes come from the catalog's `category` and `note`; an entry whose temperature condition fails is dim and shows that condition.
 

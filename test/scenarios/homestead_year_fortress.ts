@@ -33,8 +33,11 @@ export function createHomesteadEmbarkSession(registry: Registry, seed: string): 
   // 2. SetSupply: Drop unneeded goods to fund livestock, while keeping table, empty barrels, bags, meals
   session.apply({ type: 'SetSupply', entry: 'e_chair', count: 0 });     // -16
   session.apply({ type: 'SetSupply', entry: 'e_bed', count: 0 });       // -36
-  session.apply({ type: 'SetSupply', entry: 'e_meat', count: 0 });      // -60
-  session.apply({ type: 'SetSupply', entry: 'e_dimcaps', count: 0 });   // -24
+  session.apply({ type: 'SetSupply', entry: 'e_turnips', count: 1 });   // -24
+  session.apply({ type: 'SetSupply', entry: 'e_dimcaps', count: 0 });   // -48
+  // The homestead keeps the iron bars instead of the spear (+90, -108).
+  session.apply({ type: 'SetSupply', entry: 'e_spear_iron', count: 0 });
+  session.apply({ type: 'SetSupply', entry: 'e_bars_iron', count: 1 });
   session.apply({ type: 'SetSupply', entry: 'e_ale', count: 0 });       // -55
   session.apply({ type: 'SetSupply', entry: 'e_dimcap_ale', count: 1 }); // -55
   session.apply({ type: 'SetSupply', entry: 'e_leather', count: 0 });   // -36

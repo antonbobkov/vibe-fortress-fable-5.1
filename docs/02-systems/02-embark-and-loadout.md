@@ -39,7 +39,7 @@ For each of `EMBARK_DWARF_COUNT` dwarves, from the `embark.party` rng stream:
 
 | Preset | Skills emphasis | Supplies emphasis |
 |---|---|---|
-| `balanced` | 2 miners, 1 carpenter/woodcutter, 1 mason/builder, 1 farmer/brewer, 1 cook/herbalist, 1 medic/hunter | 2 picks, 1 axe, 1 crossbow, a week of food and half a week of drink, seeds, 2 dogs, 1 cat |
+| `balanced` | 2 miners, 1 carpenter/woodcutter, 1 mason/builder, 1 farmer/brewer, 1 cook/herbalist, 1 medic/hunter | 2 picks, 1 axe, 1 iron spear, 1 crossbow, about twenty days of food and half a week of drink, seeds, 2 dogs, 1 cat |
 | `miners_guild` | 3 miners, 1 smelter/smith, 1 mason, 1 brewer, 1 farmer | 3 picks, more drink, an anvil, iron bars |
 | `farmstead` | 2 farmers, 1 herbalist, 1 cook, 1 brewer, 1 carpenter, 1 miner | Seeds of every kind, 2 cows, 4 chickens, 2 sheep, fewer tools |
 | `warband` | 2 soldiers (axe, shield), 1 crossbow hunter, 1 armorsmith, 1 miner, 1 farmer, 1 medic | Iron weapons and mail for two, bolts, 3 war dogs, less food |

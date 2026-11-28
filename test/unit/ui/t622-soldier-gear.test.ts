@@ -6,7 +6,8 @@
  * skill bars, the equipment and clothing, the relations and the title.
  *
  * The fortress: seed `t622-gear`, the default embark (its axe and picks are tools, its crossbow a
- * launcher), a squad of three on Train preferring spears, every member's hands emptied.
+ * launcher, its one iron spear forbidden), a squad of three on Train preferring spears, every
+ * member's hands emptied.
  */
 import { beforeAll, describe, expect, it } from 'vitest';
 import { loadContent } from '@content/loader';
@@ -103,6 +104,10 @@ describe('T-622 the armed line, the stock counts and the dwarf inspector', () =>
     const squad = game.host.readers.of<CombatReader>('16').squad(squadId);
     game.host.submit({ type: 'SetSquadEquipment', squadId, equipment: { ...squad?.equipment, weaponClass: 'spear' } });
     game.host.submit({ type: 'AssignTitle', dwarfId: members[0], title: 'thane' });
+    // The wagon's iron spear is forbidden, so the stock begins with no spear to claim.
+    const wagonSpears = game.host.readers.entities.with(C.Item).filter((id) => game.host.readers.entities.get(id, C.Item)?.type === index('items', 'spear'));
+    expect(wagonSpears.length).toBe(1);
+    for (const itemId of wagonSpears) game.host.submit({ type: 'ForbidItem', itemId, on: true });
     game.host.step(1);
     // Nothing in hand: no weapon, and no tool to fight with. The test steps no further, so no claim follows.
     for (const id of members) {

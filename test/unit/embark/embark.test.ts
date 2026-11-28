@@ -156,7 +156,7 @@ describe('T-M1-04 embark: LocalMapSpec', () => {
 
 describe('T-M1-04 embark: presets and the budget', () => {
   it('the four presets price out to the documented totals, within the base budget', () => {
-    const documented: Record<string, number> = { balanced: 1480, miner_s_guild: 1490, farmstead: 1460, warband: 1453 };
+    const documented: Record<string, number> = { balanced: 1486, miner_s_guild: 1490, farmstead: 1460, warband: 1453 };
     for (const id of Object.keys(documented)) {
       const party = generateParty(new RngStream(3), registry);
       const supplies = applyPreset(registry, party, id);
@@ -165,6 +165,16 @@ describe('T-M1-04 embark: presets and the budget', () => {
       expect(total).toBeLessThanOrEqual(EMBARK_BUDGET_BASE);
       expect(canEmbark(registry, party, supplies, 0)).toEqual({ ok: true, reason: null });
     }
+  });
+
+  it('T-815 Balanced brings an iron spear for its bars, and plants for its boar meat', () => {
+    const party = generateParty(new RngStream(3), registry);
+    const supplies = applyPreset(registry, party, 'balanced');
+    const count = (entry: string): number => supplies.find((s) => s.entry === entry)?.count ?? 0;
+    expect([count('e_spear_iron'), count('e_turnips'), count('e_dimcaps')]).toEqual([1, 2, 2]);
+    expect([count('e_meat'), count('e_bars_iron')]).toEqual([0, 0]);
+    // 10 meals and 80 plants: 90 units of food, none of it raw meat that rots in six days.
+    expect(count('e_meals') * 10 + (count('e_turnips') + count('e_dimcaps')) * 20).toBe(90);
   });
 
   it('a preset gives every dwarf at most 10 points and 5 in any skill', () => {

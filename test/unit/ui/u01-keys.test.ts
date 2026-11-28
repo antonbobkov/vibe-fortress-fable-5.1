@@ -45,7 +45,7 @@ describe('U-01 embark opens with Balanced and asks before a start without a pick
   it('opens with the Balanced preset applied: a pick, food and drink, nothing to ask', () => {
     const { s, asked, embarked } = embark();
     expect(s.session.preset).toBe(EMBARK_DEFAULT_PRESET);
-    expect(s.session.total()).toBe(1480);
+    expect(s.session.total()).toBe(1486);
     expect(s.edited).toBe(false);
     expect(s.missing()).toEqual({ pick: false, axe: false, food: false, drink: false });
     s.key(press('Enter'));

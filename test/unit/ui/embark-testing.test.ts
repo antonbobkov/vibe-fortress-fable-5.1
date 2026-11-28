@@ -124,7 +124,7 @@ describe('T-532 embark screen: testing mode', () => {
     expect(s.testing).toBe(false);
     expect(s.session.party).toHaveLength(7);
     expect(s.session.items).toEqual([]);
-    expect(s.session.total()).toBe(1480);
+    expect(s.session.total()).toBe(1486);
     s.choosePreset(TESTING_PRESET_ID);
     s.key(press('Enter'));
     expect(embarked).toHaveLength(1);

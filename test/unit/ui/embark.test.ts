@@ -42,7 +42,7 @@ function text(s: EmbarkScreen): string {
 
 describe('T-M1-13 embark: budget and presets', () => {
   it('the four presets total exactly the documented sums', () => {
-    const documented: Record<string, number> = { balanced: 1480, miner_s_guild: 1490, farmstead: 1460, warband: 1453 };
+    const documented: Record<string, number> = { balanced: 1486, miner_s_guild: 1490, farmstead: 1460, warband: 1453 };
     for (const [id, total] of Object.entries(documented)) {
       const { s } = screen();
       s.applyPreset(id);
@@ -59,12 +59,12 @@ describe('T-M1-13 embark: budget and presets', () => {
     expect(s.presets.open).toBe(true);
     const t = text(s);
     expect(t).toContain('Balanced');
-    expect(t).toContain('1,480 ☼');
+    expect(t).toContain('1,486 ☼');
     // U-01 (D-U3): the screen opens with Balanced applied.
-    expect(t).toContain('Budget 1,500 ☼   Spent 1,480   Left 20');
+    expect(t).toContain('Budget 1,500 ☼   Spent 1,486   Left 14');
     s.key(press('Enter'));
     expect(s.session.preset).toBe('balanced');
-    expect(text(s)).toContain('Spent 1,480   Left 20');
+    expect(text(s)).toContain('Spent 1,486   Left 14');
   });
 
   it('asks before a preset replaces edits, the safe answer being No', () => {
@@ -85,7 +85,7 @@ describe('T-M1-13 embark: budget and presets', () => {
     s.key(press('Enter'));
     s.key(press('y'));
     expect(s.session.preset).toBe('balanced');
-    expect(s.session.total()).toBe(1480);
+    expect(s.session.total()).toBe(1486);
   });
 
   it('over budget disables Embark and says by how much', () => {

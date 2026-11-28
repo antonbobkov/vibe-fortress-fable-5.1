@@ -109,6 +109,10 @@
         "count": 1
       },
       {
+        "entry": "e_spear_iron",
+        "count": 1
+      },
+      {
         "entry": "e_crossbow",
         "count": 1
       },
@@ -126,15 +130,11 @@
       },
       {
         "entry": "e_turnips",
-        "count": 1
+        "count": 2
       },
       {
         "entry": "e_dimcaps",
-        "count": 1
-      },
-      {
-        "entry": "e_meat",
-        "count": 1
+        "count": 2
       },
       {
         "entry": "e_dimcap_ale",
@@ -178,10 +178,6 @@
       },
       {
         "entry": "e_charcoal",
-        "count": 1
-      },
-      {
-        "entry": "e_bars_iron",
         "count": 1
       },
       {

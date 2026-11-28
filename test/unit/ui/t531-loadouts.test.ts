@@ -192,7 +192,7 @@ describe('T-531 loadouts: the embark screen', () => {
     expect(h.lib.list()).toEqual([{ name: 'Deep start', ...saved }]);
     const t = text(h.s);
     expect(t).toContain('Saved Deep start.');
-    expect(t).toMatch(/► Deep start +1,588 ☼/);
+    expect(t).toMatch(/► Deep start +1,594 ☼/);
     // Back to Balanced, then load: the screen is unedited, so no question.
     h.s.key(press('Esc'));
     h.s.applyPreset('balanced');

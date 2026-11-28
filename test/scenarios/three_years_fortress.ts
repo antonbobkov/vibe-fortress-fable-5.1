@@ -157,9 +157,9 @@ export function threeYearsEmbark(registry: Registry, seed: string, peril: number
   // Boar country: three clubs lose to one boar and three iron spears do not, so the squad's
   // weapons come in the wagon. They are paid for with what this fortress never uses: the crossbow,
   // its bolts and quiver (the seventh founder is a smith, and a stray bolt hits a friend), the
-  // strawberry and flax seed, the mechanism, the leather, the table and chairs the mason makes on
-  // site, and the meat. Where the anvil comes too there is money for two spears, not three.
-  const unused = ['e_crossbow', 'e_bolts_copper', 'e_quiver', 'e_seed_strawberry', 'e_seed_flax', 'e_leather', 'e_table', 'e_chair', 'e_meat'];
+  // strawberry and flax seed, the mechanism, the leather, and the table and chairs the mason makes
+  // on site. Balanced brings one spear. Where the anvil comes too there is money for two, not three.
+  const unused = ['e_crossbow', 'e_bolts_copper', 'e_quiver', 'e_seed_strawberry', 'e_seed_flax', 'e_leather', 'e_table', 'e_chair'];
   // The mechanism stays where traps are built (perils 2 and 4, which buy one spear fewer).
   for (const entry of peril >= 2 ? unused : [...unused, 'e_mechanism']) {
     const rDrop = session.apply({ type: 'SetSupply', entry, count: 0 });
@@ -168,17 +168,21 @@ export function threeYearsEmbark(registry: Registry, seed: string, peril: number
   const rSpears = session.apply({ type: 'SetSupply', entry: 'e_spear_iron', count: peril >= 2 ? SQUAD_SIZE - 1 : SQUAD_SIZE });
   if (!rSpears.ok) throw new Error(`threeYearsEmbark SetSupply e_spear_iron failed: ${rSpears.reason}`);
   if (peril >= 2) {
-    if (session.budget() < session.total() + 270) {
-      // At peril 2, budget is 1700 (+200 peril bonus over 1500 base). Balanced preset is 1480 (+220 unspent).
-      // e_anvil costs 270 marks, requiring 50 marks. A player drops starter furniture
-      // (1 table = 10, 2 chairs = 16, 2 beds = 24; total 50 marks saved)
-      // which the carpenter and mason craft on site, balancing the budget to exactly 1700/1700.
+    // The anvil (270 marks) and, since Balanced brings no bars, five iron bars (90) for the forge's
+    // first kit on day 1, as a player who buys an anvil buys something to forge.
+    const forging = 270 + 90;
+    if (session.budget() < session.total() + forging) {
+      // At peril 2 the budget is 1700 (+200 peril bonus over the 1500 base), and the trimmed loadout
+      // with its two spears is 1360, 20 marks short. A player drops two of the three starter beds
+      // (24 marks; the table and chairs are already gone), which the carpenter makes on site.
       session.apply({ type: 'SetSupply', entry: 'e_table', count: 0 });
       session.apply({ type: 'SetSupply', entry: 'e_chair', count: 0 });
       session.apply({ type: 'SetSupply', entry: 'e_bed', count: 1 });
     }
     const rSupply = session.apply({ type: 'SetSupply', entry: 'e_anvil', count: 1 });
     if (!rSupply.ok) throw new Error(`threeYearsEmbark SetSupply e_anvil failed: ${rSupply.reason}`);
+    const rBars = session.apply({ type: 'SetSupply', entry: 'e_bars_iron', count: 1 });
+    if (!rBars.ok) throw new Error(`threeYearsEmbark SetSupply e_bars_iron failed: ${rBars.reason}`);
   }
   const rConfirm = session.apply({ type: 'ConfirmEmbark' });
   if (!rConfirm.ok) throw new Error(`threeYearsEmbark ConfirmEmbark failed: ${rConfirm.reason}`);

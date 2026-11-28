@@ -126,7 +126,9 @@ Preset supplies are matched to catalog entries by their unit count and exact pri
 
 Skills: two dwarves mining 5 + building 3 + axe 2; one woodcutting 5 + carpentry 5; one masonry 5 + mechanics 3 + building 2; one farming 5 + brewing 5; one cooking 5 + herbalism 3 + fishing 2; one medicine 4 + crossbow 3 + hunting 3.
 
-Supplies: 2 iron picks (216), 1 iron axe (144), 1 crossbow (36), 25 copper bolts (60), 1 quiver (22), 10 easy meals (120), 20 turnips (24), 20 dimcaps (24), 10 boar meat (60), 2 barrels of dimcap ale (110), 1 barrel of ale (55), 2 empty barrels (16), dimcap seeds ×2 (30), cavewheat seeds (15), barley seeds (15), turnip seeds (15), strawberry seeds (27), flax seeds (27), 5 pine logs (12), 5 charcoal (18), 5 iron bars (90), 1 mechanism (12), 5 leather (36), 5 linen (48), 5 thread (18), 5 brightleaf (24), 4 splints (10), 2 buckets (10), 2 linen bags (40), 3 pine beds (36), 1 pine table (10), 2 pine chairs (16), 2 dogs (72), 1 cat (12); **total 1,480**.
+Supplies: 2 iron picks (216), 1 iron axe (144), 1 iron spear (108), 1 crossbow (36), 25 copper bolts (60), 1 quiver (22), 10 easy meals (120), 40 turnips (48), 40 dimcaps (48), 2 barrels of dimcap ale (110), 1 barrel of ale (55), 2 empty barrels (16), dimcap seeds ×2 (30), cavewheat seeds (15), barley seeds (15), turnip seeds (15), strawberry seeds (27), flax seeds (27), 5 pine logs (12), 5 charcoal (18), 1 mechanism (12), 5 leather (36), 5 linen (48), 5 thread (18), 5 brightleaf (24), 4 splints (10), 2 buckets (10), 2 linen bags (40), 3 pine beds (36), 1 pine table (10), 2 pine chairs (16), 2 dogs (72), 1 cat (12); **total 1,486**.
+
+The spear arms the first soldier, since clubs lose to boars. It is paid for with the five iron bars, which wait for an anvil Balanced does not bring: a spear is what a forge would make of one. The food is 90 units that keep 20 days or more on the ground (14 days for the meals), about 20 days for seven dwarves and 27 with the food in barrels; the alert before food rots warns before it goes.
 
 ### Miner's Guild (1,490)
 
@@ -151,7 +153,8 @@ Peril budget bonus (`EMBARK_BUDGET_PER_PERIL` × peril) stays unspent for the pl
 ## Rules of thumb (hints on the embark screen)
 
 - Two picks and one axe are the minimum for a working start.
-- A season of food and drink for seven dwarves is about 100 food units and 150 drink units; the presets carry roughly half and expect farming and hunting to cover the rest by autumn.
+- A season of food and drink for seven dwarves is about 100 food units and 150 drink units; the presets carry half to nine tenths of the food (Balanced 90) and under half of the drink, and expect farming and hunting to cover the rest by autumn.
+- Boars, wolves and bears come in the first season. Bring an iron spear for each soldier: clubs lose to boars. Balanced brings one.
 - Seeds of at least one cave crop keep the fortress fed through winter.
 - Bring linen: without cloth or bandages no wound can be bandaged, and a serious cut bleeds until it is (17 § Patients and hospitals). Every preset carries five, and no workshop takes them while they are the dressings the fortress keeps (12 § Cloth kept for dressings): a bed order stuffs its beds with wool or straw.
 - Two dogs spot thieves; a cat controls nothing (there is no vermin in version 1) but everyone loves it.

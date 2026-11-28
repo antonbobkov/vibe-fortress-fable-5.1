@@ -497,7 +497,7 @@ test('full-year', async ({ page }) => {
   await page.keyboard.press('p');
   await expect.poll(() => textOf(page)).toContain('Balanced');
   await page.keyboard.press('Enter');
-  await expect.poll(() => textOf(page)).toContain('Spent 1,480');
+  await expect.poll(() => textOf(page)).toContain('Spent 1,486');
   await page.keyboard.press('Enter');
   await expect.poll(() => screenOf(page), { timeout: 60_000 }).toBe('fortress');
 
